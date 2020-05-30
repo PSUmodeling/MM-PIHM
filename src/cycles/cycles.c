@@ -14,7 +14,7 @@ void Cycles(int t, elem_struct elem[])
     doy = Doy(year, month, day);
 
 #if defined(_DEBUG_)
-    PIHMprintf(VL_BRIEF, "DOY %d\n", doy);
+    pihm_printf(VL_BRIEF, "DOY %d\n", doy);
 #endif
 
 #if defined(_OPENMP)

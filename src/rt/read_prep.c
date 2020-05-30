@@ -16,8 +16,8 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     char            chemn[MAXSTRING];
     char            cmdstr[MAXSTRING];
 
-    fp = PIHMfopen(filen, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(filen, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
 
     forc->nprcpc = CountOccurr(fp, "PRCP_CONC_TS");
 
@@ -35,12 +35,12 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
             match = sscanf(cmdstr, "%*s %d %*s %d", &tsind, &nsps[i]);
             if (match != 2 || i != tsind - 1)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading the %dth precipitation concentration"
                     " time series.\n", i + 1);
-                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filen, lno);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
             /* Skip header lines */
             NextLine(fp, cmdstr, &lno);
@@ -62,26 +62,26 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                 if (sscanf(cmdstr + bytes_consumed, "%s%n", chemn,
                     &bytes_now) != 1)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading precipitation conc. "
                         "in %s near Line %d.\n", filen, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
                 bytes_consumed += bytes_now;
 
                 index[j] = FindChem(chemn, chemtbl, rttbl->num_stc);
                 if (index[j] < rttbl->num_spc)
                 {
-                    PIHMprintf(VL_VERBOSE,
+                    pihm_printf(VL_VERBOSE,
                         "  Precipitation concentration of '%s' "
                         "is a time series.\n", chemn);
                 }
                 else
                 {
-                    PIHMprintf(VL_VERBOSE,
+                    pihm_printf(VL_VERBOSE,
                         "Error: Precipitation species index is larger than "
                         "number of primary species.\n");
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
             }
 

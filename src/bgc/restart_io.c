@@ -171,8 +171,8 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
     FILE           *init_file;
     int             i;
 
-    init_file = PIHMfopen(fn, "rb");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
+    init_file = pihm_fopen(fn, "rb");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
 #if defined(_LUMPED_)
     i = LUMPED;
@@ -217,8 +217,8 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
 
     sprintf(restart_fn, "%s/restart/%s.bgcic", outputdir, project);
 
-    restart_file = PIHMfopen(restart_fn, "wb");
-    PIHMprintf(VL_VERBOSE, "Writing BGC initial conditions.\n");
+    restart_file = pihm_fopen(restart_fn, "wb");
+    pihm_printf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
 #if defined(_LUMPED_)
     i = LUMPED;

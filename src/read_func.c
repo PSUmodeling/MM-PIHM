@@ -60,7 +60,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 match = sscanf(buffer, "%s %lf", optstr, (double *)value);
                 if (match != 2 || strcasecmp(keyword, optstr) != 0)
                 {
-                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
@@ -69,7 +69,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 match = sscanf(buffer, "%s %d", optstr, (int *)value);
                 if (match != 2 || strcasecmp(keyword, optstr) != 0)
                 {
-                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
@@ -78,7 +78,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 match = sscanf(buffer, "%s %[^\n]", optstr, (char *)value);
                 if (match != 2 || strcasecmp(keyword, optstr) != 0)
                 {
-                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
@@ -87,7 +87,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 match = sscanf(buffer, "%s %s", optstr, (char *)value);
                 if (match != 2 || strcasecmp(keyword, optstr) != 0)
                 {
-                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
@@ -96,7 +96,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
                 if (match != 3 || strcasecmp(keyword, optstr) != 0)
                 {
-                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
@@ -107,16 +107,16 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                 }
                 break;
             default:
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error: Keyword type \'%c\' is not defined.\n", type);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
         }
     }
 
     if (!success)
     {
-        PIHMprintf(VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
+        pihm_exit(EXIT_FAILURE);
     }
 
     return success;
@@ -133,9 +133,9 @@ int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
     match = sscanf(buffer, "%s %s", optstr, ctrlstr);
     if (match != 2 || strcasecmp(keyword, optstr) != 0)
     {
-        PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+        pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
             "detected keyword \"%s\".\n", keyword, optstr);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     if (strcasecmp(ctrlstr, "YEARLY") == 0)
@@ -159,9 +159,9 @@ int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
         match = sscanf(ctrlstr, "%d", &prtvrbl);
         if (match != 1)
         {
-            PIHMprintf(VL_ERROR, "Unknown output control option %s "
+            pihm_printf(VL_ERROR, "Unknown output control option %s "
                 "in %s near Line %d.\n", ctrlstr, filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 

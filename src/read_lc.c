@@ -9,8 +9,8 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
     int             index;
     int             lno = 0;
 
-    lc_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    lc_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading land cover file */
     NextLine(lc_file, cmdstr, &lno);
@@ -50,11 +50,11 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
             &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading properties of the %dth landcover type.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 

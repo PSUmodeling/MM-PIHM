@@ -5,7 +5,7 @@ void ReadAlloc(pihm_struct pihm)
     char            proj[MAXSTRING];
     char           *token;
 
-    PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
+    pihm_printf(VL_VERBOSE, "\nRead input files:\n");
 
     strcpy(proj, project);
     if (strstr(proj, ".") != 0)

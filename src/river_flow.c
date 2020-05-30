@@ -335,10 +335,10 @@ double OutletFlux(int down, const river_wstate_struct *ws,
             discharge = crossa * sqrt(GRAV * ws->stage);
             break;
         default:
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: River routing boundary condition type (%d) "
                 "is not recognized.\n", down);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
     }
 
     return discharge;
@@ -449,9 +449,9 @@ double RiverCroSectArea(int order, double depth, double coeff)
                 3.0 * pow(depth, 4.0 / 3.0) / (2.0 * pow(coeff, 1.0 / 3.0));
             break;
         default:
-            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+            pihm_printf(VL_ERROR, "Error: River order %d is not defined.\n",
                 order);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
     }
 
     return cs_area;
@@ -484,9 +484,9 @@ double RiverPerim(int order, double depth, double coeff)
                 (9.0 * pow(coeff, 1.0 / 3.0))));
             break;
         default:
-            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+            pihm_printf(VL_ERROR, "Error: River order %d is not defined.\n",
                 order);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
     }
 
     return perim;

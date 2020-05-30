@@ -15,15 +15,15 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FILE           *chem_fp;
     FILE           *db_fp;
 
-    chem_fp = PIHMfopen(chem_filen, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
+    chem_fp = pihm_fopen(chem_filen, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", chem_filen);
 
-    db_fp = PIHMfopen(cdbs_filen, "r");
+    db_fp = pihm_fopen(cdbs_filen, "r");
 
     /*
      * Runtime block
      */
-    PIHMprintf(VL_VERBOSE, "\n Runtime block\n");
+    pihm_printf(VL_VERBOSE, "\n Runtime block\n");
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
@@ -32,11 +32,11 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     switch (ctrl->read_rt_restart)
     {
         case 0:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Concentrations will be initialized using .cini\n");
             break;
         case 1:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Concentrations will be initialized using .rtic\n");
             break;
         default:
@@ -48,19 +48,19 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         chem_filen, lno);
     if (ctrl->write_rt_restart)
     {
-        PIHMprintf(VL_VERBOSE,
+        pihm_printf(VL_VERBOSE,
             "  Concentrations will be written into .rtic\n");
     }
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "ACTIVITY", &rttbl->actv_mode, 'i', chem_filen, lno);
     /* 0 for unity activity coefficient and 1 for DH equation update */
-    PIHMprintf(VL_VERBOSE, "  Activity correction is set to %d. \n",
+    pihm_printf(VL_VERBOSE, "  Activity correction is set to %d. \n",
         rttbl->actv_mode);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "THERMO", &rttbl->tmp_coup, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Coupling of thermo modelling is set to %d. \n",
+    pihm_printf(VL_VERBOSE, "  Coupling of thermo modelling is set to %d. \n",
         rttbl->tmp_coup);
 
     NextLine(chem_fp, cmdstr, &lno);
@@ -68,11 +68,11 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     switch (rttbl->rel_min)
     {
         case 0:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Using absolute mineral volume fraction. \n");
             break;
         case 1:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Using relative mineral volume fraction. \n");
             break;
         default:
@@ -84,10 +84,10 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     switch (rttbl->transpt_flag)
     {
         case KIN_REACTION:
-            PIHMprintf(VL_VERBOSE, "  Transport only mode disabled.\n");
+            pihm_printf(VL_VERBOSE, "  Transport only mode disabled.\n");
             break;
         case TRANSPORT_ONLY:
-            PIHMprintf(VL_VERBOSE, "  Transport only mode enabled. \n");
+            pihm_printf(VL_VERBOSE, "  Transport only mode enabled. \n");
             break;
             /* under construction. */
         default:
@@ -99,14 +99,14 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     switch (forc->PrpFlg)
     {
         case 0:
-            PIHMprintf(VL_VERBOSE, "  No precipitation condition. \n");
+            pihm_printf(VL_VERBOSE, "  No precipitation condition. \n");
             break;
         case 1:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Precipitation condition is to be specified. \n");
             break;
         case 2:
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Precipitation condition is specified via file *.prep. \n");
             break;
         default:
@@ -115,14 +115,14 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "RT_DELAY", &ctrl->RT_delay, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE,
+    pihm_printf(VL_VERBOSE,
         "  Flux-PIHM-RT will start after running PIHM for %d seconds. \n",
         ctrl->RT_delay);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CONDENSATION", &rttbl->cond, 'd',
         chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
+    pihm_printf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
         "is set to be %f times of concentrations in precipitation. \n",
         rttbl->cond);
 
@@ -130,15 +130,15 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     ReadKeyword(cmdstr, "AVGSCL", &ctrl->AvgScl, 'i', chem_filen, lno);
     if (ctrl->AvgScl < ctrl->stepsize || ctrl->AvgScl % ctrl->stepsize > 0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Reaction step size "
             "should be an integral multiple of model step size.\n");
-        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", chem_filen, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", chem_filen, lno);
+        pihm_exit(EXIT_FAILURE);
     }
     else
     {
-        PIHMprintf(VL_VERBOSE,
+        pihm_printf(VL_VERBOSE,
             "  Averaging window for asynchronous reaction %d seconds.\n",
             ctrl->AvgScl);
     }
@@ -147,7 +147,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     ctrl->prtvrbl[CHEM_CTRL] = ReadPrtCtrl(cmdstr, "OUTINTVL", chem_filen, lno);
     if (ctrl->prtvrbl[CHEM_CTRL] > 0)
     {
-        PIHMprintf(VL_VERBOSE, "  Chemical concentration output interval "
+        pihm_printf(VL_VERBOSE, "  Chemical concentration output interval "
             "is set to %d seconds.\n", ctrl->prtvrbl[CHEM_CTRL]);
     }
     else if (ctrl->prtvrbl[CHEM_CTRL] < 0)
@@ -155,63 +155,63 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         switch (ctrl->prtvrbl[CHEM_CTRL])
         {
             case -1:
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "  Chemical concentration output is yearly.\n");
                 break;
             case -2:
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "  Chemical concentration output is monthly.\n");
                 break;
             case -3:
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "  Chemical concentration output is daily.\n");
                 break;
             case -4:
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "  Chemical concentration output is hourly.\n");
                 break;
         }
     }
     else
     {
-        PIHMprintf(VL_VERBOSE,
+        pihm_printf(VL_VERBOSE,
             "  Chemical concentration output is turned off.\n");
     }
 
     /*
      * Global block
      */
-    PIHMprintf(VL_VERBOSE, "\n Global block\n");
+    pihm_printf(VL_VERBOSE, "\n Global block\n");
     FindLine(chem_fp, "GLOBAL", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "T_SPECIES", &rttbl->num_stc, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d chemical species specified. \n", rttbl->num_stc);
+    pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n", rttbl->num_stc);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "S_SPECIES", &rttbl->num_ssc, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d secondary species specified. \n", rttbl->num_ssc);
+    pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n", rttbl->num_ssc);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "MIN_SPECIES", &rttbl->num_min, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->num_min);
+    pihm_printf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->num_min);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "ADSORPTION", &rttbl->num_ads, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d surface complexation specified. \n", rttbl->num_ads);
+    pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n", rttbl->num_ads);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CATION_EXCHANGE", &rttbl->num_cex, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->num_cex);
+    pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->num_cex);
 
     /* The number of species that are mobile */
     rttbl->num_spc = rttbl->num_stc - (rttbl->num_min + rttbl->num_ads + rttbl->num_cex);
     if (rttbl->num_spc <= 0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: number of total species should be larger than the sum of "
             " mineral, surface complexation, and cation exchange species.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
     nsolute = rttbl->num_spc;
 
@@ -219,50 +219,50 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     rttbl->num_sdc = rttbl->num_stc - rttbl->num_min;
     if (rttbl->num_sdc < 0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: number of total species should not be smaller than number "
             "of minerals.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "MINERAL_KINETIC", &rttbl->num_mkr, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
+    pihm_printf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
         rttbl->num_mkr);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "AQUEOUS_KINETIC", &rttbl->num_akr, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  %d aqueous kinetic reaction(s) specified. \n",
+    pihm_printf(VL_VERBOSE, "  %d aqueous kinetic reaction(s) specified. \n",
         rttbl->num_akr);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DIFFUSION", &rttbl->diff_coef, 'd', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->diff_coef);
+    pihm_printf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->diff_coef);
     rttbl->diff_coef /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DISPERSION", &rttbl->disp_coef, 'd', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n", rttbl->disp_coef);
+    pihm_printf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n", rttbl->disp_coef);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CEMENTATION", &rttbl->cementation, 'd', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Cementation factor = %2.1f \n", rttbl->cementation);
+    pihm_printf(VL_VERBOSE, "  Cementation factor = %2.1f \n", rttbl->cementation);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "TEMPERATURE", &rttbl->tmp, 'd', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
+    pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
 
     /*
      * Primary species block
      */
-    PIHMprintf(VL_VERBOSE, "\n Primary species block\n");
+    pihm_printf(VL_VERBOSE, "\n Primary species block\n");
     FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_filen);
     for (i = 0; i < rttbl->num_stc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%s", chemn[i]) != 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading primary_species in %s near Line %d.\n",
                 chem_filen, lno);
         }
@@ -274,14 +274,14 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Secondary_species block
      */
-    PIHMprintf(VL_VERBOSE, "\n Secondary species block\n");
+    pihm_printf(VL_VERBOSE, "\n Secondary species block\n");
     FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
     for (i = 0; i < rttbl->num_ssc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%s", chemtbl[rttbl->num_stc + i].name) != 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading secondary_species in %s near Line %d.\n",
                 chem_filen, lno);
         }
@@ -290,20 +290,20 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Minerals block
      */
-    PIHMprintf(VL_VERBOSE, "\n Minerals block\n");
+    pihm_printf(VL_VERBOSE, "\n Minerals block\n");
     FindLine(chem_fp, "MINERALS", &lno, chem_filen);
     for (i = 0; i < rttbl->num_mkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%s %*s %s", temp_str, kintbl[i].label) != 2)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading mineral information in %s near Line %d.\n",
                 chem_filen, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
 
-        PIHMprintf(VL_VERBOSE,
+        pihm_printf(VL_VERBOSE,
             "  Kinetic reaction on '%s' is specified, label '%s'.\n",
             temp_str, kintbl[i].label);
 
@@ -311,13 +311,13 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
         if (kintbl[i].position < 0)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error finding mineral %s in species table.\n", temp_str);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
         else
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "  Position_check (num_mkr[i] vs num_stc[j]) (%d, %d)\n",
                 i, kintbl[i].position);
         }
@@ -326,11 +326,11 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Precipitation block
      */
-    PIHMprintf(VL_VERBOSE, "\n Precipitation concentration block\n");
+    pihm_printf(VL_VERBOSE, "\n Precipitation concentration block\n");
     FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
-    PIHMprintf(VL_VERBOSE, "  ---------------------------------\n");
-    PIHMprintf(VL_VERBOSE, "  The condition of precipitation is \n");
-    PIHMprintf(VL_VERBOSE, "  ---------------------------------\n");
+    pihm_printf(VL_VERBOSE, "  ---------------------------------\n");
+    pihm_printf(VL_VERBOSE, "  The condition of precipitation is \n");
+    pihm_printf(VL_VERBOSE, "  ---------------------------------\n");
 
     for (i = 0; i < rttbl->num_stc; i++)
     {
@@ -342,18 +342,18 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         NextLine(chem_fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%s %lf", temp_str, &conc) != 2)
         {
-            PIHMprintf(VL_ERROR, "Error reading precipitation concentration "
+            pihm_printf(VL_ERROR, "Error reading precipitation concentration "
                 "in %s near Line %d.\n", chem_filen, lno);
         }
         chem_ind = FindChem(temp_str, chemtbl, rttbl->num_stc);
         if (chem_ind < 0)
         {
-            PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
+            pihm_exit(EXIT_FAILURE);
         }
         else
         {
-            PIHMprintf(VL_VERBOSE, "  %-28s %g \n",
+            pihm_printf(VL_VERBOSE, "  %-28s %g \n",
                 chemtbl[chem_ind].name, conc);
 
             if (strcasecmp(chemtbl[chem_ind].name, "pH") == 0)
@@ -378,11 +378,11 @@ int ParseLocation(const char str[], const char filen[], int lno)
 
     if (strstr(str, ":") == 0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: location format error in %s near Line %d.\n"
             "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", "
             "where XX is the index of grid.\n", filen, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
     sscanf(str, "%[^:]:%d", type_str, &loc);
     if (strcasecmp(type_str, "UNSAT") == 0)
@@ -399,11 +399,11 @@ int ParseLocation(const char str[], const char filen[], int lno)
     }
     else
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: location format error in %s near Line %d.\n"
             "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", "
             "where XX is the index of grid.\n", filen, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     return loc;

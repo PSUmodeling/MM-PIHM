@@ -477,12 +477,12 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
 
     if (ctrl->cstep == 0)
     {
-        PIHMprintf(VL_NORMAL, "\n");
+        pihm_printf(VL_NORMAL, "\n");
     }
 
     if (debug_mode)
     {
-        PIHMprintf(VL_NORMAL, "\033[1A\rStep = %s (t = %d)\n",
+        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (t = %d)\n",
             pihm_time.str, *t);
         ProgressBar(progress);
     }
@@ -490,13 +490,13 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
     {
         if (pihm_time.t % DAYINSEC == 0)
         {
-            PIHMprintf(VL_NORMAL, "\033[1A\rStep = %s\n", pihm_time.str);
+            pihm_printf(VL_NORMAL, "\033[1A\rStep = %s\n", pihm_time.str);
             ProgressBar(progress);
         }
     }
     else if (pihm_time.t % 3600 == 0)
     {
-        PIHMprintf(VL_NORMAL, "\033[1A\rStep = %s (cputime %8.2f s)\n",
+        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (cputime %8.2f s)\n",
             pihm_time.str, cputime);
         ProgressBar(progress);
     }

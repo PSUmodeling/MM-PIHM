@@ -50,15 +50,15 @@
 #endif
 
 /* PIHM system function */
-#define PIHMexit(...)           _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
-#define PIHMprintf(...)         _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
-#define PIHMfopen               _custom_fopen
+#define pihm_exit(...)          _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
+#define pihm_printf(...)        _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
+#define pihm_fopen              _custom_fopen
 #if defined(_WIN32) || defined(_WIN64)
-# define PIHMmkdir(path)        _mkdir((path))
-# define PIHMaccess(path, amode) _access((path), (amode))
+# define pihm_mkdir(path)       _mkdir((path))
+# define pihm_access(path, amode) _access((path), (amode))
 #else
-# define PIHMmkdir(path)        mkdir(path, 0755)
-# define PIHMaccess(path, amode) access((path), (amode))
+# define pihm_mkdir(path)       mkdir(path, 0755)
+# define pihm_access(path, amode) access((path), (amode))
 #endif
 #if defined(_MSC_VER)
 # define timegm                 _mkgmtime
@@ -67,9 +67,9 @@
 #endif
 
 #if defined(_CYCLES_)
-#define Cycles_exit             PIHMexit
-#define Cycles_fopen            PIHMfopen
-#define Cycles_printf           PIHMprintf
+#define cycles_exit             pihm_exit
+#define cycles_fopen            pihm_fopen
+#define cycles_printf           pihm_printf
 #endif
 
 #define MIN(x, y)               (((x) < (y)) ? (x) : (y))

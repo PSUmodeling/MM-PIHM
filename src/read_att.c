@@ -9,8 +9,8 @@ void ReadAtt(const char *filename, atttbl_struct *atttbl)
     int             index;
     int             lno = 0;
 
-    att_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    att_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     atttbl->soil = (int *)malloc(nelem * sizeof(int));
     atttbl->geol = (int *)malloc(nelem * sizeof(int));
@@ -35,10 +35,10 @@ void ReadAtt(const char *filename, atttbl_struct *atttbl)
             &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 10)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading attribute of the %dth element.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 

@@ -31,7 +31,7 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
         if (ice_file == NULL)
         {
             read_ice_flag = 0;
-            PIHMprintf(VL_NORMAL,
+            pihm_printf(VL_NORMAL,
                 "Optional input file *.ice is not available. "
                 "Glacier ice depth will be initialized as 0.5 m.\n");
         }

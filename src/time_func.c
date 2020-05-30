@@ -50,9 +50,9 @@ int StrTime(const char *timestr)
             timestamp->tm_isdst = 0;
             break;
         default:
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error converting from time string to time.\n");
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
     }
 
     t = (int)timegm(timestamp);

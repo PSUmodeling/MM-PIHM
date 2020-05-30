@@ -6,7 +6,7 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
     int             i;
     int             epc_ind;
 
-    PIHMprintf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
+    pihm_printf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
 #if defined(_LUMPED_)
     i = LUMPED;
@@ -23,10 +23,10 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
             epc_ind != IGBP_GRASS - 1 &&
             epc_ind != IGBP_CLOSE_SHRUB - 1 && epc_ind != IGBP_OPEN_SHRUB - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
                 elem[i].attrib.lc_type);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
 
         elem[i].epc.woody = epctbl->woody[epc_ind];

@@ -14,7 +14,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     int             chem_ind;
     FILE           *fp;
 
-    fp = PIHMfopen(cdbs_filen, "r");
+    fp = pihm_fopen(cdbs_filen, "r");
 
     /*
      * Look up database to find required parameters and dependencies for
@@ -93,7 +93,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     /*
      * Initializing element concentrations
      */
-    PIHMprintf(VL_VERBOSE, "\n Initializing concentrations... \n");
+    pihm_printf(VL_VERBOSE, "\n Initializing concentrations... \n");
 
     for (i = 0; i < nelem; i++)
     {

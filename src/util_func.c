@@ -68,12 +68,12 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 #if defined(_OPENMP)
                 printf("Paralleled with OpenMP\n");
 #endif
-                PIHMexit(EXIT_SUCCESS);
+                pihm_exit(EXIT_SUCCESS);
                 break;
             case '?':
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Option not recognizable %s\n", options.errmsg);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
                 break;
             default:
                 break;
@@ -84,17 +84,17 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 
     if (options.optind >= argc)
     {
-        PIHMprintf(VL_ERROR, "Error:You must specify the name of project!\n");
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR, "Error:You must specify the name of project!\n");
+        pihm_printf(VL_ERROR,
             "Usage: ./pihm [-o output_dir] [-c] [-d] [-t] [-v] [-V]"
             " <project name>\n");
-        PIHMprintf(VL_ERROR, "    -o Specify output directory\n");
-        PIHMprintf(VL_ERROR, "    -b Brief mode\n");
-        PIHMprintf(VL_ERROR, "    -c Correct surface elevation\n");
-        PIHMprintf(VL_ERROR, "    -d Debug mode\n");
-        PIHMprintf(VL_ERROR, "    -V Version number\n");
-        PIHMprintf(VL_ERROR, "    -v Verbose mode\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "    -o Specify output directory\n");
+        pihm_printf(VL_ERROR, "    -b Brief mode\n");
+        pihm_printf(VL_ERROR, "    -c Correct surface elevation\n");
+        pihm_printf(VL_ERROR, "    -d Debug mode\n");
+        pihm_printf(VL_ERROR, "    -V Version number\n");
+        pihm_printf(VL_ERROR, "    -v Verbose mode\n");
+        pihm_exit(EXIT_FAILURE);
     }
     else
     {
@@ -123,9 +123,9 @@ void CreateOutputDir(char *outputdir)
         strcpy(proj, project);
     }
 
-    if (0 == (PIHMmkdir("output")))
+    if (0 == (pihm_mkdir("output")))
     {
-        PIHMprintf(VL_NORMAL, "Output directory was created.\n\n");
+        pihm_printf(VL_NORMAL, "Output directory was created.\n\n");
     }
 
     if (outputdir[0] == '\0')
@@ -137,32 +137,32 @@ void CreateOutputDir(char *outputdir)
         sprintf(outputdir, "output/%s.%s/", proj, str);
     }
 
-    if (PIHMmkdir(outputdir) != 0)
+    if (pihm_mkdir(outputdir) != 0)
     {
         if (errno != EEXIST)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error creating output directory %s\n", outputdir);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
         else
         {
-            PIHMprintf(VL_NORMAL,
+            pihm_printf(VL_NORMAL,
                 "Output directory %s already exists. Overwriting.\n",
                 outputdir);
         }
     }
     else
     {
-        PIHMprintf(VL_NORMAL, "Output directory %s was created.\n", outputdir);
+        pihm_printf(VL_NORMAL, "Output directory %s was created.\n", outputdir);
     }
 
     sprintf(icdir, "%srestart/", outputdir);
-    if (PIHMmkdir(icdir) != 0 && errno != EEXIST)
+    if (pihm_mkdir(icdir) != 0 && errno != EEXIST)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error creating restart directory %s\n", outputdir);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 }
 
@@ -171,19 +171,19 @@ void BackupInput(const char *outputdir, const filename_struct *filename)
     char            system_cmd[MAXSTRING];
 
     /* Save input files into output directory */
-    if (PIHMaccess(filename->para, F_OK) != -1)
+    if (pihm_access(filename->para, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.para.bak",
             filename->para, outputdir, project);
         system(system_cmd);
     }
-    if (PIHMaccess(filename->calib, F_OK) != -1)
+    if (pihm_access(filename->calib, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.calib.bak",
             filename->calib, outputdir, project);
         system(system_cmd);
     }
-    if (PIHMaccess(filename->ic, F_OK) != -1)
+    if (pihm_access(filename->ic, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.ic.bak",
             filename->ic, outputdir, project);
@@ -195,9 +195,9 @@ void CheckCVodeFlag(int cv_flag)
 {
     if (cv_flag < 0)
     {
-        PIHMprintf(VL_ERROR, "CVODE error %s\n",
+        pihm_printf(VL_ERROR, "CVODE error %s\n",
             CVodeGetReturnFlagName(cv_flag));
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 }
 

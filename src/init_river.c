@@ -96,9 +96,9 @@ double RiverEqWid(int order, double depth, double coeff)
                 pow(coeff, 1.0 / ((double)order - 1.0));
             break;
         default:
-            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+            pihm_printf(VL_ERROR, "Error: River order %d is not defined.\n",
                 order);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
     }
 
     return eq_wid;

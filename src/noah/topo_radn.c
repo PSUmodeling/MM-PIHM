@@ -68,8 +68,8 @@ void SunPos(const siteinfo_struct *siteinfo, int t, spa_data *spa)
 
     if (spa_result != 0)
     {
-        PIHMprintf(VL_ERROR, "Error with spa error code: %d.\n", spa_result);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error with spa error code: %d.\n", spa_result);
+        pihm_exit(EXIT_FAILURE);
     }
 
 }

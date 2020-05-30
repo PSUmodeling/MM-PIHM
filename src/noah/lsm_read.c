@@ -15,8 +15,8 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     /*
      * Open *.lsm file
      */
-    lsm_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    lsm_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
      * Start reading lsm_file
@@ -33,11 +33,11 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     ReadKeyword(cmdstr, "NSOIL", &ctrl->nlayers, 'i', filename, lno);
     if (ctrl->nlayers > MAXLYR - 1)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "The number of soil layers should not be larger than %d.\n",
             MAXLYR - 1);
-        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+        pihm_exit(EXIT_FAILURE);
     }
 
     NextLine(lsm_file, cmdstr, &lno);
@@ -49,9 +49,9 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
             &bytes_now);
         if (match != 1)
         {
-            PIHMprintf(VL_ERROR, "Error reading soil layer depths.\n");
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error reading soil layer depths.\n");
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
         bytes_consumed += bytes_now;
     }
@@ -144,8 +144,8 @@ void ReadRad(const char *filename, forc_struct *forc)
     char            cmdstr[MAXSTRING];
     int             lno = 0;
 
-    rad_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    rad_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     FindLine(rad_file, "BOF", &lno, filename);
 
@@ -153,11 +153,11 @@ void ReadRad(const char *filename, forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "The number of radiation forcing time series should be the same as "
             "the number of meteorological forcing time series.\n");
-        PIHMprintf(VL_ERROR, "Error in %s.\n", filename);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error in %s.\n", filename);
+        pihm_exit(EXIT_FAILURE);
     }
 
     forc->rad = (tsdata_struct *)malloc(forc->nrad * sizeof(tsdata_struct));
@@ -171,11 +171,11 @@ void ReadRad(const char *filename, forc_struct *forc)
 
         if (i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading the %dth radiation forcing time series.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
 
         /* Skip header lines */
@@ -216,8 +216,8 @@ void ReadGlacierIce(const char filename[], double iceh[])
     int             index;
     int             lno = 0;
 
-    ice_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    ice_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(ice_file, cmdstr, &lno);
     for (i = 0; i < nelem; i++)
@@ -226,11 +226,11 @@ void ReadGlacierIce(const char filename[], double iceh[])
         match = sscanf(cmdstr, "%d %lf", &index, &iceh[i]);
         if (match != 2)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading glacier ice depth of the %dth element.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 

@@ -10,8 +10,8 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     int             index;
     int             lno = 0;
 
-    riv_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    riv_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
      * Read river segment block
@@ -46,10 +46,10 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
             &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading river attribute for the %dth segment.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -75,11 +75,11 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
             &shptbl->depth[i], &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading river shape description for the %dth shape.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -105,10 +105,10 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
             &matltbl->ksath[i]);
         if (match != 4 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading description of the %dth material.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -130,25 +130,25 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
                 &index, &forc->riverbc[i].bc_type);
             if (match != 2 || i != index - 1)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading description "
                     "of the %dth river boundary condition.\n", i);
-                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
             if (forc->riverbc[i].bc_type != DIRICHLET &&
                 forc->riverbc[i].bc_type != NEUMANN)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading the %dth river boundary condition "
                     "time series.\n", i + 1);
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Boundary condition type should be "
                     "either Dirichlet (1) or Neumann (2).\n");
-                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
             NextLine(riv_file, cmdstr, &lno);
             NextLine(riv_file, cmdstr, &lno);
@@ -176,11 +176,11 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
                 if (!ReadTS(cmdstr, &forc->riverbc[i].ftime[j],
                         &forc->riverbc[i].data[j][0], 1))
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading river boundary condition.\n");
-                    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
             }
         }

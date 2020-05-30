@@ -25,11 +25,11 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
 
     if (elem_ptr->attrib.lc_type > lctbl->number)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Land cover type %d for Element %d "
             "is not in the vegetation file.",
             elem_ptr->attrib.lc_type, elem_ptr->ind);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     lc_ind = elem_ptr->attrib.lc_type - 1;

@@ -9,8 +9,8 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     int             index;
     int             lno = 0;
 
-    mesh_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    mesh_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
      * Read element mesh block
@@ -21,9 +21,9 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
 #if defined(_TGM_)
     if (nelem != 2)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Number of elements should be 2 in two-grid model.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 #endif
 
@@ -45,10 +45,10 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
             &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading mesh description of the %dth element.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -75,10 +75,10 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
             &meshtbl->zmin[i], &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading description of the %dth node!\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 

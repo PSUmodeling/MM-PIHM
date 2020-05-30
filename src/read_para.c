@@ -13,8 +13,8 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
         ctrl->prtvrbl[i] = 0;
     }
 
-    para_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    para_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading para_file */
     /* Read through parameter file to find parameters */
@@ -55,10 +55,10 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     if (end_time.t <= start_time.t)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: simulation end time should be after start time.\n");
-        PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Please check your .para input file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
     else if (spinup_mode)
     {
@@ -67,11 +67,11 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
             start_time.hour != end_time.hour ||
             start_time.minute != end_time.minute)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: In BGC spinup mode, "
                 "simulation period should be full years.\n");
-            PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Please check your .para input file.\n");
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -198,7 +198,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 #if defined(_CYCLES_)
     if (ctrl->etstep != DAYINSEC)
     {
-        PIHMprintf(VL_ERROR, "Warning: When coupled to Cycles, daily land "
+        pihm_printf(VL_ERROR, "Warning: When coupled to Cycles, daily land "
             "surface step is required. Thus land\nsurface model step is "
             "changed to daily (86400 seconds).\n\n");
         ctrl->etstep = DAYINSEC;
@@ -207,10 +207,10 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Land surface model (ET) step size "
             "should be an integral multiple of model step size.\n");
-        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+        pihm_exit(EXIT_FAILURE);
     }
 }

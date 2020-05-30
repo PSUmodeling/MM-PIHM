@@ -13,8 +13,8 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
     int             lno = 0;
     int             convert = 0;
 
-    fp = PIHMfopen(filen, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(filen, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
 
     atttbl->prcpc = (int *)malloc(nelem * sizeof(int));
     atttbl->chem_ic = (int **)malloc(nelem * sizeof(int *));
@@ -38,11 +38,11 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
 
         if (match != NCHMVOL + 2)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading chemistry attribute of the %dth element.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -74,8 +74,8 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
             ind = FindChem(temp_str, chemtbl, num_stc);
             if (ind < 0)
             {
-                PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", temp_str);
-                PIHMexit(EXIT_FAILURE);
+                pihm_printf(VL_ERROR, "Error finding chemical %s.\n", temp_str);
+                pihm_exit(EXIT_FAILURE);
             }
 
             if (chemtbl[ind].itype == MINERAL)
@@ -83,7 +83,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
                 if (sscanf(cmdstr, "%*s %lf %*s %lf",
                     &chmictbl->conc[i][ind], &chmictbl->ssa[i][ind]) !=2)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
@@ -92,7 +92,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
             {
                 if (sscanf(cmdstr, "%*s %lf", &chmictbl->conc[i][ind]) != 1)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }

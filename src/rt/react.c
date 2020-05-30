@@ -562,13 +562,13 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     {
         if (roundi(substep) != roundi(stepsize))
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " Reaction passed with minimum step of %f s.\n", substep);
         }
     }
     else
     {
-        PIHMprintf(VL_VERBOSE, " Reaction failed.\n");
+        pihm_printf(VL_VERBOSE, " Reaction failed.\n");
     }
 
     for (k = 0; k < rttbl->num_spc; k++)

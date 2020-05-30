@@ -89,24 +89,24 @@ int SoilTex(double silt, double clay)
 
     if (silt < 0.0 || silt > 1.0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Silt percentage (%lf) out of range.\n", silt * 100.0);
-        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Please check your soil input file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
     if (clay < 0.0 || clay > 1.0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Clay percentage (%lf) out of range.\n", clay * 100.0);
-        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Please check your soil input file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
     if (sand < 0.0 || sand > 1.0)
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error: Sand percentage (%lf) out of range.\n", sand * 100.0);
-        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Please check your soil input file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     if (silt + 1.5 * clay < 0.15)
@@ -163,8 +163,8 @@ int SoilTex(double silt, double clay)
     }
     else
     {
-        PIHMprintf(VL_ERROR, "Error: Soil texture %d not defined.\n", texture);
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error: Soil texture %d not defined.\n", texture);
+        pihm_exit(EXIT_FAILURE);
     }
 
     return texture;
@@ -213,9 +213,9 @@ double Qtz(int texture)
             qtz = 0.25;
             break;
         default:
-            PIHMprintf(VL_ERROR, "Error: Soil texture %d not defined.\n",
+            pihm_printf(VL_ERROR, "Error: Soil texture %d not defined.\n",
                 texture);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
             break;
     }
 

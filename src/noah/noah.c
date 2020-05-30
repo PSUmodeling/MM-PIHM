@@ -142,7 +142,7 @@ void NoahHydrol(elem_struct *elem, double dt)
     {
         if (isnan(elem[i].ns.no3[k]))
         {
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 # endif
@@ -164,7 +164,7 @@ void NoahHydrol(elem_struct *elem, double dt)
         {
             noah_soilm += elem[i].ws.smc[k] * elem[i].ps.soil_depth[k];
         }
-        PIHMprintf(VL_NORMAL, "%d: %lf, %lf\n", i + 1, pihm_soilm, noah_soilm);
+        pihm_printf(VL_NORMAL, "%d: %lf, %lf\n", i + 1, pihm_soilm, noah_soilm);
     }
 # endif
 #endif
@@ -313,9 +313,9 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->sndens = ws->sneqv / ps->snowh;
         if (ps->sndens > 1.0)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: Physical snow depth is less than snow water equiv.\n");
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
 
         ps->sncond = CSnow(ps->sndens);

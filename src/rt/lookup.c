@@ -27,9 +27,9 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         &keq_position);
     if (keq_position == BADVAL)
     {
-        PIHMprintf(VL_ERROR, "Error reading temperature points "
+        pihm_printf(VL_ERROR, "Error reading temperature points "
             "in %s near Line %d", ".cdbs", lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     /*
@@ -46,9 +46,9 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     ReadDHParam(cmdstr, keq_position, &rttbl->adh);
     if (roundi(rttbl->adh) == BADVAL)
     {
-        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+        pihm_printf(VL_ERROR, "Error reading Debye Huckel parameters "
             "in %s near Line %d", ".cdbs", lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdh'") != 0)
@@ -58,9 +58,9 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     ReadDHParam(cmdstr, keq_position, &rttbl->bdh);
     if (roundi(rttbl->bdh) == BADVAL)
     {
-        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+        pihm_printf(VL_ERROR, "Error reading Debye Huckel parameters "
             "in %s near Line %d", ".cdbs", lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdt'") != 0)
@@ -70,12 +70,12 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     ReadDHParam(cmdstr, keq_position, &rttbl->bdt);
     if (roundi(rttbl->bdt) == BADVAL)
     {
-        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+        pihm_printf(VL_ERROR, "Error reading Debye Huckel parameters "
             "in %s near Line %d", ".cdbs", lno);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
-    PIHMprintf(VL_VERBOSE,
+    pihm_printf(VL_VERBOSE,
         " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
         rttbl->adh, rttbl->bdh, rttbl->bdt);
 
@@ -148,7 +148,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     for (i = 0; i < rttbl->num_mkr + rttbl->num_akr; i++)
     {
         ind = kintbl[i].position - rttbl->num_stc + rttbl->num_min;
-        PIHMprintf(VL_VERBOSE,
+        pihm_printf(VL_VERBOSE,
             " Selecting the kinetic species %s from all possible species.\n\n",
             chemtbl[kintbl[i].position].name);
         rttbl->keq_kin[i] = keq_kin_all[ind];
@@ -215,60 +215,60 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     }
     if (rttbl->num_ssc > 0)
     {
-        PIHMprintf(VL_VERBOSE, " \n Dependency Matrix!\n");
+        pihm_printf(VL_VERBOSE, " \n Dependency Matrix!\n");
 
-        PIHMprintf(VL_VERBOSE, "%-15s", " ");
+        pihm_printf(VL_VERBOSE, "%-15s", " ");
         for (i = 0; i < rttbl->num_sdc; i++)
         {
-            PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].name);
+            pihm_printf(VL_VERBOSE, "%-14s", chemtbl[i].name);
         }
-        PIHMprintf(VL_VERBOSE, "\n");
+        pihm_printf(VL_VERBOSE, "\n");
 
         for (i = 0; i < rttbl->num_ssc; i++)
         {
-            PIHMprintf(VL_VERBOSE, " %-14s",
+            pihm_printf(VL_VERBOSE, " %-14s",
                 chemtbl[i + rttbl->num_stc].name);
             for (j = 0; j < rttbl->num_sdc; j++)
             {
-                PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->dep_mtx[i][j]);
+                pihm_printf(VL_VERBOSE, "%-14.2f", rttbl->dep_mtx[i][j]);
             }
-            PIHMprintf(VL_VERBOSE, " %6.2f\n", rttbl->keq[i]);
+            pihm_printf(VL_VERBOSE, " %6.2f\n", rttbl->keq[i]);
         }
     }
 
-    PIHMprintf(VL_VERBOSE, " \n Total Concentration Matrix!\n");
-    PIHMprintf(VL_VERBOSE, "%-18s", " ");
+    pihm_printf(VL_VERBOSE, " \n Total Concentration Matrix!\n");
+    pihm_printf(VL_VERBOSE, "%-18s", " ");
     for (i = 0; i < rttbl->num_stc + rttbl->num_ssc; i++)
     {
-        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].name);
+        pihm_printf(VL_VERBOSE, "%-14s", chemtbl[i].name);
     }
-    PIHMprintf(VL_VERBOSE, "\n");
+    pihm_printf(VL_VERBOSE, "\n");
     for (i = 0; i < rttbl->num_stc; i++)
     {
-        PIHMprintf(VL_VERBOSE, " Sum%-14s", chemtbl[i].name);
+        pihm_printf(VL_VERBOSE, " Sum%-14s", chemtbl[i].name);
         for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
         {
-            PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->conc_contrib[i][j]);
+            pihm_printf(VL_VERBOSE, "%-14.2f", rttbl->conc_contrib[i][j]);
         }
-        PIHMprintf(VL_VERBOSE, "\n");
+        pihm_printf(VL_VERBOSE, "\n");
     }
 
-    PIHMprintf(VL_VERBOSE, " \n Kinetic Mass Matrx!\n");
-    PIHMprintf(VL_VERBOSE, "%-15s", " ");
+    pihm_printf(VL_VERBOSE, " \n Kinetic Mass Matrx!\n");
+    pihm_printf(VL_VERBOSE, "%-15s", " ");
     for (i = 0; i < rttbl->num_stc; i++)
     {
-        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].name);
+        pihm_printf(VL_VERBOSE, "%-14s", chemtbl[i].name);
     }
-    PIHMprintf(VL_VERBOSE, "\n");
+    pihm_printf(VL_VERBOSE, "\n");
     for (j = 0; j < rttbl->num_mkr + rttbl->num_akr; j++)
     {
-        PIHMprintf(VL_VERBOSE, " %-14s",
+        pihm_printf(VL_VERBOSE, " %-14s",
             chemtbl[j + rttbl->num_spc + rttbl->num_ads + rttbl->num_cex].name);
         for (i = 0; i < rttbl->num_stc; i++)
         {
-            PIHMprintf(VL_VERBOSE, "%-14f", rttbl->dep_kin[j][i]);
+            pihm_printf(VL_VERBOSE, "%-14f", rttbl->dep_kin[j][i]);
         }
-        PIHMprintf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->keq_kin[j]);
+        pihm_printf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->keq_kin[j]);
     }
 
 #if NOT_YET_IMPLEMENTED
@@ -283,25 +283,25 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
             "'CO2(*g)'")) ? log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
-    PIHMprintf(VL_VERBOSE, "\n Kinetic Mass Matrix (calibrated Keq)! \n");
-    PIHMprintf(VL_VERBOSE, "%-15s", " ");
+    pihm_printf(VL_VERBOSE, "\n Kinetic Mass Matrix (calibrated Keq)! \n");
+    pihm_printf(VL_VERBOSE, "%-15s", " ");
     for (i = 0; i < rttbl->num_stc; i++)
-        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].name);
-    PIHMprintf(VL_VERBOSE, "\n");
+        pihm_printf(VL_VERBOSE, "%-14s", chemtbl[i].name);
+    pihm_printf(VL_VERBOSE, "\n");
     for (j = 0; j < rttbl->num_mkr + rttbl->num_akr; j++)
     {
-        PIHMprintf(VL_VERBOSE, " %-14s",
+        pihm_printf(VL_VERBOSE, " %-14s",
             chemtbl[j + rttbl->num_spc + rttbl->num_ads + rttbl->num_cex].name);
         for (i = 0; i < rttbl->num_stc; i++)
         {
-            PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->Dep_kinetic[j][i]);
+            pihm_printf(VL_VERBOSE, "%-14.2f", rttbl->Dep_kinetic[j][i]);
         }
-        PIHMprintf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
+        pihm_printf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
     }
-    PIHMprintf(VL_VERBOSE, "\n");
+    pihm_printf(VL_VERBOSE, "\n");
 #endif
 
-    PIHMprintf(VL_VERBOSE,
+    pihm_printf(VL_VERBOSE,
         " \n Mass action species type determination "
         "(0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < rttbl->num_spc; i++)
@@ -315,16 +315,16 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
                 chemtbl[j].itype != chemtbl[i].mtype) ?
                 MIXED_MA : chemtbl[i].mtype;
         }
-        PIHMprintf(VL_VERBOSE, " %12s    %10d\n",
+        pihm_printf(VL_VERBOSE, " %12s    %10d\n",
             chemtbl[i].name, chemtbl[i].mtype);
     }
 
-    PIHMprintf(VL_VERBOSE,
+    pihm_printf(VL_VERBOSE,
         " \n Individual species type determination "
         "(1: aqueous, 2: adsorption, 3: ion exchange, 4: solid)\n");
     for (i = 0; i < rttbl->num_stc + rttbl->num_ssc; i++)
     {
-        PIHMprintf(VL_VERBOSE, " %12s    %10d\n",
+        pihm_printf(VL_VERBOSE, " %12s    %10d\n",
             chemtbl[i].name, chemtbl[i].itype);
     }
 }
@@ -383,7 +383,7 @@ void ReadTempPoints(const char cmdstr[], double tmp, int *total_points,
         if (fabs(val - tmp) < 1.0E-5)
         {
             *keq_position = i + 1;
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 "\n Temperature point %.2f found in database (Pos. %d).\n\n",
                     val, *keq_position);
             return;
@@ -424,12 +424,12 @@ void ReadPrimary(const char cmdstr[], int num_stc, chemtbl_struct chemtbl[])
             if (sscanf(cmdstr, "'%*[^']' %lf %lf %lf", &chemtbl[i].size_fac,
                 &chemtbl[i].charge, &chemtbl[i].molar_mass) != 3)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading primary species parameters for %s\n",
                     chemtbl[i].name);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " Primary species %s found in database.\n"
                 " molar_mass = %6.4f\n\n",
                 chemtbl[i].name, chemtbl[i].molar_mass);
@@ -459,10 +459,10 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
 
         if (MatchWrappedKey(chemn, chemtbl[ind].name) == 0)
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " Secondary species %s found in database!\n",
                 chemtbl[ind].name);
-            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            pihm_printf(VL_VERBOSE, " %s", cmdstr);
             chemtbl[ind].itype = AQUEOUS;
 
             for (j = 0; j < ndep; j++)
@@ -488,7 +488,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
                     sscanf(cmdstr + bytes_consumed, "%lf%n", &rttbl->keq[i],
                         &bytes_now);
                     bytes_consumed += bytes_now;
-                    PIHMprintf(VL_VERBOSE,
+                    pihm_printf(VL_VERBOSE,
                         " Keq = %6.4f\n", rttbl->keq[i]);
                 }
                 else
@@ -500,7 +500,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
 
             sscanf(cmdstr + bytes_consumed, "%lf %lf %lf", &chemtbl[ind].size_fac,
                 &chemtbl[ind].charge, &chemtbl[ind].molar_mass);
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " molar_mass = %6.4f, Charge = %6.4f,"
                 " SizeFactor = %6.4f\n\n",
                 chemtbl[ind].molar_mass, chemtbl[ind].charge,
@@ -535,9 +535,9 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
 
         if (MatchWrappedKey(chemn, chemtbl[ind].name) == 0)
         {
-            PIHMprintf(VL_VERBOSE, " Mineral %s found in database!\n",
+            pihm_printf(VL_VERBOSE, " Mineral %s found in database!\n",
                 chemtbl[ind].name);
-            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            pihm_printf(VL_VERBOSE, " %s", cmdstr);
 
             chemtbl[ind].molar_vol = mvol;
             chemtbl[ind].itype = MINERAL;
@@ -592,10 +592,10 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
 
             pot_dep[i][ind] = -1.0;
 
-            PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n",
+            pihm_printf(VL_VERBOSE, " Keq = %6.4f\n",
                 keq_kin_all[i]);
             chemtbl[ind].charge = 0;
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " molar_mass = %6.4f, molar_vol = %6.4f\n\n",
                 chemtbl[ind].molar_mass, chemtbl[ind].molar_vol);
 
@@ -630,10 +630,10 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
 
         if (strcmp(chemtbl[ind].name, chemn) == 0)
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " Secondary surface complexation %s found in database!\n",
                 chemtbl[ind].name);
-            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            pihm_printf(VL_VERBOSE, " %s", cmdstr);
             chemtbl[ind].itype = ADSORPTION;
             for (j = 0; j < ndep; j++)
             {
@@ -659,7 +659,7 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
                     sscanf(cmdstr + bytes_consumed, "%lf%n", &rttbl->keq[i],
                         &bytes_now);
                     bytes_consumed += bytes_now;
-                    PIHMprintf(VL_VERBOSE,
+                    pihm_printf(VL_VERBOSE,
                         " Keq = %6.4f\n", rttbl->keq[i]);
                 }
                 else
@@ -697,10 +697,10 @@ void ReadCationEchg(const char cmdstr[], double calval,
 
         if (strcmp(chemtbl[ind].name, chemn) == 0)
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " Secondary ion exchange %s found in database!\n",
                 chemtbl[ind].name);
-            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            pihm_printf(VL_VERBOSE, " %s", cmdstr);
             chemtbl[ind].itype = CATION_ECHG;
             for (j = 0; j < ndep; j++)
             {
@@ -719,10 +719,10 @@ void ReadCationEchg(const char cmdstr[], double calval,
                 }
             }
             sscanf(cmdstr + bytes_consumed, "%lf", &rttbl->keq[i]);
-            PIHMprintf(VL_VERBOSE, " Keq = %6.4f \n", rttbl->keq[i]);
+            pihm_printf(VL_VERBOSE, " Keq = %6.4f \n", rttbl->keq[i]);
 
             rttbl->keq[i] += calval;
-            PIHMprintf(VL_VERBOSE, " After calibration: Keq = %6.4f \n",
+            pihm_printf(VL_VERBOSE, " After calibration: Keq = %6.4f \n",
                 rttbl->keq[i]);
         }
     }
@@ -748,7 +748,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
 
         if (strcmp(kintbl->label, label) == 0)
         {
-            PIHMprintf(VL_VERBOSE,
+            pihm_printf(VL_VERBOSE,
                 " \n Mineral kinetics %s %s found in database!\n",
                 chemtbl[kintbl->position].name, kintbl->label);
 
@@ -780,10 +780,10 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             }
             else
             {
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "Error: Cannot find  mineral kinetics type in .cdbs "
                     "near Line %d.\n");
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
 
             /* Read rate */
@@ -791,19 +791,19 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             sscanf(cmdstr, "%s = %lf", optstr, &kintbl->rate);
             if (strcmp(optstr, "rate(25C)") == 0)
             {
-                PIHMprintf(VL_VERBOSE, " Rate is %f\n", kintbl->rate);
+                pihm_printf(VL_VERBOSE, " Rate is %f\n", kintbl->rate);
 
                 kintbl->rate += calval;
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     " After calibration: Rate is %f, cal->Rate = %f \n",
                     kintbl->rate, calval);
             }
             else
             {
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "Error: Cannot find  mineral kinetics rate in .cdbs "
                     "near Line %d.\n");
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
 
             /* Read activation */
@@ -811,14 +811,14 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             sscanf(cmdstr, "%s = %lf", optstr, &kintbl->actv);
             if (strcmp(optstr, "activation") == 0)
             {
-                PIHMprintf(VL_VERBOSE, " Activation is %f\n", kintbl->actv);
+                pihm_printf(VL_VERBOSE, " Activation is %f\n", kintbl->actv);
             }
             else
             {
-                PIHMprintf(VL_VERBOSE,
+                pihm_printf(VL_VERBOSE,
                     "Error: Cannot find  mineral kinetics activation in .cdbs "
                     "near Line %d.\n");
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
 
             kintbl->ndep = 0;
@@ -846,18 +846,18 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
                             FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->dep_index[0] < 0)
                         {
-                            PIHMprintf(VL_ERROR,
+                            pihm_printf(VL_ERROR,
                                 "Error finding dependence in species table.\n");
-                            PIHMexit(EXIT_FAILURE);
+                            pihm_exit(EXIT_FAILURE);
                         }
                         kintbl->ndep = 1;
                         kintbl->dep_power[0] = temp;
-                        PIHMprintf(VL_VERBOSE, " Dependency: %s %f\n",
+                        pihm_printf(VL_VERBOSE, " Dependency: %s %f\n",
                             chemn, kintbl->dep_power[0]);
                     }
                     else
                     {
-                        PIHMprintf(VL_VERBOSE, " No dependency.\n");
+                        pihm_printf(VL_VERBOSE, " No dependency.\n");
                     }
                 }
                 else if (strcmp(optstr, "biomass") == 0)
@@ -865,11 +865,11 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
                     /* Biomass term */
                     sscanf(cmdstr, "%*s : %s", chemn);
                     wrap(chemn);
-                    PIHMprintf(VL_VERBOSE, " Biomass species: %s \n",
+                    pihm_printf(VL_VERBOSE, " Biomass species: %s \n",
                         chemn);
                     kintbl->biomass_index =
                         FindChem(chemn, chemtbl, num_stc);
-                    PIHMprintf(VL_VERBOSE,
+                    pihm_printf(VL_VERBOSE,
                         " Biomass species position: %d \n",
                         kintbl->biomass_index);
                 }
@@ -886,13 +886,13 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
                             FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->monod_index[kintbl->nmonod] < 0)
                         {
-                            PIHMprintf(VL_ERROR,
+                            pihm_printf(VL_ERROR,
                                 "Error finding monod_terms in species "
                                 "table.\n");
-                            PIHMexit(EXIT_FAILURE);
+                            pihm_exit(EXIT_FAILURE);
                         }
                         kintbl->monod_para[kintbl->nmonod] = temp;
-                        PIHMprintf(VL_VERBOSE,
+                        pihm_printf(VL_VERBOSE,
                             " Monod term: %s %f\n",
                             chemn, kintbl->monod_para[kintbl->nmonod]);
                         kintbl->nmonod++;
@@ -911,13 +911,13 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
                             FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->inhib_index[kintbl->ninhib] < 0)
                         {
-                            PIHMprintf(VL_ERROR,
+                            pihm_printf(VL_ERROR,
                                 "Error finding inhibition term in "
                                 "species table.\n");
-                            PIHMexit(EXIT_FAILURE);
+                            pihm_exit(EXIT_FAILURE);
                         }
                         kintbl->inhib_para[kintbl->ninhib] = temp;
-                        PIHMprintf(VL_VERBOSE,
+                        pihm_printf(VL_VERBOSE,
                             " Inhibition term: %s %f\n",
                             chemn, kintbl->inhib_para[kintbl->ninhib]);
                         kintbl->ninhib++;

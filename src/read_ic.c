@@ -6,8 +6,8 @@ void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
     int             i;
     int             size;
 
-    ic_file = PIHMfopen(filename, "rb");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    ic_file = pihm_fopen(filename, "rb");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     fseek(ic_file, 0L, SEEK_END);
     size = ftell(ic_file);
@@ -15,11 +15,11 @@ void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
     if (size !=
         (int)(sizeof(ic_struct) * nelem + sizeof(river_ic_struct) * nriver))
     {
-        PIHMprintf(VL_ERROR,
+        pihm_printf(VL_ERROR,
             "Error in initial condition file %s.\n"
             "The file size does not match requirement.\n", filename);
-        PIHMprintf(VL_ERROR, "Please use a correct initial condition file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Please use a correct initial condition file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     fseek(ic_file, 0L, SEEK_SET);

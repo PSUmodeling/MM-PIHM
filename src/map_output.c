@@ -18,7 +18,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
     int             n;
     char            ext[MAXSTRING];
 
-    PIHMprintf(VL_VERBOSE, "\nInitializing PIHM output files\n");
+    pihm_printf(VL_VERBOSE, "\nInitializing PIHM output files\n");
 
     n = 0;
 
@@ -1001,10 +1001,10 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
     if (n > MAXPRINT)
     {
-        PIHMprintf(VL_ERROR, "Error: Too many output files. ");
-        PIHMprintf(VL_ERROR, "The maximum number of output files is %d.\n",
+        pihm_printf(VL_ERROR, "Error: Too many output files. ");
+        pihm_printf(VL_ERROR, "The maximum number of output files is %d.\n",
             MAXPRINT);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     print->nprint = n;
@@ -1015,7 +1015,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
     int             n;
     char            ext[MAXSTRING];
 
-    PIHMprintf(VL_VERBOSE, "\nInitializing PIHM output files\n");
+    pihm_printf(VL_VERBOSE, "\nInitializing PIHM output files\n");
 
     n = 0;
 
@@ -1198,10 +1198,10 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
     if (n > MAXPRINT)
     {
-        PIHMprintf(VL_ERROR, "Error: Too many output files. ");
-        PIHMprintf(VL_ERROR, "The maximum number of output files is %d.\n",
+        pihm_printf(VL_ERROR, "Error: Too many output files. ");
+        pihm_printf(VL_ERROR, "The maximum number of output files is %d.\n",
             MAXPRINT);
-        PIHMexit(EXIT_FAILURE);
+        pihm_exit(EXIT_FAILURE);
     }
 
     print->nprint = n;

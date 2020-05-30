@@ -9,8 +9,8 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
     int             index;
     int             lno = 0;
 
-    geol_file = PIHMfopen (filename, "r");
-    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
+    geol_file = pihm_fopen (filename, "r");
+    pihm_printf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */
     NextLine (geol_file, cmdstr, &lno);
@@ -41,10 +41,10 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
 
         if (match != 10 || i != index - 1)
         {
-            PIHMprintf (VL_ERROR,
+            pihm_printf (VL_ERROR,
                 "Error reading properties of the %dth geology type.\n", i + 1);
-            PIHMprintf (VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit (EXIT_FAILURE);
+            pihm_printf (VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit (EXIT_FAILURE);
         }
     }
 

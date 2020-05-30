@@ -17,14 +17,14 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 #endif
 
-    PIHMprintf(VL_VERBOSE, "\n\nInitialize data structure\n");
+    pihm_printf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
     /* Allocate memory for solver */
     *cvode_mem = CVodeCreate(CV_BDF);
     if (*cvode_mem == NULL)
     {
-        PIHMprintf(VL_ERROR, "Error in allocating memory for solver.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error in allocating memory for solver.\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     /*
@@ -293,7 +293,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
     double          nabr_zmax;
     double          new_elevation;
 
-    PIHMprintf(VL_VERBOSE, "Correct surface elevation.\n");
+    pihm_printf(VL_VERBOSE, "Correct surface elevation.\n");
 
     for (i = 0; i < nelem; i++)
     {
@@ -318,11 +318,11 @@ void CorrElev(elem_struct *elem, river_struct *river)
 
         if (sink == 1)
         {
-            PIHMprintf(VL_NORMAL, "Element %d is a sink\n", i + 1);
+            pihm_printf(VL_NORMAL, "Element %d is a sink\n", i + 1);
 
             /* Note: Following correction is being applied for correction
              * mode only */
-            PIHMprintf(VL_NORMAL, "    Before: surface %lf, "
+            pihm_printf(VL_NORMAL, "    Before: surface %lf, "
                 "bedrock %lf. Neighbors surface:",
                 elem[i].topo.zmax, elem[i].topo.zmin);
 
@@ -336,7 +336,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
                         river[elem[i].nabr_river[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ?
                         nabr_zmax : new_elevation;
-                    PIHMprintf(VL_NORMAL, " (%d)%lf", j + 1,
+                    pihm_printf(VL_NORMAL, " (%d)%lf", j + 1,
                         (elem[i].nabr_river[j] == 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
                         river[elem[i].nabr_river[j] - 1].topo.zmax);
@@ -349,7 +349,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
             /* Apply new surface elevation */
             elem[i].topo.zmax = new_elevation;
 
-            PIHMprintf(VL_NORMAL, ". Corrected = %lf, %lf\n",
+            pihm_printf(VL_NORMAL, ". Corrected = %lf, %lf\n",
                 elem[i].topo.zmax, elem[i].topo.zmin);
         }
     }
@@ -361,7 +361,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
             if (river[i].topo.zbed < river[river[i].down - 1].topo.zbed)
             {
                 river_flag = 1;
-                PIHMprintf(VL_NORMAL,
+                pihm_printf(VL_NORMAL,
                     "River %d is lower than downstream River %d.\n",
                     i + 1, river[i].down);
             }
@@ -372,7 +372,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
                 river[i].topo.node_zmax - river[i].shp.depth)
             {
                 river_flag = 1;
-                PIHMprintf(VL_NORMAL,
+                pihm_printf(VL_NORMAL,
                     "River outlet is higher than the channel (River %d).\n",
                     i + 1);
             }
@@ -381,7 +381,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
 
     if (river_flag == 1)
     {
-        PIHMprintf(VL_NORMAL, "\nRiver elevation correction needed "
+        pihm_printf(VL_NORMAL, "\nRiver elevation correction needed "
             "but PIHM will continue without fixing river elevation.\n\n");
     }
 }
@@ -476,9 +476,9 @@ double _WsAreaElev(int type, const elem_struct *elem)
                 break;
             default:
                 ans = BADVAL;
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error: Return value type %d id not defined.\n", type);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
         }
     }
 

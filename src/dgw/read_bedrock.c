@@ -10,8 +10,8 @@ void ReadBedrock(const char *filename, atttbl_struct *atttbl,
     int             index;
     int             lno = 0;
 
-    br_file = PIHMfopen (filename, "r");
-    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
+    br_file = pihm_fopen (filename, "r");
+    pihm_printf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading bedrock file */
     /* Read fbr boundary conditions */
@@ -32,11 +32,11 @@ void ReadBedrock(const char *filename, atttbl_struct *atttbl,
             &atttbl->fbr_bc[i][2]);
         if (match != 4 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading boundary condition type for fractured bedrock"
                 "layer of the %dth element.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -51,10 +51,10 @@ void ReadBedrock(const char *filename, atttbl_struct *atttbl,
         match = sscanf (cmdstr, "%d %lf", &index, &meshtbl->zbed[i]);
         if (match != 2 || i != index - 1)
         {
-            PIHMprintf (VL_ERROR,
+            pihm_printf (VL_ERROR,
                 "Error reading bedrock description of the %dth node.\n", i + 1);
-            PIHMprintf (VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit (EXIT_FAILURE);
+            pihm_printf (VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit (EXIT_FAILURE);
         }
     }
 

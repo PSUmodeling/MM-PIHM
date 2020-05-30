@@ -54,8 +54,8 @@ void ReadBc(const char *filename, forc_struct *forc,
 
     if (read_bc)
     {
-        bc_file = PIHMfopen(filename, "r");
-        PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+        bc_file = pihm_fopen(filename, "r");
+        pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
         FindLine(bc_file, "BOF", &lno, filename);
 
@@ -74,25 +74,25 @@ void ReadBc(const char *filename, forc_struct *forc,
                     &index, &forc->bc[i].bc_type);
                 if (match != 2 || i != index - 1)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading the %dth boundary condition "
                         "time series.\n", i + 1);
-                    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
                 if (forc->bc[i].bc_type != DIRICHLET &&
                     forc->bc[i].bc_type != NEUMANN)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading the %dth boundary condition "
                         "time series.\n", i + 1);
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Boundary condition type should be "
                         "either Dirichlet (1) or Neumann (2).\n");
-                    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
 #if defined(_RT_)
                 int             k;
@@ -118,16 +118,16 @@ void ReadBc(const char *filename, forc_struct *forc,
 
                         if (ind[k] < 0)
                         {
-                            PIHMprintf(VL_ERROR, "Error finding chemical %s.\n",
+                            pihm_printf(VL_ERROR, "Error finding chemical %s.\n",
                                 chemn);
-                            PIHMexit(EXIT_FAILURE);
+                            pihm_exit(EXIT_FAILURE);
                         }
                     }
                     else
                     {
-                        PIHMprintf(VL_ERROR,
+                        pihm_printf(VL_ERROR,
                             "Error reading primary species concentrations.\n");
-                        PIHMexit(EXIT_FAILURE);
+                        pihm_exit(EXIT_FAILURE);
                     }
                 }
 
@@ -171,11 +171,11 @@ void ReadBc(const char *filename, forc_struct *forc,
                         &forc->bc[i].data[j][0], 1))
 #endif
                     {
-                        PIHMprintf(VL_ERROR,
+                        pihm_printf(VL_ERROR,
                             "Error reading boundary condition.");
-                        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                             filename, lno);
-                        PIHMexit(EXIT_FAILURE);
+                        pihm_exit(EXIT_FAILURE);
                     }
 #if defined(_RT_)
                     else

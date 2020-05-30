@@ -514,15 +514,15 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
 
     if (t < ts->ftime[0])
     {
-        PIHMprintf(VL_ERROR, "Error finding forcing for current time step.\n");
-        PIHMprintf(VL_ERROR, "Please check your forcing file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n");
+        pihm_printf(VL_ERROR, "Please check your forcing file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
     else if (t > ts->ftime[ts->length - 1])
     {
-        PIHMprintf(VL_ERROR, "Error finding forcing for current time step.\n");
-        PIHMprintf(VL_ERROR, "Please check your forcing file.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n");
+        pihm_printf(VL_ERROR, "Please check your forcing file.\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     first = 1;

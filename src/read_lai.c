@@ -23,8 +23,8 @@ void ReadLai(const char *filename, forc_struct *forc,
 
     if (read_lai)
     {
-        lai_file = PIHMfopen(filename, "r");
-        PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+        lai_file = pihm_fopen(filename, "r");
+        pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
         /* Start reading lai_file */
         FindLine(lai_file, "BOF", &lno, filename);
@@ -44,11 +44,11 @@ void ReadLai(const char *filename, forc_struct *forc,
 
                 if (i != index - 1)
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading the %dth LAI time series.\n", i + 1);
-                    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
                 /* Skip header lines */
                 NextLine(lai_file, cmdstr, &lno);
@@ -76,10 +76,10 @@ void ReadLai(const char *filename, forc_struct *forc,
                     if (!ReadTS(cmdstr, &forc->lai[i].ftime[j],
                         &forc->lai[i].data[j][0], 1))
                     {
-                        PIHMprintf(VL_ERROR, "Error reading LAI forcing.");
-                        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                        pihm_printf(VL_ERROR, "Error reading LAI forcing.");
+                        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                             filename, lno);
-                        PIHMexit(EXIT_FAILURE);
+                        pihm_exit(EXIT_FAILURE);
                     }
                 }
             }

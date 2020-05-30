@@ -23,10 +23,10 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 
         if (elem[i].attrib.soil_type > soiltbl->number)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: Soil type %d for Element %d is not in the soil file.",
                 elem[i].attrib.soil_type, i + 1);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
 
         soil_ind = elem[i].attrib.soil_type - 1;
@@ -44,9 +44,9 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: Porosity value out of bounds for Element %d", i + 1);
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
         elem[i].soil.alpha = cal->alpha * soiltbl->alpha[soil_ind];
         elem[i].soil.beta = cal->beta * soiltbl->beta[soil_ind];

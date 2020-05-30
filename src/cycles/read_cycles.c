@@ -11,8 +11,8 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     int             lno = 0;
 
     /* Open simulation control file */
-    fp = PIHMfopen(filen, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(filen, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
 
     agtbl->oper = (int *)malloc(nelem * sizeof(int));
 
@@ -26,11 +26,11 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         NextLine(fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%d %d", &index, &agtbl->oper[i]) != 2)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading information of the %dth element for Cycles.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
@@ -51,9 +51,9 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         match = sscanf(cmdstr, "%d %s", &index, agtbl->oper_filen[n]);
         if (match != 2 || n != index - 1)
         {
-            PIHMprintf(VL_ERROR, "Error reading operation description.\n");
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error reading operation description.\n");
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_exit(EXIT_FAILURE);
         }
         n++;
     }
@@ -135,8 +135,8 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     /*
      * Open soil initialization file
      */
-    fp = PIHMfopen(filen, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(filen, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
 
     soiltbl->nlayers    = (int *)malloc(soiltbl->number * sizeof(int));
     soiltbl->clay_layer = (double **)malloc(soiltbl->number * sizeof(double *));
@@ -161,11 +161,11 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
 
         if (i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading soil description of the %dth soil type.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_exit(EXIT_FAILURE);
         }
 
         NextLine(fp, cmdstr, &lno);
@@ -204,12 +204,12 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
 
             if (match != 7 || k != layer - 1)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading description of the %dth layer of the %dth"
                     "soil type.\n", k + 1, i + 1);
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error in %s near Line %d.\n", filen, lno);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
 
             soiltbl->clay_layer[i][k] = (soiltbl->clay_layer[i][k] < 0.0) ?
@@ -316,8 +316,8 @@ void ReadMultOper(const agtbl_struct *agtbl, mgmt_struct mgmttbl[],
 //    FILE           *init_file;
 //    int             i;
 //
-//    init_file = PIHMfopen(fn, "rb");
-//    PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
+//    init_file = pihm_fopen(fn, "rb");
+//    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 //
 //    for (i = 0; i < nelem; i++)
 //    {

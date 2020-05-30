@@ -9,8 +9,8 @@ void ReadForc(const char *filename, forc_struct *forc)
     int             index;
     int             lno = 0;
 
-    meteo_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    meteo_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     FindLine(meteo_file, "BOF", &lno, filename);
 
@@ -29,12 +29,12 @@ void ReadForc(const char *filename, forc_struct *forc)
                 &index, &forc->meteo[i].zlvl_wind);
             if (match != 2 || i != index - 1)
             {
-                PIHMprintf(VL_ERROR,
+                pihm_printf(VL_ERROR,
                     "Error reading the %dth meteorological forcing"
                     " time series.\n", i + 1);
-                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
-                PIHMexit(EXIT_FAILURE);
+                pihm_exit(EXIT_FAILURE);
             }
             /* Skip header lines */
             NextLine(meteo_file, cmdstr, &lno);
@@ -64,11 +64,11 @@ void ReadForc(const char *filename, forc_struct *forc)
                 if (!ReadTS(cmdstr, &forc->meteo[i].ftime[j],
                     &forc->meteo[i].data[j][0], NUM_METEO_VAR))
                 {
-                    PIHMprintf(VL_ERROR,
+                    pihm_printf(VL_ERROR,
                         "Error reading meteorological forcing.");
-                    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
-                    PIHMexit(EXIT_FAILURE);
+                    pihm_exit(EXIT_FAILURE);
                 }
             }
         }

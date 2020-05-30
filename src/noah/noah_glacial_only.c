@@ -91,9 +91,9 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->sndens = ws->sneqv / ps->snowh;
         if (ps->sndens > 1.0)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error: Physical snow depth is less than snow water equiv.\n");
-            PIHMexit(EXIT_FAILURE);
+            pihm_exit(EXIT_FAILURE);
         }
 
         ps->sncond = CSnow(ps->sndens);

@@ -223,8 +223,8 @@ void Photosynthesis(psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        PIHMprintf(VL_ERROR, "ERROR: negative root error in psn routine\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "ERROR: negative root error in psn routine\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     psn->Av = Av = (-b + sqrt(det)) / (2.0 * a);
@@ -236,8 +236,8 @@ void Photosynthesis(psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        PIHMprintf(VL_ERROR, "ERROR: negative root error in psn routine\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "ERROR: negative root error in psn routine\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     psn->Aj = Aj = (-b + sqrt(det)) / (2.0 * a);

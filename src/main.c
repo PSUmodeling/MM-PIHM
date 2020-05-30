@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
     CV_Y = N_VNew(NumStateVar());
     if (CV_Y == NULL)
     {
-        PIHMprintf(VL_ERROR, "Error creating CVODE state variable vector.\n");
-        PIHMexit(EXIT_FAILURE);
+        pihm_printf(VL_ERROR, "Error creating CVODE state variable vector.\n");
+        pihm_exit(EXIT_FAILURE);
     }
 
     /* Initialize PIHM structure */
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
         &pihm->print);
 #endif
 
-    PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
+    pihm_printf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
     SetCVodeParam(pihm, cvode_mem, &sun_ls, CV_Y);
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
     FreeMem(pihm);
     free(pihm);
 
-    PIHMprintf(VL_BRIEF, "Simulation completed.\n");
+    pihm_printf(VL_BRIEF, "Simulation completed.\n");
 
     return EXIT_SUCCESS;
 }

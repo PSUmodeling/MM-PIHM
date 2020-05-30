@@ -216,8 +216,8 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     x_[row++] = -residue[i];
             if (denseGETRF(jcb, rttbl->num_stc - 1, rttbl->num_stc - 1, p) != 0)
             {
-                PIHMprintf(VL_ERROR, "Speciation error.\n");
-                PIHMexit(EXIT_FAILURE);
+                pihm_printf(VL_ERROR, "Speciation error.\n");
+                pihm_exit(EXIT_FAILURE);
             }
             denseGETRS(jcb, rttbl->num_stc - 1, p, x_);
 
@@ -318,8 +318,8 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
             if (denseGETRF(jcb, rttbl->num_stc, rttbl->num_stc, p) != 0)
             {
-                PIHMprintf(VL_ERROR, "Speciation error.\n");
-                PIHMexit(EXIT_FAILURE);
+                pihm_printf(VL_ERROR, "Speciation error.\n");
+                pihm_exit(EXIT_FAILURE);
             }
             denseGETRS(jcb, rttbl->num_stc, p, x_);
             for (i = 0; i < rttbl->num_stc; i++)

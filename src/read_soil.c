@@ -13,8 +13,8 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     int             ptf_used = 0;
     int             lno = 0;
 
-    soil_file = PIHMfopen(filename, "r");
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    soil_file = pihm_fopen(filename, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */
     NextLine(soil_file, cmdstr, &lno);
@@ -56,10 +56,10 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
         if (match != 16 || i != index - 1)
         {
-            PIHMprintf(VL_ERROR,
+            pihm_printf(VL_ERROR,
                 "Error reading properties of the %dth soil type.\n", i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
-            PIHMexit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_exit(EXIT_FAILURE);
         }
 
         /* Fill in missing organic matter and bulk density values */
@@ -132,19 +132,19 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
     if (ptf_used)
     {
-        PIHMprintf(VL_NORMAL, "\nA priori soil parameter values (uncalibrated) "
+        pihm_printf(VL_NORMAL, "\nA priori soil parameter values (uncalibrated) "
                               "estimated from pedotransfer functions:\n");
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
             "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",
             "BETA", "QTZ");
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
             "-", "m s-1", "m s-1", "m s-1", "m3 m-3", "m3 m-3", "m-1",
             "-", "-");
         for (i = 0; i < soiltbl->number; i++)
         {
-            PIHMprintf(VL_NORMAL,
+            pihm_printf(VL_NORMAL,
                 "%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t"
                 "%-7.3lf\t%-7.3lf\t%-7.3lf\n",
                 i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i],

@@ -4,61 +4,61 @@
 
 void StartupScreen(void)
 {
-    PIHMprintf(VL_NORMAL, "\n");
-    PIHMprintf(VL_NORMAL, "    ########    ####   ##     ##   ##     ##\n");
-    PIHMprintf(VL_NORMAL, "    ##     ##    ##    ##     ##   ###   ###\n");
-    PIHMprintf(VL_NORMAL, "    ##     ##    ##    ##     ##   #### ####\n");
-    PIHMprintf(VL_NORMAL, "    ########     ##    #########   ## ### ##\n");
-    PIHMprintf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
-    PIHMprintf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
-    PIHMprintf(VL_NORMAL, "    ##          ####   ##     ##   ##     ##\n");
+    pihm_printf(VL_NORMAL, "\n");
+    pihm_printf(VL_NORMAL, "    ########    ####   ##     ##   ##     ##\n");
+    pihm_printf(VL_NORMAL, "    ##     ##    ##    ##     ##   ###   ###\n");
+    pihm_printf(VL_NORMAL, "    ##     ##    ##    ##     ##   #### ####\n");
+    pihm_printf(VL_NORMAL, "    ########     ##    #########   ## ### ##\n");
+    pihm_printf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
+    pihm_printf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
+    pihm_printf(VL_NORMAL, "    ##          ####   ##     ##   ##     ##\n");
 
-    PIHMprintf(VL_BRIEF, "\n");
-    PIHMprintf(VL_BRIEF, "    The Penn State Integrated Hydrologic Model\n");
-    PIHMprintf(VL_BRIEF, "          Version %s\n\n", VERSION);
+    pihm_printf(VL_BRIEF, "\n");
+    pihm_printf(VL_BRIEF, "    The Penn State Integrated Hydrologic Model\n");
+    pihm_printf(VL_BRIEF, "          Version %s\n\n", VERSION);
 #if defined(_NOAH_)
-    PIHMprintf(VL_BRIEF, "    * Land surface module turned on.\n");
+    pihm_printf(VL_BRIEF, "    * Land surface module turned on.\n");
 #endif
 #if defined(_RT_)
-    PIHMprintf(VL_BRIEF, "    * Reactive transport module turned on.\n");
+    pihm_printf(VL_BRIEF, "    * Reactive transport module turned on.\n");
 #endif
 #if defined(_BGC_)
-    PIHMprintf(VL_BRIEF, "    * Biogeochemistry module turned on.\n");
+    pihm_printf(VL_BRIEF, "    * Biogeochemistry module turned on.\n");
 #endif
 #if defined(_CYCLES_)
-    PIHMprintf(VL_BRIEF, "    * Agroecosystem module turned on.\n");
+    pihm_printf(VL_BRIEF, "    * Agroecosystem module turned on.\n");
 #endif
 #if defined(_FBR_)
-    PIHMprintf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
+    pihm_printf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
 #endif
 #if defined(_OPENMP)
-    PIHMprintf(VL_BRIEF, "    * OpenMP (# of threads = %d).\n", nthreads);
+    pihm_printf(VL_BRIEF, "    * OpenMP (# of threads = %d).\n", nthreads);
 #endif
-    PIHMprintf(VL_BRIEF, "\n");
+    pihm_printf(VL_BRIEF, "\n");
 
     if (1 == corr_mode)
     {
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "    Surface elevation correction mode turned on.\n");
     }
     if (1 == debug_mode)
     {
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "    Debug mode turned on.\n");
     }
     if (VL_BRIEF == verbose_mode)
     {
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "    Brief mode turned on.\n");
     }
     if (VL_VERBOSE == verbose_mode)
     {
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "    Verbose mode turned on.\n");
     }
     if (1 == append_mode)
     {
-        PIHMprintf(VL_NORMAL,
+        pihm_printf(VL_NORMAL,
             "    Append mode turned on.\n");
     }
 }
@@ -95,14 +95,14 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
-        print->watbal_file = PIHMfopen(watbal_fn, mode);
+        print->watbal_file = pihm_fopen(watbal_fn, mode);
     }
 
     /* Initialize cvode output files */
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
-        print->cvodeperf_file = PIHMfopen(perf_fn, mode);
+        print->cvodeperf_file = pihm_fopen(perf_fn, mode);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
             "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
@@ -116,12 +116,12 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
-        print->varctrl[i].datfile = PIHMfopen(dat_fn, bin_mode);
+        print->varctrl[i].datfile = pihm_fopen(dat_fn, bin_mode);
 
         if (ascii)
         {
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
-            print->varctrl[i].txtfile = PIHMfopen(ascii_fn, mode);
+            print->varctrl[i].txtfile = pihm_fopen(ascii_fn, mode);
         }
     }
 
@@ -538,7 +538,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
         sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project,
             pihm_time.strshort);
 
-        init_file = PIHMfopen(fn, "wb");
+        init_file = pihm_fopen(fn, "wb");
 
         for (i = 0; i < nelem; i++)
         {
@@ -718,10 +718,10 @@ void PrintCVodeFinalStats(void *cvode_mem)
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
-    PIHMprintf(VL_NORMAL, "\n");
-    PIHMprintf(VL_NORMAL,
+    pihm_printf(VL_NORMAL, "\n");
+    pihm_printf(VL_NORMAL,
         "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
-    PIHMprintf(VL_NORMAL,
+    pihm_printf(VL_NORMAL,
         "num of nonlin solv iters = %-6ld "
         "num of nonlin solv conv fails = %-6ld "
         "num of err test fails = %-6ld\n",
@@ -781,21 +781,21 @@ void ProgressBar(double progress)
 
     length = (int)(progress * (double)BAR_LENGTH);
 
-    PIHMprintf(VL_NORMAL, "[");
+    pihm_printf(VL_NORMAL, "[");
 
     for (i = 0; i < length; i++)
     {
-        PIHMprintf(VL_NORMAL, "=");
+        pihm_printf(VL_NORMAL, "=");
     }
     for (i = length; i < BAR_LENGTH; i++)
     {
-        PIHMprintf(VL_NORMAL, " ");
+        pihm_printf(VL_NORMAL, " ");
     }
 
-    PIHMprintf(VL_NORMAL, "] %d%%", (int)(progress * 100.0));
+    pihm_printf(VL_NORMAL, "] %d%%", (int)(progress * 100.0));
 
     if (length == BAR_LENGTH)
     {
-        PIHMprintf(VL_NORMAL, "\n");
+        pihm_printf(VL_NORMAL, "\n");
     }
 }
