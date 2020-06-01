@@ -58,9 +58,6 @@ void UpdateNProfile(double dt, const soil_struct *soil,
     /*
     * Add source sink terms to NO3 and NH4 mass at different layers
     */
-    no3[0] = ns->no3[0] + nf->surplus / DAYINSEC * dt;
-    nh4[0] = ns->nh4[0] + nf->urine / DAYINSEC * dt;
-
     for (k = 0; k < ps->nlayers; k++)
     {
         no3[k] = ns->no3[k] +
@@ -74,16 +71,19 @@ void UpdateNProfile(double dt, const soil_struct *soil,
             DAYINSEC * dt;
     }
 
+    no3[0] += nf->surplus / DAYINSEC * dt;
+    nh4[0] += nf->urine / DAYINSEC * dt;
+
     /*
     * Add lateral transport fluxes to NO3 and NH4 mass
     */
     FindWaterTable(ps->soil_depth, ps->nlayers, ws->gw, ps->satdpth);
 
-    LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, ps->no3_prev, ps->no3,
-        no3);
+    LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, Profile(ps->nlayers, no3),
+        ps->no3, no3);
 
-    LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, ps->nh4_prev, ps->nh4,
-        nh4);
+    LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4),
+        ps->nh4, nh4);
 }
 
 void LateralNFlow(double kd, const soil_struct *soil,
