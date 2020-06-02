@@ -56,6 +56,13 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
         bytes_consumed += bytes_now;
     }
 
+#if defined(_CYCLES_)
+    for (i = ctrl->nlayers; i < MAXLYR; i++)
+    {
+        ctrl->soil_depth[i] = ctrl->soil_depth[i - 1];
+    }
+#endif
+
     NextLine(lsm_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i', filename, lno);
 

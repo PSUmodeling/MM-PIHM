@@ -66,7 +66,8 @@ void InitCycles(const calib_struct *cal, const agtbl_struct *agtbl,
     }
 }
 
-void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
+void FirstDay(const soiltbl_struct *soiltbl, const ctrl_struct *ctrl,
+    elem_struct elem[])
 {
     int             i;
 
@@ -130,8 +131,10 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
             elem[i].restart_input.son[k] = elem[i].restart_input.soc[k] * 0.1;
             /* Initializes with CN ratio = 10 */
             elem[i].restart_input.mbn[k] = elem[i].restart_input.mbc[k] * 0.1;
-            elem[i].restart_input.no3[k] = soiltbl->no3[soil_ind][k] * 1.0E-3;
-            elem[i].restart_input.nh4[k] = soiltbl->nh4[soil_ind][k] * 1.0E-3;
+            elem[i].restart_input.no3[k] = soiltbl->no3[soil_ind][k] * 1.0E-3 *
+                elem[i].ps.soil_depth[k] / ctrl->soil_depth[k];
+            elem[i].restart_input.nh4[k] = soiltbl->nh4[soil_ind][k] * 1.0E-3 *
+                elem[i].ps.soil_depth[k] / ctrl->soil_depth[k];
         }
     }
 }

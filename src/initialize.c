@@ -244,7 +244,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 # endif
 #endif
 #if defined(_CYCLES_)
-    FirstDay(&pihm->soiltbl, pihm->elem);
+    FirstDay(&pihm->soiltbl, &pihm->ctrl, pihm->elem);
 #endif
 
 #if defined(_CYCLES_)

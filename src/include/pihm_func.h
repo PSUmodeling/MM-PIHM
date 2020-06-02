@@ -624,7 +624,8 @@ int             FindCrop(const char [], const crop_struct []);
 double          FindIrrigVolume(int, double, const soil_struct *,
     const wstate_struct *, const wflux_struct *, const phystate_struct *);
 int             FinalHarvestDate(int, double, double, double);
-void            FirstDay(const soiltbl_struct *, elem_struct []);
+void            FirstDay(const soiltbl_struct *, const ctrl_struct *,
+    elem_struct []);
 void            FirstDOY(int, const cstate_struct *, mgmt_struct *);
 void            FixedHarvest(int, int, const tillage_struct *,
     const phystate_struct *, crop_struct [], wstate_struct *, cstate_struct *,
