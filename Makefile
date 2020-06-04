@@ -237,7 +237,7 @@ endif
 #-------------------
 CYCLES_PATH = ../Cycles_dev/src
 RQD_CYCLES_VERS = R0.8.0-alpha
-ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
+ifeq ($(MAKECMDGOALS),cycles-3d)
   SFLAGS += -D_NOAH_ -D_CYCLES_
   MODULE_SRCS_= \
 	noah/lsm_func.c\
@@ -277,7 +277,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	zero_fluxes.c
 
   MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = flux-pihm-cycles
+  EXECUTABLE = cycles-3d
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
 
@@ -365,8 +365,8 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-cycles:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-flux-pihm-cycles: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
+cycles-3d:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+cycles-3d: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -393,4 +393,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc flux-pihm-cycles
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc cycles-3d
