@@ -576,8 +576,13 @@ typedef struct solute_struct
     double          subflux[NUM_EDGE];      /* solute flux from subsurface
                                              * lateral flux
                                              * (mass/amount of subs s-1) */
+# if defined(_CYCLES_)
+    double          snksrc[MAXLYR];         /* sink/source term
+                                             * (mass/amount of subs m-2 s-1) */
+# else
     double          snksrc;                 /* sink/source term
                                              * (mass/amount of subs m-2 s-1) */
+# endif
 # if defined(_FBR_)
     double          conc_geol;              /* solute concentration in deep
                                              * layer (mass/amount of subs m-3)*/

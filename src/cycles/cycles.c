@@ -39,22 +39,25 @@ void CalSnkSrc(int nlayers, const nflux_struct *nf, solute_struct solute[])
 {
     int             k;
 
-    solute[NO3].snksrc = 0.0;
-    solute[NH4].snksrc = 0.0;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        solute[NO3].snksrc[k] = 0.0;
+        solute[NH4].snksrc[k] = 0.0;
+    }
 
-    solute[NO3].snksrc += nf->surplus;
-    solute[NH4].snksrc += nf->urine;
+    solute[NO3].snksrc[0] += nf->surplus;
+    solute[NH4].snksrc[0] += nf->urine;
     for (k = 0; k < nlayers; k++)
     {
-        solute[NO3].snksrc += (nf->nitrif[k] - nf->n2o_from_nitrif[k]) +
+        solute[NO3].snksrc[k] += (nf->nitrif[k] - nf->n2o_from_nitrif[k]) +
             (-nf->denitrif[k]) + (-nf->no3_uptake[k]) + nf->no3_fert[k] +
             nf->no3_immobil[k];
 
-        solute[NH4].snksrc += (-nf->nitrif[k]) + (-nf->volatil[k]) +
+        solute[NH4].snksrc[k] += (-nf->nitrif[k]) + (-nf->volatil[k]) +
             (-nf->nh4_uptake[k]) + nf->nh4_fert[k] +
             nf->nh4_immobil[k] + nf->mineral[k];
-    }
 
-    solute[NO3].snksrc /= DAYINSEC;
-    solute[NH4].snksrc /= DAYINSEC;
+        solute[NO3].snksrc[k] /= DAYINSEC;
+        solute[NH4].snksrc[k] /= DAYINSEC;
+    }
 }

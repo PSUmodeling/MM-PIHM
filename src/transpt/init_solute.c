@@ -21,7 +21,14 @@ void InitSolute(elem_struct elem[])
             {
                 elem[i].solute[k].subflux[j] = 0.0;
             }
+#if defined(_CYCLES_)
+            for (j = 0; j < MAXLYR; j++)
+            {
+                elem[i].solute[k].snksrc[j]  = 0.0;
+            }
+#else
             elem[i].solute[k].snksrc         = 0.0;
+#endif
 
 #if defined(_FBR_)
             elem[i].solute[k].conc_geol      = 0.0;
