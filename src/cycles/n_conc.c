@@ -148,7 +148,7 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
         {
             conc = (solute[k] > 0.0) ?
                 LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->swc[k],
-                    solute[k]) : 0.0;
+                    solute[k]) * RHOH2O : 0.0;
 
             avg_conc += ps->satdpth[k] * conc;
             storage += ps->satdpth[k];
