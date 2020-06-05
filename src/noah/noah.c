@@ -1363,6 +1363,10 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
 
 #if defined(_CYCLES_)
+    prcpf += wf->irrig / RHOH2O / DAYINSEC;
+#endif
+
+#if defined(_CYCLES_)
     ResidueWetting(prcpf * RHOH2O * DAYINSEC, cs, ps, ws, wf);
 #else
     PcpDrp(ws, wf, lc, prcpf, dt);
@@ -1970,6 +1974,10 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
          * (below).
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
+
+#if defined(_CYCLES_)
+    prcpf += wf->irrig / RHOH2O / DAYINSEC;
+#endif
 
 #if defined(_CYCLES_)
     ResidueWetting(prcpf * RHOH2O * DAYINSEC, cs, ps, ws, wf);
