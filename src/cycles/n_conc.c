@@ -22,7 +22,7 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
         }
 
         UpdateNProfile(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns,
-            &elem[i].nf, no3, nh4, &elem[i].ps);
+            elem[i].solute, no3, nh4, &elem[i].ps);
 
         /* Calculate NO3 and NH4 concentrations */
         elem[i].solute[NO3].conc_surf = 0.0;
@@ -50,8 +50,9 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 }
 
 void UpdateNProfile(double dt, const soil_struct *soil,
-    const wstate_struct *ws, const nstate_struct *ns, const nflux_struct *nf,
-    double no3[], double nh4[], phystate_struct *ps)
+    const wstate_struct *ws, const nstate_struct *ns,
+    const solute_struct solute[], double no3[], double nh4[],
+    phystate_struct *ps)
 {
     int             k;
 
@@ -60,19 +61,10 @@ void UpdateNProfile(double dt, const soil_struct *soil,
     */
     for (k = 0; k < ps->nlayers; k++)
     {
-        no3[k] = ns->no3[k] +
-            (nf->nitrif[k] - nf->n2o_from_nitrif[k] - nf->denitrif[k] -
-            nf->no3_uptake[k] + nf->no3_fert[k] + nf->no3_immobil[k]) /
-            DAYINSEC * dt;
+        no3[k] = ns->no3[k] + solute[NO3].snksrc[k] * dt;
 
-        nh4[k] = ns->nh4[k] +
-            (-nf->nitrif[k] - nf->volatil[k] - nf->nh4_uptake[k] +
-            nf->nh4_fert[k] + nf->nh4_immobil[k] + nf->mineral[k]) /
-            DAYINSEC * dt;
+        nh4[k] = ns->nh4[k] + solute[NH4].snksrc[k] * dt;
     }
-
-    no3[0] += nf->surplus / DAYINSEC * dt;
-    nh4[0] += nf->urine / DAYINSEC * dt;
 
     /*
     * Add lateral transport fluxes to NO3 and NH4 mass
@@ -159,3 +151,65 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
 
     return avg_conc;
 }
+
+#if NOT_YET_IMPLEMETED
+void NRT(double kd, double dt, double wflux[], const soil_struct *soil,
+    const wstate_struct *ws0, const wstate_struct *ws,
+    const phystate_struct *ps, double solute[])
+{
+    int             k;
+    double          adsorb[MAXLYR];
+    double          conc[MAXLYR];
+    double          conc0[MAXLYR];
+    double          ai[MAXLYR], bi[MAXLYR], ci[MAXLYR], rhstt[MAXLYR];
+    double          ciin[MAXLYR], rhsttin[MAXLYR];
+
+    for (k = 0; k < ps->nlayers; k++)
+    {
+        conc[k] = (solute[k] > 0.0) ? LinearEqmConc(kd, soil->bd[k],
+            ps->soil_depth[k], ws0->smc[k], solute[k]) : 0.0;
+        adsorb[k] = solute[k] -
+            ps->soil_depth[k] * RHOH2O * ws0->smc[k] * conc[k];
+
+        ai[k] = -0.5 * wflux[k] / ps->soil_depth[k] / RHOH2O;
+        bi[k] = ws->smc[k] / dt +
+            0.5 * wflux[k + 1] / ps->soil_depth[k] / RHOH2O;
+        ci[k] = 0.0;
+        rhstt[k] = -(0.5 * wflux[k + 1] / ps->soil_depth[k] / RHOH2O -
+            ws0->smc[k] / dt) * conc[k] + 0.0 / ps->soil_depth[k] / RHOH2O;
+        rhstt[k] += (k == 0) ? 0.0 :
+            0.5 * wflux[k] / ps->soil_depth[k] / RHOH2O * conc[k - 1];
+
+        rhsttin[k] = rhstt[k];
+        ciin[k] = ci[k];
+    }
+
+    Rosr12(ci, ai, bi, ciin, rhsttin, rhstt, ps->nlayers);
+
+    for (k = 0; k < ps->nlayers; k++)
+    {
+        conc[k] = ci[k];
+
+        solute[k] = adsorb[k] +
+            ps->soil_depth[k] * RHOH2O * ws->smc[k] * conc[k];
+    }
+
+    for (k = ps->nlayers - 1; k > 0; k--)
+    {
+        if (solute[k] < 0.0)
+        {
+            solute[k - 1] += solute[k];
+            solute[k] = 0.0;
+        }
+    }
+
+    for (k = 0; k < ps->nlayers - 1; k++)
+    {
+        if (solute[k] < 0.0)
+        {
+            solute[k + 1] += solute[k];
+            solute[k] = 0.0;
+        }
+    }
+}
+#endif

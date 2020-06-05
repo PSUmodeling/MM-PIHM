@@ -725,7 +725,7 @@ double          TmpFunc(double);
 double          TmpFuncGrowth(double, double, double, double);
 double          TmpLimit(double, double, double);
 void            UpdateNProfile(double, const soil_struct *,
-    const wstate_struct *, const nstate_struct *, const nflux_struct *,
+    const wstate_struct *, const nstate_struct *, const solute_struct [],
     double [], double [], phystate_struct *);
 void            UpdateOperPtr(mgmt_struct *);
 double          VolatilDepthFunc(double);
@@ -740,6 +740,9 @@ void            WaterUptake(double, const soil_struct *,
     crop_struct [], wstate_struct *, wflux_struct *);
 void            ZeroFluxes(wflux_struct *, cflux_struct *, nflux_struct *);
 void            ZeroHarvest(crop_struct *);
+void            NRT(double, double, double [], const soil_struct *,
+    const wstate_struct *, const wstate_struct *, const phystate_struct *,
+    double []);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
 void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,

@@ -65,7 +65,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 
         UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns,
-            &elem[i].nf, elem[i].ns.no3, elem[i].ns.nh4, &elem[i].ps);
+            elem[i].solute, elem[i].ns.no3, elem[i].ns.nh4, &elem[i].ps);
 
         elem[i].ns0 = elem[i].ns;
         elem[i].ps.no3_prev = elem[i].ps.no3;
