@@ -216,8 +216,14 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < nsolute; k++)
         {
+# if defined(_CYCLES_)
             dy[SOLUTE_SOIL(i, k)] += elem->solute[k].infil +
                 Profile(elem->ps.nlayers, elem->solute[k].snksrc);
+# else
+            dy[SOLUTE_SOIL(i, k)] += elem->solute[k].infil +
+                elem->solute[k].snksrc;
+# endif
+
 # if defined(_FBR_)
             dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].fbr_infil;
 
