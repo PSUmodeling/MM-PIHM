@@ -92,14 +92,13 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_input);
 
-        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary, &elem[i].nsol);
+        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary,
+            &elem[i].solute[0]);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
 #if !defined(_LUMPED_)
-        NV_Ith(CV_Y, SURFN(i)) = elem[i].ns.surfn;
-        NV_Ith(CV_Y, SMINN(i)) = elem[i].ns.sminn;
+        NV_Ith(CV_Y, SOLUTE_SOIL(i, 0)) = elem[i].ns.sminn;
 
-        elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
     }
@@ -113,11 +112,8 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;
-        river[i].ns.sminn = river[i].restart_input.sminn;
-        river[i].nf.sminn_leached = 0.0;
 
-        NV_Ith(CV_Y, STREAMN(i)) = river[i].ns.streamn;
-        NV_Ith(CV_Y, RIVBEDN(i)) = river[i].ns.sminn;
+        NV_Ith(CV_Y, SOLUTE_RIVER(i, 0)) = river[i].ns.streamn;
     }
 #endif
 }

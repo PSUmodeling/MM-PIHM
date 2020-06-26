@@ -61,7 +61,6 @@ void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     ns->soil2n = restart->soil2n;
     ns->soil3n = restart->soil3n;
     ns->soil4n = restart->soil4n;
-    ns->surfn = restart->surfn;
     ns->sminn = restart->sminn;
     ns->retransn = restart->retransn;
     ns->npool = restart->npool;
@@ -144,7 +143,6 @@ void RestartOutput(const cstate_struct *cs, const nstate_struct *ns,
     restart->soil2n = ns->soil2n;
     restart->soil3n = ns->soil3n;
     restart->soil4n = ns->soil4n;
-    restart->surfn = ns->surfn;
     restart->sminn = ns->sminn;
     restart->retransn = ns->retransn;
     restart->npool = ns->npool;
@@ -252,7 +250,6 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
     for (i = 0; i < nriver; i++)
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
-        river[i].restart_output.sminn = river[i].ns.sminn;
 
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
             restart_file);

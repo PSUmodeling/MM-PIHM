@@ -79,8 +79,6 @@ typedef struct river_ic_struct
 typedef struct river_nstate_struct
 {
     double          streamn;                /* stream N pool (kgN m-2) */
-    double          sminn;                  /* river bed soil mineral N
-                                             * (kgN m-2) */
 } river_nstate_struct;
 
 /* Daily river nitrogen flux variables */
@@ -89,21 +87,10 @@ typedef struct river_nflux_struct
     double          sminn_leached;          /* leaching flux (kgN m-2 day-1) */
 } river_nflux_struct;
 
-/* River solute transport structure */
-typedef struct river_solute_struct
-{
-    double          conc_stream;            /* stream pool concentration
-                                             * (kg kgH2O-1) */
-    double          conc_bed;               /* bed pool concentration
-                                             * (kg kgH2O-1) */
-    double          flux[NUM_RIVFLX];       /* solute fluxes (kg s-1) */
-} river_solute_struct;
-
 /* River CN initial conditions */
 typedef struct river_bgcic_struct
 {
     double          streamn;
-    double          sminn;
 } river_bgcic_struct;
 #endif
 

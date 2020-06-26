@@ -25,6 +25,7 @@
 # endif
 #endif
 
+#if _OBSOLETE_
 #if defined(_BGC_) && !defined(_LUMPED_)
 # define SURFN(i)               (i + 3 * nelem + 2 * nriver)
 # define SMINN(i)               (i + 4 * nelem + 2 * nriver)
@@ -32,6 +33,7 @@
 # define RIVBEDN(i)             (i + 5 * nelem + 3 * nriver)
 #else
 # define LUMPED_SMINN           (3 * nelem + 2 * nriver)
+#endif
 #endif
 
 #define AvgElev(...)            _WsAreaElev(WS_ZMAX, __VA_ARGS__)
@@ -525,7 +527,9 @@ void            NLeaching(elem_struct *);
 # elif defined(_LUMPED_)
 void            NLeachingLumped(elem_struct *, river_struct *);
 # else
+#  if OBSOLETE
 void            NTransport(elem_struct *, river_struct *);
+#  endif
 # endif
 void            OffsetLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
@@ -553,6 +557,7 @@ void            RestartOutput(const cstate_struct *, const nstate_struct *,
 void            SeasonDecidPhenology(const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            SoilPsi(const soil_struct *, double, double *);
+void            SoluteConc(elem_struct [], river_struct []);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const phystate_struct *, cflux_struct *, psn_struct *, psn_struct *,
     const daily_struct *);

@@ -495,11 +495,11 @@
 /* Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used
  * for declare a large enough array size and nsolute is for loops in the code */
 #if defined(_BGC_)
-# define NSOLUTE                        1
+# define NSOLUTE                1
 #elif defined(_CYCLES_)
-# define NSOLUTE                        2
+# define NSOLUTE                2
 #elif defined(_RT_)
-# define NSOLUTE                        MAXSPS
+# define NSOLUTE                MAXSPS
 #endif
 
 /* External variable */

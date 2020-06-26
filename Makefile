@@ -208,7 +208,7 @@ endif
 	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
 	bgc/mortality.c\
-	bgc/ntransport.c\
+	bgc/n_conc.c\
 	bgc/phenology.c\
 	bgc/photosynthesis.c\
 	bgc/precision_control.c\
@@ -226,7 +226,9 @@ endif
 	noah/noah.c\
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
-	spa/spa.c
+	spa/spa.c\
+	transpt/init_solute.c\
+	transpt/solute_transpt.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."

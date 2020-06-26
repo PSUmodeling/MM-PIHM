@@ -38,8 +38,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
-        elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
-        elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
+        elem->ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
 
 #if defined(_CYCLES_)
@@ -77,8 +76,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         river->ws.stage = MAX(y[RIVER(i)], 0.0);
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
-        river->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
-        river->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
+        river->ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif
 
         river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
@@ -103,6 +101,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
 
+#if _OBSOLETE_
 #if defined(_BGC_)
     /*
      * Nitrogen transport fluxes
@@ -115,11 +114,14 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     NTransport(pihm->elem, pihm->river);
 # endif
 #endif
+#endif
 
     /*
      * Calculate solute concentrations
      */
-#if defined(_CYCLES_)
+#if defined(_BGC_)
+    SoluteConc(pihm->elem, pihm->river);
+#elif defined(_CYCLES_)
     SoluteConc(t + (realtype)pihm->ctrl.tout[0] -
         (realtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
 #elif defined(_RT_)
@@ -187,6 +189,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[FBRGW(i)] /= elem->geol.porosity;
 #endif
 
+#if _OBSOLETE_
 #if defined(_BGC_) && !defined(_LUMPED_)
 # if !defined(_LEACHING_)
         /*
@@ -210,8 +213,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
 #endif
+#endif
 
-#if defined(_CYCLES_) || defined(_RT_)
+#if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -278,6 +282,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[RIVER(i)] -= river->wf.rivflow[j] / river->topo.area;
         }
 
+#if _OBSOLETE_
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
         {
@@ -291,8 +296,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[RIVBEDN(i)] /= river->topo.area;
 #endif
+#endif
 
-#if defined(_CYCLES_) || defined(_RT_)
+#if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -341,6 +347,7 @@ int NumStateVar(void)
 
     return nsv;
 }
+
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     N_Vector CV_Y)
 {

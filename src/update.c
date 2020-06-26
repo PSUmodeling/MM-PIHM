@@ -47,16 +47,11 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].ws0 = elem[i].ws;
 
 #if defined(_BGC_) && !defined(_LUMPED_)
-        elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
-        elem[i].ns.sminn = (y[SMINN(i)] > 0.0) ? y[SMINN(i)] : 0.0;
+        elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 
-        elem[i].ns.nleached_snk += (elem[i].nt.surfn0 + elem[i].nt.sminn0) -
-            (elem[i].ns.surfn + elem[i].ns.sminn) +
-            elem[i].nf.ndep_to_sminn / DAYINSEC * stepsize +
-            elem[i].nf.nfix_to_sminn / DAYINSEC * stepsize +
-            elem[i].nsol.snksrc * stepsize;
+        elem[i].ns.nleached_snk += elem[i].nt.sminn0 - elem[i].ns.sminn +
+            elem[i].solute[0].snksrc * stepsize;
 
-        elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
@@ -128,6 +123,10 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         river[i].ws.stage = y[RIVER(i)];
 
         river[i].ws0 = river[i].ws;
+
+#if defined(_BGC_)
+        river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
+#endif
 
 #if defined(_CYCLES_)
         river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);

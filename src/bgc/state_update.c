@@ -273,7 +273,7 @@ void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
 }
 
 void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
-    solute_struct *nsol, int alloc, int woody, int evergreen)
+    solute_struct *solute, int alloc, int woody, int evergreen)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -284,7 +284,7 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
      * complications of possibly having mortality fluxes drive the pools
      * negative would create big, unnecessary headaches. */
 
-    nsol->snksrc = 0.0;
+    solute->snksrc = 0.0;
 
     /* Phenology fluxes */
     /* Leaf and fine root transfer growth */
@@ -336,6 +336,7 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
     /* Nitrogen deposition */
     ns->ndep_src += nf->ndep_to_sminn;
     ns->nfix_src += nf->nfix_to_sminn;
+    solute->snksrc += nf->ndep_to_sminn + nf->nfix_to_sminn;
 
     /* Litter and soil decomposition fluxes */
     /* Fluxes out of coarse woody debris into litter pools */
@@ -357,9 +358,9 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_l1s1 = 0.0;
     }
     ns->soil1n += nf->sminn_to_soil1n_l1;
-    nsol->snksrc -= nf->sminn_to_soil1n_l1;
+    solute->snksrc -= nf->sminn_to_soil1n_l1;
     ns->nvol_snk += nf->sminn_to_nvol_l1s1;
-    nsol->snksrc -= nf->sminn_to_nvol_l1s1;
+    solute->snksrc -= nf->sminn_to_nvol_l1s1;
 
     ns->soil2n += nf->litr2n_to_soil2n;
     ns->litr2n -= nf->litr2n_to_soil2n;
@@ -372,9 +373,9 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_l2s2 = 0.0;
     }
     ns->soil2n += nf->sminn_to_soil2n_l2;
-    nsol->snksrc -= nf->sminn_to_soil2n_l2;
+    solute->snksrc -= nf->sminn_to_soil2n_l2;
     ns->nvol_snk += nf->sminn_to_nvol_l2s2;
-    nsol->snksrc -= nf->sminn_to_nvol_l2s2;
+    solute->snksrc -= nf->sminn_to_nvol_l2s2;
 
     ns->litr2n += nf->litr3n_to_litr2n;
     ns->litr3n -= nf->litr3n_to_litr2n;
@@ -390,9 +391,9 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_l4s3 = 0.0;
     }
     ns->soil3n += nf->sminn_to_soil3n_l4;
-    nsol->snksrc -= nf->sminn_to_soil3n_l4;
+    solute->snksrc -= nf->sminn_to_soil3n_l4;
     ns->nvol_snk += nf->sminn_to_nvol_l4s3;
-    nsol->snksrc -= nf->sminn_to_nvol_l4s3;
+    solute->snksrc -= nf->sminn_to_nvol_l4s3;
 
     ns->soil2n += nf->soil1n_to_soil2n;
     ns->soil1n -= nf->soil1n_to_soil2n;
@@ -405,9 +406,9 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_s1s2 = 0.0;
     }
     ns->soil2n += nf->sminn_to_soil2n_s1;
-    nsol->snksrc -= nf->sminn_to_soil2n_s1;
+    solute->snksrc -= nf->sminn_to_soil2n_s1;
     ns->nvol_snk += nf->sminn_to_nvol_s1s2;
-    nsol->snksrc -= nf->sminn_to_nvol_s1s2;
+    solute->snksrc -= nf->sminn_to_nvol_s1s2;
 
     ns->soil3n += nf->soil2n_to_soil3n;
     ns->soil2n -= nf->soil2n_to_soil3n;
@@ -420,9 +421,9 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_s2s3 = 0.0;
     }
     ns->soil3n += nf->sminn_to_soil3n_s2;
-    nsol->snksrc -= nf->sminn_to_soil3n_s2;
+    solute->snksrc -= nf->sminn_to_soil3n_s2;
     ns->nvol_snk += nf->sminn_to_nvol_s2s3;
-    nsol->snksrc -= nf->sminn_to_nvol_s2s3;
+    solute->snksrc -= nf->sminn_to_nvol_s2s3;
 
     ns->soil4n += nf->soil3n_to_soil4n;
     ns->soil3n -= nf->soil3n_to_soil4n;
@@ -435,25 +436,25 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         nf->sminn_to_nvol_s3s4 = 0.0;
     }
     ns->soil4n += nf->sminn_to_soil4n_s3;
-    nsol->snksrc -= nf->sminn_to_soil4n_s3;
+    solute->snksrc -= nf->sminn_to_soil4n_s3;
     ns->nvol_snk += nf->sminn_to_nvol_s3s4;
-    nsol->snksrc -= nf->sminn_to_nvol_s3s4;
+    solute->snksrc -= nf->sminn_to_nvol_s3s4;
 
     nf->sminn_to_nvol_s4 = DENITRIF_PROPORTION * nf->soil4n_to_sminn;
-    nsol->snksrc += nf->soil4n_to_sminn;
+    solute->snksrc += nf->soil4n_to_sminn;
     ns->soil4n -= nf->soil4n_to_sminn;
     ns->nvol_snk += nf->sminn_to_nvol_s4;
-    nsol->snksrc -= nf->sminn_to_nvol_s4;
+    solute->snksrc -= nf->sminn_to_nvol_s4;
 
     /* Bulk denitrification of soil mineral N */
-    nsol->snksrc -= nf->sminn_to_denitrif;
+    solute->snksrc -= nf->sminn_to_denitrif;
     ns->nvol_snk += nf->sminn_to_denitrif;
 
     /* Plant allocation flux, from N retrans pool and soil mineral N pool */
     ns->npool += nf->retransn_to_npool;
     ns->retransn -= nf->retransn_to_npool;
     ns->npool += nf->sminn_to_npool;
-    nsol->snksrc -= nf->sminn_to_npool;
+    solute->snksrc -= nf->sminn_to_npool;
 
     /* Daily allocation fluxes */
     /* Daily leaf allocation fluxes */
@@ -548,5 +549,5 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
         }
     }    /* End if annual allocation day */
 
-    nsol->snksrc /= DAYINSEC;
+    solute->snksrc /= DAYINSEC;
 }

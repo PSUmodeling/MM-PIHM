@@ -822,7 +822,6 @@ typedef struct bgcic_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -853,8 +852,6 @@ typedef struct daily_struct
                                              * averaging */
     double          avg_sh2o[MAXLYR];       /* daily average unfrozen soil water
                                              * content (m3 m-3) */
-    double          avg_smc[MAXLYR];        /* daily average unfrozen soil
-                                             * moisture content (m3 m-3) */
     double          avg_q2d;                /* daily average mixing ratio
                                              * deficit (kg kg-1) */
     double          avg_sfcprs;             /* daily average air pressure (Pa)*/
@@ -878,12 +875,6 @@ typedef struct daily_struct
                                              * (K) */
     double          avg_soldn;              /* daytime average downward solar
                                              * radiation (W m-2) */
-# if defined(_CYCLES_OBSOLETE_)
-    double          avg_et[MAXLYR];         /* daily average evapotranspiration
-                                             * (m s-1) */
-    double          avg_sncovr;             /* daily average snow cover fraction
-                                             * (-) */
-# endif
 } daily_struct;
 #endif
 
@@ -1162,7 +1153,6 @@ typedef struct nstate_struct
                                              * (kgN m-2) */
     double          soil4n;                 /* recalcitrant SOM N (humus,
                                              * slowest) (kgN m-2) */
-    double          surfn;                  /* surface mineral N (kgN m-2) */
     double          sminn;                  /* soil mineral N (kgN m-2) */
     double          retransn;               /* plant pool of retranslocated N
                                              * (kgN m-2) */
@@ -1518,23 +1508,6 @@ typedef struct summary_struct
     double          totalc;                 /* total of vegc, litrc, and soilc
                                              * (kgC m-2) */
 } summary_struct;
-
-/* Solute transport structure */
-typedef struct solute_struct
-{
-# if !defined(_LEACHING_)
-    double          conc_surf;              /* surface pool concentration
-                                             * (kg kgH2O-1) */
-    double          infilflux;              /* solute infiltration flux
-                                             * (kg m-2 s-1) */
-    double          ovlflux[NUM_EDGE];      /* overland solute flux (kg s-1) */
-# endif
-    double          conc_subsurf;           /* subsurface pool concentration
-                                             * (kg kgH2O-1) */
-    double          subflux[NUM_EDGE];      /* subsurface solute flux (kg s-1)*/
-    double          snksrc;                 /* subsurface sink/source term
-                                             * (kg m-2 s-1) */
-} solute_struct;
 #endif
 
 #if defined(_RT_)
@@ -1622,7 +1595,6 @@ typedef struct elem_struct
     ntemp_struct    nt;
     summary_struct  summary;
     epvar_struct    epv;
-    solute_struct   nsol;
     spinup_struct   spinup;
 #endif
 #if defined(_CYCLES_)

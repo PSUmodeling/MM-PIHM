@@ -87,7 +87,8 @@ void DailyBgc(pihm_struct pihm, int t)
     {
         int             k;
 
-        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] * pihm->elem[i].ps.soil_depth[0];
+        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] *
+            pihm->elem[i].ps.soil_depth[0];
         if (pihm->elem[i].ps.nlayers > 1)
         {
             for (k = 1; k < pihm->elem[i].ps.nlayers; k++)
@@ -122,13 +123,13 @@ void DailyBgc(pihm_struct pihm, int t)
         epvar_struct   *epv;
         soil_struct    *soil;
         eflux_struct   *ef;
-        phystate_struct  *ps;
+        phystate_struct *ps;
         cstate_struct  *cs;
         cflux_struct   *cf;
         nstate_struct  *ns;
         nflux_struct   *nf;
         ntemp_struct   *nt;
-        solute_struct  *nsol;
+        solute_struct  *solute;
         psn_struct     *psn_sun, *psn_shade;
         summary_struct *summary;
         int             annual_alloc;
@@ -144,7 +145,7 @@ void DailyBgc(pihm_struct pihm, int t)
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
         nt = &pihm->elem[i].nt;
-        nsol = &pihm->elem[i].nsol;
+        solute = &pihm->elem[i].solute[0];
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
@@ -224,7 +225,7 @@ void DailyBgc(pihm_struct pihm, int t)
             epc->evergreen);
 
         /* Update of nitrogen state variables */
-        DailyNitrogenStateUpdate(nf, ns, nsol, annual_alloc, epc->woody,
+        DailyNitrogenStateUpdate(nf, ns, solute, annual_alloc, epc->woody,
             epc->evergreen);
 
         /* Calculate mortality fluxes and update state variables */

@@ -26,7 +26,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         {
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
             elem[i].daily.avg_sh2o[k] += elem[i].ws.swc[k];
-            elem[i].daily.avg_smc[k] += elem[i].ws.smc[k];
 #if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_et[k] += elem[i].wf.et[k];
 #endif
@@ -71,7 +70,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             {
                 elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
-                elem[i].daily.avg_smc[k] /= (double)elem[i].daily.counter;
 #if defined(_CYCLES_OBSOLETE_)
                 elem[i].daily.avg_et[k] /= (double)elem[i].daily.counter;
 #endif
@@ -183,7 +181,6 @@ void InitDailyStruct(elem_struct *elem)
         for (k = 0; k < MAXLYR; k++)
         {
             elem[i].daily.avg_sh2o[k] = 0.0;
-            elem[i].daily.avg_smc[k] = 0.0;
             elem[i].daily.avg_stc[k] = 0.0;
 #if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_et[k] = 0.0;

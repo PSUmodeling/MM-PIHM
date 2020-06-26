@@ -84,7 +84,6 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->deadcrootn_storage = 0.0;
         restart->retransn = 0.0;
         restart->npool = 0.0;
-        restart->surfn = 0.0;
 
         /*
          * Initialize days-since-rain counter
@@ -170,7 +169,6 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
     for (i = 0; i < nriver; i++)
     {
         riv[i].restart_input.streamn = 0.0;
-        riv[i].restart_input.sminn = 0.0;
     }
 #endif
 }
