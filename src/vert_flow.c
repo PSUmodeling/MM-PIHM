@@ -47,7 +47,7 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     double          h_u;
     int             j;
 
-    if (ws->gw > soil->depth + ws->surfh)
+    if (ws->gw > soil->depth)
     {
         infil = -soil->kinfv;
     }
@@ -144,7 +144,11 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
     double          deficit;
     double          rechg;
 
-    if (ws->gw > soil->depth - soil->dinf)
+    if (ws->gw > soil->depth)
+    {
+        rechg = MIN(wf->infil, 0.0);
+    }
+    else if (ws->gw > soil->depth - soil->dinf && ws->unsat > 0.0)
     {
         rechg = wf->infil;
     }
