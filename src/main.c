@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#if defined(_TGM_) && defined(_RT_)
+#if defined(_LUMPED_) && defined(_RT_)
     InitOutputFile(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
         pihm->chemtbl, &pihm->rttbl, &pihm->print);
 #else

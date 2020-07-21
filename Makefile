@@ -67,8 +67,8 @@ ifeq ($(DGW), on)
   SFLAGS += -D_FBR_
 endif
 
-ifeq ($(TGM), on)
-  SFLAGS += -D_TGM_
+ifeq ($(LUMPED), on)
+  SFLAGS += -D_LUMPED_
 endif
 
 ifeq ($(CVODE_OMP), on)

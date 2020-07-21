@@ -472,7 +472,7 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          fbrflow[NUM_EDGE];      /* lateral fractured bedrock flow
                                              * (m3 s-1) */
-# if defined(_TGM_)
+# if defined(_LUMPED_)
     double          fbr_discharge;          /* discharge from fractured bedrock
                                              * to river (only applies to 2-grid
                                              * model) (m3 s-1) */
@@ -593,7 +593,7 @@ typedef struct solute_struct
                                              * (mass/amount of subs s-1) */
     double          snksrc_geol;            /* deep layer sink/source term
                                              * (mass/amount of subs m-2 s-1) */
-#  if defined(_TGM_)
+#  if defined(_LUMPED_)
     double          fbr_discharge;          /* solute flux from fractured
                                              * bedrock to river (only applies to
                                              * 2-grid model)

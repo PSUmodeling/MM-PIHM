@@ -739,7 +739,7 @@ void InitWFlux(wflux_struct *wf)
     {
         wf->fbrflow[j] = 0.0;
     }
-# if defined(_TGM_)
+# if defined(_LUMPED_)
     wf->fbr_discharge = 0.0;
 # endif
 #endif

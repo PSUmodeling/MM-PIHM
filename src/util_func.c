@@ -59,7 +59,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'V':
                 /* Print version number */
                 printf("MM-PIHM Version %s\n", VERSION);
-#if defined(_TGM_)
+#if defined(_LUMPED_)
                 printf("Compiled for two-grid model\n");
 #endif
 #if defined(_FBR_)

@@ -28,7 +28,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         {
             /* Initialize chemical fluxes */
             elem[i].solute[k].fbr_infil = 0.0;
-#if defined(_TGM_)
+#if defined(_LUMPED_)
             elem[i].solute[k].fbr_discharge = 0.0;
 #endif
 
@@ -120,7 +120,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                 ((elem[i].wf.fbr_infil > 0.0) ?
                 elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
-# if defined(_TGM_)
+# if defined(_LUMPED_)
             /* Fractured bedrock discharge to river.
              * Note that FBR discharge is always non-negative */
             elem[i].solute[k].fbr_discharge = elem[i].wf.fbr_discharge *
@@ -191,7 +191,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
             /* Left and right banks */
         if (river[i].leftele > 0)
         {
-#if defined(_FBR_) && defined(_TGM_)
+#if defined(_FBR_) && defined(_LUMPED_)
             RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
                 LEFT_FBR2CHANL, &elem[river[i].leftele - 1], &river[i]);
 #else
@@ -202,7 +202,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
 
         if (river[i].rightele > 0)
         {
-#if defined(_FBR_) && defined(_TGM_)
+#if defined(_FBR_) && defined(_LUMPED_)
             RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
                 RIGHT_FBR2CHANL, &elem[river[i].rightele - 1], &river[i]);
 #else
@@ -230,7 +230,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
     }
 }
 
-#if defined(_FBR_) && defined(_TGM_)
+#if defined(_FBR_) && defined(_LUMPED_)
 void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
     int fbr_to_chanl, elem_struct *bank, river_struct *river)
 #else
@@ -252,7 +252,7 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
             ((river->wf.rivflow[aquif_to_chanl] > 0.0) ?
             river->solute[k].conc : bank->solute[k].conc);
 
-#if defined(_FBR_) && defined(_TGM_)
+#if defined(_FBR_) && defined(_LUMPED_)
         river->solute[k].flux[fbr_to_chanl] =
             river->wf.rivflow[fbr_to_chanl] * bank->solute[k].conc_geol;
 #endif
