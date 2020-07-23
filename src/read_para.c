@@ -169,22 +169,6 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX5", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX6_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX6", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX7_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX7", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX8_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX8", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX9_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX9", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX10_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX10", filename,
-        lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrtCtrl(cmdstr, "SUBFLX", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
