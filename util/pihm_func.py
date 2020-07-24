@@ -10,8 +10,8 @@ def read_mesh(simulation):
     # Full file name
     fname = 'input/' + simulation + '/' + simulation + '.mesh'
 
-    # Read mesh file into an array of strings with '#' and leading white spaces
-    # removed
+    # Read mesh file into an array of strings with leading white spaces removed
+    # Line starting with "#" are not read in
     meshstr = []
     with open(fname) as file:
         [meshstr.append(line.strip()) for line in file
@@ -41,7 +41,8 @@ def read_mesh(simulation):
         zmin.append(float(strs[2]))
         zmax.append(float(strs[3]))
 
-    return num_elem, num_nodes, tri, x, y, zmin, zmax
+    return (num_elem, num_nodes, np.array(tri), np.array(x), np.array(y),
+            np.array(zmin), np.array(zmax))
 
 
 def read_river(simulation):
@@ -49,8 +50,8 @@ def read_river(simulation):
     # Full file name
     fname = 'input/' + simulation + '/' + simulation + '.riv'
 
-    # Read river file into an array of strings with '#' and leading white spaces
-    # removed
+    # Read river file into an array of strings with leading white spaces removed
+    # Line starting with "#" are not read in
     riverstr = []
     with open(fname) as file:
         [riverstr.append(line.strip()) for line in file
@@ -67,7 +68,7 @@ def read_river(simulation):
         from_node.append(int(strs[0]) - 1)
         to_node.append(int(strs[1]) - 1)
 
-    return num_rivers, from_node, to_node
+    return (num_rivers, np.array(from_node), np.array(to_node))
 
 
 def read_output(simulation, outputdir, ext):
@@ -77,293 +78,223 @@ def read_output(simulation, outputdir, ext):
     num_elem, _, _, _, _, _, _ = read_mesh(simulation)
 
     # Determine output dimension, variable name and unit from extension
-    if ext == 'surf':
+    if ext[0:6] == 'river.':
         dim = num_elem
+    else:
+        dim = num_rivers
+
+    if ext == 'surf':
         varname = 'Surface water'
         unit = 'm'
     elif ext == 'unsat':
-        dim = num_elem
         varname = 'Unsaturated zone storage'
         unit = 'm'
     elif ext == 'gw':
-        dim = num_elem
         varname = 'Groundwater storage'
         unit = 'm'
-    elif ext == 'stage':
-        dim = num_rivers
+    elif ext == 'river.stage':
         varname = 'River stage'
         unit = 'm'
-    elif ext == 'rivgw':
-        dim = num_rivers
-        varname = 'River groundwater storage'
-        unit = 'm'
     elif ext == 'snow':
-        dim = num_elem
         varname = 'Water equivalent snow depth'
         unit = 'm'
     elif ext == 'is':
-        dim = num_elem
         varname = 'Interception storage'
         unit = 'm'
     elif ext == 'infil':
-        dim = num_elem
         varname = 'Infiltration'
         unit = 'm s$^{-1}$'
     elif ext == 'recharge':
-        dim = num_elem
         varname = 'Recharge'
         unit = 'm s$^{-1}$'
     elif ext == 'ec':
-        dim = num_elem
         varname = 'Canopy evaporation'
         unit = 'm s$^{-1}$'
     elif ext == 'ett':
-        dim = num_elem
         varname = 'Transpiration'
         unit = 'm s$^{-1}$'
     elif ext == 'edir':
-        dim = num_elem
         varname = 'Soil evaporation'
         unit = 'm s$^{-1}$'
-    elif ext[0:6] == 'rivflx':
-        dim = num_rivers
-        varname = 'River flux ' + ext[6:]
+    elif ext[0:9] == 'river.flx':
+        varname = 'River flux ' + ext[9:]
         unit = 'm$^3$ s$^{-1}$'
     elif ext[0:6] == 'subflx':
-        dim = num_elem
         varname = 'Subsurface flux ' + ext[6]
         unit = 'm$^3$ s$^{-1}$'
     elif ext[0:7] == 'surfflx':
-        dim = num_elem
         varname = 'Surface flux ' + ext[7]
         unit = 'm$^3$ s$^{-1}$'
     elif ext == 't1':
-        dim = num_elem
         varname = 'Land surface temperature'
         unit = 'K'
     elif ext[0:3] == 'stc':
-        dim = num_elem
         varname = 'Soil temperature (Layer ' + str(int(ext[3:]) + 1) + ')'
         unit = 'K'
     elif ext[0:3] == 'smc':
-        dim = num_elem
         varname = 'Soil moisture content (Layer ' + str(int(ext[3:]) + 1) + ')'
         unit = 'm$^3$ m$^{-3}$'
     elif ext[0:3] == 'swc':
-        dim = num_elem
         varname = 'Soil water content (Layer ' + str(int(ext[3:]) + 1) + ')'
         unit = 'm$^3$ m$^{-3}$'
     elif ext == 'snowh':
-        dim = num_elem
         varname = 'Snow depth'
         unit = 'm'
     elif ext == 'iceh':
-        dim = num_elem
         varname = 'Ice depth'
         unit = 'm'
     elif ext == 'albedo':
-        dim = num_elem
         varname = 'Albedo'
         unit = '-'
     elif ext == 'le':
-        dim = num_elem
         varname = 'Latent heat flux'
         unit = 'W m$^{-2}$'
     elif ext == 'sh':
-        dim = num_elem
         varname = 'Sensible heat flux'
         unit = 'W m$^{-2}$'
     elif ext == 'g':
-        dim = num_elem
         varname = 'Ground heat flux'
         unit = 'W m$^{-2}$'
     elif ext == 'etp':
-        dim = num_elem
         varname = 'Potential evaporation'
         unit = 'W m$^{-2}$'
     elif ext == 'esnow':
-        dim = num_elem
         varname = 'Snow sublimation'
         unit = 'W m$^{-2}$'
     elif ext == 'rootw':
-        dim = num_elem
         varname = 'Root zone vailable soil moisture'
         unit = '-'
     elif ext == 'soilm':
-        dim = num_elem
         varname = 'Total soil moisture'
         unit = 'm'
     elif ext == 'solar':
-        dim = num_elem
         varname = 'Solar radiation'
         unit = 'W m$^{-2}$'
     elif ext == 'ch':
-        dim = num_elem
         varname = 'Surface exchange coefficient'
         unit = 'm s$^{-1}$'
     elif ext == 'lai':
-        dim = num_elem
         varname = 'LAI'
         unit = 'm$^2$ m$^{-2}$'
     elif ext == 'npp':
-        dim = num_elem
         varname = 'NPP'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'nep':
-        dim = num_elem
         varname = 'NEP'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'nee':
-        dim = num_elem
         varname = 'NEE'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'gpp':
-        dim = num_elem
         varname = 'GPP'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'mr':
-        dim = num_elem
         varname = 'Maintenace respiration'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'gr':
-        dim = num_elem
         varname = 'Growth respiration'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'hr':
-        dim = num_elem
         varname = 'Heterotrophic respiration'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'fire':
-        dim = num_elem
         varname = 'Fire losses'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'litfallc':
-        dim = num_elem
         varname = 'Litter fall'
         unit = 'kgC m$^{-2}$ day$^{-1}$'
     elif ext == 'vegc':
-        dim = num_elem
         varname = 'Vegetation carbon'
         unit = 'kgC m$^{-2}$'
     elif ext == 'agc':
-        dim = num_elem
         varname = 'Aboveground carbon'
         unit = 'kgC m$^{-2}$'
     elif ext == 'litrc':
-        dim = num_elem
         varname = 'Litter carbon'
         unit = 'kgC m$^{-2}$'
     elif ext == 'soilc':
-        dim = num_elem
         varname = 'Soil carbon'
         unit = 'kgC m$^{-2}$'
     elif ext == 'totalc':
-        dim = num_elem
         varname = 'Total carbon'
         unit = 'kgC m$^{-2}$'
     elif ext == 'sminn':
-        dim = num_elem
         varname = 'Soil mineral nitrogen'
         unit = 'kgN m$^{-2}$'
     elif ext[0:11] == 'grain_yield':
-        dim = num_elem
         varname = 'Grain yield ' + ext[12:]
         unit = 'Mg ha$^{-1}$'
     elif ext[0:12] == 'forage_yield':
-        dim = num_elem
         varname = 'Forage yield ' + ext[13:]
         unit = 'Mg ha$^{-1}$'
     elif ext[0:5] == 'shoot':
-        dim = num_elem
         varname = 'Shoot biomass ' + ext[6:]
         unit = 'Mg ha$^{-1}$'
     elif ext[0:4] == 'root':
-        dim = num_elem
         varname = 'Root biomass ' + ext[5:]
         unit = 'Mg ha$^{-1}$'
     elif ext[0:8] == 'radintcp':
-        dim = num_elem
         varname = 'Radiation interception ' + ext[9:]
         unit = '-'
     elif ext[0:7] == 'wstress':
-        dim = num_elem
         varname = 'Water stress ' + ext[8:]
         unit = '-'
     elif ext[0:7] == 'nstress':
-        dim = num_elem
         varname = 'N stress ' + ext[8:]
         unit = '-'
     elif ext[0:6] == 'transp':
-        dim = num_elem
         varname = 'Transpiration ' + ext[7:]
         unit = 'mm day$^{-1}$'
     elif ext[0:9] == 'pottransp':
-        dim = num_elem
         varname = 'Potential transpiration ' + ext[10:]
         unit = 'mm day$^{-1}$'
     elif ext == 'NO3':
-        dim = num_elem
         varname = 'Soil profile NO$_3$'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'NH4':
-        dim = num_elem
         varname = 'Soil profile NH$_4$'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'river_NO3':
-        dim = num_rivers
         varname = 'River NO$_3$'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'river_NH4':
-        dim = num_rivers
         varname = 'River NH$_4$'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'denitrif':
-        dim = num_elem
         varname = 'Denitrification'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'NO3_leaching':
-        dim = num_rivers
         varname = 'NO$_3$ leaching'
         unit = '0.1 kg s$^{-1}$'
     elif ext == 'NH4_leaching':
-        dim = num_rivers
         varname = 'NH$_4$ leaching'
         unit = '0.1 kg s$^{-1}$'
-    elif ext == 'deepunsat':
-        dim = num_elem
-        varname = 'Deep layer unsaturated storage'
+    elif ext == 'deep.unsat':
+        varname = 'Deep zone unsaturated storage'
         unit = 'm'
-    elif ext == 'deepgw':
-        dim = num_elem
+    elif ext == 'deep.gw':
         varname = 'Deep groundwater storage'
         unit = 'm'
-    elif ext == 'deepinfil':
-        dim = num_elem
-        varname = 'Deep layer infiltration'
+    elif ext == 'deep.infil':
+        varname = 'Deep zone infiltration'
         unit = 'm s$^{-1}$'
-    elif ext == 'deeprechg':
-        dim = num_elem
-        varname = 'Deep layer recharge'
+    elif ext == 'deep.rechg':
+        varname = 'Deep zone recharge'
         unit = 'm s$^{-1}$'
-    elif ext[0:8] == 'deepflow':
-        dim = num_elem
+    elif ext[0:9] == 'deep.flow':
         varname = 'Deep layer lateral flow ' + ext[9:]
         unit = 'm$^3$ s$^{-1}$'
     elif ext[0:4]== 'conc':
-        dim = num_elem
         varname = ext[5:] + ' concentration'
         unit = 'mol L$^{-1}$'
-    elif ext[0:9] == 'deep_conc':
-        dim = num_elem
-        varname = 'Deep zone ' + ext[15:] + ' concentration'
+    elif ext[0:9] == 'deep.conc':
+        varname = 'Deep zone ' + ext[10:] + ' concentration'
         unit = 'mol L$^{-1}$'
-    elif ext[0:10] == 'river_conc':
-        dim = num_rivers
+    elif ext[0:10] == 'river.conc':
         varname = 'Stream ' + ext[11:] + ' concentration'
         unit = 'mol L$^{-1}$'
-    elif ext[0:15] == 'river_discharge':
-        dim = num_rivers
-        varname = 'River ' + ext[16:] + ' flux'
+    elif ext[0:11] == 'river.chflx':
+        varname = 'River ' + ext[12:] + ' flux'
         unit = 'kmol s$^{-1}$'
 
     # Full file name (binary file)
@@ -388,4 +319,4 @@ def read_output(simulation, outputdir, ext):
         [sim_time.append(datetime.utcfromtimestamp(data_array[i, 0]))
          for i in range(int(fsize / (dim + 1)))]
 
-    return sim_time, sim_val, varname, unit
+    return (sim_time, sim_val, varname, unit)
