@@ -56,7 +56,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVSTG_CTRL:
-                    InitPrtVarCtrl(outputdir, "stage", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.stage", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -151,7 +151,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX0_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx0", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx0", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -160,7 +160,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX1_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx1", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx1", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -169,7 +169,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX2_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx2", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx2", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -178,7 +178,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX3_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx3", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx3", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -187,7 +187,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX4_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx4", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx4", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -196,7 +196,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case RIVFLX5_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx5", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.flx5", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -806,7 +806,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case N_RIVER_CTRL:
-                    InitPrtVarCtrl(outputdir, "river_NO3", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.NO3", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -814,7 +814,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     }
                     n++;
 
-                    InitPrtVarCtrl(outputdir, "river_NH4", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.NH4", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -832,7 +832,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case LEACHING_CTRL:
-                    InitPrtVarCtrl(outputdir, "NO3_leaching", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.NO3leaching", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -841,7 +841,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     }
                     n++;
 
-                    InitPrtVarCtrl(outputdir, "NH4_leaching", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "river.NH4leaching", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -862,7 +862,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 #endif
 #if defined(_FBR_)
                 case FBRUNSAT_CTRL:
-                    InitPrtVarCtrl(outputdir, "deepunsat", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deep.unsat", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -871,7 +871,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRGW_CTRL:
-                    InitPrtVarCtrl(outputdir, "deepgw", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deep.gw", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -880,7 +880,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRINFIL_CTRL:
-                    InitPrtVarCtrl(outputdir, "deepinfil", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deep.infil", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -889,7 +889,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRRECHG_CTRL:
-                    InitPrtVarCtrl(outputdir, "deeprechg", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deep.rechg", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -900,7 +900,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                 case FBRFLOW_CTRL:
                     for (k = 0; k < NUM_EDGE; k++)
                     {
-                        sprintf(ext, "deepflow%d", k);
+                        sprintf(ext, "deep.flow%d", k);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -930,7 +930,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 # if defined(_FBR_)
                         /* Fractured unsaturated bedrock layer concentration */
-                        sprintf(ext, "deep_conc.%s", chemn);
+                        sprintf(ext, "deep.conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -942,7 +942,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 # endif
 
                         /* River concentration */
-                        sprintf(ext, "river_conc.%s", chemn);
+                        sprintf(ext, "river.conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
@@ -953,7 +953,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
                         /* River fluxes */
-                        sprintf(ext, "river_discharge.%s", chemn);
+                        sprintf(ext, "river.chflx.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
@@ -980,7 +980,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
 # if defined(_FBR_)
-                        sprintf(ext, "deep_conc.%s", chemn);
+                        sprintf(ext, "deep.conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -1130,7 +1130,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
         n++;
 
 #  if defined(_FBR_)
-        sprintf(ext, "elem%d.deep_conc", i + 1);
+        sprintf(ext, "elem%d.deep.conc", i + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
         for (k = 0; k < rttbl->num_stc; k++)
