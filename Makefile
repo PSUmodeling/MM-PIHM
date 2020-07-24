@@ -367,7 +367,7 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-cycles-3d:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+cycles-3d:	        ## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
 cycles-3d: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
