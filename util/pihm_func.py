@@ -79,9 +79,9 @@ def read_output(simulation, outputdir, ext):
 
     # Determine output dimension, variable name and unit from extension
     if ext[0:6] == 'river.':
-        dim = num_elem
-    else:
         dim = num_rivers
+    else:
+        dim = num_elem
 
     if ext == 'surf':
         varname = 'Surface water'
