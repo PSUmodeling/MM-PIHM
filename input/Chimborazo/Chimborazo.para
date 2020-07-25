@@ -1,7 +1,7 @@
 SIMULATION_MODE     0                   # simulation type: 1 = spinup simulation, 0 = normal simulation
 INIT_MODE           0                   # initialization type: 0 = relaxation, 1 = use .ic file
 ASCII_OUTPUT        1                   # write ASCII output? 0 = no, 1 = yes
-WATBAL_OUTPUT       1                   # write water balance? 0 = no, 1 = yes
+WATBAL_OUTPUT       0                   # write water balance? 0 = no, 1 = yes
 WRITE_IC            0                   # write initial condition? 0 = no, 1 = outputs will be written to restart directory
 UNSAT_MODE          2                   # unsaturation formulation: 1 = kinematic, 2 = diffusion
 SURF_MODE           2                   # surface overland flow formulation: 1 = kinematic, 2 = diffusion
