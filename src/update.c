@@ -46,7 +46,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         elem[i].ws0 = elem[i].ws;
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 
         elem[i].ns.nleached_snk += elem[i].nt.sminn0 - elem[i].ns.sminn +
@@ -103,16 +103,16 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
     }
 
-#if defined(_BGC_) && defined(_LUMPED_)
-    elem[LUMPED].ns.sminn = (y[LUMPED_SMINN] > 0.0) ? y[LUMPED_SMINN] : 0.0;
+#if defined(_BGC_) && defined(_LUMPEDBGC_)
+    elem[LUMPEDBGC].ns.sminn = (y[LUMPEDBGC_SMINN] > 0.0) ? y[LUMPEDBGC_SMINN] : 0.0;
 
-    elem[LUMPED].ns.nleached_snk += (elem[LUMPED].nt.sminn0 -
-        elem[LUMPED].ns.sminn) +
-        elem[LUMPED].nf.ndep_to_sminn / DAYINSEC * stepsize +
-        elem[LUMPED].nf.nfix_to_sminn / DAYINSEC * stepsize +
-        elem[LUMPED].nsol.snksrc * stepsize;
+    elem[LUMPEDBGC].ns.nleached_snk += (elem[LUMPEDBGC].nt.sminn0 -
+        elem[LUMPEDBGC].ns.sminn) +
+        elem[LUMPEDBGC].nf.ndep_to_sminn / DAYINSEC * stepsize +
+        elem[LUMPEDBGC].nf.nfix_to_sminn / DAYINSEC * stepsize +
+        elem[LUMPEDBGC].nsol.snksrc * stepsize;
 
-    elem[LUMPED].nt.sminn0 = elem[LUMPED].ns.sminn;
+    elem[LUMPEDBGC].nt.sminn0 = elem[LUMPEDBGC].ns.sminn;
 #endif
 
 #if defined(_OPENMP)

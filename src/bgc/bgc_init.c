@@ -8,8 +8,8 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
 
     pihm_printf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
     for (i = 0; i < nelem; i++)
 #endif
@@ -83,8 +83,8 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
     for (i = 0; i < nelem; i++)
 #endif
@@ -96,19 +96,19 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
             &elem[i].solute[0]);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPEDBGC_)
         NV_Ith(CV_Y, SOLUTE_SOIL(i, 0)) = elem[i].ns.sminn;
 
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
     }
 
-#if defined(_LUMPED_)
-    NV_Ith(CV_Y, LUMPED_SMINN) = elem[LUMPED].ns.sminn;
-    elem[LUMPED].nt.sminn0 = elem[i].ns.sminn;
+#if defined(_LUMPEDBGC_)
+    NV_Ith(CV_Y, LUMPEDBGC_SMINN) = elem[LUMPEDBGC].ns.sminn;
+    elem[LUMPEDBGC].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
-#if !defined(_LUMPED_) && !defined(_LEACHING_)
+#if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;

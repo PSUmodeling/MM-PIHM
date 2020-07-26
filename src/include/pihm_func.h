@@ -26,13 +26,13 @@
 #endif
 
 #if _OBSOLETE_
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_)
 # define SURFN(i)               (i + 3 * nelem + 2 * nriver)
 # define SMINN(i)               (i + 4 * nelem + 2 * nriver)
 # define STREAMN(i)             (i + 5 * nelem + 2 * nriver)
 # define RIVBEDN(i)             (i + 5 * nelem + 3 * nriver)
 #else
-# define LUMPED_SMINN           (3 * nelem + 2 * nriver)
+# define LUMPEDBGC_SMINN           (3 * nelem + 2 * nriver)
 #endif
 #endif
 
@@ -524,7 +524,7 @@ void            Mortality(const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
 # if defined(_LEACHING_)
 void            NLeaching(elem_struct *);
-# elif defined(_LUMPED_)
+# elif defined(_LUMPEDBGC_)
 void            NLeachingLumped(elem_struct *, river_struct *);
 # else
 #  if OBSOLETE

@@ -37,7 +37,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.fbr_gw = MAX(y[FBRGW(i)], 0.0);
 #endif
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_)
         elem->ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
 
@@ -59,9 +59,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
-#if defined(_BGC_) && defined(_LUMPED_)
-    pihm->elem[LUMPED].ns.sminn = (y[LUMPED_SMINN] >= 0.0) ?
-        y[LUMPED_SMINN] : 0.0;
+#if defined(_BGC_) && defined(_LUMPEDBGC_)
+    pihm->elem[LUMPEDBGC].ns.sminn = (y[LUMPEDBGC_SMINN] >= 0.0) ?
+        y[LUMPEDBGC_SMINN] : 0.0;
 #endif
 
 #if defined(_OPENMP)
@@ -75,7 +75,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river->ws.stage = MAX(y[RIVER(i)], 0.0);
 
-#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
         river->ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif
 
@@ -106,7 +106,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Nitrogen transport fluxes
      */
-# if defined(_LUMPED_)
+# if defined(_LUMPEDBGC_)
     NLeachingLumped(pihm->elem, pihm->river);
 # elif defined(_LEACHING_)
     NLeaching(pihm->elem);
@@ -190,7 +190,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
 #if _OBSOLETE_
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_)
 # if !defined(_LEACHING_)
         /*
          * BGC N transport fluxes
@@ -251,12 +251,12 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
-#if defined(_BGC_) && defined(_LUMPED_)
+#if defined(_BGC_) && defined(_LUMPEDBGC_)
     elem_struct    *elem;
 
-    elem = &pihm->elem[LUMPED];
+    elem = &pihm->elem[LUMPEDBGC];
 
-    dy[LUMPED_SMINN] +=
+    dy[LUMPEDBGC_SMINN] +=
         (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
         elem->nsol.snksrc;
 #endif
@@ -283,7 +283,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #if _OBSOLETE_
-#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
         {
             dy[STREAMN(i)] -= river->nsol.flux[j] / river->topo.area;
@@ -330,7 +330,7 @@ int NumStateVar(void)
 
 #if TEMP_DISABLED
 #if defined(_BGC_)
-# if defined(_LUMPED_)
+# if defined(_LUMPEDBGC_)
     nsv += 1;
 # else
     nsv += 2 * nelem + 2 * nriver;

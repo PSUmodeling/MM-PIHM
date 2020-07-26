@@ -74,7 +74,7 @@ typedef struct river_ic_struct
     double          stage;
 } river_ic_struct;
 
-#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
 /* River nitrogen state variables */
 typedef struct river_nstate_struct
 {
@@ -134,7 +134,7 @@ typedef struct river_struct
 #if defined(_CYCLES_)
     river_nstate_struct ns;
 #endif
-#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
+#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     river_nstate_struct ns;
     river_nflux_struct nf;
     river_solute_struct nsol;

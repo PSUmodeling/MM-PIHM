@@ -10,8 +10,8 @@ void DailyBgc(pihm_struct pihm, int t)
     spa_data        spa, prev_spa;
     double         *vwc;
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
 # if defined(_OPENMP)
 #  pragma omp parallel for
@@ -75,7 +75,7 @@ void DailyBgc(pihm_struct pihm, int t)
     prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 24.0 * 3600.0) : prev_dayl;
 
     /* Calculate average soil water content for all model grids */
-#if defined(_LUMPED_)
+#if defined(_LUMPEDBGC_)
     vwc = (double *)malloc((nelem + 1) * sizeof(double));
 #else
     vwc = (double *)malloc(nelem * sizeof(double));
@@ -100,17 +100,17 @@ void DailyBgc(pihm_struct pihm, int t)
         vwc[i] /= pihm->elem[i].soil.depth;
     }
 
-#if defined(_LUMPED_)
-    vwc[LUMPED] = 0.0;
+#if defined(_LUMPEDBGC_)
+    vwc[LUMPEDBGC] = 0.0;
     for (i = 0; i < nelem; i++)
     {
-        vwc[LUMPED] += vwc[i] * pihm->elem[i].topo.area;
+        vwc[LUMPEDBGC] += vwc[i] * pihm->elem[i].topo.area;
     }
-    vwc[LUMPED] /= pihm->elem[LUMPED].topo.area;
+    vwc[LUMPEDBGC] /= pihm->elem[LUMPEDBGC].topo.area;
 #endif
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
 # if defined(_OPENMP)
 #  pragma omp parallel for

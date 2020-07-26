@@ -31,8 +31,8 @@
 
 #define F_OK                    0
 
-#if defined(_LUMPED_)
-# define LUMPED    nelem
+#if defined(_LUMPEDBGC_)
+# define LUMPEDBGC    nelem
 #endif
 
 /* Simulation mode */

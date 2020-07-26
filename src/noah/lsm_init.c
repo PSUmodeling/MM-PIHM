@@ -12,7 +12,7 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
 
     iceh = (double *)malloc(nelem * sizeof(double));
 
-#if defined(_LUMPED_)
+#if defined(_LUMPEDBGC_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)
@@ -41,7 +41,7 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
         }
     }
 
-#if defined(_LUMPED_)
+#if defined(_LUMPEDBGC_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)

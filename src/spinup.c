@@ -50,8 +50,8 @@ void ResetSpinupStat(elem_struct *elem)
 {
     int             i;
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
 # if defined(_OPENMP)
 #  pragma omp parallel for
@@ -88,8 +88,8 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
     static double   fbrgw_prev = 0.0;
 #endif
 
-#if defined(_LUMPED_)
-    i = LUMPED;
+#if defined(_LUMPEDBGC_)
+    i = LUMPEDBGC;
 #else
     for (i = 0; i < nelem; i++)
 #endif

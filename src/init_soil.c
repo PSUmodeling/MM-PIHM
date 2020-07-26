@@ -13,7 +13,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-#if defined(_LUMPED_)
+#if defined(_LUMPEDBGC_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)

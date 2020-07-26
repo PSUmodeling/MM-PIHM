@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-#if !defined(_LUMPED_) && !defined(_LEACHING_)
+#if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
 void SoluteConc(elem_struct *elem, river_struct *river)
 {
     int             i;
@@ -43,7 +43,7 @@ void SoluteConc(elem_struct *elem, river_struct *river)
 }
 #endif
 
-#if defined(_LUMPED_)
+#if defined(_LUMPEDBGC_)
 void NLeachingLumped(elem_struct *elem, river_struct *river)
 {
     int             i;
@@ -66,11 +66,11 @@ void NLeachingLumped(elem_struct *elem, river_struct *river)
         }
     }
 
-    strg /= elem[LUMPED].topo.area;
-    runoff /= elem[LUMPED].topo.area;
+    strg /= elem[LUMPEDBGC].topo.area;
+    runoff /= elem[LUMPEDBGC].topo.area;
 
-    elem[LUMPED].nf.sminn_leached = (runoff > 0.0) ?
-        runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
+    elem[LUMPEDBGC].nf.sminn_leached = (runoff > 0.0) ?
+        runoff * MOBILEN_PROPORTION * elem[LUMPEDBGC].ns.sminn / strg / 1000.0 :
         0.0;
 }
 #endif

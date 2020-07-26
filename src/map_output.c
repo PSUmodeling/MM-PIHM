@@ -388,102 +388,102 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     break;
 #endif
 #if defined(_BGC_)
-# if defined(_LUMPED_)
+# if defined(_LUMPEDBGC_)
                 case LAI_CTRL:
                     InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].ps.proj_lai;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].ps.proj_lai;
                     n++;
                     break;
                 case NPP_CTRL:
                     InitPrtVarCtrl(outputdir, "npp", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_npp;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_npp;
                     n++;
                     break;
                 case NEP_CTRL:
                     InitPrtVarCtrl(outputdir, "nep", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_nep;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nep;
                     n++;
                     break;
                 case NEE_CTRL:
                     InitPrtVarCtrl(outputdir, "nee", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_nee;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nee;
                     n++;
                     break;
                 case GPP_CTRL:
                     InitPrtVarCtrl(outputdir, "gpp", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_gpp;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gpp;
                     n++;
                     break;
                 case MR_CTRL:
                     InitPrtVarCtrl(outputdir, "mr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_mr;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_mr;
                     n++;
                     break;
                 case GR_CTRL:
                     InitPrtVarCtrl(outputdir, "gr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_gr;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gr;
                     n++;
                     break;
                 case HR_CTRL:
                     InitPrtVarCtrl(outputdir, "hr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_hr;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_hr;
                     n++;
                     break;
                 case FIRE_CTRL:
                     InitPrtVarCtrl(outputdir, "fire", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_fire;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_fire;
                     n++;
                     break;
                 case LITFALLC_CTRL:
                     InitPrtVarCtrl(outputdir, "litfallc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] =
-                        &elem[LUMPED].summary.daily_litfallc;
+                        &elem[LUMPEDBGC].summary.daily_litfallc;
                     n++;
                     break;
                 case VEGC_CTRL:
                     InitPrtVarCtrl(outputdir, "vegc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.vegc;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.vegc;
                     n++;
                     break;
                 case AGC_CTRL:
                     InitPrtVarCtrl(outputdir, "agc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.agc;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.agc;
                     n++;
                     break;
                 case LITRC_CTRL:
                     InitPrtVarCtrl(outputdir, "litrc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.litrc;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.litrc;
                     n++;
                     break;
                 case SOILC_CTRL:
                     InitPrtVarCtrl(outputdir, "soilc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.soilc;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.soilc;
                     n++;
                     break;
                 case TOTALC_CTRL:
                     InitPrtVarCtrl(outputdir, "totalc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].summary.totalc;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.totalc;
                     n++;
                     break;
                 case SMINN_CTRL:
                     InitPrtVarCtrl(outputdir, "sminn", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].ns.sminn;
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].ns.sminn;
                     n++;
                     break;
 # else
