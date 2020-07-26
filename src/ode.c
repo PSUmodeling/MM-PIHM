@@ -165,7 +165,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
         dy[FBRGW(i)] += elem->wf.fbr_rechg;
-# if defined(_LUMPED_)
+# if defined(_TGM_)
         dy[FBRGW(i)] -= elem->wf.fbr_discharge;
 # endif
 #endif
@@ -233,7 +233,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
             dy[SOLUTE_GEOL(i, k)] += elem->solute[k].fbr_infil +
                 elem->solute[k].snksrc_geol;
-#  if defined(_LUMPED_)
+#  if defined(_TGM_)
             dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbr_discharge;
 #  endif
 # endif

@@ -304,7 +304,7 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 
     if (ws->fbr_gw >= geol->depth)
     {
-# if defined(_LUMPED_)
+# if defined(_TGM_)
         /* In two-grid model, oversaturated deep groundwater should enter stream
          * instead of shallow groundwater */
         infil = 0.0;
@@ -365,7 +365,7 @@ double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
 
     if (ws->fbr_gw >= geol->depth)
     {
-# if defined(_LUMPED_)
+# if defined(_TGM_)
         rechg = 0.0;
 # else
         rechg = wf->fbr_infil;

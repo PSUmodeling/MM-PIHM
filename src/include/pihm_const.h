@@ -159,7 +159,7 @@
 #define CLAY                    11
 
 /* Number of river fluxes of a river segment */
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_FBR_) && defined(_TGM_)
 # define NUM_RIVFLX             8
 #else
 # define NUM_RIVFLX             6
@@ -172,7 +172,7 @@
 #define RIGHT_SURF2CHANL        3
 #define LEFT_AQUIF2CHANL        4
 #define RIGHT_AQUIF2CHANL       5
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_FBR_) && defined(_TGM_)
 # define LEFT_FBR2CHANL         6
 # define RIGHT_FBR2CHANL        7
 #endif

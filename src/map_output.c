@@ -12,7 +12,7 @@ void MapOutput(const int *prtvrbl, const chemtbl_struct chemtbl[],
 void MapOutput(const int *prtvrbl, const elem_struct *elem,
     const river_struct *river, const char *outputdir, print_struct *print)
 #endif
-#if !defined(_LUMPED_)
+#if !defined(_TGM_)
 {
     int             i, j, k;
     int             n;

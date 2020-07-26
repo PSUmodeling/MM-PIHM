@@ -176,7 +176,7 @@ void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
-#if defined(_LUMPED_) && defined(_RT_)
+#if defined(_TGM_) && defined(_RT_)
 void            InitOutputFile(const char *, int, int, const chemtbl_struct [],
     const rttbl_struct *, print_struct *);
 #else
@@ -468,7 +468,7 @@ void            SetAbsTolArray(double, N_Vector);
 double          AdvDiffDisp(double, double, double, double, double, double,
                     double, double, double);
 void            InitSolute(elem_struct []);
-# if defined(_FBR_) && defined(_LUMPED_)
+# if defined(_FBR_) && defined(_TGM_)
 void            RiverElemSoluteFlow(int, int, int, elem_struct *,
                     river_struct *);
 # else

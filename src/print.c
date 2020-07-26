@@ -31,9 +31,6 @@ void StartupScreen(void)
 #if defined(_FBR_)
     pihm_printf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
 #endif
-#if defined(_LUMPED_)
-    pihm_printf(VL_BRIEF, "    * Lumped mode turned on.\n");
-#endif
 #if defined(_OPENMP)
     pihm_printf(VL_BRIEF, "    * OpenMP (# of threads = %d).\n", nthreads);
 #endif
@@ -66,7 +63,7 @@ void StartupScreen(void)
     }
 }
 
-#if defined(_LUMPED_) && defined(_RT_)
+#if defined(_TGM_) && defined(_RT_)
 void InitOutputFile(const char *outputdir, int watbal, int ascii,
     const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     print_struct *print)
@@ -128,7 +125,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         }
     }
 
-#if defined(_LUMPED_)
+#if defined(_TGM_)
     int             n = 0;
     int             k;
 
