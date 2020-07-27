@@ -11,9 +11,9 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
     /* Apply boundary conditions */
 #if defined(_RT_)
-    ApplyBc(&pihm->rttbl, &pihm->forc, pihm->elem, pihm->river, t);
+    ApplyBC(t, &pihm->rttbl, &pihm->forc, pihm->elem, pihm->river);
 #else
-    ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
+    ApplyBC(t, &pihm->forc, pihm->elem, pihm->river);
 #endif
 
     /*
@@ -23,13 +23,13 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     {
         /* Apply forcing */
 #if defined(_RT_)
-        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, t,
-            pihm->ctrl.rad_mode, &pihm->siteinfo);
+        ApplyForcing(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->rttbl,
+            &pihm->forc, pihm->elem);
 #elif defined(_NOAH_)
-        ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
-            &pihm->siteinfo);
+        ApplyForcing(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->forc,
+            pihm->elem);
 #else
-        ApplyForc(&pihm->forc, pihm->elem, t);
+        ApplyForcing(t, &pihm->forc, pihm->elem);
 #endif
 
 #if defined(_NOAH_)

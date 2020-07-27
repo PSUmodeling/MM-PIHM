@@ -1,66 +1,66 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ApplyBc(const rttbl_struct *rttbl, forc_struct *forc, elem_struct *elem,
-    river_struct *river, int t)
+void ApplyBC(int t, const rttbl_struct *rttbl, forc_struct *forc,
+    elem_struct elem[], river_struct river[])
 #else
-void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
+void ApplyBC(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
 #endif
 {
     /* Element boundary conditions */
     if (forc->nbc > 0)
     {
 #if defined(_RT_)
-        ApplyElemBc(rttbl, forc, elem, t);
+        ApplyElemBC(t, rttbl, forc, elem);
 #else
-        ApplyElemBc(forc, elem, t);
+        ApplyElemBC(t, forc, elem);
 #endif
     }
 
-    /* River boundary condition */
+    /* River boundary conditions */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBc(forc, river, t);
+        ApplyRiverBC(t, forc, river);
     }
 }
 
 #if defined(_RT_)
-void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem,
-    int t, int rad_mode, const siteinfo_struct *siteinfo)
+void ApplyForcing(int t, int rad_mode, const siteinfo_struct *siteinfo,
+    const rttbl_struct *rttbl, forc_struct *forc,  elem_struct elem[])
 #elif defined(_NOAH_)
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyForcing(int t, int rad_mode, const siteinfo_struct *siteinfo,
+    forc_struct *forc, elem_struct elem[])
 #else
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyForcing(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     /* Meteorological forcing */
 #if defined(_CYCLES_)
-    ApplyDailyMeteoForc(t, rad_mode, siteinfo, forc, elem);
+    ApplyDailyMeteoForcing(t, rad_mode, siteinfo, forc, elem);
 #elif defined(_NOAH_)
-    ApplyMeteoForc(forc, elem, t, rad_mode, siteinfo);
+    ApplyMeteoForcing(t, rad_mode, siteinfo, forc, elem);
 #else
-    ApplyMeteoForc(forc, elem, t);
+    ApplyMeteoForcing(t, forc, elem);
 #endif
 
     /* LAI forcing */
 #if defined(_BGC_) || defined(_CYCLES_)
-    ApplyLai(elem);
+    ApplyLAI(elem);
 #else
-    ApplyLai(forc, elem, t);
+    ApplyLAI(t, forc, elem);
 #endif
 
 #if defined(_RT_)
-    /* Precipitation concentration */
-    ApplyPrcpConc(rttbl, forc, elem, t);
+    /* Precipitation solute concentration */
+    ApplyPrcpConc(t, rttbl, forc, elem);
 #endif
 }
 
 #if defined(_RT_)
-void ApplyElemBc(const rttbl_struct *rttbl, forc_struct *forc,
-    elem_struct *elem, int t)
+void ApplyElemBC(int t, const rttbl_struct *rttbl, forc_struct *forc,
+    elem_struct elem[])
 #else
-void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyElemBC(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, k;
@@ -71,9 +71,9 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
     for (k = 0; k < forc->nbc; k++)
     {
 #if defined(_RT_)
-        IntrplForc(&forc->bc[k], t, 1 + rttbl->num_stc, INTRPL);
+        IntrplForcing(t, 1 + rttbl->num_stc, INTRPL, &forc->bc[k]);
 #else
-        IntrplForc(&forc->bc[k], t, 1, INTRPL);
+        IntrplForcing(t, 1, INTRPL, &forc->bc[k]);
 #endif
     }
 
@@ -145,10 +145,10 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_NOAH_)
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyMeteoForcing(int t, int rad_mode, const siteinfo_struct *siteinfo,
+    forc_struct *forc, elem_struct elem[])
 #else
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, k;
@@ -164,24 +164,21 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR, INTRPL);
+        IntrplForcing(t, NUM_METEO_VAR, INTRPL, &forc->meteo[k]);
     }
 
 #if defined(_NOAH_)
     /*
      * Topographic radiation for Noah
      */
-    if (rad_mode > 0)
+    if (rad_mode == TOPO_SOL)
     {
-        if (forc->nrad > 0)
-        {
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
-            for (k = 0; k < forc->nrad; k++)
-            {
-                IntrplForc(&forc->rad[k], t, 2, INTRPL);
-            }
+        for (k = 0; k < forc->nrad; k++)
+        {
+            IntrplForcing(t, 2, INTRPL, &forc->rad[k]);
         }
 
         /* Calculate Sun position for topographic solar radiation */
@@ -211,13 +208,10 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 
 #if defined(_NOAH_)
         /* Calculate solar radiation */
-        if (rad_mode > 0)
+        if (rad_mode == TOPO_SOL)
         {
-            if (forc->nrad > 0)
-            {
-                elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
-                elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
-            }
+            elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
+            elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
 
             elem[i].ef.soldn = TopoRadn(&elem[i].topo, elem[i].ef.soldir,
                 elem[i].ef.soldif, spa.zenith, spa.azimuth180);
@@ -228,8 +222,8 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_CYCLES_)
-void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
-    forc_struct *forc, elem_struct elem[])
+void ApplyDailyMeteoForcing(int t, int rad_mode,
+    const siteinfo_struct *siteinfo, forc_struct *forc, elem_struct elem[])
 {
     int             i, k, kt;
     spa_data        spa;
@@ -262,23 +256,20 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
         */
         for (k = 0; k < forc->nmeteo; k++)
         {
-            IntrplForc(&forc->meteo[k], kt, NUM_METEO_VAR, INTRPL);
+            IntrplForcing(kt, NUM_METEO_VAR, INTRPL, &forc->meteo[k]);
         }
 
         /*
         * Topographic radiation for Noah
         */
-        if (rad_mode > 0)
+        if (rad_mode == TOPO_SOL)
         {
-            if (forc->nrad > 0)
-            {
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-                for (k = 0; k < forc->nrad; k++)
-                {
-                    IntrplForc(&forc->rad[k], kt, 2, INTRPL);
-                }
+            for (k = 0; k < forc->nrad; k++)
+            {
+                IntrplForcing(kt, 2, INTRPL, &forc->rad[k]);
             }
 
             /* Calculate Sun position for topographic solar radiation */
@@ -295,7 +286,7 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
             ind = elem[i].attrib.meteo_type - 1;
 
             /* Calculate solar radiation */
-            if (rad_mode > 0 && forc->nrad > 0)
+            if (rad_mode == TOPO_SOL)
             {
                 elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
                 elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
@@ -327,9 +318,9 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_)
-void ApplyLai(elem_struct elem[])
+void ApplyLAI(elem_struct elem[])
 #else
-void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
+void ApplyLAI(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i;
@@ -385,7 +376,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForc(&forc->lai[k], t, 1, INTRPL);
+            IntrplForcing(t, 1, INTRPL, &forc->lai[k]);
         }
     }
 
@@ -411,8 +402,8 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_RT_)
-void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
-    elem_struct elem[], int t)
+void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc,
+    elem_struct elem[])
 {
     int             i, j;
 
@@ -423,7 +414,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 #endif
         for (j = 0; j < forc->nprcpc; j++)
         {
-            IntrplForc(&forc->prcpc[j], t, rttbl->num_spc, NO_INTRPL);
+            IntrplForcing(t, rttbl->num_spc, NO_INTRPL, &forc->prcpc[j]);
         }
 
 #if defined(_OPENMP)
@@ -442,7 +433,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
             }
         }
     }
-    else if (forc->PrpFlg == 1)
+    else
     {
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -453,29 +444,15 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 
             for (k = 0; k < rttbl->num_spc; k++)
             {
-                elem[i].prcpchm.tot_conc[k] = rttbl->prcp_conc[k];
-            }
-        }
-    }
-    else if (forc->PrpFlg == 0)
-    {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             k;
-
-            for (k = 0; k < rttbl->num_spc; k++)
-            {
-                elem[i].prcpchm.tot_conc[k] = 0.0;
+                elem[i].prcpchm.tot_conc[k] = (forc->PrpFlg == 1) ?
+                    rttbl->prcp_conc[k] : 0.0;
             }
         }
     }
 }
 #endif
 
-void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
+void ApplyRiverBC(int t, forc_struct *forc, river_struct river[])
 {
     int             i, k;
 
@@ -484,7 +461,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForc(&forc->riverbc[k], t, 1, INTRPL);
+        IntrplForcing(t, 1, INTRPL, &forc->riverbc[k]);
     }
 
 #if defined(_OPENMP)
@@ -507,21 +484,21 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
     }
 }
 
-void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
+void IntrplForcing(int t, int nvrbl, int intrpl, tsdata_struct *ts)
 {
     int             j;
     int             first, middle, last;
 
     if (t < ts->ftime[0])
     {
-        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n");
-        pihm_printf(VL_ERROR, "Please check your forcing file.\n");
+        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n"
+            "Please check your forcing file.\n");
         pihm_exit(EXIT_FAILURE);
     }
     else if (t > ts->ftime[ts->length - 1])
     {
-        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n");
-        pihm_printf(VL_ERROR, "Please check your forcing file.\n");
+        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\n"
+            "Please check your forcing file.\n");
         pihm_exit(EXIT_FAILURE);
     }
 

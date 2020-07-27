@@ -87,38 +87,38 @@ void            _InitLc(elem_struct *, const lctbl_struct *,
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 #if defined(_RT_)
-void            ApplyBc(const rttbl_struct *, forc_struct *, elem_struct *,
-    river_struct *, int);
+void            ApplyBC(int, const rttbl_struct *, forc_struct *,
+    elem_struct [], river_struct []);
 #else
-void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
+void            ApplyBC(int, forc_struct *, elem_struct [], river_struct []);
 #endif
 #if defined(_RT_)
-void            ApplyElemBc(const rttbl_struct *, forc_struct *, elem_struct *,
-    int);
+void            ApplyElemBC(int, const rttbl_struct *, forc_struct *,
+    elem_struct []);
 #else
-void            ApplyElemBc(forc_struct *, elem_struct *, int);
+void            ApplyElemBC(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_RT_)
-void            ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int,
-    int, const siteinfo_struct *);
+void            ApplyForcing(int, int, const siteinfo_struct *,
+    const rttbl_struct *, forc_struct *, elem_struct []);
 #elif defined(_NOAH_)
-void            ApplyForc(forc_struct *, elem_struct *, int, int,
-    const siteinfo_struct *);
+void            ApplyForcing(int, int, const siteinfo_struct *, forc_struct *,
+    elem_struct []);
 #else
-void            ApplyForc(forc_struct *, elem_struct *, int);
+void            ApplyForcing(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_BGC_) || defined(_CYCLES_)
-void            ApplyLai(elem_struct []);
+void            ApplyLAI(elem_struct []);
 #else
-void            ApplyLai(forc_struct *, elem_struct *, int);
+void            ApplyLAI(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_NOAH_)
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
-    const siteinfo_struct *);
+void            ApplyMeteoForcing(int, int, const siteinfo_struct *,
+    forc_struct *, elem_struct []);
 #else
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
+void            ApplyMeteoForcing(int, forc_struct *, elem_struct []);
 #endif
-void            ApplyRiverBc(forc_struct *, river_struct *, int);
+void            ApplyRiverBC(int, forc_struct *, river_struct []);
 double          AvgKv(const soil_struct *, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
@@ -203,7 +203,7 @@ void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
-void            IntrplForc(tsdata_struct *, int, int, int);
+void            IntrplForcing(int, int, int, tsdata_struct *);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
@@ -570,7 +570,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 double          AdjustClipThld(double, double);
 double          Aeration(double);
 double          AirMolarDensity(double, double);
-void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
+void            ApplyDailyMeteoForcing(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
 void            ApplyFert(const fert_struct *, cstate_struct *, nstate_struct *,
     nflux_struct *);
@@ -785,8 +785,8 @@ void            ReadPrep(const char[], const chemtbl_struct [],
 void            ReadCini(const char[], const chemtbl_struct *, int,
     atttbl_struct *, chmictbl_struct *);
 int             ParseLocation(const char [], const char [], int);
-void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
-    elem_struct [], int);
+void            ApplyPrcpConc(int, const  rttbl_struct *, forc_struct *,
+    elem_struct []);
 void            wrap(char *);
 void            SoluteConc(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
