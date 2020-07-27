@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
-    const rttbl_struct *rttbl)
+void InitForcing(const rttbl_struct *rttbl, const calib_struct *cal,
+    forc_struct *forc, elem_struct elem[])
 #else
-void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
+void InitForcing(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, j;

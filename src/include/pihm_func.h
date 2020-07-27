@@ -167,10 +167,11 @@ double          Infil(const wstate_struct *, const wstate_struct *,
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #if defined(_RT_)
-void            InitForc(elem_struct *, forc_struct *, const calib_struct *,
-    const rttbl_struct *);
+void            InitForcing(const rttbl_struct *, const calib_struct *,
+    forc_struct *, elem_struct []);
 #else
-void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
+void            InitForcing(const calib_struct *, forc_struct *,
+    elem_struct []);
 #endif
 void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
