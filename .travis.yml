@@ -26,4 +26,4 @@ script:
   - make clean && make OMP=off LUMPED=on DGW=on rt-flux-pihm
 branches:
   only:
-  - master
+  - dev
