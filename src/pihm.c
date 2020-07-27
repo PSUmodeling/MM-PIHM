@@ -11,9 +11,9 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
     /* Apply boundary conditions */
 #if defined(_RT_)
-    ApplyBC(t, &pihm->rttbl, &pihm->forc, pihm->elem, pihm->river);
+    ApplyBc(t, &pihm->rttbl, &pihm->forc, pihm->elem, pihm->river);
 #else
-    ApplyBC(t, &pihm->forc, pihm->elem, pihm->river);
+    ApplyBc(t, &pihm->forc, pihm->elem, pihm->river);
 #endif
 
     /*

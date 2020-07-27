@@ -87,16 +87,16 @@ void            _InitLc(elem_struct *, const lctbl_struct *,
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 #if defined(_RT_)
-void            ApplyBC(int, const rttbl_struct *, forc_struct *,
+void            ApplyBc(int, const rttbl_struct *, forc_struct *,
     elem_struct [], river_struct []);
 #else
-void            ApplyBC(int, forc_struct *, elem_struct [], river_struct []);
+void            ApplyBc(int, forc_struct *, elem_struct [], river_struct []);
 #endif
 #if defined(_RT_)
-void            ApplyElemBC(int, const rttbl_struct *, forc_struct *,
+void            ApplyElemBc(int, const rttbl_struct *, forc_struct *,
     elem_struct []);
 #else
-void            ApplyElemBC(int, forc_struct *, elem_struct []);
+void            ApplyElemBc(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_RT_)
 void            ApplyForcing(int, int, const siteinfo_struct *,
@@ -108,9 +108,9 @@ void            ApplyForcing(int, int, const siteinfo_struct *, forc_struct *,
 void            ApplyForcing(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_BGC_) || defined(_CYCLES_)
-void            ApplyLAI(elem_struct []);
+void            ApplyLai(elem_struct []);
 #else
-void            ApplyLAI(int, forc_struct *, elem_struct []);
+void            ApplyLai(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_NOAH_)
 void            ApplyMeteoForcing(int, int, const siteinfo_struct *,
@@ -118,7 +118,7 @@ void            ApplyMeteoForcing(int, int, const siteinfo_struct *,
 #else
 void            ApplyMeteoForcing(int, forc_struct *, elem_struct []);
 #endif
-void            ApplyRiverBC(int, forc_struct *, river_struct []);
+void            ApplyRiverBc(int, forc_struct *, river_struct []);
 double          AvgKv(const soil_struct *, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
@@ -147,7 +147,7 @@ double          EffKh(const soil_struct *, double);
 double          EffKinf(const soil_struct *, double, double, double, double,
     double);
 double          EffKv(const soil_struct *, double, int);
-void            EtExtract(elem_struct *);
+void            EtUptake(elem_struct []);
 double          FieldCapacity(double, double, double, double);
 void            FreeAtttbl(atttbl_struct *);
 void            FreeCtrl(ctrl_struct *);
@@ -161,7 +161,7 @@ void            FreeShptbl(shptbl_struct *);
 void            FreeSoiltbl(soiltbl_struct *);
 void            FrictSlope(const elem_struct *, const river_struct *, double *,
     double *);
-void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
+void            Hydrol(const ctrl_struct *, elem_struct [], river_struct []);
 double          Infil(const wstate_struct *, const wstate_struct *,
     const wflux_struct *, const topo_struct *, const soil_struct *, double);
 void            InitEFlux(eflux_struct *);

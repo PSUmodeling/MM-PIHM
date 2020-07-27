@@ -1,26 +1,26 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ApplyBC(int t, const rttbl_struct *rttbl, forc_struct *forc,
+void ApplyBc(int t, const rttbl_struct *rttbl, forc_struct *forc,
     elem_struct elem[], river_struct river[])
 #else
-void ApplyBC(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
+void ApplyBc(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
 #endif
 {
     /* Element boundary conditions */
     if (forc->nbc > 0)
     {
 #if defined(_RT_)
-        ApplyElemBC(t, rttbl, forc, elem);
+        ApplyElemBc(t, rttbl, forc, elem);
 #else
-        ApplyElemBC(t, forc, elem);
+        ApplyElemBc(t, forc, elem);
 #endif
     }
 
     /* River boundary conditions */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBC(t, forc, river);
+        ApplyRiverBc(t, forc, river);
     }
 }
 
@@ -45,9 +45,9 @@ void ApplyForcing(int t, forc_struct *forc, elem_struct elem[])
 
     /* LAI forcing */
 #if defined(_BGC_) || defined(_CYCLES_)
-    ApplyLAI(elem);
+    ApplyLai(elem);
 #else
-    ApplyLAI(t, forc, elem);
+    ApplyLai(t, forc, elem);
 #endif
 
 #if defined(_RT_)
@@ -57,10 +57,10 @@ void ApplyForcing(int t, forc_struct *forc, elem_struct elem[])
 }
 
 #if defined(_RT_)
-void ApplyElemBC(int t, const rttbl_struct *rttbl, forc_struct *forc,
+void ApplyElemBc(int t, const rttbl_struct *rttbl, forc_struct *forc,
     elem_struct elem[])
 #else
-void ApplyElemBC(int t, forc_struct *forc, elem_struct elem[])
+void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, k;
@@ -318,9 +318,9 @@ void ApplyDailyMeteoForcing(int t, int rad_mode,
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_)
-void ApplyLAI(elem_struct elem[])
+void ApplyLai(elem_struct elem[])
 #else
-void ApplyLAI(int t, forc_struct *forc, elem_struct elem[])
+void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i;
@@ -452,7 +452,7 @@ void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc,
 }
 #endif
 
-void ApplyRiverBC(int t, forc_struct *forc, river_struct river[])
+void ApplyRiverBc(int t, forc_struct *forc, river_struct river[])
 {
     int             i, k;
 

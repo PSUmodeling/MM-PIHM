@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
+void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -14,7 +14,7 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
     }
 
     /* Determine which layers does ET extract water from */
-    EtExtract(elem);
+    EtUptake(elem);
 
     /* Water flow */
     LateralFlow(elem, river, ctrl->surf_mode);
@@ -24,7 +24,7 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
     RiverFlow(ctrl->surf_mode, ctrl->riv_mode, elem, river);
 }
 
-void EtExtract(elem_struct *elem)
+void EtUptake(elem_struct elem[])
 {
     int             i;
 
@@ -89,38 +89,38 @@ void EtExtract(elem_struct *elem)
     }
 }
 
-double SurfH(double surfeqv)
+double SurfH(double surf_eqv)
 {
     /*
      * Following Panday and Huyakorn (2004) AWR:
      * Use a parabolic curve to express the equivalent surface water depth
-     * (surfeqv) in terms of actual flow depth (surfh) when the actual flow
+     * (surf_eqv) in terms of actual flow depth (surfh) when the actual flow
      * depth is below depression storage; assume that
-     * d(surfeqv) / d(surfh) = 1.0 when surfh = DEPRSTG. Thus
-     *   surfeqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
-     *   surfh = sqrt(2 * DEPRSTG * surfeqv)
+     * d(surf_eqv) / d(surfh) = 1.0 when surfh = DEPRSTG. Thus
+     *   surf_eqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
+     *   surfh = sqrt(2 * DEPRSTG * surf_eqv)
      */
     double          surfh;
 
     if (DEPRSTG == 0.0)
     {
-        return surfeqv;
+        surfh = surf_eqv;
     }
     else
     {
-        if (surfeqv < 0.0)
+        if (surf_eqv < 0.0)
         {
             surfh = 0.0;
         }
-        else if (surfeqv <= 0.5 * DEPRSTG)
+        else if (surf_eqv <= 0.5 * DEPRSTG)
         {
-            surfh = sqrt(2.0 * DEPRSTG * surfeqv);
+            surfh = sqrt(2.0 * DEPRSTG * surf_eqv);
         }
         else
         {
-            surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
+            surfh = DEPRSTG + (surf_eqv - 0.5 * DEPRSTG);
         }
-
-        return surfh;
     }
+
+    return surfh;
 }
