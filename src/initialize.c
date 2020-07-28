@@ -150,9 +150,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     /* Initialize element soil properties */
 #if defined(_NOAH_)
-    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
+    InitSoil(&pihm->soiltbl, &pihm->noahtbl, &pihm->cal, pihm->elem);
 #else
-    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
+    InitSoil(&pihm->soiltbl, &pihm->cal, pihm->elem);
 #endif
 
 #if defined(_FBR_)

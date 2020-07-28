@@ -1,11 +1,11 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const noahtbl_struct *noahtbl, const calib_struct *cal)
+void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl,
+    const calib_struct *cal, elem_struct elem[])
 #else
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const calib_struct *cal)
+void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *cal,
+    elem_struct elem[])
 #endif
 {
     int             i;
@@ -63,16 +63,15 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #endif
 
         elem[i].soil.dmac = cal->dmac * soiltbl->dmac[soil_ind];
-        elem[i].soil.dmac = (elem[i].soil.dmac > elem[i].soil.depth) ?
-            elem[i].soil.depth : elem[i].soil.dmac;
+        elem[i].soil.dmac = MIN(elem[i].soil.dmac, elem[i].soil.depth);
 
         elem[i].soil.areafh = cal->areafh * soiltbl->areafh[soil_ind];
         elem[i].soil.areafv = cal->areafv * soiltbl->areafv[soil_ind];
 
-        elem[i].soil.kmacv =
-            cal->kmacv * soiltbl->kmacv_ro * soiltbl->kinfv[soil_ind];
-        elem[i].soil.kmach =
-            cal->kmach * soiltbl->kmach_ro * soiltbl->ksath[soil_ind];
+        elem[i].soil.kmacv = cal->kmacv * soiltbl->kmacv_ro *
+            soiltbl->kinfv[soil_ind];
+        elem[i].soil.kmach = cal->kmach * soiltbl->kmach_ro *
+            soiltbl->ksath[soil_ind];
 #if defined(_NOAH_)
         elem[i].soil.csoil = noahtbl->csoil;
         elem[i].soil.quartz = soiltbl->qtz[soil_ind];
