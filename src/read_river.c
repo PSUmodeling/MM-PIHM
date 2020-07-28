@@ -31,11 +31,11 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
 #endif
 
     /* Allocate */
-    rivtbl->fromnode = (int *)malloc(nriver * sizeof(int));
-    rivtbl->tonode = (int *)malloc(nriver * sizeof(int));
+    rivtbl->from = (int *)malloc(nriver * sizeof(int));
+    rivtbl->to = (int *)malloc(nriver * sizeof(int));
     rivtbl->down = (int *)malloc(nriver * sizeof(int));
-    rivtbl->leftele = (int *)malloc(nriver * sizeof(int));
-    rivtbl->rightele = (int *)malloc(nriver * sizeof(int));
+    rivtbl->left = (int *)malloc(nriver * sizeof(int));
+    rivtbl->right = (int *)malloc(nriver * sizeof(int));
     rivtbl->shp = (int *)malloc(nriver * sizeof(int));
     rivtbl->matl = (int *)malloc(nriver * sizeof(int));
     rivtbl->bc = (int *)malloc(nriver * sizeof(int));
@@ -50,8 +50,8 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
         NextLine(riv_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
             &index,
-            &rivtbl->fromnode[i], &rivtbl->tonode[i], &rivtbl->down[i],
-            &rivtbl->leftele[i], &rivtbl->rightele[i], &rivtbl->shp[i],
+            &rivtbl->from[i], &rivtbl->to[i], &rivtbl->down[i],
+            &rivtbl->left[i], &rivtbl->right[i], &rivtbl->shp[i],
             &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {

@@ -55,11 +55,11 @@ typedef struct filename_struct
 /* River input structure */
 typedef struct rivtbl_struct
 {
-    int            *fromnode;               /* upstream node id */
-    int            *tonode;                 /* downstream node id */
+    int            *from;               /* upstream node id */
+    int            *to;                 /* downstream node id */
     int            *down;                   /* downstream channel id */
-    int            *leftele;                /* left bank id */
-    int            *rightele;               /* right bank id */
+    int            *left;                /* left bank id */
+    int            *right;               /* right bank id */
     int            *shp;                    /* river shape type */
     int            *matl;                   /* material type */
     int            *bc;                     /* boundary condition type */

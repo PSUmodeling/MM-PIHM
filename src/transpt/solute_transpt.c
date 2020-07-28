@@ -98,7 +98,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                         river_ptr = &river[elem[i].nabr_river[j] - 1];
 
                         wflux = elem[i].wf.subsurf[j] +
-                            ((elem[i].ind == river_ptr->leftele) ?
+                            ((elem[i].ind == river_ptr->left) ?
                             river_ptr->wf.rivflow[LEFT_AQUIF2CHANL] :
                             river_ptr->wf.rivflow[RIGHT_AQUIF2CHANL]);
                     }
@@ -189,25 +189,25 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         }
 
             /* Left and right banks */
-        if (river[i].leftele > 0)
+        if (river[i].left > 0)
         {
 #if defined(_FBR_) && defined(_LUMPED_)
             RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
-                LEFT_FBR2CHANL, &elem[river[i].leftele - 1], &river[i]);
+                LEFT_FBR2CHANL, &elem[river[i].left - 1], &river[i]);
 #else
             RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
-                &elem[river[i].leftele - 1], &river[i]);
+                &elem[river[i].left - 1], &river[i]);
 #endif
         }
 
-        if (river[i].rightele > 0)
+        if (river[i].right > 0)
         {
 #if defined(_FBR_) && defined(_LUMPED_)
             RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
-                RIGHT_FBR2CHANL, &elem[river[i].rightele - 1], &river[i]);
+                RIGHT_FBR2CHANL, &elem[river[i].right - 1], &river[i]);
 #else
             RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
-                &elem[river[i].rightele - 1], &river[i]);
+                &elem[river[i].right - 1], &river[i]);
 #endif
         }
     }

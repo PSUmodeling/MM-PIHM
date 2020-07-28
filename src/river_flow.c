@@ -43,13 +43,13 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
             /*
              * Subsurface flow between river-river segments
              */
-            left = &elem[river[i].leftele - 1];
-            right = &elem[river[i].rightele - 1];
+            left = &elem[river[i].left - 1];
+            right = &elem[river[i].right - 1];
             effk = 0.5 *
                 (EffKh(&left->soil, left->ws.gw) +
                 EffKh(&right->soil, right->ws.gw));
-            left = &elem[down->leftele - 1];
-            right = &elem[down->rightele - 1];
+            left = &elem[down->left - 1];
+            right = &elem[down->right - 1];
             effk_nabr = 0.5 *
                 (EffKh(&left->soil, left->ws.gw) +
                 EffKh(&right->soil, right->ws.gw));
@@ -67,8 +67,8 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
         /*
          * Flux between river segments and triangular elements
          */
-        left = &elem[river[i].leftele - 1];
-        right = &elem[river[i].rightele - 1];
+        left = &elem[river[i].left - 1];
+        right = &elem[river[i].right - 1];
 
         RiverToElem(surf_mode, &river[i], left, right);
     }
@@ -96,7 +96,7 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
 void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
     elem_struct *right)
 {
-    if (river->leftele > 0)
+    if (river->left > 0)
     {
         double          effk_left;
 
@@ -108,7 +108,7 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
             ChanFlowElemToRiver(effk_left, river->topo.dist_left, river, left);
     }
 
-    if (river->rightele > 0)
+    if (river->right > 0)
     {
         double          effk_right;
 

@@ -129,8 +129,8 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             if (chemtbl[k].itype == AQUEOUS)
             {
                 river[i].chms.tot_conc[k] =
-                    0.5 * elem[river[i].leftele - 1].chms.tot_conc[k] +
-                    0.5 * elem[river[i].rightele - 1].chms.tot_conc[k];
+                    0.5 * elem[river[i].left - 1].chms.tot_conc[k] +
+                    0.5 * elem[river[i].right - 1].chms.tot_conc[k];
                 river[i].chms.prim_actv[k] = river[i].chms.tot_conc[k];
                 river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
                 river[i].chms.tot_mol[k] = river[i].chms.tot_conc[k] * storage;

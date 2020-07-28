@@ -57,11 +57,11 @@ void FreeMem(pihm_struct pihm)
 
 void FreeRivtbl(rivtbl_struct *rivtbl)
 {
-    free(rivtbl->fromnode);
-    free(rivtbl->tonode);
+    free(rivtbl->from);
+    free(rivtbl->to);
     free(rivtbl->down);
-    free(rivtbl->leftele);
-    free(rivtbl->rightele);
+    free(rivtbl->left);
+    free(rivtbl->right);
     free(rivtbl->shp);
     free(rivtbl->matl);
     free(rivtbl->bc);

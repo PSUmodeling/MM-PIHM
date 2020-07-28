@@ -114,10 +114,10 @@ typedef struct river_solute_struct
 typedef struct river_struct
 {
     int             ind;                    /* river index */
-    int             leftele;                /* left neighbor*/
-    int             rightele;               /* right neighbor */
-    int             fromnode;               /* upstream node */
-    int             tonode;                 /* downstream node */
+    int             left;                /* left neighbor*/
+    int             right;               /* right neighbor */
+    int             from;               /* upstream node */
+    int             to;                 /* downstream node */
     int             down;                   /* down stream channel segment */
     river_attrib_struct attrib;
     river_topo_struct topo;

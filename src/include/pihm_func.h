@@ -185,9 +185,9 @@ void            InitOutputFile(const char *, int, int, print_struct *);
 #endif
 void            InitPrtVarCtrl(const char *, const char *, int, int, int,
     varctrl_struct *);
-void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
-    const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
-    const calib_struct *);
+void            InitRiver(const meshtbl_struct *, const rivtbl_struct *,
+    const shptbl_struct *, const matltbl_struct *, const calib_struct *,
+    elem_struct [], river_struct []);
 void            InitRiverWFlux(river_wflux_struct *);
 void            InitRiverWState(river_wstate_struct *);
 #if defined(_NOAH_)

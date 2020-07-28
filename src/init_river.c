@@ -1,9 +1,8 @@
 #include "pihm.h"
 
-void InitRiver(river_struct *river, elem_struct *elem,
-    const rivtbl_struct *rivtbl, const shptbl_struct *shptbl,
-    const matltbl_struct *matltbl, const meshtbl_struct *meshtbl,
-    const calib_struct *cal)
+void InitRiver(const meshtbl_struct *meshtbl, const rivtbl_struct *rivtbl,
+    const shptbl_struct *shptbl, const matltbl_struct *matltbl,
+    const calib_struct *cal, elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -12,64 +11,61 @@ void InitRiver(river_struct *river, elem_struct *elem,
         int             j;
 
         river[i].ind = i + 1;
-        river[i].leftele = rivtbl->leftele[i];
-        river[i].rightele = rivtbl->rightele[i];
-        river[i].fromnode = rivtbl->fromnode[i];
-        river[i].tonode = rivtbl->tonode[i];
+        river[i].left = rivtbl->left[i];
+        river[i].right = rivtbl->right[i];
+        river[i].from = rivtbl->from[i];
+        river[i].to = rivtbl->to[i];
         river[i].down = rivtbl->down[i];
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[river[i].leftele - 1].nabr[j] == river[i].rightele)
+            if (elem[river[i].left - 1].nabr[j] == river[i].right)
             {
-                elem[river[i].leftele - 1].nabr_river[j] = i + 1;
+                elem[river[i].left - 1].nabr_river[j] = i + 1;
             }
-            if (elem[river[i].rightele - 1].nabr[j] == river[i].leftele)
+            if (elem[river[i].right - 1].nabr[j] == river[i].left)
             {
-                elem[river[i].rightele - 1].nabr_river[j] = i + 1;
+                elem[river[i].right - 1].nabr_river[j] = i + 1;
             }
         }
 
         river[i].topo.x = 0.5 *
-            (meshtbl->x[river[i].fromnode - 1] +
-            meshtbl->x[river[i].tonode - 1]);
+            (meshtbl->x[river[i].from - 1] + meshtbl->x[river[i].to - 1]);
         river[i].topo.y = 0.5 *
-            (meshtbl->y[river[i].fromnode - 1] +
-            meshtbl->y[river[i].tonode - 1]);
+            (meshtbl->y[river[i].from - 1] + meshtbl->y[river[i].to - 1]);
         river[i].topo.zmax = 0.5 *
-            (meshtbl->zmax[river[i].fromnode - 1] +
-            meshtbl->zmax[river[i].tonode - 1]);
-        river[i].topo.node_zmax = meshtbl->zmax[river[i].tonode - 1];
+            (meshtbl->zmax[river[i].from - 1] + meshtbl->zmax[river[i].to - 1]);
+        river[i].topo.node_zmax = meshtbl->zmax[river[i].to - 1];
         river[i].topo.dist_left = sqrt(
-            (river[i].topo.x - elem[river[i].leftele - 1].topo.x) *
-            (river[i].topo.x - elem[river[i].leftele - 1].topo.x) +
-            (river[i].topo.y - elem[river[i].leftele - 1].topo.y) *
-            (river[i].topo.y - elem[river[i].leftele - 1].topo.y));
+            (river[i].topo.x - elem[river[i].left - 1].topo.x) *
+            (river[i].topo.x - elem[river[i].left - 1].topo.x) +
+            (river[i].topo.y - elem[river[i].left - 1].topo.y) *
+            (river[i].topo.y - elem[river[i].left - 1].topo.y));
         river[i].topo.dist_right = sqrt(
-            (river[i].topo.x - elem[river[i].rightele - 1].topo.x) *
-            (river[i].topo.x - elem[river[i].rightele - 1].topo.x) +
-            (river[i].topo.y - elem[river[i].rightele - 1].topo.y) *
-            (river[i].topo.y - elem[river[i].rightele - 1].topo.y));
+            (river[i].topo.x - elem[river[i].right - 1].topo.x) *
+            (river[i].topo.x - elem[river[i].right - 1].topo.x) +
+            (river[i].topo.y - elem[river[i].right - 1].topo.y) *
+            (river[i].topo.y - elem[river[i].right - 1].topo.y));
 
         river[i].shp.depth = cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
         river[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
-        river[i].shp.coeff =
-            cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
+        river[i].shp.coeff = cal->rivshpcoeff *
+            shptbl->coeff[rivtbl->shp[i] - 1];
         river[i].shp.length = sqrt(
-            pow(meshtbl->x[river[i].fromnode - 1] -
-            meshtbl->x[river[i].tonode - 1], 2) +
-            pow(meshtbl->y[river[i].fromnode - 1] -
-            meshtbl->y[river[i].tonode - 1], 2));
+            (meshtbl->x[river[i].from - 1] - meshtbl->x[river[i].to - 1]) *
+            (meshtbl->x[river[i].from - 1] - meshtbl->x[river[i].to - 1]) +
+            (meshtbl->y[river[i].from - 1] - meshtbl->y[river[i].to - 1]) *
+            (meshtbl->y[river[i].from - 1] - meshtbl->y[river[i].to - 1]));
         river[i].shp.width = RiverEqWid(river[i].shp.intrpl_ord,
             river[i].shp.depth, river[i].shp.coeff);
 
         river[i].topo.zbed = river[i].topo.zmax - river[i].shp.depth;
 
-        river[i].matl.rough =
-            cal->rivrough * matltbl->rough[rivtbl->matl[i] - 1];
+        river[i].matl.rough = cal->rivrough *
+            matltbl->rough[rivtbl->matl[i] - 1];
         river[i].matl.cwr = matltbl->cwr[rivtbl->matl[i] - 1];
-        river[i].matl.ksath =
-            cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
+        river[i].matl.ksath = cal->rivksath *
+            matltbl->ksath[rivtbl->matl[i] - 1];
 
         river[i].topo.area = river[i].shp.length *
             RiverEqWid(river[i].shp.intrpl_ord, river[i].shp.depth,
@@ -81,7 +77,7 @@ double RiverEqWid(int order, double depth, double coeff)
 {
     double          eq_wid = 0.0;
 
-    depth = (depth > 0.0) ? depth : 0.0;
+    depth = MAX(depth, 0.0);
 
     switch (order)
     {

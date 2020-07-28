@@ -193,16 +193,16 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.no3 = 0.5 *
-            (elem[river[i].leftele - 1].ps.no3 /
-                elem[river[i].leftele - 1].soil.depth +
-            elem[river[i].rightele - 1].ps.no3 /
-                elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
+            (elem[river[i].left - 1].ps.no3 /
+                elem[river[i].left - 1].soil.depth +
+            elem[river[i].right - 1].ps.no3 /
+                elem[river[i].right - 1].soil.depth) * river[i].ws.stage;
 
         river[i].ns.nh4 = 0.5 *
-            (elem[river[i].leftele - 1].ps.nh4 /
-                elem[river[i].leftele - 1].soil.depth +
-            elem[river[i].rightele - 1].ps.nh4 /
-                elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
+            (elem[river[i].left - 1].ps.nh4 /
+                elem[river[i].left - 1].soil.depth +
+            elem[river[i].right - 1].ps.nh4 /
+                elem[river[i].right - 1].soil.depth) * river[i].ws.stage;
 
         NV_Ith(CV_Y, SOLUTE_RIVER(i, NO3)) = river[i].ns.no3;
         NV_Ith(CV_Y, SOLUTE_RIVER(i, NH4)) = river[i].ns.nh4;

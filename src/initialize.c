@@ -171,8 +171,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize river segment properties */
-    InitRiver(pihm->river, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
-        &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
+    InitRiver(&pihm->meshtbl, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
+        &pihm->cal, pihm->elem, pihm->river);
 
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
