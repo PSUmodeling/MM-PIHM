@@ -133,7 +133,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Initialize element mesh structures */
-    InitMesh(pihm->elem, &pihm->meshtbl);
+    InitMesh(&pihm->meshtbl, pihm->elem);
 
     /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
@@ -161,7 +161,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
+    InitLc(&pihm->lctbl, &pihm->cal, pihm->elem);
 
     /* Initialize element forcing */
 #if defined(_RT_)

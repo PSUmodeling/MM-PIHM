@@ -82,8 +82,8 @@ int             feenableexcept(int);
 /*
  * Function Declarations
  */
-void            _InitLc(elem_struct *, const lctbl_struct *,
-    const calib_struct *);
+void            _InitLc(const lctbl_struct *, const calib_struct *,
+    elem_struct *);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 #if defined(_RT_)
@@ -174,9 +174,9 @@ void            InitForcing(const calib_struct *, forc_struct *,
     elem_struct []);
 #endif
 void            Initialize(pihm_struct, N_Vector, void **);
-void            InitLc(elem_struct *, const lctbl_struct *,
-    const calib_struct *);
-void            InitMesh(elem_struct *, const meshtbl_struct *);
+void            InitLc(const lctbl_struct *, const calib_struct *,
+    elem_struct []);
+void            InitMesh(const meshtbl_struct *, elem_struct []);
 #if defined(_LUMPED_) && defined(_RT_)
 void            InitOutputFile(const char *, int, int, const chemtbl_struct [],
     const rttbl_struct *, print_struct *);
