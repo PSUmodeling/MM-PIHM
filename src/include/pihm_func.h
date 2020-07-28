@@ -129,7 +129,7 @@ void            BoundFluxElem(int, int, const bc_struct *,
 double          BoundFluxRiver(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *bc);
-void            CalcModelStep(ctrl_struct *);
+void            CalcModelSteps(ctrl_struct *);
 double          ChanFlowElemToRiver(double, double, const river_struct *,
     elem_struct *);
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
@@ -140,7 +140,7 @@ int             CheckSteadyState(const elem_struct *, double, int, int, int);
 #else
 int             CheckSteadyState(const elem_struct *, double, int, int);
 #endif
-void            CorrElev(elem_struct *, river_struct *);
+void            CorrectElev(const river_struct [], elem_struct []);
 void            CreateOutputDir(char *);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(const soil_struct *, double);
@@ -197,9 +197,9 @@ void            InitSoil(const soiltbl_struct *, const noahtbl_struct *,
 void            InitSoil(const soiltbl_struct *, const calib_struct *,
     elem_struct []);
 #endif
-void            InitSurfL(elem_struct *, const meshtbl_struct *);
+void            InitSurfL(const meshtbl_struct *, elem_struct []);
 void            InitTopo(const meshtbl_struct *, elem_struct []);
-void            InitVar(elem_struct *, river_struct *, N_Vector);
+void            InitVar(elem_struct [], river_struct [], N_Vector);
 void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
@@ -292,7 +292,7 @@ void            RunTime(double, double *, double *);
 #else
 void            RunTime (clock_t, double *, double *);
 #endif
-void            RelaxIc(elem_struct *, river_struct *);
+void            RelaxIc(elem_struct [], river_struct []);
 void            SetCVodeParam(pihm_struct, void *, SUNLinearSolver *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(const ctrl_struct *, double, int *, void *,

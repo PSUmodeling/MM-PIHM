@@ -44,14 +44,12 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
-#if defined(_CYCLES_OBSOLETE_)
-        pihm->elem[i].attrib.op_type = pihm->agtbl.op[i];
-#endif
 
 #if defined(_LUMPEDBGC_)
         soil_counter[pihm->elem[i].attrib.soil_type]++;
         lc_counter[pihm->elem[i].attrib.lc_type]++;
 #endif
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             bc = pihm->atttbl.bc[i][j];
@@ -65,9 +63,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
                 /* Adjust bc_type flag so that positive values indicate
                  * Dirichlet type, and negative values indicate Neumann type */
                 pihm->elem[i].attrib.bc_type[j] =
-                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ?
-                    bc : -bc;
+                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
+
 #if defined(_FBR_)
             bc = pihm->atttbl.fbr_bc[i][j];
 
@@ -84,6 +82,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
             }
 #endif
         }
+
         pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
         pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
 
@@ -127,8 +126,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
             /* Adjust bc_type flag so that positive values indicate
              * Dirichlet type, and negative values indicate Neumann type */
             pihm->river[i].attrib.riverbc_type =
-                (pihm->forc.riverbc[bc - 1].bc_type == DIRICHLET) ?
-                bc : -bc;
+                (pihm->forc.riverbc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
         }
     }
 
@@ -177,11 +175,11 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
     {
-        CorrElev(pihm->elem, pihm->river);
+        CorrectElev(pihm->river, pihm->elem);
     }
 
     /* Calculate distances between elements */
-    InitSurfL(pihm->elem, &pihm->meshtbl);
+    InitSurfL(&pihm->meshtbl, pihm->elem);
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
@@ -234,7 +232,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize state variables */
     InitVar(pihm->elem, pihm->river, CV_Y);
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 # if TEMP_DISABLED
     /* Initialize Cycles module */
     if (pihm->ctrl.read_cycles_restart)
@@ -242,8 +240,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
     }
 # endif
-#endif
-#if defined(_CYCLES_)
+
     FirstDay(&pihm->soiltbl, &pihm->ctrl, pihm->elem);
 #endif
 
@@ -275,20 +272,17 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Calculate model time steps */
-    CalcModelStep(&pihm->ctrl);
+    CalcModelSteps(&pihm->ctrl);
 
 #if defined(_DAILY_)
     InitDailyStruct(pihm->elem);
 #endif
 }
 
-void CorrElev(elem_struct *elem, river_struct *river)
+void CorrectElev(const river_struct river[], elem_struct elem[])
 {
     int             i, j;
     int             sink;
-#if OBSOLETE
-    int             bedrock_flag = 1;
-#endif
     int             river_flag = 0;
     double          nabr_zmax;
     double          new_elevation;
@@ -344,7 +338,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
             }
 
             /* Lift bedrock elevation by the same amount */
-            elem[i].topo.zmin += (new_elevation - elem[i].topo.zmax);
+            elem[i].topo.zmin += new_elevation - elem[i].topo.zmax;
 
             /* Apply new surface elevation */
             elem[i].topo.zmax = new_elevation;
@@ -386,7 +380,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
     }
 }
 
-void InitSurfL(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitSurfL(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
     int             i;
 
@@ -482,17 +476,10 @@ double _WsAreaElev(int type, const elem_struct *elem)
         }
     }
 
-    if (type == WS_AREA)
-    {
-        return ans;
-    }
-    else
-    {
-        return ans / (double)nelem;
-    }
+    return (type == WS_AREA) ? ans : ans / (double)nelem;
 }
 
-void RelaxIc(elem_struct *elem, river_struct *river)
+void RelaxIc(elem_struct elem[], river_struct river[])
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
@@ -505,11 +492,11 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem[i].ic.cmc = 0.0;
+        elem[i].ic.cmc   = 0.0;
         elem[i].ic.sneqv = 0.0;
-        elem[i].ic.surf = 0.0;
+        elem[i].ic.surf  = 0.0;
         elem[i].ic.unsat = INIT_UNSAT;
-        elem[i].ic.gw = elem[i].soil.depth - INIT_UNSAT;
+        elem[i].ic.gw    = elem[i].soil.depth - INIT_UNSAT;
 
 #if defined(_FBR_)
         elem[i].ic.fbr_gw = (elem[i].geol.depth > INIT_FBR_GW) ?
@@ -531,32 +518,21 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 
         for (j = 1; j < MAXLYR; j++)
         {
-            if (elem[i].ps.soil_depth[j] > 0.0)
-            {
-                elem[i].ic.stc[j] =
-                    elem[i].ic.stc[j - 1] +
-                    (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot *
-                    (elem[i].ps.soil_depth[j - 1] + elem[i].ps.soil_depth[j]) * 0.5;
-            }
-            else
-            {
-                elem[i].ic.stc[j] = BADVAL;
-            }
+            elem[i].ic.stc[j] = (elem[i].ps.soil_depth[j] > 0.0) ?
+                 elem[i].ic.stc[j - 1] +
+                (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot * 0.5 *
+                (elem[i].ps.soil_depth[j - 1] + elem[i].ps.soil_depth[j]) :
+                BADVAL;
         }
 
         for (j = 0; j < MAXLYR; j++)
         {
-            if (elem[i].ps.soil_depth[j] > 0.0)
-            {
-                elem[i].ic.smc[j] = elem[i].soil.smcmax;
-                elem[i].ic.swc[j] = elem[i].soil.smcmax;
-            }
-            else
-            {
-                elem[i].ic.smc[j] = BADVAL;
-                elem[i].ic.swc[j] = BADVAL;
-            }
+            elem[i].ic.smc[j] = (elem[i].ps.soil_depth[j] > 0.0) ?
+                elem[i].soil.smcmax : BADVAL;
+            elem[i].ic.swc[j] = (elem[i].ps.soil_depth[j] > 0.0) ?
+                elem[i].soil.smcmax : BADVAL;
         }
+
         elem[i].ic.snowh = 0.0;
 #endif
     }
@@ -570,7 +546,7 @@ void RelaxIc(elem_struct *elem, river_struct *river)
     }
 }
 
-void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
+void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
     int             i;
 
@@ -583,30 +559,30 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #if defined(_CYCLES_OBSOLETE_)
         elem[i].ws.flatResidueWater = elem[i].ic.cmc;
 #else
-        elem[i].ws.cmc = elem[i].ic.cmc;
+        elem[i].ws.cmc   = elem[i].ic.cmc;
 #endif
         elem[i].ws.sneqv = elem[i].ic.sneqv;
 
-        elem[i].ws.surf = elem[i].ic.surf;
+        elem[i].ws.surf  = elem[i].ic.surf;
         elem[i].ws.unsat = elem[i].ic.unsat;
-        elem[i].ws.gw = elem[i].ic.gw;
+        elem[i].ws.gw    = elem[i].ic.gw;
 
-        NV_Ith(CV_Y, SURF(i)) = elem[i].ic.surf;
+        NV_Ith(CV_Y, SURF(i))  = elem[i].ic.surf;
         NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
-        NV_Ith(CV_Y, GW(i)) = elem[i].ic.gw;
+        NV_Ith(CV_Y, GW(i))    = elem[i].ic.gw;
 
 #if defined(_FBR_)
         elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
-        elem[i].ws.fbr_gw = elem[i].ic.fbr_gw;
+        elem[i].ws.fbr_gw    = elem[i].ic.fbr_gw;
 
         NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.fbr_unsat;
-        NV_Ith(CV_Y, FBRGW(i)) = elem[i].ic.fbr_gw;
+        NV_Ith(CV_Y, FBRGW(i))    = elem[i].ic.fbr_gw;
 #endif
 
 #if defined(_NOAH_)
         int             j;
 
-        elem[i].es.t1 = elem[i].ic.t1;
+        elem[i].es.t1    = elem[i].ic.t1;
         elem[i].ps.snowh = elem[i].ic.snowh;
 
         for (j = 0; j < MAXLYR; j++)
@@ -641,53 +617,53 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         InitWFlux(&elem[i].wf);
 
 #if defined(_NOAH_)
-        elem[i].ps.snotime1 = 0.0;
-        elem[i].ps.ribb = 0.0;
-        elem[i].ps.fcr = 1.0;
-        elem[i].ps.snoalb = 0.75;
-        elem[i].ps.zlvl = 3.0;
-        elem[i].ps.emissi = 0.96;
-        elem[i].ps.albedo = 0.18;
-        elem[i].ps.z0 = 0.1;
-        elem[i].ps.ch = 1.0e-4;
-        elem[i].ps.cm = 1.0e-4;
-        elem[i].ps.beta = BADVAL;
-        elem[i].ps.sncovr = BADVAL;
-        elem[i].ps.rc = BADVAL;
-        elem[i].ps.pc = BADVAL;
-        elem[i].ps.rcs = BADVAL;
-        elem[i].ps.rct = BADVAL;
-        elem[i].ps.rcsoil = BADVAL;
-        elem[i].ps.q1 = BADVAL;
-        elem[i].ps.z0brd = BADVAL;
+        elem[i].ps.snotime1      = 0.0;
+        elem[i].ps.ribb          = 0.0;
+        elem[i].ps.fcr           = 1.0;
+        elem[i].ps.snoalb        = 0.75;
+        elem[i].ps.zlvl          = 3.0;
+        elem[i].ps.emissi        = 0.96;
+        elem[i].ps.albedo        = 0.18;
+        elem[i].ps.z0            = 0.1;
+        elem[i].ps.ch            = 1.0e-4;
+        elem[i].ps.cm            = 1.0e-4;
+        elem[i].ps.beta          = BADVAL;
+        elem[i].ps.sncovr        = BADVAL;
+        elem[i].ps.rc            = BADVAL;
+        elem[i].ps.pc            = BADVAL;
+        elem[i].ps.rcs           = BADVAL;
+        elem[i].ps.rct           = BADVAL;
+        elem[i].ps.rcsoil        = BADVAL;
+        elem[i].ps.q1            = BADVAL;
+        elem[i].ps.z0brd         = BADVAL;
         elem[i].ps.eta_kinematic = BADVAL;
 
         elem[i].ef.sheat = BADVAL;
-        elem[i].ef.eta = BADVAL;
+        elem[i].ef.eta   = BADVAL;
         elem[i].ef.fdown = BADVAL;
-        elem[i].ef.ec = BADVAL;
-        elem[i].ef.edir = BADVAL;
-        elem[i].ef.ett = BADVAL;
-        elem[i].ef.etp = BADVAL;
+        elem[i].ef.ec    = BADVAL;
+        elem[i].ef.edir  = BADVAL;
+        elem[i].ef.ett   = BADVAL;
+        elem[i].ef.etp   = BADVAL;
         elem[i].ef.ssoil = BADVAL;
-        elem[i].ef.flx1 = BADVAL;
-        elem[i].ef.flx2 = BADVAL;
-        elem[i].ef.flx3 = BADVAL;
+        elem[i].ef.flx1  = BADVAL;
+        elem[i].ef.flx2  = BADVAL;
+        elem[i].ef.flx3  = BADVAL;
         elem[i].ef.esnow = BADVAL;
 
         elem[i].wf.runoff2 = BADVAL;
         elem[i].wf.runoff3 = BADVAL;
-        elem[i].wf.pcpdrp = 0.0;
-        elem[i].wf.drip = 0.0;
-        elem[i].wf.dew = BADVAL;
-        elem[i].wf.snomlt = BADVAL;
+        elem[i].wf.pcpdrp  = 0.0;
+        elem[i].wf.drip    = 0.0;
+        elem[i].wf.dew     = BADVAL;
+        elem[i].wf.snomlt  = BADVAL;
 
         elem[i].ws.soilm = BADVAL;
 #endif
     }
 }
 
-void CalcModelStep(ctrl_struct *ctrl)
+void CalcModelSteps(ctrl_struct *ctrl)
 {
     int             i;
 
@@ -714,23 +690,23 @@ void InitWFlux(wflux_struct *wf)
         wf->ovlflow[j] = 0.0;
         wf->subsurf[j] = 0.0;
     }
-    wf->prcp = 0.0;
-    wf->pcpdrp = 0.0;
-    wf->infil = 0.0;
-    wf->eqv_infil = 0.0;
-    wf->rechg = 0.0;
-    wf->drip = 0.0;
-    wf->edir = 0.0;
-    wf->ett = 0.0;
-    wf->ec = 0.0;
-    wf->etp = 0.0;
-    wf->eta = 0.0;
-    wf->edir_surf = 0.0;
+    wf->prcp       = 0.0;
+    wf->pcpdrp     = 0.0;
+    wf->infil      = 0.0;
+    wf->eqv_infil  = 0.0;
+    wf->rechg      = 0.0;
+    wf->drip       = 0.0;
+    wf->edir       = 0.0;
+    wf->ett        = 0.0;
+    wf->ec         = 0.0;
+    wf->etp        = 0.0;
+    wf->eta        = 0.0;
+    wf->edir_surf  = 0.0;
     wf->edir_unsat = 0.0;
-    wf->edir_gw = 0.0;
-    wf->ett_unsat = 0.0;
-    wf->ett_gw = 0.0;
-    wf->esnow = 0.0;
+    wf->edir_gw    = 0.0;
+    wf->ett_unsat  = 0.0;
+    wf->ett_gw     = 0.0;
+    wf->esnow      = 0.0;
 
 #if defined(_FBR_)
     wf->fbr_infil = 0.0;
@@ -749,24 +725,18 @@ void InitWFlux(wflux_struct *wf)
 
     for (k = 0; k < MAXLYR; k++)
     {
-        wf->et[k] = 0.0;
+        wf->et[k]          = 0.0;
+        wf->runoff2_lyr[k] = 0.0;
+        wf->smflx[k]       = 0.0;
     }
     wf->runoff2 = 0.0;
-    for (k = 0; k < MAXLYR; k++)
-    {
-        wf->runoff2_lyr[k] = 0.0;
-    }
     wf->runoff3 = 0.0;
-    for (k = 0; k < MAXLYR; k++)
-    {
-        wf->smflx[k] = 0.0;
-    }
-    wf->dew = 0.0;
-    wf->snomlt = 0.0;
-    wf->etns = 0.0;
+    wf->dew     = 0.0;
+    wf->snomlt  = 0.0;
+    wf->etns    = 0.0;
 #endif
 #if defined(_CYCLES_)
-    wf->irrig = 0.0;
+    wf->irrig   = 0.0;
 #endif
 }
 
@@ -787,30 +757,30 @@ void InitEFlux(eflux_struct *ef)
 #if defined(_NOAH_)
     int             k;
 
-    ef->solnet = 0.0;
-    ef->etp = 0.0;
-    ef->ssoil = 0.0;
-    ef->eta = 0.0;
-    ef->sheat = 0.0;
-    ef->fdown = 0.0;
-    ef->lwdn = 0.0;
-    ef->ec = 0.0;
-    ef->edir = 0.0;
     for (k = 0; k < MAXLYR; k++)
     {
         ef->et[k] = 0.0;
     }
-    ef->ett = 0.0;
-    ef->esnow = 0.0;
-    ef->soldir = 0.0;
-    ef->soldif = 0.0;
+    ef->solnet   = 0.0;
+    ef->etp      = 0.0;
+    ef->ssoil    = 0.0;
+    ef->eta      = 0.0;
+    ef->sheat    = 0.0;
+    ef->fdown    = 0.0;
+    ef->lwdn     = 0.0;
+    ef->ec       = 0.0;
+    ef->edir     = 0.0;
+    ef->ett      = 0.0;
+    ef->esnow    = 0.0;
+    ef->soldir   = 0.0;
+    ef->soldif   = 0.0;
     ef->longwave = 0.0;
-    ef->flx1 = 0.0;
-    ef->flx2 = 0.0;
-    ef->flx3 = 0.0;
+    ef->flx1     = 0.0;
+    ef->flx2     = 0.0;
+    ef->flx3     = 0.0;
 #endif
 #if defined(_BGC_)
-    ef->swabs_per_plaisun = 0.0;
+    ef->swabs_per_plaisun   = 0.0;
     ef->swabs_per_plaishade = 0.0;
 #endif
 }
