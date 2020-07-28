@@ -198,7 +198,7 @@ void            InitSoil(const soiltbl_struct *, const calib_struct *,
     elem_struct []);
 #endif
 void            InitSurfL(elem_struct *, const meshtbl_struct *);
-void            InitTopo(elem_struct *, const meshtbl_struct *);
+void            InitTopo(const meshtbl_struct *, elem_struct []);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
 void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
@@ -337,7 +337,7 @@ void            AdjSmProf(const soil_struct *, const phystate_struct *,
     const double *, double, wflux_struct *, wstate_struct *);
 void            AlCalc(phystate_struct *, double, int);
 void            CalcLatFlx(const phystate_struct *, wflux_struct *);
-void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
+void            CalcSlopeAspect(const meshtbl_struct *, elem_struct []);
 void            CalHum(phystate_struct *, estate_struct *);
 # if defined(_CYCLES_)
 void            CanRes(const estate_struct *, phystate_struct *);

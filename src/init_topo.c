@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitTopo(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
     int             i, j;
     double          x[NUM_EDGE];
@@ -35,21 +35,21 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
 #if defined(_FBR_)
         elem[i].topo.zbed = (zbed[0] + zbed[1] + zbed[2]) / 3.0;
 #endif
-        elem[i].topo.edge[0] =
-            sqrt(pow((x[1] - x[2]), 2) + pow((y[1] - y[2]), 2));
-        elem[i].topo.edge[1] =
-            sqrt(pow((x[2] - x[0]), 2) + pow((y[2] - y[0]), 2));
-        elem[i].topo.edge[2] =
-            sqrt(pow((x[0] - x[1]), 2) + pow((y[0] - y[1]), 2));
+        elem[i].topo.edge[0] = sqrt(
+            ((x[1] - x[2]) * (x[1] - x[2]) + (y[1] - y[2]) * (y[1] - y[2])));
+        elem[i].topo.edge[1] = sqrt(
+            ((x[2] - x[0]) * (x[2] - x[0]) + (y[2] - y[0]) * (y[2] - y[0])));
+        elem[i].topo.edge[2] = sqrt(
+            ((x[0] - x[1]) * (x[0] - x[1]) + (y[0] - y[1]) * (y[0] - y[1])));
     }
 
 #if defined(_NOAH_)
-    CalcSlopeAspect(elem, meshtbl);
+    CalcSlopeAspect(meshtbl, elem);
 #endif
 }
 
 #if defined(_NOAH_)
-void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
+void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
     const int       XCOMP = 0;
     const int       YCOMP = 1;
@@ -111,10 +111,8 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
         se = normal_vector[YCOMP] / c;
         elem[i].topo.aspect = acos(ce) * 180.0 / PI;
 
-        if (se < 0.0)
-        {
-            elem[i].topo.aspect = 360.0 - elem[i].topo.aspect;
-        }
+        elem[i].topo.aspect = (se < 0.0) ?
+            360.0 - elem[i].topo.aspect : elem[i].topo.aspect;
 
         elem[i].topo.aspect = Mod(360.0 - elem[i].topo.aspect + 270.0, 360.0);
 
@@ -185,19 +183,13 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                 ce1 = edge_vector[0][XCOMP] / c1;
                 se1 = edge_vector[0][YCOMP] / c1;
                 phi1 = acos(ce1) * 180.0 / PI;
-                if (se1 < 0.0)
-                {
-                    phi1 = 360.0 - phi1;
-                }
+                phi1 = (se1 < 0.0) ? 360.0 - phi1 : phi1;
                 phi1 = Mod(360.0 - phi1 + 270.0, 360.0);
 
                 ce2 = edge_vector[1][XCOMP] / c2;
                 se2 = edge_vector[1][YCOMP] / c2;
                 phi2 = acos(ce2) * 180.0 / PI;
-                if (se2 < 0.0)
-                {
-                    phi2 = 360.0 - phi2;
-                }
+                phi2 = (se2 < 0.0) ? 360.0 - phi2 : phi2;
                 phi2 = Mod(360.0 - phi2 + 270.0, 360.0);
 
                 if (fabs(phi1 - phi2) > 180.0)
@@ -206,20 +198,16 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                     ind2 = (int)floor((phi1 < phi2 ? phi1 : phi2) / 10.0);
                     for (ind = ind1; ind <= ind2; ind++)
                     {
-                        if (h < elem[i].topo.h_phi[ind])
-                        {
-                            elem[i].topo.h_phi[ind] = h;
-                        }
+                        elem[i].topo.h_phi[ind] =
+                            MIN(elem[i].topo.h_phi[ind], h);
                     }
 
                     ind1 = (int)floor((phi1 > phi2 ? phi1 : phi2) / 10.0);
                     ind2 = 35;
                     for (ind = ind1; ind <= ind2; ind++)
                     {
-                        if (h < elem[i].topo.h_phi[ind])
-                        {
-                            elem[i].topo.h_phi[ind] = h;
-                        }
+                        elem[i].topo.h_phi[ind] =
+                            MIN(elem[i].topo.h_phi[ind], h);
                     }
                 }
                 else
@@ -228,10 +216,8 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                     ind2 = (int)floor((phi1 > phi2 ? phi1 : phi2) / 10.0);
                     for (ind = ind1; ind <= ind2; ind++)
                     {
-                        if (h < elem[i].topo.h_phi[ind])
-                        {
-                            elem[i].topo.h_phi[ind] = h;
-                        }
+                        elem[i].topo.h_phi[ind] =
+                            MIN(elem[i].topo.h_phi[ind], h);
                     }
                 }
             }
