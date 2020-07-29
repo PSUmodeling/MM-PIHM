@@ -599,8 +599,6 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         river[i].ws.stage = river[i].ic.stage;
 
         NV_Ith(CV_Y, RIVER(i)) = river[i].ic.stage;
-
-        river[i].ws0 = river[i].ws;
     }
 
     /* Other variables */

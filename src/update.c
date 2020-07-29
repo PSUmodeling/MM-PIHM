@@ -122,8 +122,6 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     {
         river[i].ws.stage = y[RIVER(i)];
 
-        river[i].ws0 = river[i].ws;
-
 #if defined(_BGC_)
         river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif

@@ -124,7 +124,6 @@ typedef struct river_struct
     shp_struct      shp;
     matl_struct     matl;
     river_wstate_struct ws;
-    river_wstate_struct ws0;
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
