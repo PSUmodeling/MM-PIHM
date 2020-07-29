@@ -78,8 +78,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif
 
-        river[i].wf.rivflow[UP_CHANL2CHANL] = 0.0;
-
 #if defined(_CYCLES_)
         river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
         river[i].ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);

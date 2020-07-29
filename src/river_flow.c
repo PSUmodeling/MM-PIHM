@@ -16,6 +16,8 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
         double          effk_nabr;
         double          effk;
 
+        InitRiverWFlux(&river[i].wf);
+
         if (river[i].down > 0)
         {
             /*
