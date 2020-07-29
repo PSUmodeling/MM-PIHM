@@ -239,7 +239,7 @@ double          OvlFlowElemToElem(int, double, int, const elem_struct *,
     const elem_struct *);
 double          OvlFlowElemToRiver(int, const river_struct *, elem_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
-void            PIHM(pihm_struct, void *, N_Vector, double);
+void            PIHM(double, pihm_struct, void *, N_Vector);
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);

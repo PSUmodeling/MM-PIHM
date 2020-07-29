@@ -23,7 +23,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
 
         for (ctrl->cstep = 0; ctrl->cstep < ctrl->nstep; ctrl->cstep++)
         {
-            PIHM(pihm, cvode_mem, CV_Y, 0.0);
+            PIHM(0.0, pihm, cvode_mem, CV_Y);
         }
 
         /* Reset solver parameters */

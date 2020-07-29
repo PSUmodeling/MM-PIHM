@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 #endif
 
             /* Run PIHM time step */
-            PIHM(pihm, cvode_mem, CV_Y, cputime);
+            PIHM(cputime, pihm, cvode_mem, CV_Y);
 
             /* Adjust CVODE max step to reduce oscillation */
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
@@ -160,8 +160,8 @@ int main(int argc, char *argv[])
             if (debug_mode)
             {
                 PrintPerf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
-                    ctrl->starttime, cputime_dt, cputime,
-                    ctrl->maxstep, pihm->print.cvodeperf_file);
+                    ctrl->starttime, cputime_dt, cputime, ctrl->maxstep,
+                    pihm->print.cvodeperf_file);
             }
 
             /* Write init files */
