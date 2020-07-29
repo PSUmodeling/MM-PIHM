@@ -141,7 +141,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ctrl->prtvrbl[CHEM_CTRL] = ReadPrtCtrl(cmdstr, "OUTINTVL", chem_filen, lno);
+    ctrl->prtvrbl[CHEM_CTRL] = ReadPrintCtrl(cmdstr, "OUTINTVL", chem_filen, lno);
     if (ctrl->prtvrbl[CHEM_CTRL] > 0)
     {
         pihm_printf(VL_VERBOSE, "  Chemical concentration output interval "

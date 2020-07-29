@@ -122,8 +122,8 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
     return success;
 }
 
-int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
-    int lno)
+int ReadPrintCtrl(const char buffer[], const char keyword[],
+    const char filename[], int lno)
 {
     int             match;
     int             prtvrbl;

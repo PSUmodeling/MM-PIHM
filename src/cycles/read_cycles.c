@@ -76,46 +76,46 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     FindLine(fp, "PRINT_CTRL", &lno, filen);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[YIELD_CTRL] = ReadPrtCtrl(cmdstr, "YIELD", filen, lno);
+    ctrl->prtvrbl[YIELD_CTRL] = ReadPrintCtrl(cmdstr, "YIELD", filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl(cmdstr, "BIOMASS", filen, lno);
+    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrintCtrl(cmdstr, "BIOMASS", filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl(cmdstr, "LAI", filen, lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrintCtrl(cmdstr, "LAI", filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrtCtrl(cmdstr, "RADN_INTCP",
+    ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrintCtrl(cmdstr, "RADN_INTCP",
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrtCtrl(cmdstr, "WATER_STRESS",
+    ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrintCtrl(cmdstr, "WATER_STRESS",
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_STS_CTRL] = ReadPrtCtrl(cmdstr, "N_STRESS", filen, lno);
+    ctrl->prtvrbl[N_STS_CTRL] = ReadPrintCtrl(cmdstr, "N_STRESS", filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_TRANSP", filen, lno);
+    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrintCtrl(cmdstr, "CROP_TRANSP", filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_POT_TRANSP",
+    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrintCtrl(cmdstr, "CROP_POT_TRANSP",
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrtCtrl(cmdstr, "N_PROFILE", filen,
+    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrintCtrl(cmdstr, "N_PROFILE", filen,
         lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrtCtrl(cmdstr, "N_RIVER",
+    ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrintCtrl(cmdstr, "N_RIVER",
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrtCtrl(cmdstr, "DENITRIF",
+    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrintCtrl(cmdstr, "DENITRIF",
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[LEACHING_CTRL] = ReadPrtCtrl(cmdstr, "LEACHING",
+    ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING",
         filen, lno);
 
     fclose(fp);

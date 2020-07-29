@@ -131,7 +131,7 @@ void ReadAlloc(pihm_struct pihm)
      * Boundary conditions might be needed by FBR and RT thus should be read in
      * after reading bedrock and chemistry input */
 #if defined(_RT_)
-    ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->rttbl, pihm->chemtbl,
+    ReadBc(pihm->filename.bc, &pihm->atttbl, pihm->chemtbl, &pihm->rttbl,
         &pihm->forc);
 #else
     ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->forc);

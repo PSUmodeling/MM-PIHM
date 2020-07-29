@@ -112,68 +112,68 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "MIN_MAXSTEP", 'd', filename, lno, &ctrl->stmin);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SURF_CTRL] = ReadPrtCtrl(cmdstr, "SURF", filename, lno);
+    ctrl->prtvrbl[SURF_CTRL] = ReadPrintCtrl(cmdstr, "SURF", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[UNSAT_CTRL] = ReadPrtCtrl(cmdstr, "UNSAT", filename, lno);
+    ctrl->prtvrbl[UNSAT_CTRL] = ReadPrintCtrl(cmdstr, "UNSAT", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[GW_CTRL] = ReadPrtCtrl(cmdstr, "GW", filename, lno);
+    ctrl->prtvrbl[GW_CTRL] = ReadPrintCtrl(cmdstr, "GW", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVSTG_CTRL] = ReadPrtCtrl(cmdstr, "RIVSTG", filename, lno);
+    ctrl->prtvrbl[RIVSTG_CTRL] = ReadPrintCtrl(cmdstr, "RIVSTG", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVGW_CTRL] = ReadPrtCtrl(cmdstr, "RIVGW", filename, lno);
+    ctrl->prtvrbl[RIVGW_CTRL] = ReadPrintCtrl(cmdstr, "RIVGW", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SNOW_CTRL] = ReadPrtCtrl(cmdstr, "SNOW", filename, lno);
+    ctrl->prtvrbl[SNOW_CTRL] = ReadPrintCtrl(cmdstr, "SNOW", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[CMC_CTRL] = ReadPrtCtrl(cmdstr, "CMC", filename, lno);
+    ctrl->prtvrbl[CMC_CTRL] = ReadPrintCtrl(cmdstr, "CMC", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[INFIL_CTRL] = ReadPrtCtrl(cmdstr, "INFIL", filename, lno);
+    ctrl->prtvrbl[INFIL_CTRL] = ReadPrintCtrl(cmdstr, "INFIL", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrtCtrl(cmdstr, "RECHARGE", filename,
+    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrintCtrl(cmdstr, "RECHARGE", filename,
         lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[EC_CTRL] = ReadPrtCtrl(cmdstr, "EC", filename, lno);
+    ctrl->prtvrbl[EC_CTRL] = ReadPrintCtrl(cmdstr, "EC", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[ETT_CTRL] = ReadPrtCtrl(cmdstr, "ETT", filename, lno);
+    ctrl->prtvrbl[ETT_CTRL] = ReadPrintCtrl(cmdstr, "ETT", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[EDIR_CTRL] = ReadPrtCtrl(cmdstr, "EDIR", filename, lno);
+    ctrl->prtvrbl[EDIR_CTRL] = ReadPrintCtrl(cmdstr, "EDIR", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX0_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX0", filename, lno);
+    ctrl->prtvrbl[RIVFLX0_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX0", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX1_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX1", filename, lno);
+    ctrl->prtvrbl[RIVFLX1_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX1", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX2_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX2", filename, lno);
+    ctrl->prtvrbl[RIVFLX2_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX2", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX3_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX3", filename, lno);
+    ctrl->prtvrbl[RIVFLX3_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX3", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX4_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX4", filename, lno);
+    ctrl->prtvrbl[RIVFLX4_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX4", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX5", filename, lno);
+    ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX5", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrtCtrl(cmdstr, "SUBFLX", filename, lno);
+    ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrintCtrl(cmdstr, "SUBFLX", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrtCtrl(cmdstr, "SURFFLX", filename, lno);
+    ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrintCtrl(cmdstr, "SURFFLX", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[IC_CTRL] = ReadPrtCtrl(cmdstr, "IC", filename, lno);
+    ctrl->prtvrbl[IC_CTRL] = ReadPrintCtrl(cmdstr, "IC", filename, lno);
 
     fclose(para_file);
 

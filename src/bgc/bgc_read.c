@@ -78,52 +78,52 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     FindLine(bgc_file, "OUTPUT_CONTROL", &lno, fn);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl(cmdstr, "LAI", fn, lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrintCtrl(cmdstr, "LAI", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[NPP_CTRL] = ReadPrtCtrl(cmdstr, "NPP", fn, lno);
+    ctrl->prtvrbl[NPP_CTRL] = ReadPrintCtrl(cmdstr, "NPP", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[NEP_CTRL] = ReadPrtCtrl(cmdstr, "NEP", fn, lno);
+    ctrl->prtvrbl[NEP_CTRL] = ReadPrintCtrl(cmdstr, "NEP", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[NEE_CTRL] = ReadPrtCtrl(cmdstr, "NEE", fn, lno);
+    ctrl->prtvrbl[NEE_CTRL] = ReadPrintCtrl(cmdstr, "NEE", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[GPP_CTRL] = ReadPrtCtrl(cmdstr, "GPP", fn, lno);
+    ctrl->prtvrbl[GPP_CTRL] = ReadPrintCtrl(cmdstr, "GPP", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[MR_CTRL] = ReadPrtCtrl(cmdstr, "MR", fn, lno);
+    ctrl->prtvrbl[MR_CTRL] = ReadPrintCtrl(cmdstr, "MR", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[GR_CTRL] = ReadPrtCtrl(cmdstr, "GR", fn, lno);
+    ctrl->prtvrbl[GR_CTRL] = ReadPrintCtrl(cmdstr, "GR", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[HR_CTRL] = ReadPrtCtrl(cmdstr, "HR", fn, lno);
+    ctrl->prtvrbl[HR_CTRL] = ReadPrintCtrl(cmdstr, "HR", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[FIRE_CTRL] = ReadPrtCtrl(cmdstr, "FIRE", fn, lno);
+    ctrl->prtvrbl[FIRE_CTRL] = ReadPrintCtrl(cmdstr, "FIRE", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[LITFALLC_CTRL] = ReadPrtCtrl(cmdstr, "LITFALLC", fn, lno);
+    ctrl->prtvrbl[LITFALLC_CTRL] = ReadPrintCtrl(cmdstr, "LITFALLC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[VEGC_CTRL] = ReadPrtCtrl(cmdstr, "VEGC", fn, lno);
+    ctrl->prtvrbl[VEGC_CTRL] = ReadPrintCtrl(cmdstr, "VEGC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[AGC_CTRL] = ReadPrtCtrl(cmdstr, "AGC", fn, lno);
+    ctrl->prtvrbl[AGC_CTRL] = ReadPrintCtrl(cmdstr, "AGC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[LITRC_CTRL] = ReadPrtCtrl(cmdstr, "LITRC", fn, lno);
+    ctrl->prtvrbl[LITRC_CTRL] = ReadPrintCtrl(cmdstr, "LITRC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[SOILC_CTRL] = ReadPrtCtrl(cmdstr, "SOILC", fn, lno);
+    ctrl->prtvrbl[SOILC_CTRL] = ReadPrintCtrl(cmdstr, "SOILC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[TOTALC_CTRL] = ReadPrtCtrl(cmdstr, "TOTALC", fn, lno);
+    ctrl->prtvrbl[TOTALC_CTRL] = ReadPrintCtrl(cmdstr, "TOTALC", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[SMINN_CTRL] = ReadPrtCtrl(cmdstr, "SMINN", fn, lno);
+    ctrl->prtvrbl[SMINN_CTRL] = ReadPrintCtrl(cmdstr, "SMINN", fn, lno);
 
     fclose(bgc_file);
 }

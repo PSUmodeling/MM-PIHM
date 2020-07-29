@@ -96,49 +96,49 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
 
     /* Output control */
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[T1_CTRL] = ReadPrtCtrl(cmdstr, "T1", filename, lno);
+    ctrl->prtvrbl[T1_CTRL] = ReadPrintCtrl(cmdstr, "T1", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[STC_CTRL] = ReadPrtCtrl(cmdstr, "STC", filename, lno);
+    ctrl->prtvrbl[STC_CTRL] = ReadPrintCtrl(cmdstr, "STC", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SMC_CTRL] = ReadPrtCtrl(cmdstr, "SMC", filename, lno);
+    ctrl->prtvrbl[SMC_CTRL] = ReadPrintCtrl(cmdstr, "SMC", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SH2O_CTRL] = ReadPrtCtrl(cmdstr, "SH2O", filename, lno);
+    ctrl->prtvrbl[SH2O_CTRL] = ReadPrintCtrl(cmdstr, "SH2O", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SNOWH_CTRL] = ReadPrtCtrl(cmdstr, "SNOWH", filename, lno);
+    ctrl->prtvrbl[SNOWH_CTRL] = ReadPrintCtrl(cmdstr, "SNOWH", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[ALBEDO_CTRL] = ReadPrtCtrl(cmdstr, "ALBEDO", filename, lno);
+    ctrl->prtvrbl[ALBEDO_CTRL] = ReadPrintCtrl(cmdstr, "ALBEDO", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[LE_CTRL] = ReadPrtCtrl(cmdstr, "LE", filename, lno);
+    ctrl->prtvrbl[LE_CTRL] = ReadPrintCtrl(cmdstr, "LE", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SH_CTRL] = ReadPrtCtrl(cmdstr, "SH", filename, lno);
+    ctrl->prtvrbl[SH_CTRL] = ReadPrintCtrl(cmdstr, "SH", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[G_CTRL] = ReadPrtCtrl(cmdstr, "G", filename, lno);
+    ctrl->prtvrbl[G_CTRL] = ReadPrintCtrl(cmdstr, "G", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[ETP_CTRL] = ReadPrtCtrl(cmdstr, "ETP", filename, lno);
+    ctrl->prtvrbl[ETP_CTRL] = ReadPrintCtrl(cmdstr, "ETP", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[ESNOW_CTRL] = ReadPrtCtrl(cmdstr, "ESNOW", filename, lno);
+    ctrl->prtvrbl[ESNOW_CTRL] = ReadPrintCtrl(cmdstr, "ESNOW", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[ROOTW_CTRL] = ReadPrtCtrl(cmdstr, "ROOTW", filename, lno);
+    ctrl->prtvrbl[ROOTW_CTRL] = ReadPrintCtrl(cmdstr, "ROOTW", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SOILM_CTRL] = ReadPrtCtrl(cmdstr, "SOILM", filename, lno);
+    ctrl->prtvrbl[SOILM_CTRL] = ReadPrintCtrl(cmdstr, "SOILM", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[SOLAR_CTRL] = ReadPrtCtrl(cmdstr, "SOLAR", filename, lno);
+    ctrl->prtvrbl[SOLAR_CTRL] = ReadPrintCtrl(cmdstr, "SOLAR", filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ctrl->prtvrbl[CH_CTRL] = ReadPrtCtrl(cmdstr, "CH", filename, lno);
+    ctrl->prtvrbl[CH_CTRL] = ReadPrintCtrl(cmdstr, "CH", filename, lno);
 
     fclose(lsm_file);
 }

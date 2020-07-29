@@ -274,7 +274,7 @@ void            ReadLai(const char *, forc_struct *, const atttbl_struct *);
 void            ReadLc(const char *, lctbl_struct *);
 void            ReadMesh(const char *, meshtbl_struct *);
 void            ReadPara(const char *, ctrl_struct *);
-int             ReadPrtCtrl(const char *, const char *, const char *, int);
+int             ReadPrintCtrl(const char [], const char [], const char [], int);
 void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(const char *, soiltbl_struct *);
