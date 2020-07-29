@@ -16,7 +16,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
      * Read element mesh block
      */
     NextLine(mesh_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMELE", &nelem, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMELE", 'i', filename, lno, &nelem);
 
     meshtbl->node = (int **)malloc(nelem * sizeof(int *));
     meshtbl->nabr = (int **)malloc(nelem * sizeof(int *));
@@ -47,7 +47,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
      * Read node block
      */
     NextLine(mesh_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMNODE", &meshtbl->numnode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMNODE", 'i', filename, lno, &meshtbl->numnode);
 
     /* Skip header line */
     NextLine(mesh_file, cmdstr, &lno);

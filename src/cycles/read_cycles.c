@@ -67,12 +67,10 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     FindLine(fp, "RESTART_CTRL", &lno, filen);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'i', filen,
-        lno);
+    ReadKeyword(cmdstr, "READ_IC", 'i', filen, lno, &ctrl->read_cycles_restart);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'i',
-        filen, lno);
+    ReadKeyword(cmdstr, "WRITE_IC", 'i', filen, lno, &ctrl->write_cycles_restart);
 #endif
 
     FindLine(fp, "PRINT_CTRL", &lno, filen);
@@ -157,7 +155,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        ReadKeyword(cmdstr, "SOIL_TYPE", &index, 'i', filen, lno);
+        ReadKeyword(cmdstr, "SOIL_TYPE", 'i', filen, lno, &index);
 
         if (i != index - 1)
         {
@@ -169,8 +167,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
         }
 
         NextLine(fp, cmdstr, &lno);
-        ReadKeyword(cmdstr, "TOTAL_LAYERS", &soiltbl->nlayers[i], 'i',
-            filen, lno);
+        ReadKeyword(cmdstr, "TOTAL_LAYERS", 'i', filen, lno, &soiltbl->nlayers[i]);
 
         soiltbl->clay_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
         soiltbl->sand_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));

@@ -19,35 +19,35 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     /* Start reading para_file */
     /* Read through parameter file to find parameters */
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SIMULATION_MODE", &spinup_mode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "SIMULATION_MODE", 'i', filename, lno, &spinup_mode);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_MODE", &ctrl->init_type, 'i', filename, lno);
+    ReadKeyword(cmdstr, "INIT_MODE", 'i', filename, lno, &ctrl->init_type);
     ctrl->init_type = (ctrl->init_type > RELAX) ? RST_FILE : RELAX;
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
+    ReadKeyword(cmdstr, "ASCII_OUTPUT", 'i', filename, lno, &ctrl->ascii);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WATBAL_OUTPUT", &ctrl->waterbal, 'i', filename, lno);
+    ReadKeyword(cmdstr, "WATBAL_OUTPUT", 'i', filename, lno, &ctrl->waterbal);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_ic, 'i', filename, lno);
+    ReadKeyword(cmdstr, "WRITE_IC", 'i', filename, lno, &ctrl->write_ic);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "UNSAT_MODE", &ctrl->unsat_mode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "UNSAT_MODE", 'i', filename, lno, &ctrl->unsat_mode);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SURF_MODE", &ctrl->surf_mode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "SURF_MODE", 'i', filename, lno, &ctrl->surf_mode);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RIV_MODE", &ctrl->riv_mode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "RIV_MODE", 'i', filename, lno, &ctrl->riv_mode);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "START", &ctrl->starttime, 't', filename, lno);
+    ReadKeyword(cmdstr, "START", 't', filename, lno, &ctrl->starttime);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "END", &ctrl->endtime, 't', filename, lno);
+    ReadKeyword(cmdstr, "END", 't', filename, lno, &ctrl->endtime);
 
     /* In spinup mode, simulation time should be full years */
     start_time = PIHMTime(ctrl->starttime);
@@ -76,42 +76,40 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     }
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", &ctrl->maxspinyears, 'i', filename,
-        lno);
+    ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", 'i', filename, lno, &ctrl->maxspinyears);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename, lno);
+    ReadKeyword(cmdstr, "MODEL_STEPSIZE", 'i', filename, lno, &ctrl->stepsize);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LSM_STEP", &ctrl->etstep, 'i', filename, lno);
+    ReadKeyword(cmdstr, "LSM_STEP", 'i', filename, lno, &ctrl->etstep);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ABSTOL", &ctrl->abstol, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ABSTOL", 'd', filename, lno, &ctrl->abstol);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RELTOL", &ctrl->reltol, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RELTOL", 'd', filename, lno, &ctrl->reltol);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_SOLVER_STEP", &ctrl->initstep, 'd', filename,
-        lno);
+    ReadKeyword(cmdstr, "INIT_SOLVER_STEP", 'd', filename, lno, &ctrl->initstep);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'd', filename, lno);
+    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", 'd', filename, lno, &ctrl->nncfn);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", &ctrl->nnimax, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", 'd', filename, lno, &ctrl->nnimax);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", &ctrl->nnimin, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", 'd', filename, lno, &ctrl->nnimin);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DECR_FACTOR", &ctrl->decr, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DECR_FACTOR", 'd', filename, lno, &ctrl->decr);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INCR_FACTOR", &ctrl->incr, 'd', filename, lno);
+    ReadKeyword(cmdstr, "INCR_FACTOR", 'd', filename, lno, &ctrl->incr);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_MAXSTEP", &ctrl->stmin, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MIN_MAXSTEP", 'd', filename, lno, &ctrl->stmin);
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[SURF_CTRL] = ReadPrtCtrl(cmdstr, "SURF", filename, lno);

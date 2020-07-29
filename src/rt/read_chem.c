@@ -27,8 +27,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_TYPE", &ctrl->read_rt_restart, 'i',
-        chem_filen, lno);
+    ReadKeyword(cmdstr, "INIT_TYPE", 'i', chem_filen, lno, &ctrl->read_rt_restart);
     switch (ctrl->read_rt_restart)
     {
         case 0:
@@ -44,8 +43,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_rt_restart, 'i',
-        chem_filen, lno);
+    ReadKeyword(cmdstr, "WRITE_IC", 'i', chem_filen, lno, &ctrl->write_rt_restart);
     if (ctrl->write_rt_restart)
     {
         pihm_printf(VL_VERBOSE,
@@ -53,18 +51,18 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ACTIVITY", &rttbl->actv_mode, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "ACTIVITY", 'i', chem_filen, lno, &rttbl->actv_mode);
     /* 0 for unity activity coefficient and 1 for DH equation update */
     pihm_printf(VL_VERBOSE, "  Activity correction is set to %d. \n",
         rttbl->actv_mode);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "THERMO", &rttbl->tmp_coup, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "THERMO", 'i', chem_filen, lno, &rttbl->tmp_coup);
     pihm_printf(VL_VERBOSE, "  Coupling of thermo modelling is set to %d. \n",
         rttbl->tmp_coup);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RELMIN", &rttbl->rel_min, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "RELMIN", 'i', chem_filen, lno, &rttbl->rel_min);
     switch (rttbl->rel_min)
     {
         case 0:
@@ -80,7 +78,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TRANSPORT_ONLY", &rttbl->transpt_flag, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "TRANSPORT_ONLY", 'i', chem_filen, lno, &rttbl->transpt_flag);
     switch (rttbl->transpt_flag)
     {
         case KIN_REACTION:
@@ -95,7 +93,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PRECIPITATION", &forc->PrpFlg, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "PRECIPITATION", 'i', chem_filen, lno, &forc->PrpFlg);
     switch (forc->PrpFlg)
     {
         case 0:
@@ -114,20 +112,19 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RT_DELAY", &ctrl->RT_delay, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "RT_DELAY", 'i', chem_filen, lno, &ctrl->RT_delay);
     pihm_printf(VL_VERBOSE,
         "  Flux-PIHM-RT will start after running PIHM for %d seconds. \n",
         ctrl->RT_delay);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CONDENSATION", &rttbl->cond, 'd',
-        chem_filen, lno);
+    ReadKeyword(cmdstr, "CONDENSATION", 'd', chem_filen, lno, &rttbl->cond);
     pihm_printf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
         "is set to be %f times of concentrations in precipitation. \n",
         rttbl->cond);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "AVGSCL", &ctrl->AvgScl, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "AVGSCL", 'i', chem_filen, lno, &ctrl->AvgScl);
     if (ctrl->AvgScl < ctrl->stepsize || ctrl->AvgScl % ctrl->stepsize > 0)
     {
         pihm_printf(VL_ERROR,
@@ -185,23 +182,23 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FindLine(chem_fp, "GLOBAL", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "T_SPECIES", &rttbl->num_stc, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "T_SPECIES", 'i', chem_filen, lno, &rttbl->num_stc);
     pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n", rttbl->num_stc);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "S_SPECIES", &rttbl->num_ssc, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "S_SPECIES", 'i', chem_filen, lno, &rttbl->num_ssc);
     pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n", rttbl->num_ssc);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_SPECIES", &rttbl->num_min, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "MIN_SPECIES", 'i', chem_filen, lno, &rttbl->num_min);
     pihm_printf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->num_min);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ADSORPTION", &rttbl->num_ads, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "ADSORPTION", 'i', chem_filen, lno, &rttbl->num_ads);
     pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n", rttbl->num_ads);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CATION_EXCHANGE", &rttbl->num_cex, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "CATION_EXCHANGE", 'i', chem_filen, lno, &rttbl->num_cex);
     pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->num_cex);
 
     /* The number of species that are mobile */
@@ -226,30 +223,30 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MINERAL_KINETIC", &rttbl->num_mkr, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "MINERAL_KINETIC", 'i', chem_filen, lno, &rttbl->num_mkr);
     pihm_printf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
         rttbl->num_mkr);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", &rttbl->num_akr, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", 'i', chem_filen, lno, &rttbl->num_akr);
     pihm_printf(VL_VERBOSE, "  %d aqueous kinetic reaction(s) specified. \n",
         rttbl->num_akr);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DIFFUSION", &rttbl->diff_coef, 'd', chem_filen, lno);
+    ReadKeyword(cmdstr, "DIFFUSION", 'd', chem_filen, lno, &rttbl->diff_coef);
     pihm_printf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->diff_coef);
     rttbl->diff_coef /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DISPERSION", &rttbl->disp_coef, 'd', chem_filen, lno);
+    ReadKeyword(cmdstr, "DISPERSION", 'd', chem_filen, lno, &rttbl->disp_coef);
     pihm_printf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n", rttbl->disp_coef);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CEMENTATION", &rttbl->cementation, 'd', chem_filen, lno);
+    ReadKeyword(cmdstr, "CEMENTATION", 'd', chem_filen, lno, &rttbl->cementation);
     pihm_printf(VL_VERBOSE, "  Cementation factor = %2.1f \n", rttbl->cementation);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TEMPERATURE", &rttbl->tmp, 'd', chem_filen, lno);
+    ReadKeyword(cmdstr, "TEMPERATURE", 'd', chem_filen, lno, &rttbl->tmp);
     pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
 
     /*

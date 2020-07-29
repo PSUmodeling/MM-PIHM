@@ -10,169 +10,169 @@ void ReadCalib(const char filename[], calib_struct *calib)
     pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATH", &calib->ksath, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KSATH", 'd', filename, lno, &calib->ksath);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATV", &calib->ksatv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KSATV", 'd', filename, lno, &calib->ksatv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KINF", &calib->kinfv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KINF", 'd', filename, lno, &calib->kinfv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATH", &calib->kmach, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACSATH", 'd', filename, lno, &calib->kmach);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATV", &calib->kmacv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACSATV", 'd', filename, lno, &calib->kmacv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DINF", &calib->dinf, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DINF", 'd', filename, lno, &calib->dinf);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DROOT", &calib->rzd, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DROOT", 'd', filename, lno, &calib->rzd);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DMAC", &calib->dmac, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DMAC", 'd', filename, lno, &calib->dmac);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "POROSITY", &calib->porosity, 'd', filename, lno);
+    ReadKeyword(cmdstr, "POROSITY", 'd', filename, lno, &calib->porosity);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ALPHA", &calib->alpha, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ALPHA", 'd', filename, lno, &calib->alpha);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BETA", &calib->beta, 'd', filename, lno);
+    ReadKeyword(cmdstr, "BETA", 'd', filename, lno, &calib->beta);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACVF", &calib->areafv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MACVF", 'd', filename, lno, &calib->areafv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACHF", &calib->areafh, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MACHF", 'd', filename, lno, &calib->areafh);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "VEGFRAC", &calib->vegfrac, 'd', filename, lno);
+    ReadKeyword(cmdstr, "VEGFRAC", 'd', filename, lno, &calib->vegfrac);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ALBEDO", &calib->albedo, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ALBEDO", 'd', filename, lno, &calib->albedo);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ROUGH", &calib->rough, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ROUGH", 'd', filename, lno, &calib->rough);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "EC", &calib->ec, 'd', filename, lno);
+    ReadKeyword(cmdstr, "EC", 'd', filename, lno, &calib->ec);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ETT", &calib->ett, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ETT", 'd', filename, lno, &calib->ett);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "EDIR", &calib->edir, 'd', filename, lno);
+    ReadKeyword(cmdstr, "EDIR", 'd', filename, lno, &calib->edir);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ROUGH_RIV", &calib->rivrough, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ROUGH_RIV", 'd', filename, lno, &calib->rivrough);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KRIVH", &calib->rivksath, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KRIVH", 'd', filename, lno, &calib->rivksath);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RIV_DPTH", &calib->rivdepth, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RIV_DPTH", 'd', filename, lno, &calib->rivdepth);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RIV_WDTH", &calib->rivshpcoeff, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RIV_WDTH", 'd', filename, lno, &calib->rivshpcoeff);
 
 #if defined(_NOAH_)
     FindLine(global_calib, "LSM_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DRIP", &calib->drip, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DRIP", 'd', filename, lno, &calib->drip);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CMCMAX", &calib->cmcmax, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CMCMAX", 'd', filename, lno, &calib->cmcmax);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RS", &calib->rsmin, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RS", 'd', filename, lno, &calib->rsmin);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CZIL", &calib->czil, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CZIL", 'd', filename, lno, &calib->czil);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "FXEXP", &calib->fxexp, 'd', filename, lno);
+    ReadKeyword(cmdstr, "FXEXP", 'd', filename, lno, &calib->fxexp);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CFACTR", &calib->cfactr, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CFACTR", 'd', filename, lno, &calib->cfactr);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RGL", &calib->rgl, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RGL", 'd', filename, lno, &calib->rgl);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "HS", &calib->hs, 'd', filename, lno);
+    ReadKeyword(cmdstr, "HS", 'd', filename, lno, &calib->hs);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "REFSMC", &calib->smcref, 'd', filename, lno);
+    ReadKeyword(cmdstr, "REFSMC", 'd', filename, lno, &calib->smcref);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WLTSMC", &calib->smcwlt, 'd', filename, lno);
+    ReadKeyword(cmdstr, "WLTSMC", 'd', filename, lno, &calib->smcwlt);
 #endif
 
 #if defined(_FBR_)
     FindLine(global_calib, "DGW_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATH", &calib->geol_ksath, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KSATH", 'd', filename, lno, &calib->geol_ksath);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATV", &calib->geol_ksatv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KSATV", 'd', filename, lno, &calib->geol_ksatv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "POROSITY", &calib->geol_porosity, 'd', filename, lno);
+    ReadKeyword(cmdstr, "POROSITY", 'd', filename, lno, &calib->geol_porosity);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ALPHA", &calib->geol_alpha, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ALPHA", 'd', filename, lno, &calib->geol_alpha);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BETA", &calib->geol_beta, 'd', filename, lno);
+    ReadKeyword(cmdstr, "BETA", 'd', filename, lno, &calib->geol_beta);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATH", &calib->geol_kmach, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACSATH", 'd', filename, lno, &calib->geol_kmach);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATV", &calib->geol_kmacv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACSATV", 'd', filename, lno, &calib->geol_kmacv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DMAC", &calib->geol_dmac, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DMAC", 'd', filename, lno, &calib->geol_dmac);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACVF", &calib->geol_areafv, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MACVF", 'd', filename, lno, &calib->geol_areafv);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACHF", &calib->geol_areafh, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MACHF", 'd', filename, lno, &calib->geol_areafh);
 #endif
 
 #if defined(_BGC_)
     FindLine(global_calib, "BGC_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MORTALITY", &cal->mortality, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MORTALITY", 'd', filename, lno, &calib->mortality);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SLA", &cal->sla, 'd', filename, lno);
+    ReadKeyword(cmdstr, "SLA", 'd', filename, lno, &calib->sla);
 #endif
 
 #if defined(_RT_)
     FindLine(global_calib, "RT_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "rate", &calib->rate, 'd', filename, lno);
+    ReadKeyword(cmdstr, "rate", 'd', filename, lno, &calib->rate);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ssa", &calib->ssa, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ssa", 'd', filename, lno, &calib->ssa);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "prcpconc", &calib->prcpconc, 'd', filename, lno);
+    ReadKeyword(cmdstr, "prcpconc", 'd', filename, lno, &calib->prcpconc);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "initconc", &calib->initconc, 'd', filename, lno);
+    ReadKeyword(cmdstr, "initconc", 'd', filename, lno, &calib->initconc);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "Xsorption", &calib->Xsorption, 'd', filename, lno);
+    ReadKeyword(cmdstr, "Xsorption", 'd', filename, lno, &calib->Xsorption);
 #endif
 
     /*
@@ -181,10 +181,10 @@ void ReadCalib(const char filename[], calib_struct *calib)
     FindLine(global_calib, "SCENARIO", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PRCP", &calib->prcp, 'd', filename, lno);
+    ReadKeyword(cmdstr, "PRCP", 'd', filename, lno, &calib->prcp);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SFCTMP", &calib->sfctmp, 'd', filename, lno);
+    ReadKeyword(cmdstr, "SFCTMP", 'd', filename, lno, &calib->sfctmp);
 
     fclose(global_calib);
 }

@@ -24,13 +24,13 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     FindLine(lsm_file, "BOF", &lno, filename);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LATITUDE", &siteinfo->latitude, 'd', filename, lno);
+    ReadKeyword(cmdstr, "LATITUDE", 'd', filename, lno, &siteinfo->latitude);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LONGITUDE", &siteinfo->longitude, 'd', filename, lno);
+    ReadKeyword(cmdstr, "LONGITUDE", 'd', filename, lno, &siteinfo->longitude);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NSOIL", &ctrl->nlayers, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NSOIL", 'i', filename, lno, &ctrl->nlayers);
     if (ctrl->nlayers > MAXLYR - 1)
     {
         pihm_printf(VL_ERROR,
@@ -41,7 +41,7 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     }
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SLDPTH_DATA", buffer, 's', filename, lno);
+    ReadKeyword(cmdstr, "SLDPTH_DATA", 's', filename, lno, buffer);
 
     for (i = 0; i < ctrl->nlayers; i++)
     {
@@ -64,35 +64,35 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
 #endif
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i', filename, lno);
+    ReadKeyword(cmdstr, "RAD_MODE_DATA", 'i', filename, lno, &ctrl->rad_mode);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SBETA_DATA", &noahtbl->sbeta, 'd', filename, lno);
+    ReadKeyword(cmdstr, "SBETA_DATA", 'd', filename, lno, &noahtbl->sbeta);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "FXEXP_DATA", &noahtbl->fxexp, 'd', filename, lno);
+    ReadKeyword(cmdstr, "FXEXP_DATA", 'd', filename, lno, &noahtbl->fxexp);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CSOIL_DATA", &noahtbl->csoil, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CSOIL_DATA", 'd', filename, lno, &noahtbl->csoil);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SALP_DATA", &noahtbl->salp, 'd', filename, lno);
+    ReadKeyword(cmdstr, "SALP_DATA", 'd', filename, lno, &noahtbl->salp);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "FRZK_DATA", &noahtbl->frzk, 'd', filename, lno);
+    ReadKeyword(cmdstr, "FRZK_DATA", 'd', filename, lno, &noahtbl->frzk);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ZBOT_DATA", &noahtbl->zbot, 'd', filename, lno);
+    ReadKeyword(cmdstr, "ZBOT_DATA", 'd', filename, lno, &noahtbl->zbot);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TBOT_DATA", &noahtbl->tbot, 'd', filename, lno);
+    ReadKeyword(cmdstr, "TBOT_DATA", 'd', filename, lno, &noahtbl->tbot);
     siteinfo->tavg = noahtbl->tbot;
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CZIL_DATA", &noahtbl->czil, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CZIL_DATA", 'd', filename, lno, &noahtbl->czil);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LVCOEF_DATA", &noahtbl->lvcoef, 'd', filename, lno);
+    ReadKeyword(cmdstr, "LVCOEF_DATA", 'd', filename, lno, &noahtbl->lvcoef);
 
     /* Output control */
     NextLine(lsm_file, cmdstr, &lno);
@@ -174,7 +174,7 @@ void ReadRad(const char *filename, forc_struct *forc)
     NextLine(rad_file, cmdstr, &lno);
     for (i = 0; i < forc->nrad; i++)
     {
-        ReadKeyword(cmdstr, "RAD_TS", &index, 'i', filename, lno);
+        ReadKeyword(cmdstr, "RAD_TS", 'i', filename, lno, &index);
 
         if (i != index - 1)
         {

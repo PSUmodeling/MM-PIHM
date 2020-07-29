@@ -14,7 +14,7 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
 
     /* Start reading land cover file */
     NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMLC", &lctbl->number, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMLC", 'i', filename, lno, &lctbl->number);
 
     lctbl->laimax = (double *)malloc(lctbl->number * sizeof(double));
     lctbl->laimin = (double *)malloc(lctbl->number * sizeof(double));
@@ -59,13 +59,13 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
     }
 
     NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TOPT_DATA", &lctbl->topt, 'd', filename, lno);
+    ReadKeyword(cmdstr, "TOPT_DATA", 'd', filename, lno, &lctbl->topt);
 
     NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CFACTR_DATA", &lctbl->cfactr, 'd', filename, lno);
+    ReadKeyword(cmdstr, "CFACTR_DATA", 'd', filename, lno, &lctbl->cfactr);
 
     NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RSMAX_DATA", &lctbl->rsmax, 'd', filename, lno);
+    ReadKeyword(cmdstr, "RSMAX_DATA", 'd', filename, lno, &lctbl->rsmax);
 
     fclose(lc_file);
 }

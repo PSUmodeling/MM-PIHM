@@ -36,8 +36,8 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
     return success;
 }
 
-int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
-    const char *filename, int lno)
+int ReadKeyword(const char buffer[], const char keyword[], char type,
+    const char filename[], int lno, void *value)
 {
     int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];

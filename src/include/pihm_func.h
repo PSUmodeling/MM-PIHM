@@ -268,8 +268,8 @@ void            ReadBc(const char [], const atttbl_struct *, forc_struct *);
 void            ReadCalib(const char [], calib_struct *);
 void            ReadMeteo(const char [], forc_struct *);
 void            ReadIc(const char *, elem_struct *, river_struct *);
-int             ReadKeyword(const char *, const char *, void *, char,
-    const char *, int);
+int             ReadKeyword(const char [], const char [], char, const char [],
+    int, void *);
 void            ReadLai(const char *, forc_struct *, const atttbl_struct *);
 void            ReadLc(const char *, lctbl_struct *);
 void            ReadMesh(const char *, meshtbl_struct *);

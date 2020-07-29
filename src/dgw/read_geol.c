@@ -14,7 +14,7 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
 
     /* Start reading soil file */
     NextLine (geol_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NUMGEOL", &geoltbl->number, 'i', filename, lno);
+    ReadKeyword (cmdstr, "NUMGEOL", 'i', filename, lno, &geoltbl->number);
 
     geoltbl->ksatv  = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->ksath  = (double *)malloc (geoltbl->number * sizeof (double));
@@ -49,10 +49,10 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
     }
 
     NextLine(geol_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACV_RO", &geoltbl->kmacv_ro, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACV_RO", 'd', filename, lno, &geoltbl->kmacv_ro);
 
     NextLine(geol_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACH_RO", &geoltbl->kmach_ro, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACH_RO", 'd', filename, lno, &geoltbl->kmach_ro);
 
     fclose (geol_file);
 }

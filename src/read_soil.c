@@ -18,7 +18,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
     /* Start reading soil file */
     NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMSOIL", &soiltbl->number, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMSOIL", 'i', filename, lno, &soiltbl->number);
 
     soiltbl->silt = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->clay = (double *)malloc(soiltbl->number * sizeof(double));
@@ -122,13 +122,13 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     }
 
     NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DINF", &soiltbl->dinf, 'd', filename, lno);
+    ReadKeyword(cmdstr, "DINF", 'd', filename, lno, &soiltbl->dinf);
 
     NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACV_RO", &soiltbl->kmacv_ro, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACV_RO", 'd', filename, lno, &soiltbl->kmacv_ro);
 
     NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACH_RO", &soiltbl->kmach_ro, 'd', filename, lno);
+    ReadKeyword(cmdstr, "KMACH_RO", 'd', filename, lno, &soiltbl->kmach_ro);
 
     if (ptf_used)
     {

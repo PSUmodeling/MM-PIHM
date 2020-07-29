@@ -19,7 +19,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     /* Read number of river segments */
     FindLine(riv_file, "BOF", &lno, filename);
     NextLine(riv_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMRIV", &nriver, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMRIV", 'i', filename, lno, &nriver);
 
 #if defined(_LUMPED_)
     if (nriver != 1)
@@ -66,7 +66,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
      * Read river shape information
      */
     NextLine(riv_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SHAPE", &shptbl->number, 'i', filename, lno);
+    ReadKeyword(cmdstr, "SHAPE", 'i', filename, lno, &shptbl->number);
 
     /* Allocate */
     shptbl->depth = (double *)malloc(shptbl->number * sizeof(double));
@@ -96,7 +96,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
      * Read river material information
      */
     NextLine(riv_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MATERIAL", &matltbl->number, 'i', filename, lno);
+    ReadKeyword(cmdstr, "MATERIAL", 'i', filename, lno, &matltbl->number);
 
     /* Allocate */
     matltbl->rough = (double *)malloc(matltbl->number * sizeof(double));
@@ -125,7 +125,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
      * Read river boundary condition block
      */
     NextLine(riv_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BC", &forc->nriverbc, 'i', filename, lno);
+    ReadKeyword(cmdstr, "BC", 'i', filename, lno, &forc->nriverbc);
 
     if (forc->nriverbc > 0)
     {

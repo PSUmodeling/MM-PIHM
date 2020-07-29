@@ -40,7 +40,7 @@ void ReadLai(const char *filename, forc_struct *forc,
             NextLine(lai_file, cmdstr, &lno);
             for (i = 0; i < forc->nlai; i++)
             {
-                ReadKeyword(cmdstr, "LAI_TS", &index, 'i', filename, lno);
+                ReadKeyword(cmdstr, "LAI_TS", 'i', filename, lno, &index);
 
                 if (i != index - 1)
                 {
