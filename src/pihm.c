@@ -37,7 +37,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         Noah(pihm->elem, &pihm->lctbl, &pihm->cal, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
-        IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
+        IntcpSnowEt(t, (double)pihm->ctrl.etstep, &pihm->cal, pihm->elem);
 #endif
 
         /* Update print variables for land surface step variables */

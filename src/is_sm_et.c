@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 #if !defined(_NOAH_)
-void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
-    const calib_struct *cal)
+void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
+    elem_struct elem[])
 {
     int             i;
     const double    TSNOW = -3.0;

@@ -46,13 +46,13 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
             left = &elem[river[i].left - 1];
             right = &elem[river[i].right - 1];
             effk = 0.5 *
-                (EffKh(&left->soil, left->ws.gw) +
-                EffKh(&right->soil, right->ws.gw));
+                (EffKh(left->ws.gw, &left->soil) +
+                EffKh(right->ws.gw, &right->soil));
             left = &elem[down->left - 1];
             right = &elem[down->right - 1];
             effk_nabr = 0.5 *
-                (EffKh(&left->soil, left->ws.gw) +
-                EffKh(&right->soil, right->ws.gw));
+                (EffKh(left->ws.gw, &left->soil) +
+                EffKh(right->ws.gw, &right->soil));
         }
         else
         {
@@ -103,7 +103,7 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
         river->wf.rivflow[LEFT_SURF2CHANL] =
             OvlFlowElemToRiver(surf_mode, river, left);
 
-        effk_left = EffKh(&left->soil, left->ws.gw);
+        effk_left = EffKh(left->ws.gw, &left->soil);
         river->wf.rivflow[LEFT_AQUIF2CHANL] =
             ChanFlowElemToRiver(effk_left, river->topo.dist_left, river, left);
     }
@@ -115,7 +115,7 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
         river->wf.rivflow[RIGHT_SURF2CHANL] =
             OvlFlowElemToRiver(surf_mode, river, right);
 
-        effk_right = EffKh(&right->soil, right->ws.gw);
+        effk_right = EffKh(right->ws.gw, &right->soil);
         river->wf.rivflow[RIGHT_AQUIF2CHANL] =
             ChanFlowElemToRiver(effk_right, river->topo.dist_right, river,
                 right);
