@@ -207,7 +207,7 @@ void ReadRad(const char *filename, forc_struct *forc)
         {
             forc->rad[i].data[j] = (double *)malloc(2 * sizeof(double));
             NextLine(rad_file, cmdstr, &lno);
-            ReadTS(cmdstr, &forc->rad[i].ftime[j], &forc->rad[i].data[j][0], 2);
+            ReadTs(cmdstr, 2, &forc->rad[i].ftime[j], &forc->rad[i].data[j][0]);
         }
     }
 

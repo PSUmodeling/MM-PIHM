@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadForc(const char *filename, forc_struct *forc)
+void ReadMeteo(const char filename[], forc_struct *forc)
 {
     FILE           *meteo_file;
     char            cmdstr[MAXSTRING];
@@ -61,8 +61,8 @@ void ReadForc(const char *filename, forc_struct *forc)
                 forc->meteo[i].data[j] =
                     (double *)malloc(NUM_METEO_VAR * sizeof(double));
                 NextLine(meteo_file, cmdstr, &lno);
-                if (!ReadTS(cmdstr, &forc->meteo[i].ftime[j],
-                    &forc->meteo[i].data[j][0], NUM_METEO_VAR))
+                if (!ReadTs(cmdstr, NUM_METEO_VAR, &forc->meteo[i].ftime[j],
+                    &forc->meteo[i].data[j][0]))
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading meteorological forcing.");

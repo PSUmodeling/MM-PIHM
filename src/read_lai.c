@@ -73,8 +73,8 @@ void ReadLai(const char *filename, forc_struct *forc,
                 {
                     forc->lai[i].data[j] = (double *)malloc(sizeof(double));
                     NextLine(lai_file, cmdstr, &lno);
-                    if (!ReadTS(cmdstr, &forc->lai[i].ftime[j],
-                        &forc->lai[i].data[j][0], 1))
+                    if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j],
+                        &forc->lai[i].data[j][0]))
                     {
                         pihm_printf(VL_ERROR, "Error reading LAI forcing.");
                         pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",

@@ -1,16 +1,16 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ReadBc(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl, const rttbl_struct *rttbl,
-    const chemtbl_struct chemtbl[])
+void ReadBc(const char filename[], const atttbl_struct *atttbl,
+    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+    forc_struct *forc)
 #else
-void ReadBc(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl)
+void ReadBc(const char filename[], const atttbl_struct *atttbl,
+    forc_struct *forc)
 #endif
 {
     int             i, j;
-    FILE           *bc_file;    /* Pointer to .ibc file */
+    FILE           *bc_file;
     int             read_bc = 0;
     char            cmdstr[MAXSTRING];
     int             match;
@@ -118,8 +118,8 @@ void ReadBc(const char *filename, forc_struct *forc,
 
                         if (ind[k] < 0)
                         {
-                            pihm_printf(VL_ERROR, "Error finding chemical %s.\n",
-                                chemn);
+                            pihm_printf(VL_ERROR,
+                                "Error finding chemical %s.\n", chemn);
                             pihm_exit(EXIT_FAILURE);
                         }
                     }
@@ -164,11 +164,11 @@ void ReadBc(const char *filename, forc_struct *forc,
 #endif
                     NextLine(bc_file, cmdstr, &lno);
 #if defined(_RT_)
-                    if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
-                        bcval, rttbl->num_stc + 1))
+                    if (!ReadTs(cmdstr, rttbl->num_stc + 1,
+                        &forc->bc[i].ftime[j], bcval))
 #else
-                    if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
-                        &forc->bc[i].data[j][0], 1))
+                    if (!ReadTs(cmdstr, 1, &forc->bc[i].ftime[j],
+                        &forc->bc[i].data[j][0]))
 #endif
                     {
                         pihm_printf(VL_ERROR,

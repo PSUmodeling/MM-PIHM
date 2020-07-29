@@ -100,7 +100,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                     (double *)malloc(rttbl->num_spc * sizeof(double));
 
                 NextLine(fp, cmdstr, &lno);
-                ReadTS(cmdstr, &forc->prcpc[i].ftime[j], temp_conc, nsps[i]);
+                ReadTs(cmdstr, nsps[i], &forc->prcpc[i].ftime[j], temp_conc);
 
                 for (k = 0; k < rttbl->num_spc; k++)
                 {

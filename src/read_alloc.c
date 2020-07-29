@@ -76,7 +76,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadLc(pihm->filename.lc, &pihm->lctbl);
 
     /* Read meteorological forcing input file */
-    ReadForc(pihm->filename.meteo, &pihm->forc);
+    ReadMeteo(pihm->filename.meteo, &pihm->forc);
 
     /* Read LAI input file */
     ReadLai(pihm->filename.lai, &pihm->forc, &pihm->atttbl);
@@ -131,10 +131,10 @@ void ReadAlloc(pihm_struct pihm)
      * Boundary conditions might be needed by FBR and RT thus should be read in
      * after reading bedrock and chemistry input */
 #if defined(_RT_)
-    ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl, &pihm->rttbl,
-        pihm->chemtbl);
+    ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->rttbl, pihm->chemtbl,
+        &pihm->forc);
 #else
-    ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl);
+    ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->forc);
 #endif
 
 #if defined(_CYCLES_)
@@ -164,7 +164,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadEpc(&pihm->epctbl);
 
     /* Read CO2 and Ndep files */
-    pihm->forc.co2 = (tsdata_struct *)malloc(sizeof(tsdata_struct));
+    pihm->forc.co2  = (tsdata_struct *)malloc(sizeof(tsdata_struct));
     pihm->forc.ndep = (tsdata_struct *)malloc(sizeof(tsdata_struct));
 
     if (pihm->co2.varco2)

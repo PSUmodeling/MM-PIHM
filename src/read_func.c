@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int ReadTS(const char *cmdstr, int *ftime, double *data, int nvrbl)
+int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
 {
     int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];

@@ -182,8 +182,8 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
             {
                 forc->riverbc[i].data[j] = (double *)malloc(sizeof(double));
                 NextLine(riv_file, cmdstr, &lno);
-                if (!ReadTS(cmdstr, &forc->riverbc[i].ftime[j],
-                        &forc->riverbc[i].data[j][0], 1))
+                if (!ReadTs(cmdstr, 1, &forc->riverbc[i].ftime[j],
+                        &forc->riverbc[i].data[j][0]))
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading river boundary condition.\n");

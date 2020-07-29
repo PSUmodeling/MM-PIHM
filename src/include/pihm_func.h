@@ -258,15 +258,15 @@ double          PtfThetar(double, double);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 void            ReadAlloc(pihm_struct);
-void            ReadAtt(const char *, atttbl_struct *);
+void            ReadAtt(const char [], atttbl_struct *);
 #if defined(_RT_)
-void            ReadBc(const char *, forc_struct *, const atttbl_struct *,
-    const rttbl_struct *, const chemtbl_struct []);
+void            ReadBc(const char [], const atttbl_struct *,
+    const chemtbl_struct [], const rttbl_struct *,  forc_struct *);
 #else
-void            ReadBc(const char *, forc_struct *, const atttbl_struct *);
+void            ReadBc(const char [], const atttbl_struct *, forc_struct *);
 #endif
-void            ReadCalib(const char *, calib_struct *);
-void            ReadForc(const char *, forc_struct *);
+void            ReadCalib(const char [], calib_struct *);
+void            ReadMeteo(const char [], forc_struct *);
 void            ReadIc(const char *, elem_struct *, river_struct *);
 int             ReadKeyword(const char *, const char *, void *, char,
     const char *, int);
@@ -278,7 +278,7 @@ int             ReadPrtCtrl(const char *, const char *, const char *, int);
 void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(const char *, soiltbl_struct *);
-int             ReadTS(const char *, int *, double *, int);
+int             ReadTs(const char [], int, int *, double *);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const soil_struct *);
 double          RiverCroSectArea(int, double, double);
