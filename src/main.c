@@ -11,7 +11,7 @@ char            project[MAXSTRING];
 int             nelem;
 int             nriver;
 #if defined(_OPENMP)
-int             nthreads = 1;    /* Default value */
+int             nthreads = 1;               /* Default value */
 #endif
 #if defined(_BGC_)
 int             nsolute = 1;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     /* Read PIHM input files */
     ReadAlloc(pihm);
 
-    /* Initialize CVode state variables */
+    /* Initialize CVODE state variables */
     CV_Y = N_VNew(NumStateVar());
     if (CV_Y == NULL)
     {
@@ -129,9 +129,9 @@ int main(int argc, char *argv[])
         Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
 
         /* In spin-up mode, initial conditions are always printed */
-        PrintInit(pihm->elem, pihm->river, outputdir,
-            ctrl->endtime, ctrl->starttime,
-            ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+        PrintInit(pihm->elem, pihm->river, outputdir, ctrl->endtime,
+            ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
             RunTime(start, &cputime, &cputime_dt);
 #endif
 
+            /* Run PIHM time step */
             PIHM(pihm, cvode_mem, CV_Y, cputime);
 
             /* Adjust CVODE max step to reduce oscillation */
@@ -188,7 +189,7 @@ int main(int argc, char *argv[])
 #endif
 
 # if TEMP_DISABLED
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         if (ctrl->write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
