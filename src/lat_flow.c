@@ -85,8 +85,9 @@ void LateralFlow(int surf_mode, const river_struct *river, elem_struct elem[])
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 /* Groundwater flow modeled by Darcy's Law */
-                elem[i].wf.fbrflow[j] = DeepFlowElemToElem(&elem[i], nabr,
-                    elem[i].topo.nabrdist[j], elem[i].topo.edge[j]);
+                elem[i].wf.fbrflow[j] =
+                    DeepFlowElemToElem(elem[i].topo.nabrdist[j],
+                        elem[i].topo.edge[j], &elem[i], nabr);
             }
         }
     }
