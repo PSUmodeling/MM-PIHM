@@ -312,13 +312,12 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
 
         if (sink == 1)
         {
-            pihm_printf(VL_NORMAL, "Element %d is a sink\n", i + 1);
+            pihm_printf(VL_NORMAL, "Element %4d is a sink.\n", i + 1);
 
             /* Note: Following correction is being applied for correction
              * mode only */
-            pihm_printf(VL_NORMAL, "    Before: surface %lf, "
-                "bedrock %lf. Neighbors surface:",
-                elem[i].topo.zmax, elem[i].topo.zmin);
+            pihm_printf(VL_NORMAL, "  Before correction: surface %7.2lf m, "
+                "bedrock %7.2lf m. ", elem[i].topo.zmax, elem[i].topo.zmin);
 
             new_elevation = 1.0e7;
             for (j = 0; j < NUM_EDGE; j++)
@@ -330,10 +329,6 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
                         river[elem[i].nabr_river[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ?
                         nabr_zmax : new_elevation;
-                    pihm_printf(VL_NORMAL, " (%d)%lf", j + 1,
-                        (elem[i].nabr_river[j] == 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmax :
-                        river[elem[i].nabr_river[j] - 1].topo.zmax);
                 }
             }
 
@@ -343,7 +338,7 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
             /* Apply new surface elevation */
             elem[i].topo.zmax = new_elevation;
 
-            pihm_printf(VL_NORMAL, ". Corrected = %lf, %lf\n",
+            pihm_printf(VL_NORMAL, "Corrected = %7.2lf m, %7.2lf m.\n",
                 elem[i].topo.zmax, elem[i].topo.zmin);
         }
     }
