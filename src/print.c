@@ -4,18 +4,18 @@
 
 void StartupScreen(void)
 {
-    pihm_printf(VL_NORMAL, "\n");
-    pihm_printf(VL_NORMAL, "    ########    ####   ##     ##   ##     ##\n");
-    pihm_printf(VL_NORMAL, "    ##     ##    ##    ##     ##   ###   ###\n");
-    pihm_printf(VL_NORMAL, "    ##     ##    ##    ##     ##   #### ####\n");
-    pihm_printf(VL_NORMAL, "    ########     ##    #########   ## ### ##\n");
-    pihm_printf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
-    pihm_printf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
-    pihm_printf(VL_NORMAL, "    ##          ####   ##     ##   ##     ##\n");
+    pihm_printf(VL_NORMAL, "\n"
+        "    ########    ####   ##     ##   ##     ##\n"
+        "    ##     ##    ##    ##     ##   ###   ###\n"
+        "    ##     ##    ##    ##     ##   #### ####\n"
+        "    ########     ##    #########   ## ### ##\n"
+        "    ##           ##    ##     ##   ##     ##\n"
+        "    ##           ##    ##     ##   ##     ##\n"
+        "    ##          ####   ##     ##   ##     ##\n");
 
-    pihm_printf(VL_BRIEF, "\n");
-    pihm_printf(VL_BRIEF, "    The Penn State Integrated Hydrologic Model\n");
-    pihm_printf(VL_BRIEF, "          Version %s\n\n", VERSION);
+    pihm_printf(VL_BRIEF, "\n"
+        "    The Penn State Integrated Hydrologic Model\n"
+        "          Version %s\n\n", VERSION);
 #if defined(_NOAH_)
     pihm_printf(VL_BRIEF, "    * Land surface module turned on.\n");
 #endif
@@ -46,32 +46,28 @@ void StartupScreen(void)
     }
     if (1 == debug_mode)
     {
-        pihm_printf(VL_NORMAL,
-            "    Debug mode turned on.\n");
+        pihm_printf(VL_NORMAL, "    Debug mode turned on.\n");
     }
     if (VL_BRIEF == verbose_mode)
     {
-        pihm_printf(VL_NORMAL,
-            "    Brief mode turned on.\n");
+        pihm_printf(VL_NORMAL, "    Brief mode turned on.\n");
     }
     if (VL_VERBOSE == verbose_mode)
     {
-        pihm_printf(VL_NORMAL,
-            "    Verbose mode turned on.\n");
+        pihm_printf(VL_NORMAL, "    Verbose mode turned on.\n");
     }
     if (1 == append_mode)
     {
-        pihm_printf(VL_NORMAL,
-            "    Append mode turned on.\n");
+        pihm_printf(VL_NORMAL, "    Append mode turned on.\n");
     }
 }
 
 #if defined(_LUMPED_) && defined(_RT_)
-void InitOutputFile(const char *outputdir, int watbal, int ascii,
+void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     print_struct *print)
 #else
-void InitOutputFile(const char *outputdir, int watbal, int ascii,
+void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     print_struct *print)
 #endif
 {
@@ -94,14 +90,14 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         strcpy(bin_mode, "wb");
     }
 
-    /* Initialize water balance file*/
+    /* Initialize water balance file */
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
         print->watbal_file = pihm_fopen(watbal_fn, mode);
     }
 
-    /* Initialize cvode output files */
+    /* Initialize CVODE output files */
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
@@ -449,7 +445,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 #endif
 }
 
-void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
+void UpdatePrintVar(int nprint, int module_step, varctrl_struct *varctrl)
 {
     int             i;
 #if defined(_OPENMP)
@@ -471,7 +467,7 @@ void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
     }
 }
 
-void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
+void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
 {
     int             i;
     pihm_t_struct   pihm_time;
@@ -487,7 +483,7 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
         double          outval;
         double          outtime;
 
-        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
+        if(PrintNow(varctrl[i].intvl, lapse, pihm_time))
         {
             if (ascii)
             {
@@ -525,14 +521,14 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrintInit(const elem_struct *elem, const river_struct *river,
-    const char *outputdir, int t, int starttime, int endtime, int intvl)
+void PrintInit(const char outputdir[], int t, int starttime, int endtime,
+    int intvl, const elem_struct elem[], const river_struct river[])
 {
     pihm_t_struct   pihm_time;
 
     pihm_time = PIHMTime(t);
 
-    if(PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
+    if(PrintNow(intvl, t - starttime, pihm_time) || t == endtime)
     {
         FILE           *init_file;
         char            fn[MAXSTRING];
@@ -589,32 +585,32 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
     }
 }
 
-void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
-    double cputime, double maxstep, FILE *perf_file)
+void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
+    double maxstep, FILE *perf_file, void *cvode_mem)
 {
     static double   dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
     long int        nst, nfe, nni, ncfn, netf;
     int             cv_flag;
 
-    /* Gets the cumulative number of internal steps taken by the solver (total
+    /* Get the cumulative number of internal steps taken by the solver (total
      * so far) */
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of calls to the user's right-hand side function */
+    /* Get the number of calls to the user's right-hand side function */
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of nonlinear iterations performed */
+    /* Get the number of nonlinear iterations performed */
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of nonlinear convergence failures that have occurred */
+    /* Get the number of nonlinear convergence failures that have occurred */
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of local error test failures that have occurred */
+    /* Get the number of local error test failures that have occurred */
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
     CheckCVodeFlag(cv_flag);
 
@@ -635,8 +631,8 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     dt += cputime_dt;
 }
 
-void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
-    const elem_struct *elem, const river_struct *river)
+void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[],
+    const river_struct river[], FILE *watbal_file)
 {
     int             i;
     double          tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
@@ -731,7 +727,7 @@ void PrintCVodeFinalStats(void *cvode_mem)
         nni, ncfn, netf);
 }
 
-int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
+int PrintNow(int intvl, int lapse, pihm_t_struct pihm_time)
 {
     int             print = 0;
 
@@ -740,36 +736,21 @@ int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
         switch (intvl)
         {
             case YEARLY_OUTPUT:
-                if (pihm_time->month == 1 && pihm_time->day == 1 &&
-                    pihm_time->hour == 0 && pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
+                print = (pihm_time.month == 1 && pihm_time.day == 1 &&
+                    pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;
                 break;
             case MONTHLY_OUTPUT:
-                if (pihm_time->day == 1 && pihm_time->hour == 0 &&
-                    pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
+                print = (pihm_time.day == 1 && pihm_time.hour == 0 &&
+                    pihm_time.minute == 0) ? 1 : 0;
                 break;
             case DAILY_OUTPUT:
-                if (pihm_time->hour == 0 && pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
+                print = (pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;
                 break;
             case HOURLY_OUTPUT:
-                if (pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
+                print = (pihm_time.minute == 0) ? 1 : 0;
                 break;
             default:
-                if (lapse % intvl == 0)
-                {
-                    print = 1;
-                }
+                print = (lapse % intvl == 0) ? 1 : 0;
         }
     }
 

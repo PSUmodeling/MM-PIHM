@@ -178,10 +178,10 @@ void            InitLc(const lctbl_struct *, const calib_struct *,
     elem_struct []);
 void            InitMesh(const meshtbl_struct *, elem_struct []);
 #if defined(_LUMPED_) && defined(_RT_)
-void            InitOutputFile(const char *, int, int, const chemtbl_struct [],
+void            InitOutputFiles(const char [], int, int, const chemtbl_struct [],
     const rttbl_struct *, print_struct *);
 #else
-void            InitOutputFile(const char *, int, int, print_struct *);
+void            InitOutputFiles(const char [], int, int, print_struct *);
 #endif
 void            InitPrintCtrl(const char [], const char [], int, int, int,
     varctrl_struct *);
@@ -242,13 +242,13 @@ void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(double, pihm_struct, void *, N_Vector);
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
-void            PrintData(varctrl_struct *, int, int, int, int);
-void            PrintInit(const elem_struct *, const river_struct *,
-    const char *, int, int, int, int);
-int             PrintNow(int, int, const pihm_t_struct *);
-void            PrintPerf(void *, int, int, double, double, double, FILE *);
-void            PrintWaterBal(FILE *, int, int, int, const elem_struct *,
-    const river_struct *);
+void            PrintData(int, int, int, int, varctrl_struct *);
+void            PrintInit(const char [], int, int, int, int,
+    const elem_struct [], const river_struct []);
+int             PrintNow(int, int, pihm_t_struct);
+void            PrintPerf(int, int, double, double, double, FILE *, void *);
+void            PrintWaterBalance(int, int, int, const elem_struct [],
+    const river_struct [], FILE *);
 void            ProgressBar(double);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
@@ -303,7 +303,7 @@ int             StrTime(const char *);
 double          SubsurfFlow(int, const elem_struct *, const elem_struct *);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
-void            UpdPrintVar(varctrl_struct *, int, int);
+void            UpdatePrintVar(int, int, varctrl_struct *);
 void            UpdPrintVarT(varctrl_struct *, int);
 void            VerticalFlow(elem_struct *, double);
 double          WiltingPoint(double, double, double, double);

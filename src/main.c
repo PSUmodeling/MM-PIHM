@@ -97,10 +97,10 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(_LUMPED_) && defined(_RT_)
-    InitOutputFile(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
+    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
         pihm->chemtbl, &pihm->rttbl, &pihm->print);
 #else
-    InitOutputFile(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
+    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
         &pihm->print);
 #endif
 
@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
         Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
 
         /* In spin-up mode, initial conditions are always printed */
-        PrintInit(pihm->elem, pihm->river, outputdir, ctrl->endtime,
-            ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+        PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime,
+            ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
 
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
@@ -159,17 +159,17 @@ int main(int argc, char *argv[])
             /* Print CVODE performance and statistics */
             if (debug_mode)
             {
-                PrintPerf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
-                    ctrl->starttime, cputime_dt, cputime, ctrl->maxstep,
-                    pihm->print.cvodeperf_file);
+                PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
+                    cputime_dt, cputime, ctrl->maxstep,
+                    pihm->print.cvodeperf_file, cvode_mem);
             }
 
             /* Write init files */
             if (ctrl->write_ic)
             {
-                PrintInit(pihm->elem, pihm->river, outputdir,
-                    ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
-                    ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+                PrintInit(outputdir, ctrl->tout[ctrl->cstep + 1],
+                    ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL],
+                    pihm->elem, pihm->river);
             }
 
         }

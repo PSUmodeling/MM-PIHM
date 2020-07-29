@@ -41,7 +41,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 #endif
 
         /* Update print variables for land surface step variables */
-        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
+        UpdatePrintVar(pihm->print.nprint, LS_STEP, pihm->print.varctrl);
     }
 
 #if defined(_RT_)
@@ -65,7 +65,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         Cycles(t, pihm->elem);
 
         /* Update print variables for CN (daily) step variables */
-        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
+        UpdatePrintVar(pihm->print.nprint, CN_STEP, pihm->print.varctrl);
     }
 #endif
 
@@ -82,7 +82,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 #endif
 
     /* Update print variables for hydrology step variables */
-    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
+    UpdatePrintVar(pihm->print.nprint, HYDROL_STEP, pihm->print.varctrl);
 
 #if defined(_RT_)
     /*
@@ -101,7 +101,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         UpdatePConc(&pihm->rttbl, pihm->elem, pihm->river);
     }
 
-    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
+    UpdatePrintVar(pihm->print.nprint, RT_STEP, pihm->print.varctrl);
 #endif
 
 #if defined(_DAILY_)
@@ -117,7 +117,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         DailyBgc(pihm, t - DAYINSEC);
 
         /* Update print variables for CN (daily) step variables */
-        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
+        UpdatePrintVar(pihm->print.nprint, CN_STEP, pihm->print.varctrl);
 # endif
 
         /* Initialize daily structures */
@@ -131,11 +131,11 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     /* Print water balance */
     if (pihm->ctrl.waterbal)
     {
-        PrintWaterBal(pihm->print.watbal_file, t, pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->elem, pihm->river);
+        PrintWaterBalance(t, pihm->ctrl.starttime, pihm->ctrl.stepsize,
+            pihm->elem, pihm->river, pihm->print.watbal_file);
     }
 
     /* Print binary and txt output files */
-    PrintData(pihm->print.varctrl, pihm->print.nprint, t,
-        t - pihm->ctrl.starttime, pihm->ctrl.ascii);
+    PrintData(pihm->print.nprint, t, t - pihm->ctrl.starttime, pihm->ctrl.ascii,
+        pihm->print.varctrl);
 }
