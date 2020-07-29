@@ -78,13 +78,13 @@ int main(int argc, char *argv[])
 
     /* Create output structures */
 #if defined(_CYCLES_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river,
-        outputdir, &pihm->print);
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem,
+        pihm->river, &pihm->print);
 #elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem,
-        pihm->river, outputdir, &pihm->print);
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl,
+        pihm->elem, pihm->river, &pihm->print);
 #else
-    MapOutput(pihm->ctrl.prtvrbl, pihm->elem, pihm->river, outputdir,
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->elem, pihm->river,
         &pihm->print);
 #endif
 

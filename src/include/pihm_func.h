@@ -183,7 +183,7 @@ void            InitOutputFile(const char *, int, int, const chemtbl_struct [],
 #else
 void            InitOutputFile(const char *, int, int, print_struct *);
 #endif
-void            InitPrtVarCtrl(const char *, const char *, int, int, int,
+void            InitPrintCtrl(const char [], const char [], int, int, int,
     varctrl_struct *);
 void            InitRiver(const meshtbl_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const calib_struct *,
@@ -208,15 +208,15 @@ void            IntrplForcing(int, int, int, tsdata_struct *);
 double          KrFunc(double, double);
 void            LateralFlow(int, const river_struct *, elem_struct []);
 #if defined(_CYCLES_)
-void            MapOutput(const int *, const crop_struct [],
-    const elem_struct *, const river_struct *, const char *, print_struct *);
+void            MapOutput(const char [], const int [], const crop_struct [],
+    const elem_struct [], const river_struct [], print_struct *);
 #elif defined(_RT_)
-void            MapOutput(const int *, const chemtbl_struct [],
-    const rttbl_struct *, const elem_struct *, const river_struct *,
-    const char *, print_struct *);
+void            MapOutput(const char [], const int [], const chemtbl_struct [],
+    const rttbl_struct *, const elem_struct [], const river_struct [],
+     print_struct *);
 #else
-void            MapOutput(const int *, const elem_struct *,
-    const river_struct *, const char *, print_struct *);
+void            MapOutput(const char [], const int [], const elem_struct [],
+    const river_struct [],  print_struct *);
 #endif
 #if defined(_FBR_)
 void            MassBalance(const wstate_struct *, const wstate_struct *,
@@ -773,7 +773,7 @@ void            Speciation(const chemtbl_struct [], const rttbl_struct *,
 int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             SpeciesType(FILE *, const char []);
-void            Unwrap(char *, const char *);
+void            Unwrap(const char [], char []);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);

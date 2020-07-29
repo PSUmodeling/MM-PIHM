@@ -296,7 +296,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].name);
+            Unwrap(chemtbl[k].name, chemn);
 
             fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
         }
@@ -317,7 +317,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].name);
+            Unwrap(chemtbl[k].name, chemn);
 
             fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
         }
@@ -369,7 +369,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].name);
+        Unwrap(chemtbl[k].name, chemn);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
@@ -389,7 +389,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].name);
+        Unwrap(chemtbl[k].name, chemn);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
@@ -410,7 +410,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].name);
+        Unwrap(chemtbl[k].name, chemn);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
@@ -430,7 +430,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].name);
+        Unwrap(chemtbl[k].name, chemn);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
