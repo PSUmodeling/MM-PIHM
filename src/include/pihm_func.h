@@ -295,7 +295,7 @@ void            RunTime (clock_t, double *, double *);
 void            RelaxIc(elem_struct [], river_struct []);
 void            SetCVodeParam(pihm_struct, void *, SUNLinearSolver *, N_Vector);
 int             SoilTex(double, double);
-void            SolveCVode(const ctrl_struct *, double, int *, void *,
+void            SolveCVode(double, const ctrl_struct *, int *, void *,
     N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *, SUNLinearSolver *);
 void            StartupScreen(void);

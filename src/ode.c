@@ -6,14 +6,22 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     double         *y;
     double         *dy;
     pihm_struct     pihm;
+    elem_struct    *elem;
+    river_struct   *river;
 
     y = NV_DATA(CV_Y);
     dy = NV_DATA(CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
+    elem = &pihm->elem[0];
+    river = &pihm->river[0];
+
     /*
      * Initialization of RHS of ODEs
      */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < NumStateVar(); i++)
     {
         dy[i] = 0.0;
@@ -24,26 +32,22 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem_struct    *elem;
-
-        elem = &pihm->elem[i];
-
-        elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
-        elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
-        elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
+        elem[i].ws.surf  = MAX(y[SURF(i)], 0.0);
+        elem[i].ws.unsat = MAX(y[UNSAT(i)], 0.0);
+        elem[i].ws.gw    = MAX(y[GW(i)], 0.0);
 
 #if defined(_FBR_)
-        elem->ws.fbr_unsat = MAX(y[FBRUNSAT(i)], 0.0);
-        elem->ws.fbr_gw = MAX(y[FBRGW(i)], 0.0);
+        elem[i].ws.fbr_unsat = MAX(y[FBRUNSAT(i)], 0.0);
+        elem[i].ws.fbr_gw    = MAX(y[FBRGW(i)], 0.0);
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPEDBGC_)
-        elem->ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
+        elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
 
 #if defined(_CYCLES_)
-        elem->ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
-        elem->ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
+        elem[i].ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
+        elem[i].ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)
@@ -51,17 +55,16 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < nsolute; k++)
         {
-            elem->chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
+            elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
 # if defined(_FBR_)
-            elem->chms.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
+            elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
 # endif
         }
 #endif
     }
 
 #if defined(_BGC_) && defined(_LUMPEDBGC_)
-    pihm->elem[LUMPEDBGC].ns.sminn = (y[LUMPEDBGC_SMINN] >= 0.0) ?
-        y[LUMPEDBGC_SMINN] : 0.0;
+    elem[LUMPEDBGC].ns.sminn = MAX(y[LUMPEDBGC_SMINN], 0.0);
 #endif
 
 #if defined(_OPENMP)
@@ -69,21 +72,17 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct   *river;
-
-        river = &pihm->river[i];
-
-        river->ws.stage = MAX(y[RIVER(i)], 0.0);
+        river[i].ws.stage = MAX(y[RIVER(i)], 0.0);
 
 #if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
-        river->ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
+        river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif
 
-        river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
+        river[i].wf.rivflow[UP_CHANL2CHANL] = 0.0;
 
 #if defined(_CYCLES_)
-        river->ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
-        river->ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
+        river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
+        river[i].ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)
@@ -91,7 +90,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < nsolute; k++)
         {
-            river->chms.tot_mol[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
+            river[i].chms.tot_mol[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
         }
 #endif
     }
@@ -145,28 +144,26 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nelem; i++)
     {
         int             j;
-        elem_struct    *elem;
-
-        elem = &pihm->elem[i];
 
         /*
          * Vertical water fluxes for surface and subsurface
          */
-        dy[SURF(i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
-        dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg - elem->wf.edir_unsat -
-            elem->wf.ett_unsat;
-        dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
+        dy[SURF(i)] += elem[i].wf.pcpdrp - elem[i].wf.infil -
+            elem[i].wf.edir_surf;
+        dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.rechg -
+            elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
+        dy[GW(i)] += elem[i].wf.rechg - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
 
 #if defined(_FBR_)
         /*
          * Vertical water fluxes for fractured bedrock
          */
-        dy[GW(i)] -= elem->wf.fbr_infil;
+        dy[GW(i)] -= elem[i].wf.fbr_infil;
 
-        dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
-        dy[FBRGW(i)] += elem->wf.fbr_rechg;
+        dy[FBRUNSAT(i)] += elem[i].wf.fbr_infil - elem[i].wf.fbr_rechg;
+        dy[FBRGW(i)]    += elem[i].wf.fbr_rechg;
 # if defined(_LUMPED_)
-        dy[FBRGW(i)] -= elem->wf.fbr_discharge;
+        dy[FBRGW(i)] -= elem[i].wf.fbr_discharge;
 # endif
 #endif
 
@@ -175,18 +172,18 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
          */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
-            dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
+            dy[SURF(i)]  -= elem[i].wf.ovlflow[j] / elem[i].topo.area;
+            dy[GW(i)]    -= elem[i].wf.subsurf[j] / elem[i].topo.area;
 #if defined(_FBR_)
-            dy[FBRGW(i)] -= elem->wf.fbrflow[j] / elem->topo.area;
+            dy[FBRGW(i)] -= elem[i].wf.fbrflow[j] / elem[i].topo.area;
 #endif
         }
 
-        dy[UNSAT(i)] /= elem->soil.porosity;
-        dy[GW(i)] /= elem->soil.porosity;
+        dy[UNSAT(i)] /= elem[i].soil.porosity;
+        dy[GW(i)]    /= elem[i].soil.porosity;
 #if defined(_FBR_)
-        dy[FBRUNSAT(i)] /= elem->geol.porosity;
-        dy[FBRGW(i)] /= elem->geol.porosity;
+        dy[FBRUNSAT(i)] /= elem[i].geol.porosity;
+        dy[FBRGW(i)]    /= elem[i].geol.porosity;
 #endif
 
 #if _OBSOLETE_
@@ -196,21 +193,21 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
          * BGC N transport fluxes
          */
         dy[SURFN(i)] +=
-            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
-            elem->nsol.infilflux;
-        dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
+            (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC -
+            elem[i].nsol.infilflux;
+        dy[SMINN(i)] += elem[i].nsol.infilflux + elem[i].nsol.snksrc;
 # else
         dy[SMINN(i)] +=
-            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
-            elem->nsol.snksrc;
+            (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC +
+            elem[i].nsol.snksrc;
 # endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {
 # if !defined(_LEACHING_)
-            dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
+            dy[SURFN(i)] -= elem[i].nsol.ovlflux[j] / elem[i].topo.area;
 # endif
-            dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
+            dy[SMINN(i)] -= elem[i].nsol.subflux[j] / elem[i].topo.area;
         }
 #endif
 #endif
@@ -221,30 +218,30 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < nsolute; k++)
         {
 # if defined(_CYCLES_)
-            dy[SOLUTE_SOIL(i, k)] += elem->solute[k].infil +
-                Profile(elem->ps.nlayers, elem->solute[k].snksrc);
+            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil +
+                Profile(elem[i].ps.nlayers, elem[i].solute[k].snksrc);
 # else
-            dy[SOLUTE_SOIL(i, k)] += elem->solute[k].infil +
-                elem->solute[k].snksrc;
+            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil +
+                elem[i].solute[k].snksrc;
 # endif
 
 # if defined(_FBR_)
-            dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].fbr_infil;
+            dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].fbr_infil;
 
-            dy[SOLUTE_GEOL(i, k)] += elem->solute[k].fbr_infil +
-                elem->solute[k].snksrc_geol;
+            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].fbr_infil +
+                elem[i].solute[k].snksrc_geol;
 #  if defined(_LUMPED_)
-            dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbr_discharge;
+            dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].fbr_discharge;
 #  endif
 # endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].subflux[j] /
-                    elem->topo.area;
+                dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] /
+                    elem[i].topo.area;
 # if defined(_FBR_)
-                dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbrflow[j] /
-                    elem->topo.area;
+                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].fbrflow[j] /
+                    elem[i].topo.area;
 # endif
             }
         }
@@ -270,31 +267,21 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nriver; i++)
     {
         int             j;
-        river_struct   *river;
-
-        river = &(pihm->river[i]);
 
         for (j = 0; j < NUM_RIVFLX; j++)
         {
             /* Note the limitation due to
              * d(v) / dt = a * dy / dt + y * da / dt
              * for cs other than rectangle */
-            dy[RIVER(i)] -= river->wf.rivflow[j] / river->topo.area;
+            dy[RIVER(i)] -= river[i].wf.rivflow[j] / river[i].topo.area;
         }
 
 #if _OBSOLETE_
 #if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
         {
-            dy[STREAMN(i)] -= river->nsol.flux[j] / river->topo.area;
+            dy[STREAMN(i)] -= river[i].nsol.flux[j] / river[i].topo.area;
         }
-
-        dy[RIVBEDN(i)] += -river->nsol.flux[LEFT_AQUIF2AQUIF] -
-            river->nsol.flux[RIGHT_AQUIF2AQUIF] -
-            river->nsol.flux[DOWN_AQUIF2AQUIF] -
-            river->nsol.flux[UP_AQUIF2AQUIF] + river->nsol.flux[CHANL_LKG];
-
-        dy[RIVBEDN(i)] /= river->topo.area;
 #endif
 #endif
 
@@ -305,8 +292,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             for (j = 0; j < NUM_RIVFLX; j++)
             {
-                dy[SOLUTE_RIVER(i, k)] -= river->solute[k].flux[j] /
-                    river->topo.area;
+                dy[SOLUTE_RIVER(i, k)] -= river[i].solute[k].flux[j] /
+                    river[i].topo.area;
             }
         }
 #endif
@@ -447,7 +434,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
     }
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-    /* Set absolute errors for nitrogen state variables */
+    /* Set absolute errors for solute state variables */
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
@@ -458,7 +445,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #endif
 }
 
-void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
+void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t,
     void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
@@ -546,26 +533,20 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     nfails = (double)(ncfn - ncfn0) / nsteps;
     niters = (double)(nni - nni0) / nsteps;
 
-    if (nfails > ctrl->nncfn || niters >= ctrl->nnimax)
-    {
-        ctrl->maxstep /= ctrl->decr;
-    }
+    ctrl->maxstep /= (nfails > ctrl->nncfn || niters >= ctrl->nnimax) ?
+         ctrl->decr : 1.0;
 
-    if (nfails == 0.0 && niters <= ctrl->nnimin)
-    {
-        ctrl->maxstep *= ctrl->incr;
-    }
+    ctrl->maxstep *= (nfails == 0.0 && niters <= ctrl->nnimin) ?
+        ctrl->incr : 1.0;
 
-    ctrl->maxstep = (ctrl->maxstep < ctrl->stepsize) ?
-        ctrl->maxstep : ctrl->stepsize;
-    ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ?
-        ctrl->maxstep : ctrl->stmin;
+    ctrl->maxstep = MIN(ctrl->maxstep, ctrl->stepsize);
+    ctrl->maxstep = MAX(ctrl->maxstep, ctrl->stmin);
 
     /* Updates the upper bound on the magnitude of the step size */
     cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
     CheckCVodeFlag(cv_flag);
 
-    nst0 = nst;
+    nst0  = nst;
     ncfn0 = ncfn;
-    nni0 = nni;
+    nni0  = nni;
 }
