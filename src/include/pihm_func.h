@@ -126,14 +126,14 @@ void            BackupInput(const char *, const filename_struct *);
 void            BoundFluxElem(int, int, const topo_struct *,
     const soil_struct *, const bc_struct *, const wstate_struct *,
     wflux_struct *);
-double          BoundFluxRiver(int, const river_wstate_struct *,
-    const river_topo_struct *, const shp_struct *, const matl_struct *,
-    const river_bc_struct *bc);
+double          BoundFluxRiver(int, const river_topo_struct *,
+    const shp_struct *, const matl_struct *, const river_bc_struct *,
+    const river_wstate_struct *);
 void            CalcModelSteps(ctrl_struct *);
-double          ChanFlowElemToRiver(double, double, const river_struct *,
+double          ChannelFlowElemToRiver(double, double, const river_struct *,
     elem_struct *);
-double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
-    int);
+double          ChannelFlowRiverToRiver(int, const river_struct *,
+    const river_struct *);
 void            CheckCVodeFlag(int);
 #if defined(_BGC_)
 int             CheckSteadyState(const elem_struct *, double, int, int, int);
@@ -231,9 +231,8 @@ double          MonthlyMf(int);
 double          MonthlyRl(int, int);
 int             NumStateVar(void);
 int             Ode(realtype, N_Vector, N_Vector, void *);
-double          OutletFlux(int, const river_wstate_struct *,
-    const river_topo_struct *, const shp_struct *, const matl_struct *,
-    const river_bc_struct *);
+double          OutletFlux(int, const river_topo_struct *, const shp_struct *,
+    const matl_struct *, const river_bc_struct *, const river_wstate_struct *);
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(int, double, int, const elem_struct *,
     const elem_struct *);
@@ -281,9 +280,9 @@ void            ReadSoil(const char [], soiltbl_struct *);
 int             ReadTs(const char [], int, int *, double *);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const soil_struct *);
-double          RiverCroSectArea(int, double, double);
+double          RiverCrossSectArea(int, double, double);
 double          RiverEqWid(int, double, double);
-void            RiverFlow(int, int, elem_struct *, river_struct *);
+void            RiverFlow(int, int, elem_struct [], river_struct []);
 double          RiverPerim(int, double, double);
 void            RiverToElem(int, river_struct *, elem_struct *, elem_struct *);
 int             roundi(double);
