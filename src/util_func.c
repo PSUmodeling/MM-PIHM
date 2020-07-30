@@ -1,7 +1,7 @@
 #include "pihm.h"
 #include "optparse.h"
 
-void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
+void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
 {
     int             option;
     struct optparse options;
@@ -60,7 +60,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
                 /* Print version number */
                 printf("MM-PIHM Version %s\n", VERSION);
 #if defined(_LUMPED_)
-                printf("Compiled for two-grid model\n");
+                printf("Lumped variant\n");
 #endif
 #if defined(_FBR_)
                 printf("Compiled with deep groundwater module\n");
@@ -84,16 +84,15 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 
     if (options.optind >= argc)
     {
-        pihm_printf(VL_ERROR, "Error:You must specify the name of project!\n");
-        pihm_printf(VL_ERROR,
+        pihm_printf(VL_ERROR, "Error:You must specify the name of project!\n"
             "Usage: ./pihm [-o output_dir] [-c] [-d] [-t] [-v] [-V]"
-            " <project name>\n");
-        pihm_printf(VL_ERROR, "    -o Specify output directory\n");
-        pihm_printf(VL_ERROR, "    -b Brief mode\n");
-        pihm_printf(VL_ERROR, "    -c Correct surface elevation\n");
-        pihm_printf(VL_ERROR, "    -d Debug mode\n");
-        pihm_printf(VL_ERROR, "    -V Version number\n");
-        pihm_printf(VL_ERROR, "    -v Verbose mode\n");
+            " <project name>\n"
+            "    -o Specify output directory\n"
+            "    -b Brief mode\n"
+            "    -c Correct surface elevation\n"
+            "    -d Debug mode\n"
+            "    -V Version number\n"
+            "    -v Verbose mode\n");
         pihm_exit(EXIT_FAILURE);
     }
     else
@@ -103,7 +102,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     }
 }
 
-void CreateOutputDir(char *outputdir)
+void CreateOutputDir(char outputdir[])
 {
     time_t          rawtime;
     struct tm      *timestamp;
@@ -141,8 +140,8 @@ void CreateOutputDir(char *outputdir)
     {
         if (errno != EEXIST)
         {
-            pihm_printf(VL_ERROR,
-                "Error creating output directory %s\n", outputdir);
+            pihm_printf(VL_ERROR, "Error creating output directory %s\n",
+                outputdir);
             pihm_exit(EXIT_FAILURE);
         }
         else
@@ -166,7 +165,7 @@ void CreateOutputDir(char *outputdir)
     }
 }
 
-void BackupInput(const char *outputdir, const filename_struct *filename)
+void BackupInput(const char outputdir[], const filename_struct *filename)
 {
     char            system_cmd[MAXSTRING];
 
@@ -203,9 +202,5 @@ void CheckCVodeFlag(int cv_flag)
 
 int roundi(double x)
 {
-    int             y;
-
-    y = (int)((x < 0.0) ? x - 0.5 : x + 0.5);
-
-    return y;
+    return (int)((x < 0.0) ? x - 0.5 : x + 0.5);
 }

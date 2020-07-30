@@ -122,7 +122,7 @@ void            ApplyRiverBc(int, forc_struct *, river_struct []);
 double          AvgKv(const soil_struct *, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
-void            BackupInput(const char *, const filename_struct *);
+void            BackupInput(const char [], const filename_struct *);
 void            BoundFluxElem(int, int, const topo_struct *,
     const soil_struct *, const bc_struct *, const wstate_struct *,
     wflux_struct *);
@@ -141,7 +141,7 @@ int             CheckSteadyState(int, int, int, double, const elem_struct []);
 int             CheckSteadyState(int, int, double, const elem_struct []);
 #endif
 void            CorrectElev(const river_struct [], elem_struct []);
-void            CreateOutputDir(char *);
+void            CreateOutputDir(char []);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(double, const soil_struct *);
 double          EffKinf(const soil_struct *, double, double, double, double,
@@ -237,7 +237,7 @@ double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(int, double, int, const elem_struct *,
     const elem_struct *);
 double          OvlFlowElemToRiver(int, const river_struct *, elem_struct *);
-void            ParseCmdLineParam(int, char *[], char *);
+void            ParseCmdLineParam(int, char *[], char []);
 void            PIHM(double, pihm_struct, void *, N_Vector);
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
