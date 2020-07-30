@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
+void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
 {
     FILE           *soil_file;
     int             i;
@@ -20,21 +20,21 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     NextLine(soil_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMSOIL", 'i', filename, lno, &soiltbl->number);
 
-    soiltbl->silt = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->clay = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->om = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->bd = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->kinfv = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->ksatv = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->ksath = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->silt   = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->clay   = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->om     = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->bd     = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->kinfv  = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->ksatv  = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->ksath  = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->smcmax = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->smcmin = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->qtz = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->alpha = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->beta = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->qtz    = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->alpha  = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->beta   = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->areafh = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->areafv = (double *)malloc(soiltbl->number * sizeof(double));
-    soiltbl->dmac = (double *)malloc(soiltbl->number * sizeof(double));
+    soiltbl->dmac   = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->smcref = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->smcwlt = (double *)malloc(soiltbl->number * sizeof(double));
 
@@ -132,8 +132,8 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
     if (ptf_used)
     {
-        pihm_printf(VL_NORMAL, "\nA priori soil parameter values (uncalibrated) "
-                              "estimated from pedotransfer functions:\n");
+        pihm_printf(VL_NORMAL, "\nA priori soil parameter values "
+            "(uncalibrated) estimated from pedotransfer functions:\n");
         pihm_printf(VL_NORMAL,
             "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
             "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",

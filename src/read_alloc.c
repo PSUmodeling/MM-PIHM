@@ -79,7 +79,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadMeteo(pihm->filename.meteo, &pihm->forc);
 
     /* Read LAI input file */
-    ReadLai(pihm->filename.lai, &pihm->forc, &pihm->atttbl);
+    ReadLai(pihm->filename.lai, &pihm->atttbl, &pihm->forc);
 
     /* Read source and sink input file */
     pihm->forc.nsource = 0;

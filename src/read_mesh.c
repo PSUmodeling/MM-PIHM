@@ -30,8 +30,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
         meshtbl->nabr[i] = (int *)malloc(NUM_EDGE * sizeof(int));
 
         NextLine(mesh_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d",
-            &index,
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d", &index,
             &meshtbl->node[i][0], &meshtbl->node[i][1], &meshtbl->node[i][2],
             &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
@@ -52,16 +51,15 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     /* Skip header line */
     NextLine(mesh_file, cmdstr, &lno);
 
-    meshtbl->x = (double *)malloc(meshtbl->numnode * sizeof(double));
-    meshtbl->y = (double *)malloc(meshtbl->numnode * sizeof(double));
+    meshtbl->x    = (double *)malloc(meshtbl->numnode * sizeof(double));
+    meshtbl->y    = (double *)malloc(meshtbl->numnode * sizeof(double));
     meshtbl->zmin = (double *)malloc(meshtbl->numnode * sizeof(double));
     meshtbl->zmax = (double *)malloc(meshtbl->numnode * sizeof(double));
 
     for (i = 0; i < meshtbl->numnode; i++)
     {
         NextLine(mesh_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %lf %lf %lf",
-            &index,
+        match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index,
             &meshtbl->x[i], &meshtbl->y[i],
             &meshtbl->zmin[i], &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadPara(const char *filename, ctrl_struct *ctrl)
+void ReadPara(const char filename[], ctrl_struct *ctrl)
 {
     FILE           *para_file;    /* Pointer to .para file */
     char            cmdstr[MAXSTRING];
@@ -56,8 +56,8 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     if (end_time.t <= start_time.t)
     {
         pihm_printf(VL_ERROR,
-            "Error: simulation end time should be after start time.\n");
-        pihm_printf(VL_ERROR, "Please check your .para input file.\n");
+            "Error: simulation end time should be after start time.\n"
+            "Please check your .para input file.\n");
         pihm_exit(EXIT_FAILURE);
     }
     else if (spinup_mode)
@@ -68,9 +68,8 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
             start_time.minute != end_time.minute)
         {
             pihm_printf(VL_ERROR,
-                "Error: In BGC spinup mode, "
-                "simulation period should be full years.\n");
-            pihm_printf(VL_ERROR, "Please check your .para input file.\n");
+                "Error: In BGC spinup mode, simulation period should be full "
+                "years.\nPlease check your .para input file.\n");
             pihm_exit(EXIT_FAILURE);
         }
     }

@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ReadLai(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl)
+void ReadLai(const char filename[], const atttbl_struct *atttbl,
+    forc_struct *forc)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
@@ -76,9 +76,8 @@ void ReadLai(const char *filename, forc_struct *forc,
                     if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j],
                         &forc->lai[i].data[j][0]))
                     {
-                        pihm_printf(VL_ERROR, "Error reading LAI forcing.");
-                        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                            filename, lno);
+                        pihm_printf(VL_ERROR, "Error reading LAI forcing."
+                            "Error in %s near Line %d.\n", filename, lno);
                         pihm_exit(EXIT_FAILURE);
                     }
                 }

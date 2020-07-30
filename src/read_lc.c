@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadLc(const char *filename, lctbl_struct *lctbl)
+void ReadLc(const char filename[], lctbl_struct *lctbl)
 {
     FILE           *lc_file;    /* Pointer to .lc file */
     int             i;
@@ -16,21 +16,21 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
     NextLine(lc_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMLC", 'i', filename, lno, &lctbl->number);
 
-    lctbl->laimax = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->laimin = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->vegfrac = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->laimax    = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->laimin    = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->vegfrac   = (double *)malloc(lctbl->number * sizeof(double));
     lctbl->albedomin = (double *)malloc(lctbl->number * sizeof(double));
     lctbl->albedomax = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->emissmin = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->emissmax = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->z0min = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->z0max = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->hs = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->snup = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->rgl = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->rsmin = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->rough = (double *)malloc(lctbl->number * sizeof(double));
-    lctbl->rzd = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->emissmin  = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->emissmax  = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->z0min     = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->z0max     = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->hs        = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->snup      = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->rgl       = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->rsmin     = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->rough     = (double *)malloc(lctbl->number * sizeof(double));
+    lctbl->rzd       = (double *)malloc(lctbl->number * sizeof(double));
 
     /* Skip header line */
     NextLine(lc_file, cmdstr, &lno);

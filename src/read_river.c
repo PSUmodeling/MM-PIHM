@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
+void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
     shptbl_struct *shptbl, matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
@@ -31,15 +31,15 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
 #endif
 
     /* Allocate */
-    rivtbl->from = (int *)malloc(nriver * sizeof(int));
-    rivtbl->to = (int *)malloc(nriver * sizeof(int));
-    rivtbl->down = (int *)malloc(nriver * sizeof(int));
-    rivtbl->left = (int *)malloc(nriver * sizeof(int));
+    rivtbl->from  = (int *)malloc(nriver * sizeof(int));
+    rivtbl->to    = (int *)malloc(nriver * sizeof(int));
+    rivtbl->down  = (int *)malloc(nriver * sizeof(int));
+    rivtbl->left  = (int *)malloc(nriver * sizeof(int));
     rivtbl->right = (int *)malloc(nriver * sizeof(int));
-    rivtbl->shp = (int *)malloc(nriver * sizeof(int));
-    rivtbl->matl = (int *)malloc(nriver * sizeof(int));
-    rivtbl->bc = (int *)malloc(nriver * sizeof(int));
-    rivtbl->rsvr = (int *)malloc(nriver * sizeof(int));
+    rivtbl->shp   = (int *)malloc(nriver * sizeof(int));
+    rivtbl->matl  = (int *)malloc(nriver * sizeof(int));
+    rivtbl->bc    = (int *)malloc(nriver * sizeof(int));
+    rivtbl->rsvr  = (int *)malloc(nriver * sizeof(int));
 
     /* Skip header line */
     NextLine(riv_file, cmdstr, &lno);
@@ -48,8 +48,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     for (i = 0; i < nriver; i++)
     {
         NextLine(riv_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
-            &index,
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d", &index,
             &rivtbl->from[i], &rivtbl->to[i], &rivtbl->down[i],
             &rivtbl->left[i], &rivtbl->right[i], &rivtbl->shp[i],
             &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
@@ -69,9 +68,9 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     ReadKeyword(cmdstr, "SHAPE", 'i', filename, lno, &shptbl->number);
 
     /* Allocate */
-    shptbl->depth = (double *)malloc(shptbl->number * sizeof(double));
+    shptbl->depth      = (double *)malloc(shptbl->number * sizeof(double));
     shptbl->intrpl_ord = (int *)malloc(shptbl->number * sizeof(int));
-    shptbl->coeff = (double *)malloc(shptbl->number * sizeof(double));
+    shptbl->coeff      = (double *)malloc(shptbl->number * sizeof(double));
 
     /* Skip header line */
     NextLine(riv_file, cmdstr, &lno);
@@ -79,8 +78,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     for (i = 0; i < shptbl->number; i++)
     {
         NextLine(riv_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %d %lf",
-            &index,
+        match = sscanf(cmdstr, "%d %lf %d %lf", &index,
             &shptbl->depth[i], &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
@@ -100,7 +98,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
 
     /* Allocate */
     matltbl->rough = (double *)malloc(matltbl->number * sizeof(double));
-    matltbl->cwr = (double *)malloc(matltbl->number * sizeof(double));
+    matltbl->cwr   = (double *)malloc(matltbl->number * sizeof(double));
     matltbl->ksath = (double *)malloc(matltbl->number * sizeof(double));
 
     /* Skip header line */
@@ -109,9 +107,8 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     for (i = 0; i < matltbl->number; i++)
     {
         NextLine(riv_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %lf %lf",
-            &index, &matltbl->rough[i], &matltbl->cwr[i],
-            &matltbl->ksath[i]);
+        match = sscanf(cmdstr, "%d %lf %lf %lf", &index,
+            &matltbl->rough[i], &matltbl->cwr[i], &matltbl->ksath[i]);
         if (match != 4 || i != index - 1)
         {
             pihm_printf(VL_ERROR,
@@ -135,12 +132,11 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
         NextLine(riv_file, cmdstr, &lno);
         for (i = 0; i < forc->nriverbc; i++)
         {
-            match = sscanf(cmdstr, "%*s %d %*s %d",
-                &index, &forc->riverbc[i].bc_type);
+            match = sscanf(cmdstr, "%*s %d %*s %d", &index,
+                &forc->riverbc[i].bc_type);
             if (match != 2 || i != index - 1)
             {
-                pihm_printf(VL_ERROR,
-                    "Error reading description "
+                pihm_printf(VL_ERROR, "Error reading description "
                     "of the %dth river boundary condition.\n", i);
                 pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
@@ -149,11 +145,9 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
             if (forc->riverbc[i].bc_type != DIRICHLET &&
                 forc->riverbc[i].bc_type != NEUMANN)
             {
-                pihm_printf(VL_ERROR,
-                    "Error reading the %dth river boundary condition "
-                    "time series.\n", i + 1);
-                pihm_printf(VL_ERROR,
-                    "Boundary condition type should be "
+                pihm_printf(VL_ERROR, "Error reading the %dth river boundary "
+                    "condition time series.\n", i + 1);
+                pihm_printf(VL_ERROR, "Boundary condition type should be "
                     "either Dirichlet (1) or Neumann (2).\n");
                 pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
@@ -183,7 +177,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
                 forc->riverbc[i].data[j] = (double *)malloc(sizeof(double));
                 NextLine(riv_file, cmdstr, &lno);
                 if (!ReadTs(cmdstr, 1, &forc->riverbc[i].ftime[j],
-                        &forc->riverbc[i].data[j][0]))
+                    &forc->riverbc[i].data[j][0]))
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading river boundary condition.\n");

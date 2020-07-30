@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
+void ReadIc(const char filename[], elem_struct elem[], river_struct river[])
 {
     FILE           *ic_file;
     int             i;
