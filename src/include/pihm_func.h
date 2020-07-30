@@ -334,7 +334,7 @@ void            ReadGeol(const char *, geoltbl_struct *);
 void            AdjSmProf(const soil_struct *, const phystate_struct *,
     const double *, double, wflux_struct *, wstate_struct *);
 void            AlCalc(phystate_struct *, double, int);
-void            CalcLatFlx(const phystate_struct *, wflux_struct *);
+void            CalcLateralFlux(const phystate_struct *, wflux_struct *);
 void            CalcSlopeAspect(const meshtbl_struct *, elem_struct []);
 void            CalHum(phystate_struct *, estate_struct *);
 # if defined(_CYCLES_)
@@ -345,8 +345,8 @@ void            CanRes(const wstate_struct *, const estate_struct *,
     const epconst_struct *);
 # endif
 double          CSnow(double);
-void            DefSldpth(double *, int *, double *, double, const double *,
-    int);
+void            DefineSoilDepths(int, double, const double [], int *, double [],
+    double []);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const phystate_struct *, const lc_struct *, const soil_struct *);
 # if defined(_CYCLES_)
@@ -357,10 +357,10 @@ void            Evapo(const soil_struct *, const lc_struct *,
 void            Evapo(const wstate_struct *, wflux_struct *,
     const phystate_struct *, const lc_struct *, const soil_struct *, double);
 # endif
-int             FindLayer(const double *, int, double);
-int             FindWaterTable(const double *, int, double, double *);
+int             FindLayer(int, double, const double []);
+int             FindWaterTable(int, double, const double [], double []);
 double          FrozRain(double, double);
-double          GwTransp(double, const double *, int, int);
+double          GwTranspFrac(int, int, double, const double []);
 void            HRT(wstate_struct *, const estate_struct *,
     const phystate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
@@ -401,7 +401,7 @@ void            ReadGlacierIce(const char [], double[]);
 void            ReadLsm(const char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
 void            ReadRad(const char *, forc_struct *);
-void            RootDist(const double *, int, int, double *);
+void            RootDist(int, int, const double [], double []);
 void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
 void            SfcDifOff(phystate_struct *, const lc_struct *, double, double,
@@ -453,8 +453,8 @@ void            WDfCnd(double *, double *, double, double, const soil_struct *);
 #endif
 
 #if defined(_DAILY_)
-void            DailyVar(int, int, elem_struct *);
-void            InitDailyStruct(elem_struct *);
+void            DailyVar(int, int, elem_struct []);
+void            InitDailyStruct(elem_struct []);
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)

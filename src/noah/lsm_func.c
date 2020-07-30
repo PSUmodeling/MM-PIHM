@@ -1,50 +1,51 @@
 #include "pihm.h"
 
-int FindWaterTable(const double *soil_depth, int nlayers, double gw, double *satdpth)
+int FindWaterTable(int nlayers, double gw, const double soil_depth[],
+    double sat_depth[])
 {
-    int             layer = -999;
-    int             j;
+    int             layer = BADVAL;
+    int             kz;
     double          dsum = 0.0;
     double          depth;
 
-    for (j = 0; j < MAXLYR; j++)
+    for (kz = 0; kz < MAXLYR; kz++)
     {
-        satdpth[j] = 0.0;
+        sat_depth[kz] = 0.0;
     }
 
     depth = 0.0;
-    for (j = 0; j < nlayers; j++)
+    for (kz = 0; kz < nlayers; kz++)
     {
-        depth += soil_depth[j];
+        depth += soil_depth[kz];
     }
 
     if (gw <= 0.0)
     {
         layer = nlayers;
-        satdpth[nlayers - 1] = 1.0E-3;
+        sat_depth[nlayers - 1] = 1.0E-3;
     }
     else if (gw > depth)
     {
         layer = 0;
-        for (j = 0; j < nlayers; j++)
+        for (kz = 0; kz < nlayers; kz++)
         {
-            satdpth[j] = soil_depth[j];
+            sat_depth[kz] = soil_depth[kz];
         }
     }
     else
     {
-        for (j = nlayers - 1; j >= 0; j--)
+        for (kz = nlayers - 1; kz >= 0; kz--)
         {
-            if (dsum + soil_depth[j] > gw)
+            if (dsum + soil_depth[kz] > gw)
             {
-                satdpth[j] = gw - dsum;
-                layer = j + 1;
+                sat_depth[kz] = gw - dsum;
+                layer = kz + 1;
                 break;
             }
             else
             {
-                satdpth[j] = soil_depth[j];
-                dsum += soil_depth[j];
+                sat_depth[kz] = soil_depth[kz];
+                dsum += soil_depth[kz];
             }
         }
     }
@@ -52,10 +53,10 @@ int FindWaterTable(const double *soil_depth, int nlayers, double gw, double *sat
     return layer;
 }
 
-int FindLayer(const double *soil_depth, int nlayers, double depth)
+int FindLayer(int nlayers, double depth, const double soil_depth[])
 {
     int             layer;
-    int             j = 0;
+    int             kz = 0;
     int             ind = 0;
     double          dsum = 0.0;
 
@@ -67,34 +68,36 @@ int FindLayer(const double *soil_depth, int nlayers, double depth)
     {
         while (dsum < depth)
         {
-            if (soil_depth[j] < 0.0)
+            if (soil_depth[kz] < 0.0)
             {
                 break;
             }
-            dsum += soil_depth[j];
-            ind = j;
-            j++;
+            dsum += soil_depth[kz];
+            ind = kz;
+            kz++;
         }
         layer = ind + 1;
-        layer = (layer > nlayers) ? nlayers : layer;
+        layer = MIN(layer, nlayers);
     }
+
     return layer;
 }
 
-void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_depth,
-    const double *std_sldpth, int std_nsoil)
+void DefineSoilDepths(int nsoil_std, double total_depth,
+    const double soil_depth_std[], int *nlayers, double soil_depth[],
+    double zsoil[])
 {
     int             j, k;
-    double          std_zsoil[MAXLYR];
+    double          zsoil_std[MAXLYR];
 
-    std_zsoil[0] = std_sldpth[0];
+    zsoil_std[0] = soil_depth_std[0];
 
     for (j = 1; j < MAXLYR; j++)
     {
-        std_zsoil[j] = std_zsoil[j - 1] + std_sldpth[j];
+        zsoil_std[j] = zsoil_std[j - 1] + soil_depth_std[j];
     }
 
-    if (total_depth <= std_zsoil[0])
+    if (total_depth <= zsoil_std[0])
     {
         soil_depth[0] = total_depth;
         *nlayers = 1;
@@ -103,17 +106,17 @@ void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_dep
             soil_depth[j] = BADVAL;
         }
     }
-    else if (total_depth <= std_zsoil[std_nsoil - 1])
+    else if (total_depth <= zsoil_std[nsoil_std - 1])
     {
-        for (j = 1; j < std_nsoil + 1; j++)
+        for (j = 1; j < nsoil_std + 1; j++)
         {
-            if (total_depth <= std_zsoil[j])
+            if (total_depth <= zsoil_std[j])
             {
                 for (k = 0; k < j; k++)
                 {
-                    soil_depth[k] = std_sldpth[k];
+                    soil_depth[k] = soil_depth_std[k];
                 }
-                soil_depth[j] = total_depth - std_zsoil[j - 1];
+                soil_depth[j] = total_depth - zsoil_std[j - 1];
                 *nlayers = j + 1;
 
                 /* The following calculations guarantee that each layer is
@@ -122,7 +125,7 @@ void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_dep
                 {
                     soil_depth[j - 1] += soil_depth[j];
                     soil_depth[j] = BADVAL;
-                    *nlayers -= 1;
+                    (*nlayers)--;
                 }
                 for (k = j + 1; k < MAXLYR; k++)
                 {
@@ -134,17 +137,17 @@ void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_dep
     }
     else
     {
-        for (j = 0; j < std_nsoil; j++)
+        for (j = 0; j < nsoil_std; j++)
         {
-            soil_depth[j] = std_sldpth[j];
+            soil_depth[j] = soil_depth_std[j];
         }
-        soil_depth[std_nsoil] = total_depth - std_zsoil[std_nsoil - 1];
-        *nlayers = std_nsoil + 1;
-        if (soil_depth[std_nsoil] < soil_depth[std_nsoil - 1])
+        soil_depth[nsoil_std] = total_depth - zsoil_std[nsoil_std - 1];
+        *nlayers = nsoil_std + 1;
+        if (soil_depth[nsoil_std] < soil_depth[nsoil_std - 1])
         {
-            soil_depth[std_nsoil - 1] += soil_depth[std_nsoil];
-            soil_depth[std_nsoil] = BADVAL;
-            *nlayers -= 1;
+            soil_depth[nsoil_std - 1] += soil_depth[nsoil_std];
+            soil_depth[nsoil_std] = BADVAL;
+            (*nlayers)--;
         }
     }
 
@@ -158,7 +161,7 @@ void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_dep
     }
 }
 
-double GwTransp(double ett, const double *et, int nwtbl, int nroot)
+double GwTranspFrac(int nwtbl, int nroot, double ett, const double et[])
 {
     /* Calculate transpiration from saturated zone */
     int             j;
@@ -168,27 +171,29 @@ double GwTransp(double ett, const double *et, int nwtbl, int nroot)
     {
         if (nwtbl <= nroot)
         {
-            for (j = (nwtbl <= 0 ? 0 : nwtbl - 1); j < nroot; j++)
+            for (j = MAX(nwtbl - 1, 0); j < nroot; j++)
             {
                 gw_transp += et[j];
             }
 
             gw_transp = gw_transp / ett;
-            gw_transp = (gw_transp > 1.0) ? 1.0 : gw_transp;
-            gw_transp = (gw_transp < 0.0) ? 0.0 : gw_transp;
+            gw_transp = MIN(gw_transp, 1.0);
+            gw_transp = MAX(gw_transp, 0.0);
         }
     }
 
     return gw_transp;
 }
 
-void RootDist(const double *soil_depth, int nlayers, int nroot, double *rtdis)
+void RootDist(int nlayers, int nroot, const double soil_depth[],
+    double root_dist[])
 {
-    /* Calculate root distribution.
+    /*
+     * Calculate root distribution.
      * Present version assumes uniform distribution based on soil layer depths.
      */
     double          zsoil[MAXLYR];
-    int             j, kz;
+    int             kz;
 
     zsoil[0] = -soil_depth[0];
     for (kz = 1; kz < nlayers; kz++)
@@ -196,13 +201,13 @@ void RootDist(const double *soil_depth, int nlayers, int nroot, double *rtdis)
         zsoil[kz] = -soil_depth[kz] + zsoil[kz - 1];
     }
 
-    for (j = 0; j < nroot; j++)
+    for (kz = 0; kz < nroot; kz++)
     {
-        rtdis[j] = -soil_depth[j] / zsoil[nroot - 1];
+        root_dist[kz] = -soil_depth[kz] / zsoil[nroot - 1];
     }
 }
 
-void CalcLatFlx(const phystate_struct *ps, wflux_struct *wf)
+void CalcLateralFlux(const phystate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
     int             ks;

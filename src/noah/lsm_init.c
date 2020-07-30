@@ -48,8 +48,8 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
 #endif
     {
         /* Set-up soil layer depths */
-        DefSldpth(elem[i].ps.soil_depth, &elem[i].ps.nlayers, elem[i].ps.zsoil,
-            elem[i].soil.depth, ctrl->soil_depth, ctrl->nlayers);
+        DefineSoilDepths(ctrl->nlayers, elem[i].soil.depth, ctrl->soil_depth,
+            &elem[i].ps.nlayers, elem[i].ps.soil_depth, elem[i].ps.zsoil);
 
         /* Set-up glacier ice parameters */
         elem[i].ps.iceh = (elem[i].lc.glacier == 1) ?
@@ -57,12 +57,14 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
 
         /* Set-up soil parameters */
         elem[i].ps.nmacd =
-            FindLayer(elem[i].ps.soil_depth, elem[i].ps.nlayers, elem[i].soil.dmac);
+            FindLayer(elem[i].ps.nlayers, elem[i].soil.dmac,
+                elem[i].ps.soil_depth);
 
         elem[i].ps.nroot =
-            FindLayer(elem[i].ps.soil_depth, elem[i].ps.nlayers, elem[i].ps.rzd);
+            FindLayer(elem[i].ps.nlayers, elem[i].ps.rzd,
+                elem[i].ps.soil_depth);
 
-        RootDist(elem[i].ps.soil_depth, elem[i].ps.nlayers, elem[i].ps.nroot,
+        RootDist(elem[i].ps.nlayers, elem[i].ps.nroot, elem[i].ps.soil_depth,
             elem[i].ps.rtdis);
 
         /* Set-up universal parameters (not dependent on soil type or vegetation

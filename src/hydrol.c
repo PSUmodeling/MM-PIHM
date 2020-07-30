@@ -70,8 +70,8 @@ void EtUptake(elem_struct elem[])
 
         /* Source of transpiration */
 #if defined(_NOAH_)
-        elem[i].ps.gwet = GwTransp(elem[i].wf.ett, elem[i].wf.et,
-            elem[i].ps.nwtbl, elem[i].ps.nroot);
+        elem[i].ps.gwet = GwTranspFrac(elem[i].ps.nwtbl, elem[i].ps.nroot,
+            elem[i].wf.ett, elem[i].wf.et);
         elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
         elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;
 #else

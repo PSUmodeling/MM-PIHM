@@ -38,10 +38,10 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
         elem[i].wf.runoff2 += elem[i].wf.fbr_infil;
 # endif
 
-        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth,
-            elem[i].ps.nlayers, elem[i].ws.gw, elem[i].ps.satdpth);
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.nlayers, elem[i].ws.gw,
+            elem[i].ps.soil_depth, elem[i].ps.satdpth);
 
-        CalcLatFlx(&elem[i].ps, &elem[i].wf);
+        CalcLateralFlux(&elem[i].ps, &elem[i].wf);
 #endif
 
         elem[i].ws0 = elem[i].ws;

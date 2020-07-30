@@ -84,8 +84,8 @@ void NoahHydrol(elem_struct *elem, double dt)
         int             k;
 
         /* Find water table position */
-        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth, elem[i].ps.nlayers,
-            elem[i].ws.gw, elem[i].ps.satdpth);
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.nlayers, elem[i].ws.gw,
+            elem[i].ps.soil_depth, elem[i].ps.satdpth);
 
         for (k = 0; k < elem[i].ps.nlayers; k++)
         {
