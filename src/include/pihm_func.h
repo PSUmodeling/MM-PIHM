@@ -119,7 +119,7 @@ void            ApplyMeteoForcing(int, int, const siteinfo_struct *,
 void            ApplyMeteoForcing(int, forc_struct *, elem_struct []);
 #endif
 void            ApplyRiverBc(int, forc_struct *, river_struct []);
-double          AvgKv(const soil_struct *, double, double);
+double          AvgKv(double, double, const soil_struct *);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
 void            BackupInput(const char [], const filename_struct *);
@@ -144,8 +144,8 @@ void            CorrectElev(const river_struct [], elem_struct []);
 void            CreateOutputDir(char []);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(double, const soil_struct *);
-double          EffKinf(const soil_struct *, double, double, double, double,
-    double);
+double          EffKinf(double, double, double, double, double,
+    const soil_struct *);
 double          EffKv(const soil_struct *, double, int);
 void            EtUptake(elem_struct []);
 double          FieldCapacity(double, double, double, double);
@@ -162,8 +162,8 @@ void            FreeSoiltbl(soiltbl_struct *);
 void            FrictionSlope(const elem_struct [], const river_struct [],
     double [], double []);
 void            Hydrol(const ctrl_struct *, elem_struct [], river_struct []);
-double          Infil(const wstate_struct *, const wstate_struct *,
-    const wflux_struct *, const topo_struct *, const soil_struct *, double);
+double          Infil(double, const topo_struct *, const soil_struct *,
+    const wstate_struct *, const wstate_struct *, const wflux_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #if defined(_RT_)
@@ -278,8 +278,8 @@ void            ReadRiver(const char [], rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(const char [], soiltbl_struct *);
 int             ReadTs(const char [], int, int *, double *);
-double          Recharge(const wstate_struct *, const wflux_struct *,
-    const soil_struct *);
+double          Recharge(const soil_struct *, const wstate_struct *,
+    const wflux_struct *);
 double          RiverCrossSectArea(int, double, double);
 double          RiverEqWid(int, double, double);
 void            RiverFlow(int, int, elem_struct [], river_struct []);
@@ -304,7 +304,7 @@ void            UpdateVar(double, elem_struct [], river_struct [], N_Vector);
 double          SurfH(double);
 void            UpdatePrintVar(int, int, varctrl_struct *);
 void            UpdPrintVarT(varctrl_struct *, int);
-void            VerticalFlow(elem_struct *, double);
+void            VerticalFlow(double, elem_struct []);
 double          WiltingPoint(double, double, double, double);
 
 /*
@@ -315,10 +315,10 @@ double          DeepBoundFluxElem(int, int, const topo_struct *,
     const soil_struct *, const bc_struct *, const wstate_struct *);
 double          DeepFlowElemToElem(double, double, const elem_struct *,
     const elem_struct *);
-double          FbrInfil(const wstate_struct *, const soil_struct *,
-    const soil_struct *, const topo_struct *);
-double          FbrRecharge(const wstate_struct *, const wflux_struct *,
-    const soil_struct *);
+double          GeolInfil(const topo_struct *, const soil_struct *,
+    const soil_struct *, const wstate_struct *);
+double          GeolRecharge(const soil_struct *, const wstate_struct *,
+    const wflux_struct *);
 void            FreeGeoltbl(geoltbl_struct *);
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);

@@ -19,7 +19,7 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
     /* Water flow */
     LateralFlow(ctrl->surf_mode, river, elem);
 
-    VerticalFlow(elem, (double)ctrl->stepsize);
+    VerticalFlow((double)ctrl->stepsize, elem);
 
     RiverFlow(ctrl->surf_mode, ctrl->riv_mode, elem, river);
 }
