@@ -32,12 +32,12 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
         spinyears += metyears;
 
 #if defined(_BGC_)
-        steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
-            first_spin_cycle, ctrl->endtime - ctrl->starttime,
-            spinyears);
+        steady = CheckSteadyState(first_spin_cycle,
+            ctrl->endtime - ctrl->starttime, spinyears, pihm->siteinfo.area,
+            pihm->elem);
 #else
-        steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
-            first_spin_cycle, spinyears);
+        steady = CheckSteadyState(first_spin_cycle, spinyears,
+            pihm->siteinfo.area, pihm->elem);
 #endif
 
         first_spin_cycle = 0;
@@ -46,7 +46,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
 }
 
 #if defined(_BGC_)
-void ResetSpinupStat(elem_struct *elem)
+void ResetSpinupStat(elem_struct elem[])
 {
     int             i;
 
@@ -66,11 +66,11 @@ void ResetSpinupStat(elem_struct *elem)
 #endif
 
 #if defined(_BGC_)
-int CheckSteadyState(const elem_struct *elem, double total_area,
-    int first_cycle, int totalt, int spinyears)
+int CheckSteadyState(int first_cycle, int totalt, int spinyears,
+    double total_area, const elem_struct elem[])
 #else
-int CheckSteadyState(const elem_struct *elem, double total_area,
-    int first_cycle, int spinyears)
+int CheckSteadyState(int first_cycle, int spinyears, double total_area,
+    const elem_struct elem[])
 #endif
 {
     int             i;
@@ -84,8 +84,8 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
     static double   soilc_prev = 0.0;
 #endif
 #if defined(_FBR_)
-    double          fbrgw = 0.0;
-    static double   fbrgw_prev = 0.0;
+    double          gwgeol = 0.0;
+    static double   gwgeol_prev = 0.0;
 #endif
 
 #if defined(_LUMPEDBGC_)
@@ -101,7 +101,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
         totalw += (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity * elem[i].topo.area / total_area;
 
-        fbrgw += elem[i].ws.fbr_gw * elem[i].topo.area / total_area;
+        gwgeol += elem[i].ws.fbr_gw * elem[i].topo.area / total_area;
 #endif
 
 #if defined(_BGC_)
@@ -119,7 +119,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
         /* Check if domain reaches steady state */
         steady = (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE);
 #if defined(_FBR_)
-        steady = (steady && (fabs(fbrgw - fbrgw_prev) < SPINUP_W_TOLERANCE));
+        steady = (steady && (fabs(gwgeol - gwgeol_prev) < SPINUP_W_TOLERANCE));
 #endif
 #if defined(_BGC_)
         steady = (steady && (fabs(t1) < SPINUP_C_TOLERANCE));
@@ -130,7 +130,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
             totalw_prev, totalw, totalw - totalw_prev);
 #if defined(_FBR_)
         pihm_printf(VL_BRIEF, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
-            fbrgw_prev, fbrgw, fbrgw - fbrgw_prev);
+            gwgeol_prev, gwgeol, gwgeol - gwgeol_prev);
 #endif
 #if defined(_BGC_)
         pihm_printf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
@@ -144,7 +144,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 
     totalw_prev = totalw;
 #if defined(_FBR_)
-    fbrgw_prev = fbrgw;
+    gwgeol_prev = gwgeol;
 #endif
 #if defined(_BGC_)
     soilc_prev = soilc;

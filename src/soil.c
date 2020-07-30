@@ -7,8 +7,7 @@ double KrFunc(double beta, double satn)
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
 }
 
-double FieldCapacity(double beta, double kv, double smcmax,
-    double smcmin)
+double FieldCapacity(double beta, double kv, double smcmax, double smcmin)
 {
     /*
      * Solve field capacity using Newton's method
@@ -43,23 +42,21 @@ double FieldCapacity(double beta, double kv, double smcmax,
 
         ftheta = 1.0 - pow(satn, 1.0 / mx);
 
-        denom = 0.5 * pow(satn, -0.5) * pow(1.0 - pow(ftheta, mx), 2.0) +
+        denom = 0.5 * pow(satn, -0.5) *
+            (1.0 - pow(ftheta, mx)) * (1.0 - pow(ftheta, mx)) +
             2.0 * pow(satn, 1.0 / mx - 0.5) *
             (pow(ftheta, mx - 1.0) - pow(ftheta, 2.0 * mx - 1.0));
 
         satnk = satn - df / denom;
-        satnk = (satnk > 1.0 - 1.0E-3) ? 1.0 - 1.0E-3 : satnk;
-        satnk = (satnk < SATMIN) ? SATMIN : satnk;
+        satnk = MIN(satnk, 1.0 - 1.0E-3);
+        satnk = MAX(satnk, SATMIN);
 
         dsatn = fabs(satnk - satn);
 
         satn = satnk;
     }
 
-    if (dsatn > TOL)
-    {
-        satn = 0.75;
-    }
+    satn = (dsatn > TOL) ? 0.75 : satn;
 
     smcref = (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
 
@@ -245,31 +242,22 @@ double PtfKv(double silt, double clay, double om, double bd, int topsoil)
 
 double PtfThetas(double silt, double clay, double om, double bd, int topsoil)
 {
-    double          thetas;
+    double          theta_s;
 
-    thetas = 0.7919 + 0.001691 * clay - 0.29619 * bd -
+    theta_s = 0.7919 + 0.001691 * clay - 0.29619 * bd -
         0.000001491 * silt * silt + 0.0000821 * om * om + 0.02427 / clay +
         0.01113 / silt + 0.01472 * log(silt) - 0.0000733 * om * clay -
         0.000619 * bd * clay - 0.001183 * bd * om -
         0.0001664 * (double)topsoil *silt;
 
-    return thetas;
+    return theta_s;
 }
 
 double PtfThetar(double silt, double clay)
 {
-    double          thetar;
+    double          theta_r;
 
-    if (clay < 18.0 && 100.0 - silt - clay > 65.0)
-    {
-        thetar = 0.15;
-    }
-    else
-    {
-        thetar = 0.05;
-    }
-
-    return thetar;
+    return (clay < 18.0 && 100.0 - silt - clay > 65.0) ? 0.15 : 0.05;
 }
 
 double PtfAlpha(double silt, double clay, double om, double bd, int topsoil)
@@ -284,9 +272,7 @@ double PtfAlpha(double silt, double clay, double om, double bd, int topsoil)
         0.4852 * bd * om + 0.00673 * (double)topsoil * clay);
 
     /* Convert from 1/cm to 1/m */
-    alpha *= 100.0;
-
-    return alpha;
+    return alpha * 100.0;
 }
 
 double PtfBeta(double silt, double clay, double om, double bd, int topsoil)

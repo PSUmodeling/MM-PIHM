@@ -136,9 +136,9 @@ double          ChannelFlowRiverToRiver(int, const river_struct *,
     const river_struct *);
 void            CheckCVodeFlag(int);
 #if defined(_BGC_)
-int             CheckSteadyState(const elem_struct *, double, int, int, int);
+int             CheckSteadyState(int, int, int, double, const elem_struct []);
 #else
-int             CheckSteadyState(const elem_struct *, double, int, int);
+int             CheckSteadyState(int, int, double, const elem_struct []);
 #endif
 void            CorrectElev(const river_struct [], elem_struct []);
 void            CreateOutputDir(char *);
@@ -298,7 +298,7 @@ void            SolveCVode(double, const ctrl_struct *, int *, void *,
     N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *, SUNLinearSolver *);
 void            StartupScreen(void);
-int             StrTime(const char *);
+int             StrTime(const char []);
 double          SubsurfFlow(int, const elem_struct *, const elem_struct *);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
@@ -548,7 +548,7 @@ void            ReadBgc(const char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, cninit_struct *, char *, char *);
 void            ReadBgcIc(const char *, elem_struct *, river_struct *);
 void            ReadEpc(epctbl_struct *);
-void            ResetSpinupStat(elem_struct *);
+void            ResetSpinupStat(elem_struct []);
 void            RestartInput(cstate_struct *, nstate_struct *,
     epvar_struct *, const bgcic_struct *);
 void            RestartOutput(const cstate_struct *, const nstate_struct *,
