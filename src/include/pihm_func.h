@@ -367,8 +367,8 @@ void            HRT(wstate_struct *, const estate_struct *,
 void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, phystate_struct *, const lc_struct *, const soil_struct *,
     int, double, double, double, double);
-void            InitLsm(elem_struct *, const char [], const ctrl_struct *,
-    const noahtbl_struct *, const calib_struct *);
+void            InitLsm(const char [], const ctrl_struct *,
+    const noahtbl_struct *, const calib_struct *, elem_struct []);
 double          Mod(double, double);
 void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
     double);
@@ -398,9 +398,9 @@ double          Psphu(double);
 double          Pspms(double);
 double          Pspmu(double);
 void            ReadGlacierIce(const char [], double[]);
-void            ReadLsm(const char *, siteinfo_struct *, ctrl_struct *,
+void            ReadLsm(const char [], ctrl_struct *, siteinfo_struct *,
     noahtbl_struct *);
-void            ReadRad(const char *, forc_struct *);
+void            ReadRad(const char [], forc_struct *);
 void            RootDist(int, int, const double [], double []);
 void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
@@ -415,8 +415,8 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, phystate_struct *, lc_struct *, epconst_struct *,
     soil_struct *, double);
 # endif
-void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, phystate_struct *, lc_struct *, soil_struct *, double);
+void            SFlxGlacial(double, soil_struct *, lc_struct *, wstate_struct *,
+    wflux_struct *, estate_struct *, eflux_struct *, phystate_struct *);
 void            ShFlx(wstate_struct *, estate_struct *, const phystate_struct *,
     const lc_struct *, const soil_struct *, double, double, double, double);
 void            SmFlx(wstate_struct *, wflux_struct *, phystate_struct *,

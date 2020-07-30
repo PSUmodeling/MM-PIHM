@@ -1,8 +1,7 @@
 #include "pihm.h"
 
-void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, phystate_struct *ps, lc_struct *lc, soil_struct *soil,
-    double dt)
+void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, wstate_struct *ws,
+    wflux_struct *wf, estate_struct *es, eflux_struct *ef, phystate_struct *ps)
 {
     /*
      * Sub-driver for "Noah LSM" family of physics subroutines for a
@@ -49,12 +48,12 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
         if (lc->laimax > lc->laimin)
         {
-            interp_fraction =
-                (ps->proj_lai - lc->laimin) / (lc->laimax - lc->laimin);
+            interp_fraction = (ps->proj_lai - lc->laimin) /
+                (lc->laimax - lc->laimin);
 
             /* Bound interp_fraction between 0 and 1 */
-            interp_fraction = (interp_fraction < 1.0) ? interp_fraction : 1.0;
-            interp_fraction = (interp_fraction > 0.0) ? interp_fraction : 0.0;
+            interp_fraction = MIN(interp_fraction, 1.0);
+            interp_fraction = MAX(interp_fraction, 0.0);
 
             /* Scale emissivity and LAI between emissmin and emissmax by
              * interp_fraction */
@@ -68,7 +67,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         else
         {
             ps->embrd = 0.5 * lc->emissmin + 0.5 * lc->emissmax;
-            ps->alb = 0.5 * lc->albedomin + 0.5 * lc->albedomax;
+            ps->alb   = 0.5 * lc->albedomin + 0.5 * lc->albedomax;
             ps->z0brd = 0.5 * lc->z0min + 0.5 * lc->z0max;
         }
     }
@@ -79,11 +78,11 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     /* If input snowpack is nonzero, then compute snow density "sndens" and
      * snow thermal conductivity "sncond" subroutine */
-    if (ws->sneqv <= 1.0e-7)    /* Safer if KMH (2008/03/25) */
+    if (ws->sneqv <= 1.0e-7)                /* Safer if KMH (2008/03/25) */
     {
-        ws->sneqv = 0.0;
+        ws->sneqv  = 0.0;
         ps->sndens = 0.0;
-        ps->snowh = 0.0;
+        ps->snowh  = 0.0;
         ps->sncond = 1.0;
     }
     else
@@ -158,7 +157,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Determine snow fractional coverage.
          * Determine surface albedo modification due to snowdepth state. */
         ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp);
-        ps->sncovr = (ps->sncovr < 0.98) ? ps->sncovr : 0.98;
+        ps->sncovr = MIN(ps->sncovr, 0.98);
 
         AlCalc(ps, dt, snowng);
     }
@@ -172,7 +171,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     /* Finally "plane parallel" snowpack effect following V. J. Linardini
      * reference cited above. Note that dtot is combined depth of snowdepth and
      * thickness of first soil layer */
-    dsoil = -(0.5 * ps->zsoil[0]);
+    dsoil = -0.5 * ps->zsoil[0];
 
     dtot = ps->snowh + ps->iceh + dsoil;
 

@@ -50,8 +50,8 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
          */
         if (elem[i].lc.glacier == 1)
         {
-            SFlxGlacial(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
-                &elem[i].ps, &elem[i].lc, &elem[i].soil, dt);
+            SFlxGlacial(dt, &elem[i].soil, &elem[i].lc, &elem[i].ws,
+                &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps);
         }
         else
         {

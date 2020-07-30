@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
-    noahtbl_struct *noahtbl)
+void ReadLsm(const char filename[], ctrl_struct *ctrl,
+    siteinfo_struct *siteinfo, noahtbl_struct *noahtbl)
 {
     int             i;
     FILE           *lsm_file;
@@ -45,12 +45,11 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
 
     for (i = 0; i < ctrl->nlayers; i++)
     {
-        match = sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[i],
-            &bytes_now);
-        if (match != 1)
+        if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[i],
+            &bytes_now) != 1)
         {
-            pihm_printf(VL_ERROR, "Error reading soil layer depths.\n");
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error reading soil layer depths.\n"
+                "Error in %s near Line %d.\n", filename, lno);
             pihm_exit(EXIT_FAILURE);
         }
         bytes_consumed += bytes_now;
@@ -143,7 +142,7 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     fclose(lsm_file);
 }
 
-void ReadRad(const char *filename, forc_struct *forc)
+void ReadRad(const char filename[], forc_struct *forc)
 {
     int             i, j;
     FILE           *rad_file;
@@ -160,10 +159,9 @@ void ReadRad(const char *filename, forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        pihm_printf(VL_ERROR,
-            "The number of radiation forcing time series should be the same as "
-            "the number of meteorological forcing time series.\n");
-        pihm_printf(VL_ERROR, "Error in %s.\n", filename);
+        pihm_printf(VL_ERROR, "The number of radiation forcing time series "
+            "should be the same as the number of\nmeteorological forcing time "
+            "series.\nError in %s.\n", filename);
         pihm_exit(EXIT_FAILURE);
     }
 

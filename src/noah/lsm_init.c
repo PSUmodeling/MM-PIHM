@@ -1,7 +1,8 @@
 #include "pihm.h"
 
-void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
-    const noahtbl_struct *noahtbl, const calib_struct *cal)
+void InitLsm(const char ice_fn[], const ctrl_struct *ctrl,
+    const noahtbl_struct *noahtbl, const calib_struct *calib,
+    elem_struct elem[])
 {
     int             i;
     double          frzfact;
@@ -56,12 +57,10 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
             ((read_ice_flag == 1) ? iceh[i] : ICEH) : 0.0;
 
         /* Set-up soil parameters */
-        elem[i].ps.nmacd =
-            FindLayer(elem[i].ps.nlayers, elem[i].soil.dmac,
+        elem[i].ps.nmacd = FindLayer(elem[i].ps.nlayers, elem[i].soil.dmac,
                 elem[i].ps.soil_depth);
 
-        elem[i].ps.nroot =
-            FindLayer(elem[i].ps.nlayers, elem[i].ps.rzd,
+        elem[i].ps.nroot = FindLayer(elem[i].ps.nlayers, elem[i].ps.rzd,
                 elem[i].ps.soil_depth);
 
         RootDist(elem[i].ps.nlayers, elem[i].ps.nroot, elem[i].ps.soil_depth,
@@ -69,17 +68,17 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
 
         /* Set-up universal parameters (not dependent on soil type or vegetation
          * type */
-        elem[i].ps.sbeta = noahtbl->sbeta;
-        elem[i].ps.salp = noahtbl->salp;
-        elem[i].ps.frzk = noahtbl->frzk;
-        elem[i].ps.fxexp = cal->fxexp * noahtbl->fxexp;
-        elem[i].ps.czil = cal->czil * noahtbl->czil;
+        elem[i].ps.sbeta  = noahtbl->sbeta;
+        elem[i].ps.salp   = noahtbl->salp;
+        elem[i].ps.frzk   = noahtbl->frzk;
+        elem[i].ps.fxexp  = calib->fxexp * noahtbl->fxexp;
+        elem[i].ps.czil   = calib->czil * noahtbl->czil;
         elem[i].ps.lvcoef = noahtbl->lvcoef;
-        elem[i].ps.zbot = noahtbl->zbot;
-        elem[i].ps.tbot = noahtbl->tbot;
+        elem[i].ps.zbot   = noahtbl->zbot;
+        elem[i].ps.tbot   = noahtbl->tbot;
 
         /* To adjust frzk parameter to actual soil type */
-        frzfact = (elem[i].soil.smcmax / elem[i].soil.smcref) * (0.412 / 0.468);
+        frzfact = (elem[i].soil.smcmax / elem[i].soil.smcref) * 0.412 / 0.468;
         elem[i].ps.frzx = elem[i].ps.frzk * frzfact;
     }
 

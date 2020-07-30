@@ -364,7 +364,7 @@ double GeolRecharge(const soil_struct *geol, const wstate_struct *ws,
     if (ws->fbr_gw >= geol->depth)
     {
 # if defined(_LUMPED_)
-        rechg = 0.0;
+        recharge = 0.0;
 # else
         recharge = wf->fbr_infil;
 # endif
