@@ -219,12 +219,12 @@ void            MapOutput(const char [], const int [], const elem_struct [],
     const river_struct [],  print_struct *);
 #endif
 #if defined(_FBR_)
-void            MassBalance(const wstate_struct *, const wstate_struct *,
-    wflux_struct *, double *, const soil_struct *, const soil_struct *, double,
-    double);
+void            AdjustFluxes(double, double, const soil_struct *,
+    const soil_struct *, const wstate_struct *, const wstate_struct *,
+    double *, wflux_struct *);
 #else
-void            MassBalance(const wstate_struct *, const wstate_struct *,
-    wflux_struct *, double *, const soil_struct *, double, double);
+void            AdjustFluxes(double, double, const soil_struct *,
+    const wstate_struct *, const wstate_struct *, double *, wflux_struct *);
 #endif
 double          MonthlyLai(int, int);
 double          MonthlyMf(int);
@@ -300,7 +300,7 @@ void            Spinup(pihm_struct, N_Vector, void *, SUNLinearSolver *);
 void            StartupScreen(void);
 int             StrTime(const char []);
 double          SubsurfFlow(int, const elem_struct *, const elem_struct *);
-void            Summary(elem_struct *, river_struct *, N_Vector, double);
+void            UpdateVar(double, elem_struct [], river_struct [], N_Vector);
 double          SurfH(double);
 void            UpdatePrintVar(int, int, varctrl_struct *);
 void            UpdPrintVarT(varctrl_struct *, int);

@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
-    double stepsize)
+void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
+    N_Vector CV_Y)
 {
     double         *y;
     int             i;
@@ -15,21 +15,21 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     {
         double          subrunoff;
 
-        elem[i].ws.surf = y[SURF(i)];
+        elem[i].ws.surf  = y[SURF(i)];
         elem[i].ws.unsat = y[UNSAT(i)];
-        elem[i].ws.gw = y[GW(i)];
+        elem[i].ws.gw    = y[GW(i)];
 
 #if defined(_FBR_)
         elem[i].ws.fbr_unsat = y[FBRUNSAT(i)];
-        elem[i].ws.fbr_gw = y[FBRGW(i)];
+        elem[i].ws.fbr_gw    = y[FBRGW(i)];
 #endif
 
 #if defined(_FBR_)
-        MassBalance(&elem[i].ws, &elem[i].ws0, &elem[i].wf, &subrunoff,
-            &elem[i].soil, &elem[i].geol, elem[i].topo.area, stepsize);
+        AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].geol,
+            &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
 #else
-        MassBalance(&elem[i].ws, &elem[i].ws0, &elem[i].wf, &subrunoff,
-            &elem[i].soil, elem[i].topo.area, stepsize);
+        AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].ws,
+            &elem[i].ws0, &subrunoff, &elem[i].wf);
 #endif
 
 #if defined(_NOAH_)
@@ -38,8 +38,8 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].wf.runoff2 += elem[i].wf.fbr_infil;
 # endif
 
-        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth, elem[i].ps.nlayers,
-            elem[i].ws.gw, elem[i].ps.satdpth);
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth,
+            elem[i].ps.nlayers, elem[i].ws.gw, elem[i].ps.satdpth);
 
         CalcLatFlx(&elem[i].ps, &elem[i].wf);
 #endif
@@ -144,31 +144,32 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             /* Calculate concentrations */
             river[i].chms.tot_conc[k] = (storage > DEPTHR) ?
                 river[i].chms.tot_mol[k] / storage : ZERO_CONC;
-            river[i].chms.tot_conc[k] = MAX(river[i].chms.tot_conc[k], ZERO_CONC);
+            river[i].chms.tot_conc[k] =
+                MAX(river[i].chms.tot_conc[k], ZERO_CONC);
         }
 #endif
     }
 }
 
 #if defined(_FBR_)
-void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
-    wflux_struct *wf, double *subrunoff, const soil_struct *soil,
-    const soil_struct *geol, double area, double stepsize)
+void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
+    const soil_struct *geol, const wstate_struct *ws, const wstate_struct *ws0,
+    double *subrunoff, wflux_struct *wf)
 #else
-void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
-    wflux_struct *wf, double *subrunoff, const soil_struct *soil,
-    double area, double stepsize)
+void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
+    const wstate_struct *ws, const wstate_struct *ws0, double *subrunoff,
+    wflux_struct *wf)
 #endif
 {
     int             j;
     double          soilw0, soilw1;
 #if defined(_FBR_)
-    double          fbrw0, fbrw1;
-    double          fbrrunoff;
+    double          geolw0, geolw1;
+    double          geol_runoff;
 #endif
 
     /*
-     * The MassBalance subroutine adjusts model infiltration rate and recharge
+     * The AdjustFluxes subroutine adjusts model infiltration rate and recharge
      * rate based on mass balance in the soil column. This subroutine also
      * calculates an equivalent infiltration rate, which is used as the boundary
      * condition in the Noah soil moisture calculation. Unlike the infiltration
@@ -176,7 +177,6 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
      * oversturation, and is based on the mass balance of the whole soil column,
      * instead of just the unsaturated zone.
      */
-
     /* Adjust recharge */
     soilw0 = ws0->gw;
     soilw1 = ws->gw;
@@ -199,22 +199,22 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
 
 #if defined(_FBR_)
     /* Adjust bedrock recharge */
-    fbrw0 = ws0->fbr_gw;
-    fbrw1 = ws->fbr_gw;
+    geolw0 = ws0->fbr_gw;
+    geolw1 = ws->fbr_gw;
 
-    fbrrunoff = 0.0;
+    geol_runoff = 0.0;
     for (j = 0; j < NUM_EDGE; j++)
     {
-        fbrrunoff += wf->fbrflow[j] / area;
+        geol_runoff += wf->fbrflow[j] / area;
     }
 
-    wf->fbr_rechg = (fbrw1 - fbrw0) * geol->porosity / stepsize + fbrrunoff;
+    wf->fbr_rechg = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
 
     /* Adjust bedrock infiltration */
-    fbrw0 = ws0->fbr_unsat;
-    fbrw1 = ws->fbr_unsat;
+    geolw0 = ws0->fbr_unsat;
+    geolw1 = ws->fbr_unsat;
 
-    wf->fbr_infil = (fbrw1 - fbrw0) * geol->porosity / stepsize + wf->fbr_rechg;
+    wf->fbr_infil = (geolw1 - geolw0) * geol->porosity / stepsize + wf->fbr_rechg;
 
     /* Further adjust soil infiltration and recharge rate to take into account
      * bedrock leakage */
@@ -226,27 +226,27 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
      * Calculate equivalent infiltration based on mass conservation
      */
     soilw0 = ws0->gw + ws0->unsat;
-    soilw0 = (soilw0 > soil->depth) ? soil->depth : soilw0;
-    soilw0 = (soilw0 < 0.0) ? 0.0 : soilw0;
+    soilw0 = MIN(soilw0, soil->depth);
+    soilw0 = MAX(soilw0, 0.0);
 
     soilw1 = ws->gw + ws->unsat;
-    soilw1 = (soilw1 > soil->depth) ? soil->depth : soilw1;
-    soilw1 = (soilw1 < 0.0) ? 0.0 : soilw1;
+    soilw1 = MIN(soilw1, soil->depth);
+    soilw1 = MAX(soilw1, 0.0);
 
     wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
         wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
 #if defined(_FBR_)
-    fbrw0 = ws0->fbr_gw + ws0->fbr_unsat;
-    fbrw1 = ws->fbr_gw + ws->fbr_unsat;
+    geolw0 = ws0->fbr_gw + ws0->fbr_unsat;
+    geolw1 = ws->fbr_gw + ws->fbr_unsat;
 
-    fbrrunoff = 0.0;
+    geol_runoff = 0.0;
     for (j = 0; j < NUM_EDGE; j++)
     {
-        fbrrunoff += wf->fbrflow[j] / area;
+        geol_runoff += wf->fbrflow[j] / area;
     }
 
-    wf->fbr_infil = (fbrw1 - fbrw0) * geol->porosity / stepsize + fbrrunoff;
+    wf->fbr_infil = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
 
     wf->eqv_infil += wf->fbr_infil;
 #endif

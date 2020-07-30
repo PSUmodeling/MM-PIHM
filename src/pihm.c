@@ -75,7 +75,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     SolveCVode(cputime, &pihm->ctrl, &t, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
-    Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize);
+    UpdateVar((double)pihm->ctrl.stepsize, pihm->elem, pihm->river, CV_Y);
 
 #if defined(_NOAH_)
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
