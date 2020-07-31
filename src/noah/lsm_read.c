@@ -3,7 +3,7 @@
 void ReadLsm(const char filename[], ctrl_struct *ctrl,
     siteinfo_struct *siteinfo, noahtbl_struct *noahtbl)
 {
-    int             i;
+    int             kz;
     FILE           *lsm_file;
     int             match;
     int             bytes_now;
@@ -43,9 +43,9 @@ void ReadLsm(const char filename[], ctrl_struct *ctrl,
     NextLine(lsm_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "SLDPTH_DATA", 's', filename, lno, buffer);
 
-    for (i = 0; i < ctrl->nlayers; i++)
+    for (kz = 0; kz < ctrl->nlayers; kz++)
     {
-        if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[i],
+        if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[kz],
             &bytes_now) != 1)
         {
             pihm_printf(VL_ERROR, "Error reading soil layer depths.\n"
@@ -56,9 +56,9 @@ void ReadLsm(const char filename[], ctrl_struct *ctrl,
     }
 
 #if defined(_CYCLES_)
-    for (i = ctrl->nlayers; i < MAXLYR; i++)
+    for (kz = ctrl->nlayers; kz < MAXLYR; kz++)
     {
-        ctrl->soil_depth[i] = ctrl->soil_depth[i - 1];
+        ctrl->soil_depth[kz] = ctrl->soil_depth[kz - 1];
     }
 #endif
 

@@ -87,47 +87,47 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
     const double soil_depth_std[], int *nlayers, double soil_depth[],
     double zsoil[])
 {
-    int             j, k;
+    int             kz, k;
     double          zsoil_std[MAXLYR];
 
     zsoil_std[0] = soil_depth_std[0];
 
-    for (j = 1; j < MAXLYR; j++)
+    for (kz = 1; kz < MAXLYR; kz++)
     {
-        zsoil_std[j] = zsoil_std[j - 1] + soil_depth_std[j];
+        zsoil_std[kz] = zsoil_std[kz - 1] + soil_depth_std[kz];
     }
 
     if (total_depth <= zsoil_std[0])
     {
         soil_depth[0] = total_depth;
         *nlayers = 1;
-        for (j = 1; j < MAXLYR; j++)
+        for (kz = 1; kz < MAXLYR; kz++)
         {
-            soil_depth[j] = BADVAL;
+            soil_depth[kz] = BADVAL;
         }
     }
     else if (total_depth <= zsoil_std[nsoil_std - 1])
     {
-        for (j = 1; j < nsoil_std + 1; j++)
+        for (kz = 1; kz < nsoil_std + 1; kz++)
         {
-            if (total_depth <= zsoil_std[j])
+            if (total_depth <= zsoil_std[kz])
             {
-                for (k = 0; k < j; k++)
+                for (k = 0; k < kz; k++)
                 {
                     soil_depth[k] = soil_depth_std[k];
                 }
-                soil_depth[j] = total_depth - zsoil_std[j - 1];
-                *nlayers = j + 1;
+                soil_depth[kz] = total_depth - zsoil_std[kz - 1];
+                *nlayers = kz + 1;
 
                 /* The following calculations guarantee that each layer is
                  * thicker than the layer on top */
-                if (soil_depth[j] < soil_depth[j - 1])
+                if (soil_depth[kz] < soil_depth[kz - 1])
                 {
-                    soil_depth[j - 1] += soil_depth[j];
-                    soil_depth[j] = BADVAL;
+                    soil_depth[kz - 1] += soil_depth[kz];
+                    soil_depth[kz] = BADVAL;
                     (*nlayers)--;
                 }
-                for (k = j + 1; k < MAXLYR; k++)
+                for (k = kz + 1; k < MAXLYR; k++)
                 {
                     soil_depth[k] = BADVAL;
                 }
@@ -137,9 +137,9 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
     }
     else
     {
-        for (j = 0; j < nsoil_std; j++)
+        for (kz = 0; kz < nsoil_std; kz++)
         {
-            soil_depth[j] = soil_depth_std[j];
+            soil_depth[kz] = soil_depth_std[kz];
         }
         soil_depth[nsoil_std] = total_depth - zsoil_std[nsoil_std - 1];
         *nlayers = nsoil_std + 1;
@@ -155,25 +155,25 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
      * each soil layer. Note: sign of zsoil is negative (denoting below ground)
      */
     zsoil[0] = -soil_depth[0];
-    for (k = 1; k < *nlayers; k++)
+    for (kz = 1; kz < *nlayers; kz++)
     {
-        zsoil[k] = -soil_depth[k] + zsoil[k - 1];
+        zsoil[kz] = -soil_depth[kz] + zsoil[kz - 1];
     }
 }
 
 double GwTranspFrac(int nwtbl, int nroot, double ett, const double et[])
 {
     /* Calculate transpiration from saturated zone */
-    int             j;
+    int             kz;
     double          gw_transp = 0.0;
 
     if (ett > 0.0)
     {
         if (nwtbl <= nroot)
         {
-            for (j = MAX(nwtbl - 1, 0); j < nroot; j++)
+            for (kz = MAX(nwtbl - 1, 0); kz < nroot; kz++)
             {
-                gw_transp += et[j];
+                gw_transp += et[kz];
             }
 
             gw_transp = gw_transp / ett;
@@ -210,13 +210,13 @@ void RootDist(int nlayers, int nroot, const double soil_depth[],
 void CalcLateralFlux(const phystate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
-    int             ks;
+    int             kz;
 
     /* Determine runoff from each layer */
     sattot = 0.0;
-    for (ks = 0; ks < ps->nlayers; ks++)
+    for (kz = 0; kz < ps->nlayers; kz++)
     {
-        sattot += ps->satdpth[ks];
+        sattot += ps->satdpth[kz];
     }
 
     if (sattot <= 0.0)
@@ -225,9 +225,9 @@ void CalcLateralFlux(const phystate_struct *ps, wflux_struct *wf)
     }
     else
     {
-        for (ks = 0; ks < ps->nlayers; ks++)
+        for (kz = 0; kz < ps->nlayers; kz++)
         {
-            wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
+            wf->runoff2_lyr[kz] = ps->satdpth[kz] / sattot * wf->runoff2;
         }
     }
 }

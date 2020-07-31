@@ -12,7 +12,7 @@ void DailyVar(int t, int start_time, elem_struct elem[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             kz;
 
         /* Air temperature */
         elem[i].daily.avg_sfctmp += elem[i].es.sfctmp;
@@ -20,10 +20,10 @@ void DailyVar(int t, int start_time, elem_struct elem[])
         elem[i].daily.tmin = MIN(elem[i].daily.tmin, elem[i].es.sfctmp);
 
         /* Soil moisture, temperature, and ET */
-        for (k = 0; k < elem[i].ps.nlayers; k++)
+        for (kz = 0; kz < elem[i].ps.nlayers; kz++)
         {
-            elem[i].daily.avg_stc[k]  += elem[i].es.stc[k];
-            elem[i].daily.avg_sh2o[k] += elem[i].ws.swc[k];
+            elem[i].daily.avg_stc[kz]  += elem[i].es.stc[kz];
+            elem[i].daily.avg_sh2o[kz] += elem[i].ws.swc[kz];
         }
 
         if (elem[i].ef.soldn > 0.0)
@@ -53,14 +53,14 @@ void DailyVar(int t, int start_time, elem_struct elem[])
 #endif
         for (i = 0; i < nelem; i++)
         {
-            int             k;
+            int             kz;
 
             elem[i].daily.avg_sfctmp /= (double)elem[i].daily.counter;
 
-            for (k = 0; k < elem[i].ps.nlayers; k++)
+            for (kz = 0; kz < elem[i].ps.nlayers; kz++)
             {
-                elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
-                elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
+                elem[i].daily.avg_stc[kz] /= (double)elem[i].daily.counter;
+                elem[i].daily.avg_sh2o[kz] /= (double)elem[i].daily.counter;
             }
 
             elem[i].daily.tday       /= (double)elem[i].daily.daylight_counter;
@@ -75,7 +75,7 @@ void DailyVar(int t, int start_time, elem_struct elem[])
         }
 
 #if defined(_LUMPEDBGC_)
-        int             k;
+        int             kz;
 
         elem[LUMPEDBGC].daily.tmax = 0.0;
         elem[LUMPEDBGC].daily.tmin = 0.0;
@@ -87,14 +87,14 @@ void DailyVar(int t, int start_time, elem_struct elem[])
                 elem[i].daily.avg_sfctmp * elem[i].topo.area;
             /* When running lumped model, only average root zone to avoid uneven
              * layers */
-            for (k = 0; k < elem[i].ps.nlayers; k++)
+            for (kz = 0; kz < elem[i].ps.nlayers; kz++)
             {
-                elem[LUMPEDBGC].daily.avg_stc[k] +=
-                    elem[i].daily.avg_stc[k] * elem[i].topo.area;
-                elem[LUMPEDBGC].daily.avg_sh2o[k] +=
-                    elem[i].daily.avg_sh2o[k] * elem[i].topo.area;
-                elem[LUMPEDBGC].daily.avg_smc[k] +=
-                    elem[i].daily.avg_smc[k] * elem[i].topo.area;
+                elem[LUMPEDBGC].daily.avg_stc[kz] +=
+                    elem[i].daily.avg_stc[kz] * elem[i].topo.area;
+                elem[LUMPEDBGC].daily.avg_sh2o[kz] +=
+                    elem[i].daily.avg_sh2o[kz] * elem[i].topo.area;
+                elem[LUMPEDBGC].daily.avg_smc[kz] +=
+                    elem[i].daily.avg_smc[kz] * elem[i].topo.area;
             }
 
             elem[LUMPEDBGC].daily.tday +=
@@ -120,11 +120,11 @@ void DailyVar(int t, int start_time, elem_struct elem[])
         elem[LUMPEDBGC].daily.avg_sfctmp /= elem[LUMPEDBGC].topo.area;
         /* When running lumped model, only average root zone to avoid uneven
          * layers */
-        for (k = 0; k < elem[LUMPEDBGC].ps.nlayers; k++)
+        for (kz = 0; kz < elem[LUMPEDBGC].ps.nlayers; kz++)
         {
-            elem[LUMPEDBGC].daily.avg_stc[k] /= elem[LUMPEDBGC].topo.area;
-            elem[LUMPEDBGC].daily.avg_sh2o[k] /= elem[LUMPEDBGC].topo.area;
-            elem[LUMPEDBGC].daily.avg_smc[k] /= elem[LUMPEDBGC].topo.area;
+            elem[LUMPEDBGC].daily.avg_stc[kz] /= elem[LUMPEDBGC].topo.area;
+            elem[LUMPEDBGC].daily.avg_sh2o[kz] /= elem[LUMPEDBGC].topo.area;
+            elem[LUMPEDBGC].daily.avg_smc[kz] /= elem[LUMPEDBGC].topo.area;
         }
 
         elem[LUMPEDBGC].daily.tday /= elem[LUMPEDBGC].topo.area;
@@ -152,15 +152,15 @@ void InitDailyStruct(elem_struct elem[])
     for (i = 0; i < nelem; i++)
 #endif
     {
-        int             k;
+        int             kz;
 
         elem[i].daily.counter = 0;
         elem[i].daily.daylight_counter = 0;
 
-        for (k = 0; k < MAXLYR; k++)
+        for (kz = 0; kz < MAXLYR; kz++)
         {
-            elem[i].daily.avg_sh2o[k] = 0.0;
-            elem[i].daily.avg_stc[k]  = 0.0;
+            elem[i].daily.avg_sh2o[kz] = 0.0;
+            elem[i].daily.avg_stc[kz]  = 0.0;
         }
 
         elem[i].daily.avg_q2d    = 0.0;
