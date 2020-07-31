@@ -366,9 +366,9 @@ void            HRT(double, double, double, double, const soil_struct *,
     double [], double [], double [], double [], wstate_struct *);
 void            HStep(int, double, double [], double [], double [], double [],
     estate_struct *);
-void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, phystate_struct *, const lc_struct *, const soil_struct *,
-    int, double, double, double, double);
+void            IcePac(int, double, double, double, double,
+    const soil_struct *, const lc_struct *, phystate_struct *, wstate_struct *,
+    wflux_struct *, estate_struct *, eflux_struct *);
 void            InitLsm(const char [], const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *, elem_struct []);
 double          Mod(double, double);
@@ -389,8 +389,8 @@ void            PcpDrp(double, double, const lc_struct *, wstate_struct *,
     wflux_struct *);
 void            Penman(int, int, double, const estate_struct *, double *,
     phystate_struct *, wflux_struct *, eflux_struct *);
-void            PenmanGlacial(wflux_struct *, const estate_struct *,
-    eflux_struct *, phystate_struct *, double *, double, int, int);
+void            PenmanGlacial(int, int, double, const estate_struct *,
+    double *, phystate_struct *, wflux_struct *,  eflux_struct *);
 double          Pslhs(double);
 double          Pslhu(double);
 double          Pslms(double);
@@ -417,8 +417,9 @@ void            SFlx(double, soil_struct *, lc_struct *, epconst_struct *,
     phystate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *);
 # endif
-void            SFlxGlacial(double, soil_struct *, lc_struct *, wstate_struct *,
-    wflux_struct *, estate_struct *, eflux_struct *, phystate_struct *);
+void            SFlxGlacial(double, soil_struct *, lc_struct *,
+    phystate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *);
 void            ShFlx(double, double, double, double, const soil_struct *,
     const lc_struct *, const phystate_struct *, wstate_struct *,
     estate_struct *);
