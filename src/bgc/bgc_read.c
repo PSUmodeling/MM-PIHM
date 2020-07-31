@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
-    ndepcontrol_struct *ndepctrl, cninit_struct * cninit, char *co2_fn,
-    char *ndep_fn)
+void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl,
+    co2control_struct *co2, ndepcontrol_struct *ndepctrl,
+    cninit_struct * cninit)
 {
     FILE           *bgc_file;
     char            cmdstr[MAXSTRING];
@@ -510,12 +510,12 @@ void ReadEpc(epctbl_struct *epctbl)
     }
 }
 
-void ReadAnnFile(tsdata_struct *ts, const char *fn)
+void ReadAnnualFile(const char fn[], tsdata_struct *ts)
 {
     FILE           *fid;
     char            timestr[MAXSTRING];
     char            cmdstr[MAXSTRING];
-    int             i;
+    int             k;
     int             match;
     int             lno = 0;
 
@@ -527,11 +527,11 @@ void ReadAnnFile(tsdata_struct *ts, const char *fn)
     ts->data = (double **)malloc(ts->length * sizeof(double *));
 
     FindLine(fid, "BOF", &lno, fn);
-    for (i = 0; i < ts->length; i++)
+    for (k = 0; k < ts->length; k++)
     {
-        ts->data[i] = (double *)malloc(sizeof(double));
+        ts->data[k] = (double *)malloc(sizeof(double));
         NextLine(fid, cmdstr, &lno);
-        match = sscanf(cmdstr, "%s %lf", timestr, &ts->data[i][0]);
+        match = sscanf(cmdstr, "%s %lf", timestr, &ts->data[k][0]);
 
         if (match != 2)
         {
@@ -541,7 +541,7 @@ void ReadAnnFile(tsdata_struct *ts, const char *fn)
             pihm_exit(EXIT_FAILURE);
         }
 
-        ts->ftime[i] = StrTime(timestr);
+        ts->ftime[k] = StrTime(timestr);
     }
 
     fclose(fid);

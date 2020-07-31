@@ -194,7 +194,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_BGC_)
     /* Initialize CN (Biome-BGC) module */
-    InitBgc(pihm->elem, &pihm->epctbl, &pihm->cal);
+    InitBgc(&pihm->epctbl, &pihm->cal, pihm->elem);
 #endif
 
 #if defined(_RT_)

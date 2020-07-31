@@ -114,7 +114,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     {
 # if defined(_BGC_)
         /* Daily BGC processes */
-        DailyBgc(pihm, t - DAYINSEC);
+        DailyBgc(t - DAYINSEC, pihm);
 
         /* Update print variables for CN (daily) step variables */
         UpdatePrintVar(pihm->print.nprint, CN_STEP, pihm->print.varctrl);

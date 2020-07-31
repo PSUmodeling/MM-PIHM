@@ -494,7 +494,7 @@ void            CSummary(const cflux_struct *, const cstate_struct *,
 void            DailyAllocation(cflux_struct *, const cstate_struct *,
     nflux_struct *, const nstate_struct *, const epconst_struct *,
     epvar_struct *, ntemp_struct *);
-void            DailyBgc(pihm_struct, int);
+void            DailyBgc(int, pihm_struct);
 void            DailyCarbonStateUpdate(cflux_struct *, cstate_struct *, int,
     int, int);
 void            DailyNitrogenStateUpdate(nflux_struct *, nstate_struct *,
@@ -511,9 +511,9 @@ void            FreeEpctbl(epctbl_struct *);
 double          GetCO2(tsdata_struct *, int);
 double          GetNdep(tsdata_struct *, int);
 void            GrowthResp(const epconst_struct *, cflux_struct *);
-void            InitBgc(elem_struct *, const epctbl_struct *,
-    const calib_struct *);
-void            InitBgcVar(elem_struct *, river_struct *, N_Vector);
+void            InitBgc(const epctbl_struct *, const calib_struct *,
+    elem_struct []);
+void            InitBgcVar(elem_struct [], river_struct [], N_Vector);
 void            LeafLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
 void            LivewoodTurnover(const epconst_struct *, epvar_struct *,
@@ -547,9 +547,9 @@ void            PrecisionControl(cstate_struct *cs, nstate_struct *ns);
 void            RadTrans(const cstate_struct *, eflux_struct *,
     phystate_struct *, const epconst_struct *, epvar_struct *,
     const daily_struct *);
-void            ReadAnnFile(tsdata_struct *, const char *);
-void            ReadBgc(const char *, ctrl_struct *, co2control_struct *,
-    ndepcontrol_struct *, cninit_struct *, char *, char *);
+void            ReadAnnualFile(const char [], tsdata_struct *);
+void            ReadBgc(const char [], char [], char [], ctrl_struct *,
+    co2control_struct *, ndepcontrol_struct *, cninit_struct *);
 void            ReadBgcIc(const char *, elem_struct *, river_struct *);
 void            ReadEpc(epctbl_struct *);
 void            ResetSpinupStat(elem_struct []);

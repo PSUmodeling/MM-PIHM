@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyBgc(pihm_struct pihm, int t)
+void DailyBgc(int t, pihm_struct pihm)
 {
 
     int             i;
@@ -85,16 +85,16 @@ void DailyBgc(pihm_struct pihm, int t)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             kz;
 
         vwc[i] = pihm->elem[i].daily.avg_sh2o[0] *
             pihm->elem[i].ps.soil_depth[0];
         if (pihm->elem[i].ps.nlayers > 1)
         {
-            for (k = 1; k < pihm->elem[i].ps.nlayers; k++)
+            for (kz = 1; kz < pihm->elem[i].ps.nlayers; kz++)
             {
-                vwc[i] += pihm->elem[i].daily.avg_sh2o[k] *
-                    pihm->elem[i].ps.soil_depth[k];
+                vwc[i] += pihm->elem[i].daily.avg_sh2o[kz] *
+                    pihm->elem[i].ps.soil_depth[kz];
             }
         }
         vwc[i] /= pihm->elem[i].soil.depth;
@@ -166,14 +166,8 @@ void DailyBgc(pihm_struct pihm, int t)
         Phenology(epc, epv, cs, cf, ns, nf, daily);
 
         /* Test for the annual allocation day */
-        if (epv->offset_flag == 1 && epv->offset_counter == 1)
-        {
-            annual_alloc = 1;
-        }
-        else
-        {
-            annual_alloc = 0;
-        }
+        annual_alloc = (epv->offset_flag == 1 && epv->offset_counter == 1) ?
+            1 : 0;
 
         /* Calculate leaf area index, sun and shade fractions, and specific leaf
          * area for sun and shade canopy fractions, then calculate canopy
