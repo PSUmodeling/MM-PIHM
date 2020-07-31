@@ -10,8 +10,7 @@ void CheckCarbonBalance (const cstate_struct *cs, double *old_balance)
     in = cs->psnsun_src + cs->psnshade_src;
 
     /* Sum of sinks */
-    out =
-        cs->leaf_mr_snk + cs->leaf_gr_snk + cs->froot_mr_snk +
+    out = cs->leaf_mr_snk + cs->leaf_gr_snk + cs->froot_mr_snk +
         cs->froot_gr_snk + cs->livestem_mr_snk + cs->livestem_gr_snk +
         cs->deadstem_gr_snk + cs->livecroot_mr_snk + cs->livecroot_gr_snk +
         cs->deadcroot_gr_snk + cs->litr1_hr_snk + cs->litr2_hr_snk +
@@ -19,8 +18,7 @@ void CheckCarbonBalance (const cstate_struct *cs, double *old_balance)
         cs->soil3_hr_snk + cs->soil4_hr_snk + cs->fire_snk;
 
     /* Sum of current storage */
-    store =
-        cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc +
+    store = cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc +
         cs->frootc_storage + cs->frootc_transfer + cs->livestemc +
         cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc +
         cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc +
@@ -35,7 +33,7 @@ void CheckCarbonBalance (const cstate_struct *cs, double *old_balance)
 
     if (!first_balance)
     {
-        if (fabs (*old_balance - balance) > 1e-8)
+        if (fabs(*old_balance - balance) > 1E-8)
         {
             pihm_printf (VL_ERROR, "FATAL ERRROR: carbon balance error:\n");
             pihm_printf (VL_ERROR, "Balance from previous day = %lf\n",
@@ -70,8 +68,7 @@ void CheckNitrogenBalance (const nstate_struct *ns, double *old_balance)
     out = ns->nleached_snk + ns->nvol_snk + ns->fire_snk;
 
     /* Sum of current storage */
-    store =
-        ns->leafn + ns->leafn_storage + ns->leafn_transfer + ns->frootn +
+    store = ns->leafn + ns->leafn_storage + ns->leafn_transfer + ns->frootn +
         ns->frootn_storage + ns->frootn_transfer + ns->livestemn +
         ns->livestemn_storage + ns->livestemn_transfer + ns->deadstemn +
         ns->deadstemn_storage + ns->deadstemn_transfer + ns->livecrootn +
@@ -86,7 +83,7 @@ void CheckNitrogenBalance (const nstate_struct *ns, double *old_balance)
 
     if (!first_balance)
     {
-        if (fabs (*old_balance - balance) > 1e-8)
+        if (fabs(*old_balance - balance) > 1E-8)
         {
             pihm_printf (VL_ERROR, "FATAL ERRROR: nitrogen balance error:\n");
             pihm_printf (VL_ERROR, "Balance from previous day = %lg\n",

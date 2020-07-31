@@ -183,7 +183,7 @@ void DailyBgc(int t, pihm_struct pihm)
         if (cs->leafc && epv->dayl)
         {
             /* Conductance */
-            CanopyCond(epc, epv, ef, ps, soil, daily);
+            CanopyCond(soil, epc, daily, ps, ef, epv);
         }
 
         /* Do photosynthesis only when it is part of the current growth season,
@@ -209,7 +209,7 @@ void DailyBgc(int t, pihm_struct pihm)
          * because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here. On days with no growth, no
          * allocation occurs, but immobilization fluxes are updated normally. */
-        DailyAllocation(cf, cs, nf, ns, epc, epv, nt);
+        DailyAllocation(epc, cs, ns, epv, cf, nf, nt);
 
         /* Growth respiration */
         GrowthResp(epc, cf);

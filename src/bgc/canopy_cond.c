@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-void CanopyCond(const epconst_struct *epc, epvar_struct *epv,
-    const eflux_struct *ef, const phystate_struct *ps, const soil_struct *soil,
-    const daily_struct *daily)
+void CanopyCond(const soil_struct *soil, const epconst_struct *epc,
+    const daily_struct *daily, const phystate_struct *ps,
+    const eflux_struct *ef, epvar_struct *epv)
 {
-    int             k;
+    int             kz;
     double          part[MAXLYR];
     double          gx;
     double          rct = 0.0;
@@ -21,40 +21,40 @@ void CanopyCond(const epconst_struct *epc, epvar_struct *epv,
         ef->swabs_per_plaishade * ps->plaishade) * daily->avg_soldn;
     ff_sun = 0.55 * 2.0 * sw_sun / (epc->rgl * ps->plaisun);
     rcs_sun = (ff_sun + epc->rsmin / epc->rsmax) / (1.0 + ff_sun);
-    rcs_sun = (rcs_sun > 0.0001) ? rcs_sun : 0.0001;
+    rcs_sun = MAX(rcs_sun, 1.0E-4);
 
     sw_shade = daily->avg_soldn - sw_sun;
     ff_shade = 0.55 * 2.0 * sw_shade / (epc->rgl * ps->plaishade);
     rcs_shade = (ff_shade + epc->rsmin / epc->rsmax) / (1.0 + ff_shade);
-    rcs_shade = (rcs_shade > 0.0001) ? rcs_shade : 0.0001;
+    rcs_shade = MAX(rcs_shade, 1.0E-4);
 
     rct = 1.0 - 0.0016 * pow(epc->topt - daily->tday, 2.0);
-    rct = (rct > 0.0001) ? rct : 0.0001;
+    rct = MAX(rct, 1.0E-4);
 
     rcq = 1.0 / (1.0 + epc->hs * daily->avg_q2d);
-    rcq = (rcq > 0.01) ? rcq : 0.01;
+    rcq = MAX(rcq, 0.01);
 
     gx = (daily->avg_sh2o[0] - soil->smcwlt) / (soil->smcref - soil->smcwlt);
-    gx = (gx > 1.0) ? 1.0 : gx;
-    gx = (gx < 0.0) ? 0.0 : gx;
+    gx = MIN(gx, 1.0);
+    gx = MAX(gx, 0.0);
 
     part[0] = (ps->zsoil[0] / ps->zsoil[ps->nroot - 1]) * gx;
-    for (k = 1; k < ps->nroot; k++)
+    for (kz = 1; kz < ps->nroot; kz++)
     {
-        gx = (daily->avg_sh2o[k] - soil->smcwlt) /
+        gx = (daily->avg_sh2o[kz] - soil->smcwlt) /
             (soil->smcref - soil->smcwlt);
-        gx = (gx > 1.0) ? 1.0 : gx;
-        gx = (gx < 0.0) ? 0.0 : gx;
+        gx = MIN(gx, 1.0);
+        gx = MAX(gx, 0.0);
 
-        part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
+        part[kz] = ((ps->zsoil[kz] - ps->zsoil[kz - 1]) /
             ps->zsoil[ps->nroot - 1]) * gx;
     }
 
-    for (k = 0; k < ps->nroot; k++)
+    for (kz = 0; kz < ps->nroot; kz++)
     {
-        rcsoil += part[k];
+        rcsoil += part[kz];
     }
-    rcsoil = (rcsoil > 0.0001) ? rcsoil : 0.0001;
+    rcsoil = MAX(rcsoil, 1.0E-4);
 
     /* Adjust Noah stomatal conductance to calculate sunlit and shaded
      * conductance */

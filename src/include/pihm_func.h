@@ -484,16 +484,16 @@ void            SoluteTranspt(double, double, double, elem_struct [],
 #if defined(_BGC_)
 void            BackgroundLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
-void            CanopyCond(const epconst_struct *, epvar_struct *,
-    const eflux_struct *, const phystate_struct *, const soil_struct *,
-    const daily_struct *);
+void            CanopyCond(const soil_struct *, const epconst_struct *,
+    const daily_struct *, const phystate_struct *, const eflux_struct *,
+    epvar_struct *);
 void            CheckCarbonBalance(const cstate_struct *, double *);
 void            CheckNitrogenBalance(const nstate_struct *, double *);
 void            CSummary(const cflux_struct *, const cstate_struct *,
     summary_struct *);
-void            DailyAllocation(cflux_struct *, const cstate_struct *,
-    nflux_struct *, const nstate_struct *, const epconst_struct *,
-    epvar_struct *, ntemp_struct *);
+void            DailyAllocation(const epconst_struct *, const cstate_struct *,
+    const nstate_struct *, epvar_struct *, cflux_struct *, nflux_struct *,
+    ntemp_struct *);
 void            DailyBgc(int, pihm_struct);
 void            DailyCarbonStateUpdate(cflux_struct *, cstate_struct *, int,
     int, int);

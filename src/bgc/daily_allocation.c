@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
-    nflux_struct *nf, const nstate_struct *ns, const epconst_struct *epc,
-    epvar_struct *epv, ntemp_struct *nt)
+void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
+    const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf,
+    nflux_struct *nf, ntemp_struct *nt)
 {
     double          day_gpp;      /* daily gross production */
     double          day_mresp;    /* daily total maintenance respiration */
@@ -41,22 +41,14 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     /* Assess the carbon availability on the basis of this day's gross
      * production and maintenance respiration costs */
     day_gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
-    if (epc->woody)
-    {
-        day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
-            cf->livestem_mr + cf->livecroot_mr;
-    }
-    else
-    {
-        day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
-    }
+    day_mresp = (epc->woody) ? cf->leaf_day_mr + cf->leaf_night_mr +
+        cf->froot_mr + cf->livestem_mr + cf->livecroot_mr :
+        cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
+
     avail_c = day_gpp - day_mresp;
 
     /* No allocation when the daily C balance is negative */
-    if (avail_c < 0.0)
-    {
-        avail_c = 0.0;
-    }
+    avail_c = MAX(avail_c, 0.0);
 
     /* Test for cpool deficit */
     if (cs->cpool < 0.0)
@@ -77,7 +69,6 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         {
             avail_c -= cpool_recovery;
         }
-
         /* cpool deficit is >= available C, so all of the daily GPP, if any, is
          * used to alleviate negative cpool */
         else
@@ -128,14 +119,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
 
         /* Determine the split between retranslocation N and soil mineral N to
          * meet the plant demand */
-        if (plant_ndemand > avail_retransn)
-        {
-            nf->retransn_to_npool = avail_retransn;
-        }
-        else
-        {
-            nf->retransn_to_npool = plant_ndemand;
-        }
+        nf->retransn_to_npool = (plant_ndemand > avail_retransn) ?
+            avail_retransn : plant_ndemand;
 
         nf->sminn_to_npool = plant_ndemand - nf->retransn_to_npool;
         plant_nalloc = nf->retransn_to_npool + nf->sminn_to_npool;
@@ -153,18 +138,9 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
          * growth demands, so these two demands compete for available soil
          * mineral N */
         nlimit = 1;
-        if (sum_ndemand)
-        {
-            actual_immob = ns->sminn * (nt->potential_immob / sum_ndemand);
-        }
-        if (nt->potential_immob)
-        {
-            fpi = actual_immob / nt->potential_immob;
-        }
-        else
-        {
-            fpi = 0.0;
-        }
+        actual_immob = (sum_ndemand) ?
+            ns->sminn * (nt->potential_immob / sum_ndemand) : actual_immob;
+        fpi = (nt->potential_immob) ? actual_immob / nt->potential_immob : 0.0;
         nf->sminn_to_npool = ns->sminn - actual_immob;
         plant_remaining_ndemand = plant_ndemand - nf->sminn_to_npool;
         /* The demand not satisfied by uptake from soil mineral N is now sought
@@ -245,20 +221,13 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
      * Note that all the growth respiration fluxes that get released on a given
      * day are calculated in growth_resp(), but that the storage of C for growth
      * resp during display of transferred growth is assigned here. */
-    if (epc->woody)
-    {
-        gresp_storage =
-            (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage +
-            cf->cpool_to_livestemc_storage + cf->cpool_to_deadstemc_storage +
-            cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) *
-            g1 * (1.0 - g2);
-    }
-    else
-    {
-        gresp_storage =
-            (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage) *
-            g1 * (1.0 - g2);
-    }
+    gresp_storage = (epc->woody) ?
+        (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage +
+        cf->cpool_to_livestemc_storage + cf->cpool_to_deadstemc_storage +
+        cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) *
+        g1 * (1.0 - g2) :
+        (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage) *
+        g1 * (1.0 - g2);
     cf->cpool_to_gresp_storage = gresp_storage;
 
     /* Now use the N limitation information to assess the final decomposition
@@ -267,18 +236,9 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
      * plant uptake, but immobilizing fluxes are reduced when soil mineral N is
      * limiting */
     /* Calculate litter and soil compartment C:N ratios */
-    if (ns->litr1n > 0.0)
-    {
-        cn_l1 = cs->litr1c / ns->litr1n;
-    }
-    if (ns->litr2n > 0.0)
-    {
-        cn_l2 = cs->litr2c / ns->litr2n;
-    }
-    if (ns->litr4n > 0.0)
-    {
-        cn_l4 = cs->litr4c / ns->litr4n;
-    }
+    cn_l1 = (ns->litr1n > 0.0) ? cs->litr1c / ns->litr1n : cn_l1;
+    cn_l2 = (ns->litr2n > 0.0) ? cs->litr2c / ns->litr2n : cn_l2;
+    cn_l4 = (ns->litr4n > 0.0) ? cs->litr4c / ns->litr4n : cn_l4;
     cn_s1 = SOIL1_CN;
     cn_s2 = SOIL2_CN;
     cn_s3 = SOIL3_CN;
@@ -301,14 +261,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         }
         cf->litr1_hr = rfl1s1 * nt->plitr1c_loss;
         cf->litr1c_to_soil1c = (1.0 - rfl1s1) * nt->plitr1c_loss;
-        if (ns->litr1n > 0.0)
-        {
-            nf->litr1n_to_soil1n = nt->plitr1c_loss / cn_l1;
-        }
-        else
-        {
-            nf->litr1n_to_soil1n = 0.0;
-        }
+        nf->litr1n_to_soil1n = (ns->litr1n > 0.0) ?
+            nt->plitr1c_loss / cn_l1 : 0.0;
         nf->sminn_to_soil1n_l1 = nt->pmnf_l1s1;
     }
 
@@ -322,14 +276,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         }
         cf->litr2_hr = rfl2s2 * nt->plitr2c_loss;
         cf->litr2c_to_soil2c = (1.0 - rfl2s2) * nt->plitr2c_loss;
-        if (ns->litr2n > 0.0)
-        {
-            nf->litr2n_to_soil2n = nt->plitr2c_loss / cn_l2;
-        }
-        else
-        {
-            nf->litr2n_to_soil2n = 0.0;
-        }
+        nf->litr2n_to_soil2n = (ns->litr2n > 0.0) ?
+            nt->plitr2c_loss / cn_l2 : 0.0;
         nf->sminn_to_soil2n_l2 = nt->pmnf_l2s2;
     }
 
@@ -359,14 +307,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         }
         cf->litr4_hr = rfl4s3 * nt->plitr4c_loss;
         cf->litr4c_to_soil3c = (1.0 - rfl4s3) * nt->plitr4c_loss;
-        if (ns->litr4n > 0.0)
-        {
-            nf->litr4n_to_soil3n = nt->plitr4c_loss / cn_l4;
-        }
-        else
-        {
-            nf->litr4n_to_soil3n = 0.0;
-        }
+        nf->litr4n_to_soil3n = (ns->litr4n > 0.0) ?
+             nt->plitr4c_loss / cn_l4 : 0.0;
         nf->sminn_to_soil3n_l4 = nt->pmnf_l4s3;
     }
 
