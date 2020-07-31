@@ -446,11 +446,11 @@ void            SRT(const soil_struct *, double [], double [], double [],
 void            SStep(double, const soil_struct *, double [], double [],
     double [], double [], double [], phystate_struct *, wstate_struct *,
     wflux_struct *);
-void            SunPos(const siteinfo_struct *, int, spa_data *);
+void            SunPos(int, const siteinfo_struct *, spa_data *);
 double          TBnd(int, int, double, double, double, const double []);
 double          TDfCnd(double, double, double, double, double);
 double          TmpAvg(int, double, double, double, const double []);
-double          TopoRadn(const topo_struct *, double, double, double, double);
+double          TopoRadn(double, double, double, double, const topo_struct *);
 void            Transp(const soil_struct *, const lc_struct *,
     const phystate_struct *, const wstate_struct *, wflux_struct *);
 void            WDfCnd(double, double, const soil_struct *, double *, double *);

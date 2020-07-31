@@ -182,7 +182,7 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
         }
 
         /* Calculate Sun position for topographic solar radiation */
-        SunPos(siteinfo, t, &spa);
+        SunPos(t, siteinfo, &spa);
     }
 #endif
 
@@ -213,8 +213,8 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
             elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
             elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
 
-            elem[i].ef.soldn = TopoRadn(&elem[i].topo, elem[i].ef.soldir,
-                elem[i].ef.soldif, spa.zenith, spa.azimuth180);
+            elem[i].ef.soldn = TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif,
+                spa.zenith, spa.azimuth180, &elem[i].topo);
             elem[i].ef.soldn = MAX(elem[i].ef.soldn, 0.0);
         }
 #endif
