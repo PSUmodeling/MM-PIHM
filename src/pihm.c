@@ -34,7 +34,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 
 #if defined(_NOAH_)
         /* Calculate surface energy balance */
-        Noah(pihm->elem, &pihm->lctbl, &pihm->cal, (double)pihm->ctrl.etstep);
+        Noah((double)pihm->ctrl.etstep, &pihm->lctbl, &pihm->cal, pihm->elem);
 #else
         /* Calculate Interception storage and ET */
         IntcpSnowEt(t, (double)pihm->ctrl.etstep, &pihm->cal, pihm->elem);
@@ -78,7 +78,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     UpdateVar((double)pihm->ctrl.stepsize, pihm->elem, pihm->river, CV_Y);
 
 #if defined(_NOAH_)
-    NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
+    NoahHydrol((double)pihm->ctrl.stepsize, pihm->elem);
 #endif
 
     /* Update print variables for hydrology step variables */

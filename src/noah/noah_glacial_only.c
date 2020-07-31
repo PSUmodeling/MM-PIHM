@@ -131,7 +131,7 @@ void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, wstate_struct *ws,
 
         /* Update snow density based on new snowfall, using old and new snow.
          * Update snow thermal conductivity */
-        SnowNew(es, sn_new, ps);
+        SnowNew(sn_new, es, ps);
         ps->sncond = CSnow(ps->sndens);
     }
     else
@@ -159,7 +159,7 @@ void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, wstate_struct *ws,
         ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp);
         ps->sncovr = MIN(ps->sncovr, 0.98);
 
-        AlCalc(ps, dt, snowng);
+        AlCalc(snowng, dt, ps);
     }
 
     ps->icecond = 2.4;
@@ -211,7 +211,7 @@ void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, wstate_struct *ws,
     t1v = es->t1 * (1.0 + 0.61 * ps->q2);
     th2v = es->th2 * (1.0 + 0.61 * ps->q2);
 
-    SfcDifOff(ps, lc, t1v, th2v, IZ0TLND);
+    SfcDifOff(IZ0TLND, t1v, th2v, lc, ps);
 
     /*
      * Call Penman function to calculate potential evaporation (ETP), and other
@@ -565,7 +565,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * in any subsequent calculations. Rather, they are dummy variables here in
      * the SnoPac case, since the skin temp and sub-sfc heat flux are updated
      * instead near the beginning of the call to SnoPac. */
-    ShFlx(ws, es, ps, lc, soil, dt, yy, zz1, df1);
+    ShFlx(dt, yy, zz1, df1, soil, lc, ps, ws, es);
 
     es->t1 = t11;
     ef->ssoil = ssoil1;
@@ -574,7 +574,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * to be the soil temperature at the top of the soil column. */
     if (ws->sneqv > 0.0)
     {
-        SnowPack(ws->sneqv, dt, &ps->snowh, &ps->sndens, es->t1, yy);
+        SnowPack(ws->sneqv, dt, es->t1, yy, &ps->snowh, &ps->sndens);
     }
     else
     {
