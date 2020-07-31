@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
+void InitLc(const lctbl_struct *lctbl, const calib_struct *calib,
     elem_struct elem[])
 {
     int             i;
@@ -14,11 +14,11 @@ void InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
     for (i = 0; i < nelem; i++)
 #endif
     {
-        _InitLc(lctbl, cal, &elem[i]);
+        _InitLc(lctbl, calib, &elem[i]);
     }
 }
 
-void _InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
+void _InitLc(const lctbl_struct *lctbl, const calib_struct *calib,
     elem_struct *elem_ptr)
 {
     int             lc_ind;
@@ -33,7 +33,7 @@ void _InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
 
     lc_ind = elem_ptr->attrib.lc_type - 1;
 
-    elem_ptr->ps.rzd = cal->rzd * lctbl->rzd[lc_ind];
+    elem_ptr->ps.rzd = calib->rzd * lctbl->rzd[lc_ind];
 #if !defined(_CYCLES_OBSOLETE_)
     elem_ptr->epc.rsmin = lctbl->rsmin[lc_ind];
     elem_ptr->epc.rgl = lctbl->rgl[lc_ind];
@@ -41,16 +41,16 @@ void _InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
     elem_ptr->epc.rsmax = lctbl->rsmax;
     elem_ptr->epc.topt = lctbl->topt;
 #endif
-    elem_ptr->lc.shdfac = cal->vegfrac * lctbl->vegfrac[lc_ind];
+    elem_ptr->lc.shdfac = calib->vegfrac * lctbl->vegfrac[lc_ind];
     elem_ptr->lc.laimin = lctbl->laimin[lc_ind];
     elem_ptr->lc.laimax = lctbl->laimax[lc_ind];
     elem_ptr->lc.emissmin = lctbl->emissmin[lc_ind];
     elem_ptr->lc.emissmax = lctbl->emissmax[lc_ind];
-    elem_ptr->lc.albedomin = cal->albedo * lctbl->albedomin[lc_ind];
-    elem_ptr->lc.albedomax = cal->albedo * lctbl->albedomax[lc_ind];
+    elem_ptr->lc.albedomin = calib->albedo * lctbl->albedomin[lc_ind];
+    elem_ptr->lc.albedomax = calib->albedo * lctbl->albedomax[lc_ind];
     elem_ptr->lc.z0min = lctbl->z0min[lc_ind];
     elem_ptr->lc.z0max = lctbl->z0max[lc_ind];
-    elem_ptr->lc.rough = cal->rough * lctbl->rough[lc_ind];
+    elem_ptr->lc.rough = calib->rough * lctbl->rough[lc_ind];
     elem_ptr->lc.cmcfactr = CMCFACTR;
     elem_ptr->lc.cfactr = lctbl->cfactr;
     elem_ptr->lc.bare = (IGBP_BARREN == elem_ptr->attrib.lc_type ||
@@ -72,11 +72,11 @@ void _InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
 
 #if defined(_NOAH_)
 # if !defined(_CYCLES_OBSOLETE_)
-    elem_ptr->epc.rgl *= cal->rgl;
-    elem_ptr->epc.hs *= cal->hs;
-    elem_ptr->epc.rsmin *= cal->rsmin;
+    elem_ptr->epc.rgl *= calib->rgl;
+    elem_ptr->epc.hs *= calib->hs;
+    elem_ptr->epc.rsmin *= calib->rsmin;
 # endif
-    elem_ptr->lc.cmcfactr *= cal->cmcmax;
-    elem_ptr->lc.cfactr *= cal->cfactr;
+    elem_ptr->lc.cmcfactr *= calib->cmcmax;
+    elem_ptr->lc.cfactr *= calib->cfactr;
 #endif
 }

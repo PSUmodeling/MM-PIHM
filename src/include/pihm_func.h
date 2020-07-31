@@ -142,7 +142,7 @@ int             CheckSteadyState(int, int, double, const elem_struct []);
 #endif
 void            CorrectElev(const river_struct [], elem_struct []);
 void            CreateOutputDir(char []);
-double          DhByDl(const double *, const double *, const double *);
+double          DhByDl(const double [], const double [], const double []);
 double          EffKh(double, const soil_struct *);
 double          EffKinf(double, double, double, double, double,
     const soil_struct *);
@@ -206,7 +206,7 @@ void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, const calib_struct *, elem_struct []);
 void            IntrplForcing(int, int, int, tsdata_struct *);
 double          KrFunc(double, double);
-void            LateralFlow(int, const river_struct *, elem_struct []);
+void            LateralFlow(int, const river_struct [], elem_struct []);
 #if defined(_CYCLES_)
 void            MapOutput(const char [], const int [], const crop_struct [],
     const elem_struct [], const river_struct [], print_struct *);

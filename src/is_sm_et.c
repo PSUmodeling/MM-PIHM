@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 #if !defined(_NOAH_)
-void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
+void IntcpSnowEt(int t, double stepsize, const calib_struct *calib,
     elem_struct elem[])
 {
     int             i;
@@ -124,7 +124,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
             (elem[i].soil.smcref - elem[i].soil.smcwlt);
         betas = (betas < 0.0001) ? 0.0001 : ((betas > 1.0) ? 1.0 : betas);
         elem[i].wf.edir = (1.0 - elem[i].lc.shdfac) * pow(betas, 2) * etp;
-        elem[i].wf.edir *= cal->edir;
+        elem[i].wf.edir *= calib->edir;
         elem[i].wf.edir = (elem[i].wf.edir < 0.0) ? 0.0 : elem[i].wf.edir;
 
         /* Note the dependence on physical units */
@@ -134,7 +134,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
                 pow(((elem[i].ws.cmc < 0.0) ? 0.0 :
                 ((elem[i].ws.cmc > intcp_max) ? intcp_max : elem[i].ws.cmc)) /
                 intcp_max, elem[i].lc.cfactr) * etp;
-            elem[i].wf.ec *= cal->ec;
+            elem[i].wf.ec *= calib->ec;
             elem[i].wf.ec = (elem[i].wf.ec < 0.0) ? 0.0 : elem[i].wf.ec;
 
             fr = 1.1 * radnet / (elem[i].epc.rgl * lai);
@@ -158,7 +158,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
                 ((elem[i].ws.cmc > intcp_max) ?
                 intcp_max : elem[i].ws.cmc) / intcp_max, elem[i].lc.cfactr)) *
                 etp;
-            elem[i].wf.ett *= cal->ett;
+            elem[i].wf.ett *= calib->ett;
             elem[i].wf.ett = (elem[i].wf.ett < 0.0) ? 0.0 : elem[i].wf.ett;
             elem[i].wf.ett =
                 ((elem[i].ws.gw < (elem[i].soil.depth - elem[i].ps.rzd))

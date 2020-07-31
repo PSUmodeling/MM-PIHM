@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void LateralFlow(int surf_mode, const river_struct *river, elem_struct elem[])
+void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
 {
     int             i;
     double         *dh_dx;
@@ -154,7 +154,7 @@ double AvgH(double diff, double h_sub, double h_nabr)
     return (diff > 0.0) ? MAX(h_sub, 0.0) : MAX(h_nabr, 0.0);
 }
 
-double DhByDl(const double *l1, const double *l2, const double *surfh)
+double DhByDl(const double l1[], const double l2[], const double surfh[])
 {
     return -(l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] - surfh[2]) +
         l1[0] * (surfh[2] - surfh[1])) /

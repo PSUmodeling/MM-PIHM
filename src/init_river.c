@@ -2,7 +2,7 @@
 
 void InitRiver(const meshtbl_struct *meshtbl, const rivtbl_struct *rivtbl,
     const shptbl_struct *shptbl, const matltbl_struct *matltbl,
-    const calib_struct *cal, elem_struct elem[], river_struct river[])
+    const calib_struct *calib, elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -47,9 +47,9 @@ void InitRiver(const meshtbl_struct *meshtbl, const rivtbl_struct *rivtbl,
             (river[i].topo.y - elem[river[i].right - 1].topo.y) *
             (river[i].topo.y - elem[river[i].right - 1].topo.y));
 
-        river[i].shp.depth = cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
+        river[i].shp.depth = calib->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
         river[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
-        river[i].shp.coeff = cal->rivshpcoeff *
+        river[i].shp.coeff = calib->rivshpcoeff *
             shptbl->coeff[rivtbl->shp[i] - 1];
         river[i].shp.length = sqrt(
             (meshtbl->x[river[i].from - 1] - meshtbl->x[river[i].to - 1]) *
@@ -61,10 +61,10 @@ void InitRiver(const meshtbl_struct *meshtbl, const rivtbl_struct *rivtbl,
 
         river[i].topo.zbed = river[i].topo.zmax - river[i].shp.depth;
 
-        river[i].matl.rough = cal->rivrough *
+        river[i].matl.rough = calib->rivrough *
             matltbl->rough[rivtbl->matl[i] - 1];
         river[i].matl.cwr = matltbl->cwr[rivtbl->matl[i] - 1];
-        river[i].matl.ksath = cal->rivksath *
+        river[i].matl.ksath = calib->rivksath *
             matltbl->ksath[rivtbl->matl[i] - 1];
 
         river[i].topo.area = river[i].shp.length *

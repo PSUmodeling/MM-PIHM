@@ -2,9 +2,9 @@
 
 #if defined(_NOAH_)
 void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl,
-    const calib_struct *cal, elem_struct elem[])
+    const calib_struct *calib, elem_struct elem[])
 #else
-void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *cal,
+void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
     elem_struct elem[])
 #endif
 {
@@ -31,16 +31,16 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *cal,
 
         soil_ind = elem[i].attrib.soil_type - 1;
 
-        elem[i].soil.dinf = cal->dinf * soiltbl->dinf;
+        elem[i].soil.dinf = calib->dinf * soiltbl->dinf;
 
         elem[i].soil.depth = elem[i].topo.zmax - elem[i].topo.zmin;
 
-        elem[i].soil.ksath = cal->ksath * soiltbl->ksath[soil_ind];
-        elem[i].soil.ksatv = cal->ksatv * soiltbl->ksatv[soil_ind];
-        elem[i].soil.kinfv = cal->kinfv * soiltbl->kinfv[soil_ind];
+        elem[i].soil.ksath = calib->ksath * soiltbl->ksath[soil_ind];
+        elem[i].soil.ksatv = calib->ksatv * soiltbl->ksatv[soil_ind];
+        elem[i].soil.kinfv = calib->kinfv * soiltbl->kinfv[soil_ind];
 
-        elem[i].soil.smcmin = cal->porosity * soiltbl->smcmin[soil_ind];
-        elem[i].soil.smcmax = cal->porosity * soiltbl->smcmax[soil_ind];
+        elem[i].soil.smcmin = calib->porosity * soiltbl->smcmin[soil_ind];
+        elem[i].soil.smcmax = calib->porosity * soiltbl->smcmax[soil_ind];
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
@@ -48,29 +48,29 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *cal,
                 "Error: Porosity value out of bounds for Element %d", i + 1);
             pihm_exit(EXIT_FAILURE);
         }
-        elem[i].soil.alpha = cal->alpha * soiltbl->alpha[soil_ind];
-        elem[i].soil.beta = cal->beta * soiltbl->beta[soil_ind];
+        elem[i].soil.alpha = calib->alpha * soiltbl->alpha[soil_ind];
+        elem[i].soil.beta = calib->beta * soiltbl->beta[soil_ind];
 
         /* Calculate field capacity and wilting point following Chan and
          * Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
-        elem[i].soil.smcwlt = cal->porosity * soiltbl->smcwlt[soil_ind];
+        elem[i].soil.smcwlt = calib->porosity * soiltbl->smcwlt[soil_ind];
 #if defined(_NOAH_)
-        elem[i].soil.smcwlt *= cal->smcwlt;
+        elem[i].soil.smcwlt *= calib->smcwlt;
 #endif
-        elem[i].soil.smcref = cal->porosity * soiltbl->smcref[soil_ind];
+        elem[i].soil.smcref = calib->porosity * soiltbl->smcref[soil_ind];
 #if defined(_NOAH_)
-        elem[i].soil.smcref *= cal->smcref;
+        elem[i].soil.smcref *= calib->smcref;
 #endif
 
-        elem[i].soil.dmac = cal->dmac * soiltbl->dmac[soil_ind];
+        elem[i].soil.dmac = calib->dmac * soiltbl->dmac[soil_ind];
         elem[i].soil.dmac = MIN(elem[i].soil.dmac, elem[i].soil.depth);
 
-        elem[i].soil.areafh = cal->areafh * soiltbl->areafh[soil_ind];
-        elem[i].soil.areafv = cal->areafv * soiltbl->areafv[soil_ind];
+        elem[i].soil.areafh = calib->areafh * soiltbl->areafh[soil_ind];
+        elem[i].soil.areafv = calib->areafv * soiltbl->areafv[soil_ind];
 
-        elem[i].soil.kmacv = cal->kmacv * soiltbl->kmacv_ro *
+        elem[i].soil.kmacv = calib->kmacv * soiltbl->kmacv_ro *
             soiltbl->kinfv[soil_ind];
-        elem[i].soil.kmach = cal->kmach * soiltbl->kmach_ro *
+        elem[i].soil.kmach = calib->kmach * soiltbl->kmach_ro *
             soiltbl->ksath[soil_ind];
 #if defined(_NOAH_)
         elem[i].soil.csoil = noahtbl->csoil;
