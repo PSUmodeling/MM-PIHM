@@ -112,7 +112,7 @@ void ReadCalib(const char filename[], calib_struct *calib)
     ReadKeyword(cmdstr, "WLTSMC", 'd', filename, lno, &calib->smcwlt);
 #endif
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     FindLine(global_calib, "DGW_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);

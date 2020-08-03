@@ -36,7 +36,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.unsat = MAX(y[UNSAT(i)], 0.0);
         elem[i].ws.gw    = MAX(y[GW(i)], 0.0);
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         elem[i].ws.fbr_unsat = MAX(y[FBRUNSAT(i)], 0.0);
         elem[i].ws.fbr_gw    = MAX(y[FBRGW(i)], 0.0);
 #endif
@@ -56,7 +56,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < nsolute; k++)
         {
             elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
-# if defined(_FBR_)
+# if defined(_DGW_)
             elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
 # endif
         }
@@ -152,7 +152,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
         dy[GW(i)] += elem[i].wf.rechg - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         /*
          * Vertical water fluxes for fractured bedrock
          */
@@ -172,14 +172,14 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             dy[SURF(i)]  -= elem[i].wf.ovlflow[j] / elem[i].topo.area;
             dy[GW(i)]    -= elem[i].wf.subsurf[j] / elem[i].topo.area;
-#if defined(_FBR_)
+#if defined(_DGW_)
             dy[FBRGW(i)] -= elem[i].wf.fbrflow[j] / elem[i].topo.area;
 #endif
         }
 
         dy[UNSAT(i)] /= elem[i].soil.porosity;
         dy[GW(i)]    /= elem[i].soil.porosity;
-#if defined(_FBR_)
+#if defined(_DGW_)
         dy[FBRUNSAT(i)] /= elem[i].geol.porosity;
         dy[FBRGW(i)]    /= elem[i].geol.porosity;
 #endif
@@ -223,7 +223,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 elem[i].solute[k].snksrc;
 # endif
 
-# if defined(_FBR_)
+# if defined(_DGW_)
             dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].fbr_infil;
 
             dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].fbr_infil +
@@ -237,7 +237,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             {
                 dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] /
                     elem[i].topo.area;
-# if defined(_FBR_)
+# if defined(_DGW_)
                 dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].fbrflow[j] /
                     elem[i].topo.area;
 # endif
@@ -323,7 +323,7 @@ int NumStateVar(void)
 #endif
 #endif
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     nsv += 2 * nelem;
 # if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     nsv += nsolute * nelem;
@@ -418,7 +418,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 
     num_hydrol_var = 3 * nelem + nriver;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     num_hydrol_var += 2 * nelem;
 #endif
 

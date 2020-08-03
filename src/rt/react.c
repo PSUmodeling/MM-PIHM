@@ -52,7 +52,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             elem[i].solute[k].snksrc = elem[i].chmf.react[k] * storage;
         }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 

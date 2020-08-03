@@ -26,7 +26,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
         atttbl->chem_ic[i] = (int *)malloc(NCHMVOL * sizeof(int));
 
         NextLine(fp, cmdstr, &lno);
-#if defined(_FBR_)
+#if defined(_DGW_)
         match = sscanf(cmdstr, "%d %d %d %d",
             &index, &atttbl->prcpc[i],
             &atttbl->chem_ic[i][SOIL_CHMVOL], &atttbl->chem_ic[i][GEOL_CHMVOL]);

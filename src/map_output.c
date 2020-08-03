@@ -860,7 +860,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
                 case FBRUNSAT_CTRL:
                     InitPrintCtrl(outputdir, "deep.unsat", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
@@ -928,7 +928,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                             print->varctrl[n].var[j] = &elem[j].chms.prim_conc[k];
                         }
                         n++;
-# if defined(_FBR_)
+# if defined(_DGW_)
                         /* Deep zone concentration */
                         sprintf(ext, "deep.conc.%s", chemn);
                         InitPrintCtrl(outputdir, ext, prtvrbl[i],
@@ -979,7 +979,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
                         n++;
 
-# if defined(_FBR_)
+# if defined(_DGW_)
                         sprintf(ext, "deep.conc.%s", chemn);
                         InitPrintCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
@@ -1021,7 +1021,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
     for (i = 0; i < nelem; i++)
     {
         sprintf(ext, "elem%d.wflux", i + 1);
-# if defined(_FBR_)
+# if defined(_DGW_)
         InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 16,
             &print->varctrl[n]);
 # else
@@ -1038,7 +1038,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
             print->varctrl[n].var[5 + k] = &elem[i].wf.subsurf[k];
             print->varctrl[n].var[8 + k] = &elem[i].wf.ovlflow[k];
         }
-# if defined(_FBR_)
+# if defined(_DGW_)
         print->varctrl[n].var[11] = &elem[i].wf.fbr_infil;
         print->varctrl[n].var[12] = &elem[i].wf.fbr_rechg;
         for (k = 0; k < NUM_EDGE; k++)
@@ -1049,7 +1049,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         n++;
 
         sprintf(ext, "elem%d.wstate", i + 1);
-# if defined(_FBR_)
+# if defined(_DGW_)
         InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 7,
             &print->varctrl[n]);
 # else
@@ -1061,7 +1061,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         print->varctrl[n].var[2] = &elem[i].ws.surf;
         print->varctrl[n].var[3] = &elem[i].ws.unsat;
         print->varctrl[n].var[4] = &elem[i].ws.gw;
-# if defined(_FBR_)
+# if defined(_DGW_)
         print->varctrl[n].var[5] = &elem[i].ws.fbr_unsat;
         print->varctrl[n].var[6] = &elem[i].ws.fbr_gw;
 # endif
@@ -1128,7 +1128,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         }
         n++;
 
-#  if defined(_FBR_)
+#  if defined(_DGW_)
         sprintf(ext, "elem%d.deep.conc", i + 1);
         InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
@@ -1176,7 +1176,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
     }
     n++;
 
-#  if defined(_FBR_)
+#  if defined(_DGW_)
     InitPrintCtrl(outputdir, "left_leach", DAILY_OUTPUT, RT_STEP,
         rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)

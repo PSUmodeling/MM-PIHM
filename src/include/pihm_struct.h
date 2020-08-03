@@ -106,7 +106,7 @@ typedef struct calib_struct
     double          mortality;
     double          sla;
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          geol_ksath;
     double          geol_ksatv;
     double          geol_porosity;

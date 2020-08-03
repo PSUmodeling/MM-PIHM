@@ -12,7 +12,7 @@ typedef struct attrib_struct
 #if defined(_CYCLES_OBSOLETE_)
     int             op_type;
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     int             geol_type;              /* geology type */
     int             fbrbc_type[NUM_EDGE];   /* fractured bedrock layer
                                              * boundary condition type */
@@ -37,7 +37,7 @@ typedef struct topo_struct
     double          nabrdist[NUM_EDGE];     /* distance to neighbor (m) */
     double          nabr_x[NUM_EDGE];       /* x of neighbor centroid (m) */
     double          nabr_y[NUM_EDGE];       /* y of neighbor centroid (m) */
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          zbed;                   /* impermeable bedrock elevation (m)
                                              */
 #endif
@@ -408,7 +408,7 @@ typedef struct wstate_struct
     double          cmcmax;                 /* maximum canopy water capacity (m)
                                              */
     double          cmc;                    /* interception storage (m) */
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          fbr_unsat;              /* unsaturated storage in fractured
                                              * bedrock layer (m) */
     double          fbr_gw;                 /* deep groundwater in fractured
@@ -465,7 +465,7 @@ typedef struct wflux_struct
 #if defined(_CYCLES_)
     double          irrig;                  /* irrigation volume (mm day-1) */
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          fbr_infil;              /* fractured bedrock infiltration
                                              * (m s-1) */
     double          fbr_rechg;              /* fractured bedrock recharge
@@ -583,7 +583,7 @@ typedef struct solute_struct
     double          snksrc;                 /* sink/source term
                                              * (mass/amount of subs m-2 s-1) */
 # endif
-# if defined(_FBR_)
+# if defined(_DGW_)
     double          conc_geol;              /* solute concentration in deep
                                              * layer (mass/amount of subs m-3)*/
     double          fbr_infil;              /* solute flux from bedrock
@@ -720,7 +720,7 @@ typedef struct ic_struct
     double          surf;
     double          unsat;
     double          gw;
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          fbr_unsat;
     double          fbr_gw;
 #endif
@@ -1538,7 +1538,7 @@ typedef struct chmflux_struct
 {
     double          react[MAXSPS];          /* reaction flux in unsaturated zone
                                              * (mol L-1 s-1) */
-# if defined(_FBR_)
+# if defined(_DGW_)
     double          react_geol[MAXSPS];     /* reaction flux in deep groundwater
                                              * (mol L-1 s-1) */
 # endif
@@ -1612,7 +1612,7 @@ typedef struct elem_struct
 #if defined(_DAILY_)
     daily_struct    daily;
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     soil_struct     geol;
     bc_struct       fbr_bc;
 #endif
@@ -1621,7 +1621,7 @@ typedef struct elem_struct
     rtic_struct     restart_output[NCHMVOL];
     prcpchem_struct prcpchm;
     chmstate_struct chms;
-# if defined(_FBR_)
+# if defined(_DGW_)
     chmstate_struct chms_geol;
 # endif
     chmflux_struct  chmf;

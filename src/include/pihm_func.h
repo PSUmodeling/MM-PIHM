@@ -9,13 +9,13 @@
 #define GW(i)                   (i + 2 * nelem)
 #define RIVER(i)                (i + 3 * nelem)
 
-#if defined(_FBR_)
+#if defined(_DGW_)
 # define FBRUNSAT(i)            (i + 3 * nelem + nriver)
 # define FBRGW(i)               (i + 4 * nelem + nriver)
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-# if defined(_FBR_)
+# if defined(_DGW_)
 #  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 5 * nelem + nriver)
 #  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
 #  define SOLUTE_GEOL(i, j)     ((i) * nsolute + j + (5 + nsolute) * nelem + (1 + nsolute) * nriver)
@@ -218,7 +218,7 @@ void            MapOutput(const char [], const int [], const chemtbl_struct [],
 void            MapOutput(const char [], const int [], const elem_struct [],
     const river_struct [],  print_struct *);
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
 void            AdjustFluxes(double, double, const soil_struct *,
     const soil_struct *, const wstate_struct *, const wstate_struct *,
     double *, wflux_struct *);
@@ -310,7 +310,7 @@ double          WiltingPoint(double, double, double, double);
 /*
  * Fractured bedrock functions
  */
-#if defined(_FBR_)
+#if defined(_DGW_)
 double          DeepBoundFluxElem(int, int, const topo_struct *,
     const soil_struct *, const bc_struct *, const wstate_struct *);
 double          DeepFlowElemToElem(double, double, const elem_struct *,
@@ -471,7 +471,7 @@ void            SetAbsTolArray(double, N_Vector);
 double          AdvDiffDisp(double, double, double, double, double, double,
                     double, double, double);
 void            InitSolute(elem_struct []);
-# if defined(_FBR_) && defined(_LUMPED_)
+# if defined(_DGW_) && defined(_LUMPED_)
 void            RiverElemSoluteFlow(int, int, int, elem_struct *,
                     river_struct *);
 # else

@@ -40,7 +40,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                 read_bc = 1;
                 break;
             }
-#if defined(_FBR_)
+#if defined(_DGW_)
             if (atttbl->fbr_bc[i][j] != 0)
             {
                 read_bc = 1;

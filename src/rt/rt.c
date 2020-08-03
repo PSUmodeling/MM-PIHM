@@ -75,7 +75,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
             elem[i].restart_input[SOIL_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             elem[i].restart_input[GEOL_CHMVOL].tot_conc[k] =
                 chmictbl->conc[ic_type[GEOL_CHMVOL] - 1][k];
             elem[i].restart_input[GEOL_CHMVOL].ssa[k] =
@@ -105,7 +105,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         InitChemS(chemtbl, rttbl, &elem[i].restart_input[SOIL_CHMVOL],
             elem[i].soil.smcmax, storage, &elem[i].chms);
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
@@ -163,7 +163,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             elem[i].chmf.react[k] = 0.0;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             NV_Ith(CV_Y, SOLUTE_GEOL(i, k)) = elem[i].chms_geol.tot_mol[k];
 
             elem[i].chmf.react_geol[k] = 0.0;
@@ -274,7 +274,7 @@ void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[],
         {
             elem[i].chms.prim_conc[k] = elem[i].chms.tot_conc[k];
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             elem[i].chms_geol.prim_conc[k] = elem[i].chms_geol.tot_conc[k];
 #endif
         }

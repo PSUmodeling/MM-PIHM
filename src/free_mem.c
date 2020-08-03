@@ -16,7 +16,7 @@ void FreeMem(pihm_struct pihm)
 
     FreeSoiltbl(&pihm->soiltbl);
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     FreeGeoltbl(&pihm->geoltbl);
 #endif
 
@@ -97,7 +97,7 @@ void FreeMeshtbl(meshtbl_struct *meshtbl)
     free(meshtbl->y);
     free(meshtbl->zmin);
     free(meshtbl->zmax);
-#if defined(_FBR_)
+#if defined(_DGW_)
     free(meshtbl->zbed);
 #endif
 }
@@ -110,12 +110,12 @@ void FreeAtttbl(atttbl_struct *atttbl)
     for (i = 0; i < nelem; i++)
     {
         free(atttbl->bc[i]);
-#if defined(_FBR_)
+#if defined(_DGW_)
         free(atttbl->fbr_bc[i]);
 #endif
     }
     free(atttbl->bc);
-#if defined(_FBR_)
+#if defined(_DGW_)
     free(atttbl->fbr_bc);
 #endif
     free(atttbl->soil);
@@ -147,7 +147,7 @@ void FreeSoiltbl(soiltbl_struct *soiltbl)
     free(soiltbl->smcwlt);
 }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
 void FreeGeoltbl(geoltbl_struct *geoltbl)
 {
     free(geoltbl->ksatv);

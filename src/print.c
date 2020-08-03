@@ -28,7 +28,7 @@ void StartupScreen(void)
 #if defined(_CYCLES_)
     pihm_printf(VL_BRIEF, "    * Agroecosystem module turned on.\n");
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     pihm_printf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
 #endif
 #if defined(_LUMPED_)
@@ -143,7 +143,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "OVLFLOW1");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "OVLFLOW2");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "OVLFLOW3");
-# if defined(_FBR_)
+# if defined(_DGW_)
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "DEEPINFIL");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "DEEPRECHG");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "DEEPLAT1");
@@ -164,7 +164,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m3/s");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m3/s");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m3/s");
-# if defined(_FBR_)
+# if defined(_DGW_)
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m/s");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m/s");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m3/s");
@@ -182,7 +182,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "SURF");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "UNSAT");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "GW");
-# if defined(_FBR_)
+# if defined(_DGW_)
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "DEEPUNSAT");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "DEEPGW");
 #endif
@@ -194,7 +194,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
-# if defined(_FBR_)
+# if defined(_DGW_)
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
 #endif
@@ -307,7 +307,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-#  if defined(_FBR_)
+#  if defined(_DGW_)
         /* Deep aquifer concentration file header */
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
@@ -400,7 +400,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     fflush(print->varctrl[n].txtfile);
     n++;
 
-#  if defined(_FBR_)
+#  if defined(_DGW_)
     /* River deep leaching file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < rttbl->num_stc; k++)
@@ -550,7 +550,7 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime,
             fwrite(&elem[i].ws.surf,      sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.unsat,     sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.gw,        sizeof(double), 1, init_file);
-#if defined(_FBR_)
+#if defined(_DGW_)
             fwrite(&elem[i].ws.fbr_unsat, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.fbr_gw,    sizeof(double), 1, init_file);
 #endif

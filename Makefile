@@ -64,7 +64,7 @@ endif
 SFLAGS = -D_PIHM_
 
 ifeq ($(DGW), on)
-  SFLAGS += -D_FBR_
+  SFLAGS += -D_DGW_
 endif
 
 ifeq ($(LUMPED), on)

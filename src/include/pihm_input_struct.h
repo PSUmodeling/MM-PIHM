@@ -32,7 +32,7 @@ typedef struct filename_struct
     char            op[MAXOP][MAXSTRING];
     char            cyclesic[MAXSTRING];
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
     char            geol[MAXSTRING];        /* geology property file */
     char            bedrock[MAXSTRING];     /* bedrock elevation file */
 #endif
@@ -103,7 +103,7 @@ typedef struct meshtbl_struct
     double         *zmin;                   /* soil bottom elevation of node (m)
                                              */
     double         *zmax;                   /* surface elevation of node (m) */
-#if defined(_FBR_)
+#if defined(_DGW_)
     double         *zbed;                   /* impermeable bedrock elevation (m)
                                              */
 #endif
@@ -121,7 +121,7 @@ typedef struct atttbl_struct
                                              * 0: use climatological values;
                                              * else: use forcing file */
     int            *source;                 /* source forcing type */
-#if defined(_FBR_)
+#if defined(_DGW_)
     int           **fbr_bc;                 /* boundary condition type for
                                              * fractured bedrock layer */
 #endif

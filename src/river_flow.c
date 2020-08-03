@@ -104,7 +104,7 @@ void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
                 river_ptr, right);
     }
 
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
     if (left->ws.fbr_gw > 0.6 * left->geol.depth)
     {
         left->wf.fbr_discharge = 1.005 *

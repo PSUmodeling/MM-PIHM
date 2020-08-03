@@ -40,7 +40,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     for (i = 0; i < nelem; i++)
     {
         pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
-#if defined(_FBR_)
+#if defined(_DGW_)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
@@ -66,7 +66,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
                     (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             bc = pihm->atttbl.fbr_bc[i][j];
 
             if (bc == NO_FLOW)
@@ -153,7 +153,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitSoil(&pihm->soiltbl, &pihm->cal, pihm->elem);
 #endif
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     /* Initialize element geol properties */
     InitGeol(&pihm->geoltbl, &pihm->cal, pihm->elem);
 #endif
@@ -478,8 +478,8 @@ void RelaxIc(elem_struct elem[], river_struct river[])
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
-#if defined(_FBR_)
-    const double    INIT_FBR_GW = 5.0;
+#if defined(_DGW_)
+    const double    INIT_DGW = 5.0;
 #endif
 
 #if defined(_OPENMP)
@@ -493,9 +493,8 @@ void RelaxIc(elem_struct elem[], river_struct river[])
         elem[i].ic.unsat = INIT_UNSAT;
         elem[i].ic.gw    = elem[i].soil.depth - INIT_UNSAT;
 
-#if defined(_FBR_)
-        elem[i].ic.fbr_gw = (elem[i].geol.depth > INIT_FBR_GW) ?
-            INIT_FBR_GW : elem[i].geol.depth;
+#if defined(_DGW_)
+        elem[i].ic.fbr_gw = MIN(elem[i].geol.depth, INIT_DGW);
         elem[i].ic.fbr_unsat = 0.5 * (elem[i].geol.depth - elem[i].ic.fbr_gw);
 #endif
 
@@ -566,7 +565,7 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith(CV_Y, GW(i))    = elem[i].ic.gw;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
         elem[i].ws.fbr_gw    = elem[i].ic.fbr_gw;
 
@@ -701,7 +700,7 @@ void InitWFlux(wflux_struct *wf)
     wf->ett_gw     = 0.0;
     wf->esnow      = 0.0;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     wf->fbr_infil = 0.0;
     wf->fbr_rechg = 0.0;
     for (j = 0; j < NUM_EDGE; j++)

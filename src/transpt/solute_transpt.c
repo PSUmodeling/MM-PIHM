@@ -23,7 +23,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
             }
         }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         for (k = 0; k < nsolute; k++)
         {
             /* Initialize chemical fluxes */
@@ -114,7 +114,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                 }
             }   /* End of element to element */
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             /* Bedrock infiltration */
             elem[i].solute[k].fbr_infil = elem[i].wf.fbr_infil *
                 ((elem[i].wf.fbr_infil > 0.0) ?
@@ -191,7 +191,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
             /* Left and right banks */
         if (river[i].left > 0)
         {
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
             RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
                 LEFT_FBR2CHANL, &elem[river[i].left - 1], &river[i]);
 #else
@@ -202,7 +202,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
 
         if (river[i].right > 0)
         {
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
             RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
                 RIGHT_FBR2CHANL, &elem[river[i].right - 1], &river[i]);
 #else
@@ -230,7 +230,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
     }
 }
 
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
 void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
     int fbr_to_chanl, elem_struct *bank, river_struct *river)
 #else
@@ -252,7 +252,7 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
             ((river->wf.rivflow[aquif_to_chanl] > 0.0) ?
             river->solute[k].conc : bank->solute[k].conc);
 
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
         river->solute[k].flux[fbr_to_chanl] =
             river->wf.rivflow[fbr_to_chanl] * bank->solute[k].conc_geol;
 #endif

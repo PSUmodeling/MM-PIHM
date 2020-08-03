@@ -45,7 +45,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].solute[k].conc = MAX(elem[i].solute[k].conc, 0.0);
         }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 

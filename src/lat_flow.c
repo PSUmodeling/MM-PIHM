@@ -60,7 +60,7 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
         free(dh_dy);
     }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     /*
      * Lateral fractured bedrock flow
      */
@@ -286,7 +286,7 @@ void BoundFluxElem(int bc_type, int j, const topo_struct *topo,
     }
 }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
 double DeepFlowElemToElem(double distance, double edge,
     const elem_struct *elem_ptr, const elem_struct *nabr)
 {

@@ -7,7 +7,7 @@ void InitTopo(const meshtbl_struct *meshtbl, elem_struct elem[])
     double          y[NUM_EDGE];
     double          zmin[NUM_EDGE];
     double          zmax[NUM_EDGE];
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          zbed[NUM_EDGE];
 #endif
 
@@ -19,7 +19,7 @@ void InitTopo(const meshtbl_struct *meshtbl, elem_struct elem[])
             y[j] = meshtbl->y[elem[i].node[j] - 1];
             zmin[j] = meshtbl->zmin[elem[i].node[j] - 1];
             zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
-#if defined(_FBR_)
+#if defined(_DGW_)
             zbed[j] = meshtbl->zbed[elem[i].node[j] - 1];
 #endif
         }
@@ -32,7 +32,7 @@ void InitTopo(const meshtbl_struct *meshtbl, elem_struct elem[])
 
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
-#if defined(_FBR_)
+#if defined(_DGW_)
         elem[i].topo.zbed = (zbed[0] + zbed[1] + zbed[2]) / 3.0;
 #endif
         elem[i].topo.edge[0] = sqrt(

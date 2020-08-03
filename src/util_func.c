@@ -62,7 +62,7 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
 #if defined(_LUMPED_)
                 printf("Lumped variant\n");
 #endif
-#if defined(_FBR_)
+#if defined(_DGW_)
                 printf("Compiled with deep groundwater module\n");
 #endif
 #if defined(_OPENMP)

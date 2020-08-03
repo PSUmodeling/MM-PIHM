@@ -30,7 +30,7 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.para,     "input/%s/%s.para",     proj, proj);
     sprintf(pihm->filename.calib,    "input/%s/%s.calib",    proj, project);
     sprintf(pihm->filename.ic,       "input/%s/%s.ic",       proj, project);
-#if defined(_FBR_)
+#if defined(_DGW_)
     sprintf(pihm->filename.geol,     "input/%s/%s.geol",     proj, proj);
     sprintf(pihm->filename.bedrock,  "input/%s/%s.bedrock",  proj, proj);
 #endif
@@ -93,7 +93,7 @@ void ReadAlloc(pihm_struct pihm)
     /* Read calibration input file */
     ReadCalib(pihm->filename.calib, &pihm->cal);
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     /* Read geology input file */
     ReadGeol(pihm->filename.geol, &pihm->geoltbl);
 

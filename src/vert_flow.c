@@ -21,7 +21,7 @@ void VerticalFlow(double dt, elem_struct elem[])
         /* Calculate recharge rate */
         elem[i].wf.rechg = Recharge(&elem[i].soil, &elem[i].ws, &elem[i].wf);
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         elem[i].wf.fbr_infil = GeolInfil(&elem[i].topo, &elem[i].soil,
             &elem[i].geol, &elem[i].ws);
         elem[i].wf.fbr_rechg = GeolRecharge(&elem[i].geol, &elem[i].ws,
@@ -287,7 +287,7 @@ double Psi(double satn, double alpha, double beta)
     return -pow(pow(1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha;
 }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
 /*
  * Hydrology for fractured bedrock
  */

@@ -19,12 +19,12 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
         elem[i].ws.unsat = y[UNSAT(i)];
         elem[i].ws.gw    = y[GW(i)];
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         elem[i].ws.fbr_unsat = y[FBRUNSAT(i)];
         elem[i].ws.fbr_gw    = y[FBRGW(i)];
 #endif
 
-#if defined(_FBR_)
+#if defined(_DGW_)
         AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].geol,
             &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
 #else
@@ -34,7 +34,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
 
 #if defined(_NOAH_)
         elem[i].wf.runoff2 = subrunoff;
-# if defined(_FBR_)
+# if defined(_DGW_)
         elem[i].wf.runoff2 += elem[i].wf.fbr_infil;
 # endif
 
@@ -83,7 +83,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
             elem[i].chms.tot_conc[k] = MAX(elem[i].chms.tot_conc[k], ZERO_CONC);
         }
 
-# if defined(_FBR_)
+# if defined(_DGW_)
         storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.smcmin * elem[i].geol.depth;
         storage = MAX(storage, 0.0);
@@ -151,7 +151,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
     }
 }
 
-#if defined(_FBR_)
+#if defined(_DGW_)
 void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
     const soil_struct *geol, const wstate_struct *ws, const wstate_struct *ws0,
     double *subrunoff, wflux_struct *wf)
@@ -163,7 +163,7 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
 {
     int             j;
     double          soilw0, soilw1;
-#if defined(_FBR_)
+#if defined(_DGW_)
     double          geolw0, geolw1;
     double          geol_runoff;
 #endif
@@ -197,7 +197,7 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
     wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize + wf->rechg +
         wf->edir_unsat + wf->ett_unsat;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     /* Adjust bedrock recharge */
     geolw0 = ws0->fbr_gw;
     geolw1 = ws->fbr_gw;
@@ -236,7 +236,7 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
     wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
         wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
-#if defined(_FBR_)
+#if defined(_DGW_)
     geolw0 = ws0->fbr_gw + ws0->fbr_unsat;
     geolw1 = ws->fbr_gw + ws->fbr_unsat;
 

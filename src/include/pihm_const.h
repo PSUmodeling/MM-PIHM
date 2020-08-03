@@ -159,7 +159,7 @@
 #define CLAY                    11
 
 /* Number of river fluxes of a river segment */
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
 # define NUM_RIVFLX             8
 #else
 # define NUM_RIVFLX             6
@@ -172,7 +172,7 @@
 #define RIGHT_SURF2CHANL        3
 #define LEFT_AQUIF2CHANL        4
 #define RIGHT_AQUIF2CHANL       5
-#if defined(_FBR_) && defined(_LUMPED_)
+#if defined(_DGW_) && defined(_LUMPED_)
 # define LEFT_FBR2CHANL         6
 # define RIGHT_FBR2CHANL        7
 #endif
@@ -317,7 +317,7 @@
 #define MONOD                   4
 
 /* RT volumes in each model grid */
-#if defined(_FBR_)
+#if defined(_DGW_)
 # define NCHMVOL                2
 #else
 # define NCHMVOL                1

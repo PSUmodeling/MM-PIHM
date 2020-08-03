@@ -24,7 +24,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
                     1000.0 / chemtbl[k].molar_vol / elem[i].soil.smcmax :
                     (1.0 - elem[i].soil.smcmax) * 1000.0 /
                     chemtbl[k].molar_vol / elem[i].soil.smcmax;
-#if defined(_FBR_)
+#if defined(_DGW_)
                 elem[i].chms_geol.tot_conc[k] /= (rttbl->rel_min == 0) ?
                     1000.0 / chemtbl[k].molar_vol / elem[i].geol.smcmax :
                     (1.0 - elem[i].geol.smcmax) * 1000.0 /
@@ -36,7 +36,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
             {
                 elem[i].chms.tot_conc[k] /=
                     (1.0 - elem[i].soil.smcmax) * 2650.0;
-#if defined(_FBR_)
+#if defined(_DGW_)
                 elem[i].chms_geol.tot_conc[k] /=
                     (1.0 - elem[i].geol.smcmax) * 2650.0;
 #endif
@@ -47,7 +47,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
             elem[i].restart_output[SOIL_CHMVOL].ssa[k] =
                 elem[i].chms.ssa[k];
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             elem[i].restart_output[GEOL_CHMVOL].tot_conc[k] =
                 elem[i].chms_geol.tot_conc[k];
             elem[i].restart_output[GEOL_CHMVOL].ssa[k] =

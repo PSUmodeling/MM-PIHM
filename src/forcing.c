@@ -114,7 +114,7 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
             }
 
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             if (elem[i].attrib.fbrbc_type[j] > 0)
             {
                 /* Dirichlet type boundary conditions */

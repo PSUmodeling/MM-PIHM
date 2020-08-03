@@ -30,7 +30,7 @@ void InitSolute(elem_struct elem[])
             elem[i].solute[k].snksrc         = 0.0;
 #endif
 
-#if defined(_FBR_)
+#if defined(_DGW_)
             elem[i].solute[k].conc_geol      = 0.0;
             elem[i].solute[k].fbr_infil      = 0.0;
             for (j = 0; j < NUM_EDGE; j++)
