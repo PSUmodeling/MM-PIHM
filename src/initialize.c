@@ -155,7 +155,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_FBR_)
     /* Initialize element geol properties */
-    InitGeol(pihm->elem, &pihm->geoltbl, &pihm->cal);
+    InitGeol(&pihm->geoltbl, &pihm->cal, pihm->elem);
 #endif
 
     /* Initialize element land cover properties */

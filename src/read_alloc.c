@@ -98,7 +98,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadGeol(pihm->filename.geol, &pihm->geoltbl);
 
     /* Read bedrock control file */
-    ReadBedrock(pihm->filename.bedrock, &pihm->atttbl, &pihm->meshtbl,
+    ReadBedrock(pihm->filename.bedrock, &pihm->meshtbl, &pihm->atttbl,
         &pihm->ctrl);
 #endif
 

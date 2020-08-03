@@ -320,9 +320,9 @@ double          GeolInfil(const topo_struct *, const soil_struct *,
 double          GeolRecharge(const soil_struct *, const wstate_struct *,
     const wflux_struct *);
 void            FreeGeoltbl(geoltbl_struct *);
-void            InitGeol (elem_struct *, const geoltbl_struct *,
-        const calib_struct *);
-void            ReadBedrock(const char *, atttbl_struct *, meshtbl_struct *,
+void            InitGeol(const geoltbl_struct *, const calib_struct *,
+    elem_struct []);
+void            ReadBedrock(const char [], meshtbl_struct *, atttbl_struct *,
     ctrl_struct *);
 void            ReadGeol(const char *, geoltbl_struct *);
 #endif
