@@ -91,8 +91,8 @@ void InitBgcVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     for (i = 0; i < nelem; i++)
 #endif
     {
-        RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
-            &elem[i].restart_input);
+        RestartInput(&elem[i].restart_input, &elem[i].epv, &elem[i].cs,
+            &elem[i].ns);
 
         ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary,
             &elem[i].solute[0]);
