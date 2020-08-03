@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-double GetNdep(tsdata_struct *ndep_ts, int t)
+double GetNdep(int t, tsdata_struct *ndep_ts)
 {
     double          ndep;
 

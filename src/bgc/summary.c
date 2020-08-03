@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void CSummary(const cflux_struct *cf, const cstate_struct *cs,
+void CSummary(const cstate_struct *cs, const cflux_struct *cf,
     summary_struct *summary)
 {
     double          gpp, mr, gr, hr, fire;
@@ -30,8 +30,7 @@ void CSummary(const cflux_struct *cf, const cstate_struct *cs,
 
     /* Calculate daily NEE, positive for net sink */
     /* NEE = NEP - fire losses */
-    fire =
-        cf->m_leafc_to_fire + cf->m_frootc_to_fire +
+    fire = cf->m_leafc_to_fire + cf->m_frootc_to_fire +
         cf->m_leafc_storage_to_fire + cf->m_frootc_storage_to_fire +
         cf->m_livestemc_storage_to_fire + cf->m_deadstemc_storage_to_fire +
         cf->m_livecrootc_storage_to_fire + cf->m_deadcrootc_storage_to_fire +
@@ -64,8 +63,7 @@ void CSummary(const cflux_struct *cf, const cstate_struct *cs,
     summary->cum_fire += fire;
 
     /* Other flux summary variables */
-    summary->daily_litfallc =
-        cf->m_leafc_to_litr1c + cf->m_leafc_to_litr2c +
+    summary->daily_litfallc = cf->m_leafc_to_litr1c + cf->m_leafc_to_litr2c +
         cf->m_leafc_to_litr3c + cf->m_leafc_to_litr4c +
         cf->m_frootc_to_litr1c + cf->m_frootc_to_litr2c +
         cf->m_frootc_to_litr3c + cf->m_frootc_to_litr4c +
@@ -86,18 +84,17 @@ void CSummary(const cflux_struct *cf, const cstate_struct *cs,
         cf->frootc_to_litr4c;
 
     /* Summarize carbon stocks */
-    summary->vegc =
-        cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc +
+    summary->vegc = cs->leafc + cs->leafc_storage + cs->leafc_transfer +
+        cs->frootc +
         cs->frootc_storage + cs->frootc_transfer + cs->livestemc +
         cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc +
         cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc +
         cs->livecrootc_storage + cs->livecrootc_transfer + cs->deadcrootc +
         cs->deadcrootc_storage + cs->deadcrootc_transfer + cs->gresp_storage +
         cs->gresp_transfer + cs->cpool;
-    summary->agc =
-        cs->leafc + cs->livestemc + cs->deadstemc;
-    summary->litrc =
-        cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
+    summary->agc = cs->leafc + cs->livestemc + cs->deadstemc;
+    summary->litrc = cs->cwdc +
+        cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
     summary->soilc = cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c;
     summary->totalc = summary->vegc + summary->litrc + summary->soilc;
 }

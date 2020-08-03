@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 #if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
-void SoluteConc(elem_struct *elem, river_struct *river)
+void SoluteConc(elem_struct elem[], river_struct river[])
 {
     int             i;
 

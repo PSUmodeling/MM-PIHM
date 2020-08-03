@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
-    int woody, int evergreen)
+void DailyCarbonStateUpdate(int alloc, int woody, int evergreen,
+    cstate_struct *cs, cflux_struct *cf)
 {
     /* Daily update of the carbon state variables */
 
@@ -260,20 +260,14 @@ void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
          * last day */
         if (!evergreen)
         {
-            if (cs->leafc < 1.0e-10)
-            {
-                cs->leafc = 0.0;
-            }
-            if (cs->frootc < 1.0e-10)
-            {
-                cs->frootc = 0.0;
-            }
+            cs->leafc = (cs->leafc < 1.0E-10) ? 0.0 : cs->leafc;
+            cs->frootc = (cs->frootc < 1.0E-10) ? 0.0 : cs->frootc;
         }
     }    /* End if allocation day */
 }
 
-void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
-    solute_struct *solute, int alloc, int woody, int evergreen)
+void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen,
+    nstate_struct *ns, nflux_struct *nf, solute_struct *solute)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -349,14 +343,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
     /* N fluxes for immobilization and mineralization */
     ns->soil1n += nf->litr1n_to_soil1n;
     ns->litr1n -= nf->litr1n_to_soil1n;
-    if (nf->sminn_to_soil1n_l1 < 0.0)
-    {
-        nf->sminn_to_nvol_l1s1 = -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
-    }
-    else
-    {
-        nf->sminn_to_nvol_l1s1 = 0.0;
-    }
+    nf->sminn_to_nvol_l1s1 = (nf->sminn_to_soil1n_l1 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1 : 0.0;
     ns->soil1n += nf->sminn_to_soil1n_l1;
     solute->snksrc -= nf->sminn_to_soil1n_l1;
     ns->nvol_snk += nf->sminn_to_nvol_l1s1;
@@ -364,14 +352,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
 
     ns->soil2n += nf->litr2n_to_soil2n;
     ns->litr2n -= nf->litr2n_to_soil2n;
-    if (nf->sminn_to_soil2n_l2 < 0.0)
-    {
-        nf->sminn_to_nvol_l2s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
-    }
-    else
-    {
-        nf->sminn_to_nvol_l2s2 = 0.0;
-    }
+    nf->sminn_to_nvol_l2s2 = (nf->sminn_to_soil2n_l2 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2 : 0.0;
     ns->soil2n += nf->sminn_to_soil2n_l2;
     solute->snksrc -= nf->sminn_to_soil2n_l2;
     ns->nvol_snk += nf->sminn_to_nvol_l2s2;
@@ -382,14 +364,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
 
     ns->soil3n += nf->litr4n_to_soil3n;
     ns->litr4n -= nf->litr4n_to_soil3n;
-    if (nf->sminn_to_soil3n_l4 < 0.0)
-    {
-        nf->sminn_to_nvol_l4s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
-    }
-    else
-    {
-        nf->sminn_to_nvol_l4s3 = 0.0;
-    }
+    nf->sminn_to_nvol_l4s3 = (nf->sminn_to_soil3n_l4 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4 : 0.0;
     ns->soil3n += nf->sminn_to_soil3n_l4;
     solute->snksrc -= nf->sminn_to_soil3n_l4;
     ns->nvol_snk += nf->sminn_to_nvol_l4s3;
@@ -397,14 +373,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
 
     ns->soil2n += nf->soil1n_to_soil2n;
     ns->soil1n -= nf->soil1n_to_soil2n;
-    if (nf->sminn_to_soil2n_s1 < 0.0)
-    {
-        nf->sminn_to_nvol_s1s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
-    }
-    else
-    {
-        nf->sminn_to_nvol_s1s2 = 0.0;
-    }
+    nf->sminn_to_nvol_s1s2 = (nf->sminn_to_soil2n_s1 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1 : 0.0;
     ns->soil2n += nf->sminn_to_soil2n_s1;
     solute->snksrc -= nf->sminn_to_soil2n_s1;
     ns->nvol_snk += nf->sminn_to_nvol_s1s2;
@@ -412,14 +382,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
 
     ns->soil3n += nf->soil2n_to_soil3n;
     ns->soil2n -= nf->soil2n_to_soil3n;
-    if (nf->sminn_to_soil3n_s2 < 0.0)
-    {
-        nf->sminn_to_nvol_s2s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
-    }
-    else
-    {
-        nf->sminn_to_nvol_s2s3 = 0.0;
-    }
+    nf->sminn_to_nvol_s2s3 = (nf->sminn_to_soil3n_s2 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2 : 0.0;
     ns->soil3n += nf->sminn_to_soil3n_s2;
     solute->snksrc -= nf->sminn_to_soil3n_s2;
     ns->nvol_snk += nf->sminn_to_nvol_s2s3;
@@ -427,14 +391,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
 
     ns->soil4n += nf->soil3n_to_soil4n;
     ns->soil3n -= nf->soil3n_to_soil4n;
-    if (nf->sminn_to_soil4n_s3 < 0.0)
-    {
-        nf->sminn_to_nvol_s3s4 = -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
-    }
-    else
-    {
-        nf->sminn_to_nvol_s3s4 = 0.0;
-    }
+    nf->sminn_to_nvol_s3s4 = (nf->sminn_to_soil4n_s3 < 0.0) ?
+        -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3 : 0.0;
     ns->soil4n += nf->sminn_to_soil4n_s3;
     solute->snksrc -= nf->sminn_to_soil4n_s3;
     ns->nvol_snk += nf->sminn_to_nvol_s3s4;
@@ -538,14 +496,8 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
          * last day */
         if (!evergreen)
         {
-            if (ns->leafn < 1.0e-10)
-            {
-                ns->leafn = 0.0;
-            }
-            if (ns->frootn < 1.0e-10)
-            {
-                ns->frootn = 0.0;
-            }
+            ns->leafn = (ns->leafn < 1.0E-10) ? 0.0 : ns->leafn;
+            ns->frootn = (ns->frootn < 1.0E-10) ? 0.0 : ns->frootn;
         }
     }    /* End if annual allocation day */
 

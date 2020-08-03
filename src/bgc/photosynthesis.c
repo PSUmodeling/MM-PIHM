@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
-    const phystate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
-    psn_struct *psn_shade, const daily_struct *daily)
+void TotalPhotosynthesis(const epconst_struct *epc, const daily_struct *daily,
+    const phystate_struct *ps, epvar_struct *epv, cflux_struct *cf,
+    psn_struct *psn_sun, psn_struct *psn_shade)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
@@ -24,7 +24,7 @@ void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
     psn_sun->ppfd = ps->ppfd_per_plaisun;
     /* Convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_sun->g = epv->gl_t_wv_sun * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
+    psn_sun->g = epv->gl_t_wv_sun * 1.0E6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_sun->dlmr = epv->dlmr_area_sun;
 
     /* Calculate photosynthesis for sunlit leaves */
@@ -37,7 +37,7 @@ void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
      * leaf area in the relevant canopy fraction, and this total converted from
      * umol/m2/s -> kgC/m2/d */
     cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun *
-        epv->dayl * 12.011e-9;
+        epv->dayl * 12.011E-9;
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
@@ -49,8 +49,8 @@ void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
     psn_shade->ppfd = ps->ppfd_per_plaishade;
     /* Convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_shade->g =
-        epv->gl_t_wv_shade * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
+    psn_shade->g = epv->gl_t_wv_shade * 1.0E6 /
+        (1.6 * 8.3143 * (tday + TFREEZ));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
     Photosynthesis(psn_shade);
@@ -177,7 +177,7 @@ void Photosynthesis(psn_struct *psn)
         act = act25 * pow(1.8 * q10act, (t - 15.0) / 10.0) / q10act;
     }
     psn->Kc = Kc = Kc * 0.10;    /* ubar --> Pa */
-    act = act * 1e6 / 60.0;      /* umol/mg/min --> umol/kg/s */
+    act = act * 1E6 / 60.0;      /* umol/mg/min --> umol/kg/s */
 
     /* Calculate gamma (Pa), assumes Vomax/Vcmax = 0.21 */
     psn->gamma = gamma = 0.5 * 0.21 * Kc * psn->O2 / Ko;
@@ -243,14 +243,7 @@ void Photosynthesis(psn_struct *psn)
     psn->Aj = Aj = (-b + sqrt(det)) / (2.0 * a);
 
     /* Estimate A as the minimum of (Av,Aj) */
-    if (Av < Aj)
-    {
-        A = Av;
-    }
-    else
-    {
-        A = Aj;
-    }
+    A = MIN(Av, Aj);
     psn->A = A;
     psn->Ci = Ca - (A / g);
 }

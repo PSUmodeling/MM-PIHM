@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
+void FirstDay(const cninit_struct *cninit, elem_struct elem[],
+    river_struct river[])
 {
     int             i;
 
@@ -48,14 +49,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         /*
          * Set phenology flags
          */
-        if (epc->evergreen)
-        {
-            restart->dormant_flag = 0;
-        }
-        else
-        {
-            restart->dormant_flag = 1;
-        }
+        restart->dormant_flag = (epc->evergreen) ? 0 : 1;
         restart->onset_flag = 0;
         restart->onset_counter = 0;
         restart->onset_gddflag = 0;
@@ -98,30 +92,27 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->leafc_transfer = max_leafc * epc->leaf_turnover;
         restart->leafc = max_leafc - restart->leafc_transfer;
         max_frootc = max_leafc * epc->alloc_frootc_leafc;
-        restart->frootc_transfer =
-            cninit->max_leafc * epc->alloc_frootc_leafc * epc->froot_turnover;
+        restart->frootc_transfer = cninit->max_leafc * epc->alloc_frootc_leafc *
+            epc->froot_turnover;
         restart->frootc = max_frootc - restart->frootc_transfer;
         if (epc->woody)
         {
             max_stemc = cninit->max_stemc;
             new_stemc = restart->leafc_transfer * epc->alloc_newstemc_newleafc;
-            restart->livestemc_transfer =
-                new_stemc * epc->alloc_newlivewoodc_newwoodc;
-            restart->livestemc =
-                restart->livestemc_transfer / epc->livewood_turnover;
-            restart->deadstemc_transfer =
-                new_stemc - restart->livestemc_transfer;
+            restart->livestemc_transfer = new_stemc *
+                epc->alloc_newlivewoodc_newwoodc;
+            restart->livestemc = restart->livestemc_transfer /
+                epc->livewood_turnover;
+            restart->deadstemc_transfer = new_stemc -
+                restart->livestemc_transfer;
             restart->deadstemc = max_stemc - restart->livestemc_transfer -
                 restart->livestemc - restart->deadstemc_transfer;
-            if (restart->deadstemc < 0.0)
-            {
-                restart->deadstemc = 0.0;
-            }
-            restart->livecrootc_transfer =
-                restart->livestemc_transfer * epc->alloc_crootc_stemc;
+            restart->deadstemc = MAX(restart->deadstemc, 0.0);
+            restart->livecrootc_transfer = restart->livestemc_transfer *
+                epc->alloc_crootc_stemc;
             restart->livecrootc = restart->livestemc * epc->alloc_crootc_stemc;
-            restart->deadcrootc_transfer =
-                restart->deadstemc_transfer * epc->alloc_crootc_stemc;
+            restart->deadcrootc_transfer = restart->deadstemc_transfer *
+                epc->alloc_crootc_stemc;
             restart->deadcrootc = restart->deadstemc * epc->alloc_crootc_stemc;
         }
 
@@ -133,31 +124,30 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->frootn = restart->frootc / epc->froot_cn;
         if (epc->woody)
         {
-            restart->livestemn_transfer =
-                restart->livestemc_transfer / epc->livewood_cn;
+            restart->livestemn_transfer = restart->livestemc_transfer /
+                epc->livewood_cn;
             restart->livestemn = restart->livestemc / epc->livewood_cn;
-            restart->deadstemn_transfer =
-                restart->deadstemc_transfer / epc->deadwood_cn;
+            restart->deadstemn_transfer = restart->deadstemc_transfer /
+                epc->deadwood_cn;
             restart->deadstemn = restart->deadstemc / epc->deadwood_cn;
-            restart->livecrootn_transfer =
-                restart->livecrootc_transfer / epc->livewood_cn;
+            restart->livecrootn_transfer = restart->livecrootc_transfer /
+                epc->livewood_cn;
             restart->livecrootn = restart->livecrootc / epc->livewood_cn;
-            restart->deadcrootn_transfer =
-                restart->deadcrootc_transfer / epc->deadwood_cn;
+            restart->deadcrootn_transfer = restart->deadcrootc_transfer /
+                epc->deadwood_cn;
             restart->deadcrootn = restart->deadcrootc / epc->deadwood_cn;
         }
 
         /* Add the growth respiration requirement for the first year's leaf and
          * fine root growth from transfer pools to the gresp_transfer pool */
         restart->gresp_transfer = 0.0;
-        restart->gresp_transfer +=
-            (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;
+        restart->gresp_transfer += (restart->leafc_transfer +
+            restart->frootc_transfer) * GRPERC;
         if (epc->woody)
         {
-            restart->gresp_transfer +=
-                (restart->livestemc_transfer + restart->deadstemc_transfer +
-                restart->livecrootc_transfer + restart->deadcrootc_transfer) *
-                GRPERC;
+            restart->gresp_transfer += (restart->livestemc_transfer +
+                restart->deadstemc_transfer + restart->livecrootc_transfer +
+                restart->deadcrootc_transfer) * GRPERC;
         }
 
         /* Set the initial rates of litterfall and live wood turnover */
@@ -168,7 +158,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
 #if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
-        riv[i].restart_input.streamn = 0.0;
+        river[i].restart_input.streamn = 0.0;
     }
 #endif
 }

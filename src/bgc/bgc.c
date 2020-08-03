@@ -46,7 +46,7 @@ void DailyBgc(int t, pihm_struct pihm)
         }
         else
         {
-            co2lvl = GetCO2(&pihm->forc.co2[0], t);
+            co2lvl = GetCO2(t, &pihm->forc.co2[0]);
         }
 
         /* Ndep handling */
@@ -58,7 +58,7 @@ void DailyBgc(int t, pihm_struct pihm)
         }
         else
         {
-            ndep = GetNdep(&pihm->forc.ndep[0], t);
+            ndep = GetNdep(t, &pihm->forc.ndep[0]);
             ndep = ndep / 365.0;
             nfix = pihm->ndepctrl.nfix / 365.0;
         }
@@ -163,7 +163,7 @@ void DailyBgc(int t, pihm_struct pihm)
         MakeZeroFluxStruct(cf, nf);
 
         /* Phenology fluxes */
-        Phenology(epc, epv, cs, cf, ns, nf, daily);
+        Phenology(epc, daily, cs, ns, epv, cf, nf);
 
         /* Test for the annual allocation day */
         annual_alloc = (epv->offset_flag == 1 && epv->offset_counter == 1) ?
@@ -172,12 +172,12 @@ void DailyBgc(int t, pihm_struct pihm)
         /* Calculate leaf area index, sun and shade fractions, and specific leaf
          * area for sun and shade canopy fractions, then calculate canopy
          * radiation interception and transmission */
-        RadTrans(cs, ef, ps, epc, epv, daily);
+        RadTrans(cs, epc, daily, epv, ps, ef);
 
         SoilPsi(soil, vwc[i], &epv->psi);
 
         /* Maintenance respiration */
-        MaintResp(epc, epv, cs, cf, ns, daily);
+        MaintResp(epc, daily, cs, ns, epv, cf);
 
         /* Begin canopy bio-physical process simulation */
         if (cs->leafc && epv->dayl)
@@ -192,7 +192,7 @@ void DailyBgc(int t, pihm_struct pihm)
          * allocation */
         if (cs->leafc && !epv->dormant_flag && epv->dayl)
         {
-            TotalPhotosynthesis(epc, epv, ps, cf, psn_sun, psn_shade, daily);
+            TotalPhotosynthesis(epc, daily, ps, epv, cf, psn_sun, psn_shade);
         }
         else
         {
@@ -203,7 +203,7 @@ void DailyBgc(int t, pihm_struct pihm)
         nf->nfix_to_sminn = nfix;
 
         /* Daily litter and soil decomp and nitrogen fluxes */
-        Decomp(daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
+        Decomp(daily->avg_stc[0] - TFREEZ, epc, cs, ns, epv, cf, nf, nt);
 
         /* Allocation gets called whether or not this is a current growth day,
          * because the competition between decomp immobilization fluxes and
@@ -215,12 +215,12 @@ void DailyBgc(int t, pihm_struct pihm)
         GrowthResp(epc, cf);
 
         /* Update of carbon state variables */
-        DailyCarbonStateUpdate(cf, cs, annual_alloc, epc->woody,
-            epc->evergreen);
+        DailyCarbonStateUpdate(annual_alloc, epc->woody, epc->evergreen, cs,
+            cf);
 
         /* Update of nitrogen state variables */
-        DailyNitrogenStateUpdate(nf, ns, solute, annual_alloc, epc->woody,
-            epc->evergreen);
+        DailyNitrogenStateUpdate(annual_alloc, epc->woody, epc->evergreen, ns,
+            nf, solute);
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to ensure
@@ -239,7 +239,7 @@ void DailyBgc(int t, pihm_struct pihm)
 #endif
 
         /* Calculate carbon summary variables */
-        CSummary(cf, cs, summary);
+        CSummary(cs, cf, summary);
 
         if (spinup_mode)
         {

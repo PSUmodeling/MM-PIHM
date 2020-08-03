@@ -1,7 +1,8 @@
 #include "pihm.h"
 
-void RadTrans(const cstate_struct *cs, eflux_struct *ef, phystate_struct *ps,
-    const epconst_struct *epc, epvar_struct *epv, const daily_struct *daily)
+void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
+    const daily_struct *daily, epvar_struct *epv, phystate_struct *ps,
+    eflux_struct *ef)
 {
     /*
      * Calculate the projected leaf area and SLA for sun and shade fractions and
@@ -37,15 +38,15 @@ void RadTrans(const cstate_struct *cs, eflux_struct *ef, phystate_struct *ps,
         ps->plaishade = ps->proj_lai - ps->plaisun;
         if (ps->plaishade < 0.0)
         {
-            pihm_printf(VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
-            pihm_printf(VL_ERROR, "LAI of shaded canopy = %lf\n", ps->plaishade);
+            pihm_printf(VL_ERROR, "FATAL ERROR: Negative plaishade.\n"
+                "LAI of shaded canopy = %lf\n", ps->plaishade);
             pihm_exit(EXIT_FAILURE);
         }
 
         /* Calculate the projected specific leaf area for sunlit and shaded
          * canopy fractions */
-        epv->sun_proj_sla =
-            (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
+        epv->sun_proj_sla = (ps->plaisun + (ps->plaishade / epc->sla_ratio)) /
+            cs->leafc;
         epv->shade_proj_sla = epv->sun_proj_sla * epc->sla_ratio;
     }
     else if (cs->leafc == 0.0)
@@ -71,8 +72,7 @@ void RadTrans(const cstate_struct *cs, eflux_struct *ef, phystate_struct *ps,
     k_sw = k;
     albedo_sw = daily->avg_albedo;
 
-    sw = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
-        (1.0 - albedo_sw);
+    sw = MAX(daily->avg_soldn, 0.0) * (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp(-k_sw * proj_lai));
     swtrans = sw - swabs;
 
@@ -80,8 +80,7 @@ void RadTrans(const cstate_struct *cs, eflux_struct *ef, phystate_struct *ps,
     k_par = k * 1.0;
     albedo_par = daily->avg_albedo / 3.0;
 
-    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
-        RAD2PAR * (1.0 - albedo_par);
+    par = MAX(daily->avg_soldn, 0.0) * RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp(-k_par * proj_lai));
 
     /* Calculate the total shortwave absorbed by the sunlit and shaded canopy

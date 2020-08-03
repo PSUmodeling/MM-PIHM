@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
-    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
+void Decomp(double tsoil, const epconst_struct *epc, const cstate_struct *cs,
+    const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf,
     nflux_struct *nf, ntemp_struct *nt)
 {
     double          rate_scalar, t_scalar, w_scalar;
@@ -75,18 +75,9 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     epv->rate_scalar = rate_scalar;
 
     /* Calculate compartment C:N ratios */
-    if (ns->litr1n > 0.0)
-    {
-        cn_l1 = cs->litr1c / ns->litr1n;
-    }
-    if (ns->litr2n > 0.0)
-    {
-        cn_l2 = cs->litr2c / ns->litr2n;
-    }
-    if (ns->litr4n > 0.0)
-    {
-        cn_l4 = cs->litr4c / ns->litr4n;
-    }
+    cn_l1 = (ns->litr1n > 0.0) ? cs->litr1c / ns->litr1n : cn_l1;
+    cn_l2 = (ns->litr2n > 0.0) ? cs->litr2c / ns->litr2n : cn_l2;
+    cn_l4 = (ns->litr4n > 0.0) ? cs->litr4c / ns->litr4n : cn_l4;
     cn_s1 = SOIL1_CN;
     cn_s2 = SOIL2_CN;
     cn_s3 = SOIL3_CN;
@@ -158,14 +149,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     {
         plitr1c_loss = kl1 * cs->litr1c;
 
-        if (ns->litr1n > 0.0)
-        {
-            ratio = cn_s1 / cn_l1;
-        }
-        else
-        {
-            ratio = 0.0;
-        }
+        ratio = (ns->litr1n > 0.0) ? cn_s1 / cn_l1 : 0.0;
 
         pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - (ratio))) / cn_s1;
     }
@@ -174,14 +158,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     if (cs->litr2c > 0.0)
     {
         plitr2c_loss = kl2 * cs->litr2c;
-        if (ns->litr2n > 0.0)
-        {
-            ratio = cn_s2 / cn_l2;
-        }
-        else
-        {
-            ratio = 0.0;
-        }
+        ratio = (ns->litr2n > 0.0) ? cn_s2 / cn_l2 : 0.0;
 
         pmnf_l2s2 = (plitr2c_loss * (1.0 - rfl2s2 - (ratio))) / cn_s2;
     }
@@ -190,14 +167,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     if (cs->litr4c > 0.0)
     {
         plitr4c_loss = kl4 * cs->litr4c;
-        if (ns->litr4n > 0.0)
-        {
-            ratio = cn_s3 / cn_l4;
-        }
-        else
-        {
-            ratio = 0.0;
-        }
+        ratio = (ns->litr4n > 0.0) ? cn_s3 / cn_l4 : 0.0;
 
         pmnf_l4s3 = (plitr4c_loss * (1.0 - rfl4s3 - (ratio))) / cn_s3;
     }

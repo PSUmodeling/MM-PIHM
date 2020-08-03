@@ -256,7 +256,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
     else
     {
-        FirstDay(pihm->elem, pihm->river, &pihm->cninit);
+        FirstDay(&pihm->cninit, pihm->elem, pihm->river);
     }
 
     InitBgcVar(pihm->elem, pihm->river, CV_Y);

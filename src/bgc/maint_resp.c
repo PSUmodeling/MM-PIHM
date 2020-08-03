@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void MaintResp(const epconst_struct *epc, epvar_struct *epv,
-    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
-    const daily_struct *daily)
+void MaintResp(const epconst_struct *epc, const daily_struct *daily,
+    const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv,
+    cflux_struct *cf)
 {
     /*
      * Maintenance respiration routine

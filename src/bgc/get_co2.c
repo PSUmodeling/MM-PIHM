@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-double GetCO2(tsdata_struct *co2_ts, int t)
+double GetCO2(int t, tsdata_struct *co2_ts)
 {
     double          co2;
 

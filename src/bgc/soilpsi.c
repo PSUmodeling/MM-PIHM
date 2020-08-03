@@ -14,9 +14,9 @@ void SoilPsi(const soil_struct *soil, double vwc, double *psi)
     double          theta;
 
     theta = (vwc - soil->smcmin) / (soil->smcmax - soil->smcmin);
-    theta = (theta > 1.0) ? 1.0 : theta;
-    theta = (theta < SATMIN) ? SATMIN : theta;
+    theta = MIN(theta, 1.0);
+    theta = MAX(theta, SATMIN);
 
     /* Calculate psi */
-    *psi = Psi(theta, soil->alpha, soil->beta) * 1000.0 * GRAV / 1.0e6;
+    *psi = Psi(theta, soil->alpha, soil->beta) * 1000.0 * GRAV / 1.0E6;
 }
