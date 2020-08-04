@@ -14,9 +14,6 @@ MACHF           5.0     # macropore area fraction on a horizontal cross-section
 VEGFRAC         1.0     # areal fractional coverage of green vegetation
 ALBEDO          1.0     # surface albedo
 ROUGH           1.0     # surface roughness (Manning's n)
-EC              1.0     # canopy water evaporation
-ETT             1.0     # total plant transpiration
-EDIR            1.0     # direct soil evaporation
 ROUGH_RIV       5.0     # river channel roughness
 KRIVH           1.0     # bank hydraulic conductivity
 RIV_DPTH        1.0     # river channel depth
@@ -53,8 +50,6 @@ SLA             1.0     # canopy average projected SLA
 RT_CALIBRATION
 RATE            0.0183
 SSA             0.3355
-PRCPCONC        1.2833
-INITCONC        1.4527
 XSORPTION       0.0
 
 SCENARIO

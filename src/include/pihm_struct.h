@@ -92,9 +92,6 @@ typedef struct calib_struct
     double          vegfrac;
     double          albedo;
     double          rough;
-    double          ec;
-    double          ett;
-    double          edir;
     double          rivrough;
     double          rivksath;
     double          rivdepth;
@@ -133,8 +130,6 @@ typedef struct calib_struct
 #if defined(_RT_)
     double          rate;                   /* rate constant */
     double          ssa;                    /* specific surface area */
-    double          prcpconc;               /* precip conc */
-    double          initconc;               /* initial conc */
     double          Xsorption;              /* DOC sorption */
 #endif
 } calib_struct;

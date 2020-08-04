@@ -58,15 +58,6 @@ void ReadCalib(const char filename[], calib_struct *calib)
     ReadKeyword(cmdstr, "ROUGH", 'd', filename, lno, &calib->rough);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "EC", 'd', filename, lno, &calib->ec);
-
-    NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ETT", 'd', filename, lno, &calib->ett);
-
-    NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "EDIR", 'd', filename, lno, &calib->edir);
-
-    NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "ROUGH_RIV", 'd', filename, lno, &calib->rivrough);
 
     NextLine(global_calib, cmdstr, &lno);
@@ -164,12 +155,6 @@ void ReadCalib(const char filename[], calib_struct *calib)
 
     NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "ssa", 'd', filename, lno, &calib->ssa);
-
-    NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "prcpconc", 'd', filename, lno, &calib->prcpconc);
-
-    NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "initconc", 'd', filename, lno, &calib->initconc);
 
     NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "Xsorption", 'd', filename, lno, &calib->Xsorption);

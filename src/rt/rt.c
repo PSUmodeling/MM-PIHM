@@ -26,23 +26,6 @@ void InitChem(const char cdbs_filen[], const calib_struct *calib,
     /*
      * Apply calibration
      */
-    chem_ind = FindChem("'DOC'", chemtbl, rttbl->num_stc);
-    if (chem_ind >= 0)
-    {
-        rttbl->prcp_conc[chem_ind] *= calib->prcpconc;
-
-        if (forc->prcp_flag == 2)
-        {
-            for (i = 0; i < forc->nprcpc; i++)
-            {
-                for (j = 0; j < forc->prcpc[i].length; j++)
-                {
-                    forc->prcpc[i].data[j][chem_ind] *= calib->prcpconc;
-                }
-            }
-        }
-    }
-
     for (i = 0; i < chmictbl->nic; i++)
     {
         int             k;
@@ -51,10 +34,6 @@ void InitChem(const char cdbs_filen[], const calib_struct *calib,
         {
             chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ?
                 calib->ssa : 1.0;
-
-            chmictbl->conc[i][k] *=
-                (strcmp(chemtbl[k].name, "'DOC'") == 0) ?
-                calib->initconc : 1.0;
         }
     }
 
