@@ -5,7 +5,6 @@ void ReadLsm(const char filename[], ctrl_struct *ctrl,
 {
     int             kz;
     FILE           *lsm_file;
-    int             match;
     int             bytes_now;
     int             bytes_consumed = 0;
     char            cmdstr[MAXSTRING];

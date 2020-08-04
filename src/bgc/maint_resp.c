@@ -61,8 +61,8 @@ void MaintResp(const epconst_struct *epc, const daily_struct *daily,
 
         /* Finally, convert from mass to molar units, and from a daily rate to a
          * rate per second */
-        epv->dlmr_area_sun = dlmr_area_sun / (86400.0 * 12.011e-9);
-        epv->dlmr_area_shade = dlmr_area_shade / (86400.0 * 12.011e-9);
+        epv->dlmr_area_sun = dlmr_area_sun / (86400.0 * 12.011E-9);
+        epv->dlmr_area_shade = dlmr_area_shade / (86400.0 * 12.011E-9);
 
         /* Leaf, night */
         exponent = (tnight - 20.0) / 10.0;

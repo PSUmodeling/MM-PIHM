@@ -12,8 +12,7 @@
 #endif
 
 void            _custom_exit(const char *, int, const char *, int, int);
-void            _custom_printf(const char *, int, const char *, int, int, int,
-    const char *, ...);
+void            _custom_printf(int, int, const char *, ...);
 FILE*           _custom_fopen(const char [], const char []);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, const char *);

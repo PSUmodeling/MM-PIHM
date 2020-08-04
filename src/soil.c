@@ -255,8 +255,6 @@ double PtfThetas(double silt, double clay, double om, double bd, int topsoil)
 
 double PtfThetar(double silt, double clay)
 {
-    double          theta_r;
-
     return (clay < 18.0 && 100.0 - silt - clay > 65.0) ? 0.15 : 0.05;
 }
 

@@ -9,6 +9,17 @@ void DailyBgc(int t, pihm_struct pihm)
     double          ndep, nfix;
     spa_data        spa, prev_spa;
     double         *vwc;
+    elem_struct    *elem;
+    co2control_struct *co2;
+    ndepcontrol_struct *ndepctrl;
+    forc_struct    *forc;
+    siteinfo_struct *siteinfo;
+
+    elem = &pihm->elem[0];
+    co2 = &pihm->co2;
+    ndepctrl = &pihm->ndepctrl;
+    forc = &pihm->forc;
+    siteinfo = &pihm->siteinfo;
 
 #if defined(_LUMPEDBGC_)
     i = LUMPEDBGC;
@@ -20,8 +31,7 @@ void DailyBgc(int t, pihm_struct pihm)
 #endif
     {
         /* First test for nitrogen balance from previous day */
-        CheckNitrogenBalance(&pihm->elem[i].ns,
-            &pihm->elem[i].epv.old_n_balance);
+        CheckNitrogenBalance(&elem[i].ns, &elem[i].epv.old_n_balance);
     }
 
     /*
@@ -30,43 +40,43 @@ void DailyBgc(int t, pihm_struct pihm)
     /* Get co2 and ndep */
     if (spinup_mode)                        /* Spinup mode */
     {
-        co2lvl = pihm->co2.co2ppm;
-        ndep = pihm->ndepctrl.ndep / 365.0;
-        nfix = pihm->ndepctrl.nfix / 365.0;
+        co2lvl = co2->co2ppm;
+        ndep = ndepctrl->ndep / 365.0;
+        nfix = ndepctrl->nfix / 365.0;
     }
     else                                    /* Model mode */
     {
         /* Atmospheric CO2 handling */
-        if (!(pihm->co2.varco2))
+        if (!(co2->varco2))
         {
             /* Constant CO2, constant Ndep */
-            co2lvl = pihm->co2.co2ppm;
-            ndep = pihm->ndepctrl.ndep / 365.0;
-            nfix = pihm->ndepctrl.nfix / 365.0;
+            co2lvl = co2->co2ppm;
+            ndep = ndepctrl->ndep / 365.0;
+            nfix = ndepctrl->nfix / 365.0;
         }
         else
         {
-            co2lvl = GetCO2(t, &pihm->forc.co2[0]);
+            co2lvl = GetCO2(t, &forc->co2[0]);
         }
 
         /* Ndep handling */
-        if (!(pihm->ndepctrl.varndep))
+        if (!(ndepctrl->varndep))
         {
             /* Constant Ndep */
-            ndep = pihm->ndepctrl.ndep / 365.0;
-            nfix = pihm->ndepctrl.nfix / 365.0;
+            ndep = ndepctrl->ndep / 365.0;
+            nfix = ndepctrl->nfix / 365.0;
         }
         else
         {
-            ndep = GetNdep(t, &pihm->forc.ndep[0]);
+            ndep = GetNdep(t, &forc->ndep[0]);
             ndep = ndep / 365.0;
-            nfix = pihm->ndepctrl.nfix / 365.0;
+            nfix = ndepctrl->nfix / 365.0;
         }
     }
 
     /* Calculate daylengths */
-    SunPos(t, &pihm->siteinfo, &spa);
-    SunPos(t - DAYINSEC, &pihm->siteinfo, &prev_spa);
+    SunPos(t, siteinfo, &spa);
+    SunPos(t - DAYINSEC, siteinfo, &prev_spa);
 
     dayl = (spa.sunset - spa.sunrise) * 3600.0;
     dayl = (dayl < 0.0) ? (dayl + 24.0 * 3600.0) : dayl;
@@ -87,26 +97,25 @@ void DailyBgc(int t, pihm_struct pihm)
     {
         int             kz;
 
-        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] *
-            pihm->elem[i].ps.soil_depth[0];
-        if (pihm->elem[i].ps.nlayers > 1)
+        vwc[i] = elem[i].daily.avg_sh2o[0] * elem[i].ps.soil_depth[0];
+        if (elem[i].ps.nlayers > 1)
         {
-            for (kz = 1; kz < pihm->elem[i].ps.nlayers; kz++)
+            for (kz = 1; kz < elem[i].ps.nlayers; kz++)
             {
-                vwc[i] += pihm->elem[i].daily.avg_sh2o[kz] *
-                    pihm->elem[i].ps.soil_depth[kz];
+                vwc[i] += elem[i].daily.avg_sh2o[kz] *
+                    elem[i].ps.soil_depth[kz];
             }
         }
-        vwc[i] /= pihm->elem[i].soil.depth;
+        vwc[i] /= elem[i].soil.depth;
     }
 
 #if defined(_LUMPEDBGC_)
     vwc[LUMPEDBGC] = 0.0;
     for (i = 0; i < nelem; i++)
     {
-        vwc[LUMPEDBGC] += vwc[i] * pihm->elem[i].topo.area;
+        vwc[LUMPEDBGC] += vwc[i] * elem[i].topo.area;
     }
-    vwc[LUMPEDBGC] /= pihm->elem[LUMPEDBGC].topo.area;
+    vwc[LUMPEDBGC] /= elem[LUMPEDBGC].topo.area;
 #endif
 
 #if defined(_LUMPEDBGC_)
@@ -134,21 +143,21 @@ void DailyBgc(int t, pihm_struct pihm)
         summary_struct *summary;
         int             annual_alloc;
 
-        daily = &pihm->elem[i].daily;
-        epc = &pihm->elem[i].epc;
-        epv = &pihm->elem[i].epv;
-        soil = &pihm->elem[i].soil;
-        ef = &pihm->elem[i].ef;
-        ps = &pihm->elem[i].ps;
-        cs = &pihm->elem[i].cs;
-        cf = &pihm->elem[i].cf;
-        ns = &pihm->elem[i].ns;
-        nf = &pihm->elem[i].nf;
-        nt = &pihm->elem[i].nt;
-        solute = &pihm->elem[i].solute[0];
-        psn_sun = &pihm->elem[i].psn_sun;
-        psn_shade = &pihm->elem[i].psn_shade;
-        summary = &pihm->elem[i].summary;
+        daily = &elem[i].daily;
+        epc = &elem[i].epc;
+        epv = &elem[i].epv;
+        soil = &elem[i].soil;
+        ef = &elem[i].ef;
+        ps = &elem[i].ps;
+        cs = &elem[i].cs;
+        cf = &elem[i].cf;
+        ns = &elem[i].ns;
+        nf = &elem[i].nf;
+        nt = &elem[i].nt;
+        solute = &elem[i].solute[0];
+        psn_sun = &elem[i].psn_sun;
+        psn_shade = &elem[i].psn_shade;
+        summary = &elem[i].summary;
 
         /* Determine daylengths */
         epv->dayl = dayl;
@@ -243,8 +252,8 @@ void DailyBgc(int t, pihm_struct pihm)
 
         if (spinup_mode)
         {
-            pihm->elem[i].spinup.soilc += summary->soilc;
-            pihm->elem[i].spinup.totalc += summary->totalc;
+            elem[i].spinup.soilc += summary->soilc;
+            elem[i].spinup.totalc += summary->totalc;
         }
     }
 

@@ -13,7 +13,6 @@ void SoluteConc(elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j;
         double          storage;
 
         /* Element surface */
@@ -32,7 +31,6 @@ void SoluteConc(elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nriver; i++)
     {
-        int             j;
         double          storage;
 
         storage = river[i].ws.stage;
@@ -52,8 +50,6 @@ void NLeachingLumped(elem_struct *elem, river_struct *river)
 
     for (i = 0; i < nelem; i++)
     {
-        int             j;
-
         strg += ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
             elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
     }

@@ -79,12 +79,12 @@ void Mortality(const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf,
     if (epc->woody)
     {
         nf->m_livestemn_to_cwdn = cf->m_livestemc_to_cwdc / epc->deadwood_cn;
-        nf->m_livestemn_to_litr1n =
-            (mort * ns->livestemn) - nf->m_livestemn_to_cwdn;
+        nf->m_livestemn_to_litr1n = mort * ns->livestemn -
+            nf->m_livestemn_to_cwdn;
         nf->m_deadstemn_to_cwdn = cf->m_deadstemc_to_cwdc / epc->deadwood_cn;
         nf->m_livecrootn_to_cwdn = cf->m_livecrootc_to_cwdc / epc->deadwood_cn;
-        nf->m_livecrootn_to_litr1n =
-            (mort * ns->livecrootn) - nf->m_livecrootn_to_cwdn;
+        nf->m_livecrootn_to_litr1n = mort * ns->livecrootn -
+            nf->m_livecrootn_to_cwdn;
         nf->m_deadcrootn_to_cwdn = cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
     }
 
@@ -145,10 +145,10 @@ void Mortality(const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf,
     if (epc->woody)
     {
         /* Stem wood mortality */
-        cs->cwdc       += cf->m_livestemc_to_cwdc;
-        cs->livestemc  -= cf->m_livestemc_to_cwdc;
-        cs->cwdc       += cf->m_deadstemc_to_cwdc;
-        cs->deadstemc  -= cf->m_deadstemc_to_cwdc;
+        cs->cwdc      += cf->m_livestemc_to_cwdc;
+        cs->livestemc -= cf->m_livestemc_to_cwdc;
+        cs->cwdc      += cf->m_deadstemc_to_cwdc;
+        cs->deadstemc -= cf->m_deadstemc_to_cwdc;
         /* STEP 1e Coarse root wood mortality */
         cs->cwdc       += cf->m_livecrootc_to_cwdc;
         cs->livecrootc -= cf->m_livecrootc_to_cwdc;
@@ -306,7 +306,7 @@ void Mortality(const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf,
     /* CARBON mortality state variable update */
     /*   Leaf mortality */
     cs->fire_snk += cf->m_leafc_to_fire;
-    cs->leafc   -= cf->m_leafc_to_fire;
+    cs->leafc    -= cf->m_leafc_to_fire;
     /*   Fine root mortality */
     cs->fire_snk += cf->m_frootc_to_fire;
     cs->frootc   -= cf->m_frootc_to_fire;

@@ -18,8 +18,7 @@ void _custom_exit(const char *fn, int lineno, const char *func, int debug,
     exit(error);
 }
 
-void _custom_printf(const char *fn, int lineno, const char *func, int debug,
-    int model_verbosity, int verbosity, const char *fmt, ...)
+void _custom_printf(int model_verbosity, int verbosity, const char *fmt, ...)
 {
     va_list         va;
 

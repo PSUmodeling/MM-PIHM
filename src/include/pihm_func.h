@@ -53,7 +53,7 @@
 
 /* PIHM system function */
 #define pihm_exit(...)          _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
-#define pihm_printf(...)        _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
+#define pihm_printf(...)        _custom_printf(verbose_mode, __VA_ARGS__)
 #define pihm_fopen              _custom_fopen
 #if defined(_WIN32) || defined(_WIN64)
 # define pihm_mkdir(path)       _mkdir((path))

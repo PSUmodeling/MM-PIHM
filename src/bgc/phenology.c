@@ -42,7 +42,7 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily,
 {
     int             ws_flag;
     double          onset_critsum;
-    double          critdayl = 39300.0;    /* seconds */
+    double          critdayl = 39300.0;     /* seconds */
     double          tsoil;
 
     onset_critsum = exp(4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
