@@ -91,7 +91,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadPara(pihm->filename.para, &pihm->ctrl);
 
     /* Read calibration input file */
-    ReadCalib(pihm->filename.calib, &pihm->cal);
+    ReadCalib(pihm->filename.calib, &pihm->calib);
 
 #if defined(_DGW_)
     /* Read geology input file */
@@ -121,14 +121,14 @@ void ReadAlloc(pihm_struct pihm)
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.num_stc,
         &pihm->atttbl, &pihm->chmictbl);
 
-    if (pihm->forc.PrpFlg == 2)
+    if (pihm->forc.prcp_flag == 2)
     {
         ReadPrep(pihm->filename.prep, pihm->chemtbl, &pihm->rttbl, &pihm->forc);
     }
 #endif
 
     /* Read boundary condition input file
-     * Boundary conditions might be needed by FBR and RT thus should be read in
+     * Boundary conditions might be needed by DGW and RT thus should be read in
      * after reading bedrock and chemistry input */
 #if defined(_RT_)
     ReadBc(pihm->filename.bc, &pihm->atttbl, pihm->chemtbl, &pihm->rttbl,

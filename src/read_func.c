@@ -115,7 +115,8 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
 
     if (!success)
     {
-        pihm_printf(VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
+        pihm_printf(VL_ERROR, "Error reading %s near Line %d.\n",
+            filename, lno);
         pihm_exit(EXIT_FAILURE);
     }
 

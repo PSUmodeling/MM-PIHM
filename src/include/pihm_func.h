@@ -10,8 +10,8 @@
 #define RIVER(i)                (i + 3 * nelem)
 
 #if defined(_DGW_)
-# define FBRUNSAT(i)            (i + 3 * nelem + nriver)
-# define FBRGW(i)               (i + 4 * nelem + nriver)
+# define UNSAT_GEOL(i)          (i + 3 * nelem + nriver)
+# define GW_GEOL(i)             (i + 4 * nelem + nriver)
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
@@ -32,7 +32,7 @@
 # define STREAMN(i)             (i + 5 * nelem + 2 * nriver)
 # define RIVBEDN(i)             (i + 5 * nelem + 3 * nriver)
 #else
-# define LUMPEDBGC_SMINN           (3 * nelem + 2 * nriver)
+# define LUMPEDBGC_SMINN        (3 * nelem + 2 * nriver)
 #endif
 #endif
 
@@ -308,7 +308,7 @@ void            VerticalFlow(double, elem_struct []);
 double          WiltingPoint(double, double, double, double);
 
 /*
- * Fractured bedrock functions
+ * DGW functions
  */
 #if defined(_DGW_)
 double          DeepBoundFluxElem(int, int, const topo_struct *,

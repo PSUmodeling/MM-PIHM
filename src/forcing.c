@@ -119,11 +119,11 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
             {
                 /* Dirichlet type boundary conditions */
                 ind = elem[i].attrib.bc_geol[j] - 1;
-                elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
+                elem[i].bc_geol.head[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
                 {
-                    elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                    elem[i].bc_geol.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
 # endif
             }
@@ -131,11 +131,11 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
             {
                 /*  Neumann type boundary conditions */
                 ind = -elem[i].attrib.bc_geol[j] - 1;
-                elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
+                elem[i].bc_geol.flux[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
                 {
-                    elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                    elem[i].bc_geol.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
 # endif
             }
@@ -407,7 +407,7 @@ void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc,
 {
     int             i, j;
 
-    if (forc->PrpFlg == 2)
+    if (forc->prcp_flag == 2)
     {
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -444,7 +444,7 @@ void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc,
 
             for (k = 0; k < rttbl->num_spc; k++)
             {
-                elem[i].prcpchm.tot_conc[k] = (forc->PrpFlg == 1) ?
+                elem[i].prcpchm.tot_conc[k] = (forc->prcp_flag == 1) ?
                     rttbl->prcp_conc[k] : 0.0;
             }
         }

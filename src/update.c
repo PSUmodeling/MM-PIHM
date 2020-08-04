@@ -20,8 +20,8 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
         elem[i].ws.gw    = y[GW(i)];
 
 #if defined(_DGW_)
-        elem[i].ws.unsat_geol = y[FBRUNSAT(i)];
-        elem[i].ws.gw_geol    = y[FBRGW(i)];
+        elem[i].ws.unsat_geol = y[UNSAT_GEOL(i)];
+        elem[i].ws.gw_geol    = y[GW_GEOL(i)];
 #endif
 
 #if defined(_DGW_)
@@ -104,7 +104,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[],
     }
 
 #if defined(_BGC_) && defined(_LUMPEDBGC_)
-    elem[LUMPEDBGC].ns.sminn = (y[LUMPEDBGC_SMINN] > 0.0) ? y[LUMPEDBGC_SMINN] : 0.0;
+    elem[LUMPEDBGC].ns.sminn = MAX(y[LUMPEDBGC_SMINN], 0.0);
 
     elem[LUMPEDBGC].ns.nleached_snk += (elem[LUMPEDBGC].nt.sminn0 -
         elem[LUMPEDBGC].ns.sminn) +
@@ -208,13 +208,15 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
         geol_runoff += wf->dgw[j] / area;
     }
 
-    wf->rechg_geol = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
+    wf->rechg_geol = (geolw1 - geolw0) * geol->porosity / stepsize +
+        geol_runoff;
 
     /* Adjust bedrock infiltration */
     geolw0 = ws0->unsat_geol;
     geolw1 = ws->unsat_geol;
 
-    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize + wf->rechg_geol;
+    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize +
+        wf->rechg_geol;
 
     /* Further adjust soil infiltration and recharge rate to take into account
      * bedrock leakage */
@@ -246,7 +248,8 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil,
         geol_runoff += wf->dgw[j] / area;
     }
 
-    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
+    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize +
+        geol_runoff;
 
     wf->eqv_infil += wf->infil_geol;
 #endif

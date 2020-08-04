@@ -41,7 +41,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                 break;
             }
 #if defined(_DGW_)
-            if (atttbl->fbr_bc[i][j] != 0)
+            if (atttbl->bc_geol[i][j] != 0)
             {
                 read_bc = 1;
                 break;

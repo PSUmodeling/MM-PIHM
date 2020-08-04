@@ -1,10 +1,11 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void InitForcing(const rttbl_struct *rttbl, const calib_struct *cal,
+void InitForcing(const rttbl_struct *rttbl, const calib_struct *calib,
     forc_struct *forc, elem_struct elem[])
 #else
-void InitForcing(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
+void InitForcing(const calib_struct *calib, forc_struct *forc,
+    elem_struct elem[])
 #endif
 {
     int             i, j;
@@ -17,8 +18,8 @@ void InitForcing(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
 #endif
         for (j = 0; j < forc->meteo[i].length; j++)
         {
-            forc->meteo[i].data[j][PRCP_TS] *= cal->prcp;
-            forc->meteo[i].data[j][SFCTMP_TS] += cal->sfctmp;
+            forc->meteo[i].data[j][PRCP_TS] *= calib->prcp;
+            forc->meteo[i].data[j][SFCTMP_TS] += calib->sfctmp;
         }
     }
 

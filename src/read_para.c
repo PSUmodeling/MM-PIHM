@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void ReadPara(const char filename[], ctrl_struct *ctrl)
+void ReadPara(const char fn[], ctrl_struct *ctrl)
 {
-    FILE           *para_file;    /* Pointer to .para file */
+    FILE           *fp;    /* Pointer to .para file */
     char            cmdstr[MAXSTRING];
     int             i;
     int             lno = 0;
@@ -13,41 +13,41 @@ void ReadPara(const char filename[], ctrl_struct *ctrl)
         ctrl->prtvrbl[i] = 0;
     }
 
-    para_file = pihm_fopen(filename, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     /* Start reading para_file */
     /* Read through parameter file to find parameters */
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SIMULATION_MODE", 'i', filename, lno, &spinup_mode);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SIMULATION_MODE", 'i', fn, lno, &spinup_mode);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_MODE", 'i', filename, lno, &ctrl->init_type);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INIT_MODE", 'i', fn, lno, &ctrl->init_type);
     ctrl->init_type = (ctrl->init_type > RELAX) ? RST_FILE : RELAX;
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ASCII_OUTPUT", 'i', filename, lno, &ctrl->ascii);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ASCII_OUTPUT", 'i', fn, lno, &ctrl->ascii);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WATBAL_OUTPUT", 'i', filename, lno, &ctrl->waterbal);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "WATBAL_OUTPUT", 'i', fn, lno, &ctrl->waterbal);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WRITE_IC", 'i', filename, lno, &ctrl->write_ic);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "WRITE_IC", 'i', fn, lno, &ctrl->write_ic);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "UNSAT_MODE", 'i', filename, lno, &ctrl->unsat_mode);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "UNSAT_MODE", 'i', fn, lno, &ctrl->unsat_mode);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SURF_MODE", 'i', filename, lno, &ctrl->surf_mode);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SURF_MODE", 'i', fn, lno, &ctrl->surf_mode);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RIV_MODE", 'i', filename, lno, &ctrl->riv_mode);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RIV_MODE", 'i', fn, lno, &ctrl->riv_mode);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "START", 't', filename, lno, &ctrl->starttime);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "START", 't', fn, lno, &ctrl->starttime);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "END", 't', filename, lno, &ctrl->endtime);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "END", 't', fn, lno, &ctrl->endtime);
 
     /* In spinup mode, simulation time should be full years */
     start_time = PIHMTime(ctrl->starttime);
@@ -74,104 +74,104 @@ void ReadPara(const char filename[], ctrl_struct *ctrl)
         }
     }
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", 'i', filename, lno, &ctrl->maxspinyears);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", 'i', fn, lno, &ctrl->maxspinyears);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MODEL_STEPSIZE", 'i', filename, lno, &ctrl->stepsize);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MODEL_STEPSIZE", 'i', fn, lno, &ctrl->stepsize);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LSM_STEP", 'i', filename, lno, &ctrl->etstep);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "LSM_STEP", 'i', fn, lno, &ctrl->etstep);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ABSTOL", 'd', filename, lno, &ctrl->abstol);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ABSTOL", 'd', fn, lno, &ctrl->abstol);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RELTOL", 'd', filename, lno, &ctrl->reltol);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RELTOL", 'd', fn, lno, &ctrl->reltol);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_SOLVER_STEP", 'd', filename, lno, &ctrl->initstep);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INIT_SOLVER_STEP", 'd', fn, lno, &ctrl->initstep);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", 'd', filename, lno, &ctrl->nncfn);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", 'd', fn, lno, &ctrl->nncfn);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", 'd', filename, lno, &ctrl->nnimax);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", 'd', fn, lno, &ctrl->nnimax);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", 'd', filename, lno, &ctrl->nnimin);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", 'd', fn, lno, &ctrl->nnimin);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DECR_FACTOR", 'd', filename, lno, &ctrl->decr);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DECR_FACTOR", 'd', fn, lno, &ctrl->decr);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INCR_FACTOR", 'd', filename, lno, &ctrl->incr);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INCR_FACTOR", 'd', fn, lno, &ctrl->incr);
 
-    NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_MAXSTEP", 'd', filename, lno, &ctrl->stmin);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MIN_MAXSTEP", 'd', fn, lno, &ctrl->stmin);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SURF_CTRL] = ReadPrintCtrl(cmdstr, "SURF", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[SURF_CTRL] = ReadPrintCtrl(cmdstr, "SURF", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[UNSAT_CTRL] = ReadPrintCtrl(cmdstr, "UNSAT", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[UNSAT_CTRL] = ReadPrintCtrl(cmdstr, "UNSAT", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[GW_CTRL] = ReadPrintCtrl(cmdstr, "GW", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[GW_CTRL] = ReadPrintCtrl(cmdstr, "GW", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[STAGE_CTRL] = ReadPrintCtrl(cmdstr, "RIVSTG", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[STAGE_CTRL] = ReadPrintCtrl(cmdstr, "RIVSTG", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SNOW_CTRL] = ReadPrintCtrl(cmdstr, "SNOW", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[SNOW_CTRL] = ReadPrintCtrl(cmdstr, "SNOW", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[CMC_CTRL] = ReadPrintCtrl(cmdstr, "CMC", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[CMC_CTRL] = ReadPrintCtrl(cmdstr, "CMC", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[INFIL_CTRL] = ReadPrintCtrl(cmdstr, "INFIL", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[INFIL_CTRL] = ReadPrintCtrl(cmdstr, "INFIL", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrintCtrl(cmdstr, "RECHARGE", filename,
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrintCtrl(cmdstr, "RECHARGE", fn,
         lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[EC_CTRL] = ReadPrintCtrl(cmdstr, "EC", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[EC_CTRL] = ReadPrintCtrl(cmdstr, "EC", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[ETT_CTRL] = ReadPrintCtrl(cmdstr, "ETT", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[ETT_CTRL] = ReadPrintCtrl(cmdstr, "ETT", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[EDIR_CTRL] = ReadPrintCtrl(cmdstr, "EDIR", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[EDIR_CTRL] = ReadPrintCtrl(cmdstr, "EDIR", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX0_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX0", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX0_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX0", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX1_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX1", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX1_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX1", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX2_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX2", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX2_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX2", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX3_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX3", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX3_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX3", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX4_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX4", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX4_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX4", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX5", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrintCtrl(cmdstr, "RIVFLX5", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrintCtrl(cmdstr, "SUBFLX", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrintCtrl(cmdstr, "SUBFLX", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrintCtrl(cmdstr, "SURFFLX", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrintCtrl(cmdstr, "SURFFLX", fn, lno);
 
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[IC_CTRL] = ReadPrintCtrl(cmdstr, "IC", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[IC_CTRL] = ReadPrintCtrl(cmdstr, "IC", fn, lno);
 
-    fclose(para_file);
+    fclose(fp);
 
 #if defined(_CYCLES_)
     if (ctrl->etstep != DAYINSEC)
@@ -188,7 +188,7 @@ void ReadPara(const char filename[], ctrl_struct *ctrl)
         pihm_printf(VL_ERROR,
             "Error: Land surface model (ET) step size "
             "should be an integral multiple of model step size.\n");
-        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
         pihm_exit(EXIT_FAILURE);
     }
 }

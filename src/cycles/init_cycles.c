@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitCycles(const calib_struct *cal, const agtbl_struct *agtbl,
+void InitCycles(const calib_struct *calib, const agtbl_struct *agtbl,
     const mgmt_struct mgmttbl[], const crop_struct croptbl[],
     const soiltbl_struct *soiltbl, elem_struct elem[])
 {
@@ -31,8 +31,8 @@ void InitCycles(const calib_struct *cal, const agtbl_struct *agtbl,
                 elem[i].soil.air_entry_pot[kz] =
                                         soiltbl->air_entry_pot[soil_ind][kz];
 
-                elem[i].soil.fc[kz]  *= cal->porosity;
-                elem[i].soil.pwp[kz] *= cal->porosity;
+                elem[i].soil.fc[kz]  *= calib->porosity;
+                elem[i].soil.pwp[kz] *= calib->porosity;
             }
             else
             {

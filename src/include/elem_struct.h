@@ -411,7 +411,7 @@ typedef struct wstate_struct
 #if defined(_NOAH_)
     double          smc[MAXLYR];            /* total soil moisture content
                                              * (m3 m-3) */
-    double          swc[MAXLYR];           /* unfrozen soil moisture content
+    double          swc[MAXLYR];            /* unfrozen soil moisture content
                                              * (m3 m-3) */
     double          soilm;                  /* total soil column moisture
                                              * content (m) */
@@ -480,7 +480,7 @@ typedef struct wflux_struct
                                              * of porosity (smcmax) for a given
                                              * soil layer at the end of a time
                                              * step (m s-1) */
-    double          smflx[MAXLYR];         /* vertical soil moisture flux
+    double          smflx[MAXLYR];          /* vertical soil moisture flux
                                              * between soil layers (m s-1) */
     double          dew;                    /* dewfall (or frostfall for
                                              * T < 273.15) (m s-1) */
@@ -1606,7 +1606,7 @@ typedef struct elem_struct
 #endif
 #if defined(_DGW_)
     soil_struct     geol;
-    bc_struct       fbr_bc;
+    bc_struct       bc_geol;
 #endif
 #if defined(_RT_)
     rtic_struct     restart_input[NCHMVOL];

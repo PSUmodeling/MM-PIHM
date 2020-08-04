@@ -47,7 +47,8 @@ void InitRiver(const meshtbl_struct *meshtbl, const rivtbl_struct *rivtbl,
             (river[i].topo.y - elem[river[i].right - 1].topo.y) *
             (river[i].topo.y - elem[river[i].right - 1].topo.y));
 
-        river[i].shp.depth = calib->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
+        river[i].shp.depth = calib->rivdepth *
+            shptbl->depth[rivtbl->shp[i] - 1];
         river[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
         river[i].shp.coeff = calib->rivshpcoeff *
             shptbl->coeff[rivtbl->shp[i] - 1];

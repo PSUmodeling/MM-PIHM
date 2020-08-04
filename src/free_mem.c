@@ -111,12 +111,12 @@ void FreeAtttbl(atttbl_struct *atttbl)
     {
         free(atttbl->bc[i]);
 #if defined(_DGW_)
-        free(atttbl->fbr_bc[i]);
+        free(atttbl->bc_geol[i]);
 #endif
     }
     free(atttbl->bc);
 #if defined(_DGW_)
-    free(atttbl->fbr_bc);
+    free(atttbl->bc_geol);
 #endif
     free(atttbl->soil);
     free(atttbl->geol);
@@ -289,7 +289,7 @@ void FreeForc(forc_struct *forc)
 #endif
 
 #if defined(_RT_)
-    if (forc->PrpFlg == 2)
+    if (forc->prcp_flag == 2)
     {
         for (i = 0; i < forc->nprcpc; i++)
         {

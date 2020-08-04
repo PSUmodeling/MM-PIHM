@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
+void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
     kintbl_struct kintbl[], rttbl_struct *rttbl)
 {
     int             i, j, k;
@@ -169,7 +169,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         strcmp(cmdstr, "End of exchange\n") != 0)
     {
         NextLine(database, cmdstr, &lno);
-        ReadCationEchg(cmdstr, cal->Xsorption, chemtbl, rttbl);
+        ReadCationEchg(cmdstr, calib->Xsorption, chemtbl, rttbl);
     }
 
     for (i = 0; i < MAXSPS; i++)
@@ -195,7 +195,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         while (strcmp(cmdstr, "End of mineral kinetics\r\n") != 0 &&
             strcmp(cmdstr, "End of mineral kinetics\n") != 0)
         {
-            ReadMinKin(database, rttbl->num_stc, cal->rate, &lno, cmdstr,
+            ReadMinKin(database, rttbl->num_stc, calib->rate, &lno, cmdstr,
                 chemtbl, &kintbl[i]);
             NextLine(database, cmdstr, &lno);
         }
@@ -795,7 +795,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
 
                 kintbl->rate += calval;
                 pihm_printf(VL_VERBOSE,
-                    " After calibration: Rate is %f, cal->Rate = %f \n",
+                    " After calibration: Rate is %f, calib->Rate = %f \n",
                     kintbl->rate, calval);
             }
             else

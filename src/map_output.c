@@ -398,49 +398,57 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                 case NPP_CTRL:
                     InitPrintCtrl(outputdir, "npp", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_npp;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_npp;
                     n++;
                     break;
                 case NEP_CTRL:
                     InitPrintCtrl(outputdir, "nep", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nep;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_nep;
                     n++;
                     break;
                 case NEE_CTRL:
                     InitPrintCtrl(outputdir, "nee", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nee;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_nee;
                     n++;
                     break;
                 case GPP_CTRL:
                     InitPrintCtrl(outputdir, "gpp", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gpp;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_gpp;
                     n++;
                     break;
                 case MR_CTRL:
                     InitPrintCtrl(outputdir, "mr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_mr;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_mr;
                     n++;
                     break;
                 case GR_CTRL:
                     InitPrintCtrl(outputdir, "gr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gr;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_gr;
                     n++;
                     break;
                 case HR_CTRL:
                     InitPrintCtrl(outputdir, "hr", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_hr;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_hr;
                     n++;
                     break;
                 case FIRE_CTRL:
                     InitPrintCtrl(outputdir, "fire", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_fire;
+                    print->varctrl[n].var[0] =
+                        &elem[LUMPEDBGC].summary.daily_fire;
                     n++;
                     break;
                 case LITFALLC_CTRL:
@@ -861,7 +869,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     break;
 #endif
 #if defined(_DGW_)
-                case FBRUNSAT_CTRL:
+                case GEOLUNSAT_CTRL:
                     InitPrintCtrl(outputdir, "deep.unsat", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -870,7 +878,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
-                case FBRGW_CTRL:
+                case GEOLGW_CTRL:
                     InitPrintCtrl(outputdir, "deep.gw", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -879,7 +887,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
-                case FBRINFIL_CTRL:
+                case GEOLINFIL_CTRL:
                     InitPrintCtrl(outputdir, "deep.infil", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -888,7 +896,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
-                case FBRRECHG_CTRL:
+                case GEOLRECHG_CTRL:
                     InitPrintCtrl(outputdir, "deep.recharge", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -897,7 +905,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
-                case FBRFLOW_CTRL:
+                case DGWFLOW_CTRL:
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "deep.flow%d", k);
@@ -925,7 +933,8 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].chms.prim_conc[k];
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms.prim_conc[k];
                         }
                         n++;
 # if defined(_DGW_)
@@ -975,7 +984,8 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].chms.sec_conc[k];
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms.sec_conc[k];
                         }
                         n++;
 

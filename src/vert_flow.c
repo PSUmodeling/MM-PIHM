@@ -289,7 +289,7 @@ double Psi(double satn, double alpha, double beta)
 
 #if defined(_DGW_)
 /*
- * Hydrology for fractured bedrock
+ * Hydrology for deep zone
  */
 double GeolInfil(const topo_struct *topo, const soil_struct *soil,
     const soil_struct *geol, const wstate_struct *ws)

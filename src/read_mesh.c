@@ -46,17 +46,17 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
      * Read node block
      */
     NextLine(mesh_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMNODE", 'i', filename, lno, &meshtbl->numnode);
+    ReadKeyword(cmdstr, "NUMNODE", 'i', filename, lno, &meshtbl->numnodes);
 
     /* Skip header line */
     NextLine(mesh_file, cmdstr, &lno);
 
-    meshtbl->x    = (double *)malloc(meshtbl->numnode * sizeof(double));
-    meshtbl->y    = (double *)malloc(meshtbl->numnode * sizeof(double));
-    meshtbl->zmin = (double *)malloc(meshtbl->numnode * sizeof(double));
-    meshtbl->zmax = (double *)malloc(meshtbl->numnode * sizeof(double));
+    meshtbl->x    = (double *)malloc(meshtbl->numnodes * sizeof(double));
+    meshtbl->y    = (double *)malloc(meshtbl->numnodes * sizeof(double));
+    meshtbl->zmin = (double *)malloc(meshtbl->numnodes * sizeof(double));
+    meshtbl->zmax = (double *)malloc(meshtbl->numnodes * sizeof(double));
 
-    for (i = 0; i < meshtbl->numnode; i++)
+    for (i = 0; i < meshtbl->numnodes; i++)
     {
         NextLine(mesh_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index,

@@ -95,7 +95,7 @@ typedef struct matltbl_struct
 /* Mesh structure */
 typedef struct meshtbl_struct
 {
-    int             numnode;                /* number of nodes */
+    int             numnodes;               /* number of nodes */
     int           **node;                   /* nodes of grids */
     int           **nabr;                   /* neighbors */
     double         *x;                      /* x of node (m) */
@@ -122,8 +122,8 @@ typedef struct atttbl_struct
                                              * else: use forcing file */
     int            *source;                 /* source forcing type */
 #if defined(_DGW_)
-    int           **fbr_bc;                 /* boundary condition type for
-                                             * fractured bedrock layer */
+    int           **bc_geol;                /* boundary condition type for
+                                             * deep zone */
 #endif
 #if defined(_RT_)
     int            *prcpc;                  /* precipitation concentration type
@@ -304,7 +304,7 @@ typedef struct forc_struct
     tsdata_struct  *rad;                    /* radiation forcing series */
 #endif
 #if defined(_RT_)
-    int             PrpFlg;                 /* flag that indicates how
+    int             prcp_flag;              /* flag that indicates how
                                              * precipitation is specified */
     int             nprcpc;                 /* number of precipitation
                                              * concentration time series */
@@ -741,7 +741,7 @@ typedef struct kintbl_struct
                                              * calculate kinetic rate of
                                              * reaction under different
                                              * temperatures */
-    double          Keq;                    /* equilibrium constant */
+    double          keq;                    /* equilibrium constant */
     int             ndep;                   /* number of dependency */
     int             dep_index[MAXDEP];      /* position of species that kinetic
                                              * reaction depends on */

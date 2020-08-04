@@ -93,8 +93,8 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PRECIPITATION", 'i', chem_filen, lno, &forc->PrpFlg);
-    switch (forc->PrpFlg)
+    ReadKeyword(cmdstr, "PRECIPITATION", 'i', chem_filen, lno, &forc->prcp_flag);
+    switch (forc->prcp_flag)
     {
         case 0:
             pihm_printf(VL_VERBOSE, "  No precipitation condition. \n");

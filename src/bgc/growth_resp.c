@@ -2,9 +2,10 @@
 
 void GrowthResp(const epconst_struct *epc, cflux_struct *cf)
 {
-    double          g1;    /* RATIO   C respired for growth : C grown  */
-    double          g2;    /* proportion of growth resp to release at fixation *
-                            */
+    double          g1;                     /* RATIO C respired for
+                                             * growth : C grown */
+    double          g2;                     /* proportion of growth resp to
+                                             * release at fixation*/
 
     g1 = GRPERC;
     g2 = GRPNOW;

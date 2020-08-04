@@ -66,7 +66,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
         /*
-         * Fractured bedrock unsaturated zone
+         * Deep zone
          */
         if (satn > 1.0E-2)
         {

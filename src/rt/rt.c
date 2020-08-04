@@ -6,7 +6,7 @@
 *****************************************************************************/
 #include "pihm.h"
 
-void InitChem(const char cdbs_filen[], const calib_struct *cal,
+void InitChem(const char cdbs_filen[], const calib_struct *calib,
     forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
 {
@@ -20,7 +20,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
      * Look up database to find required parameters and dependencies for
      * chemical species
      */
-    Lookup(fp, cal, chemtbl, kintbl, rttbl);
+    Lookup(fp, calib, chemtbl, kintbl, rttbl);
     fclose(fp);
 
     /*
@@ -29,15 +29,15 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     chem_ind = FindChem("'DOC'", chemtbl, rttbl->num_stc);
     if (chem_ind >= 0)
     {
-        rttbl->prcp_conc[chem_ind] *= cal->prcpconc;
+        rttbl->prcp_conc[chem_ind] *= calib->prcpconc;
 
-        if (forc->PrpFlg == 2)
+        if (forc->prcp_flag == 2)
         {
             for (i = 0; i < forc->nprcpc; i++)
             {
                 for (j = 0; j < forc->prcpc[i].length; j++)
                 {
-                    forc->prcpc[i].data[j][chem_ind] *= cal->prcpconc;
+                    forc->prcpc[i].data[j][chem_ind] *= calib->prcpconc;
                 }
             }
         }
@@ -50,11 +50,11 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
         for (k = 0; k < rttbl->num_stc; k++)
         {
             chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ?
-                cal->ssa : 1.0;
+                calib->ssa : 1.0;
 
             chmictbl->conc[i][k] *=
                 (strcmp(chemtbl[k].name, "'DOC'") == 0) ?
-                cal->initconc : 1.0;
+                calib->initconc : 1.0;
         }
     }
 

@@ -129,7 +129,7 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
         pihm_printf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
             totalw_prev, totalw, totalw - totalw_prev);
 #if defined(_DGW_)
-        pihm_printf(VL_BRIEF, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
+        pihm_printf(VL_BRIEF, "dgw_prev = %lg dgw = %lg wdif = %lg\n",
             gwgeol_prev, gwgeol, gwgeol - gwgeol_prev);
 #endif
 #if defined(_BGC_)

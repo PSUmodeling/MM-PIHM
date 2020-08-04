@@ -4,7 +4,7 @@ void Mortality(const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf,
     nstate_struct *ns, nflux_struct *nf)
 {
     double          mort;
-    const double    DSCP = 0.2;    /* Dead stem combustion proportion */
+    const double    DSCP = 0.2;             /* Dead stem combustion proportion*/
 
     /*
      * Non-fire mortality: these fluxes all enter litter or CWD pools

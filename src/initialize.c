@@ -67,7 +67,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
             }
 
 #if defined(_DGW_)
-            bc = pihm->atttbl.fbr_bc[i][j];
+            bc = pihm->atttbl.bc_geol[i][j];
 
             if (bc == NO_FLOW)
             {
@@ -148,29 +148,29 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     /* Initialize element soil properties */
 #if defined(_NOAH_)
-    InitSoil(&pihm->soiltbl, &pihm->noahtbl, &pihm->cal, pihm->elem);
+    InitSoil(&pihm->soiltbl, &pihm->noahtbl, &pihm->calib, pihm->elem);
 #else
-    InitSoil(&pihm->soiltbl, &pihm->cal, pihm->elem);
+    InitSoil(&pihm->soiltbl, &pihm->calib, pihm->elem);
 #endif
 
 #if defined(_DGW_)
     /* Initialize element geol properties */
-    InitGeol(&pihm->geoltbl, &pihm->cal, pihm->elem);
+    InitGeol(&pihm->geoltbl, &pihm->calib, pihm->elem);
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(&pihm->lctbl, &pihm->cal, pihm->elem);
+    InitLc(&pihm->lctbl, &pihm->calib, pihm->elem);
 
     /* Initialize element forcing */
 #if defined(_RT_)
-    InitForcing(&pihm->rttbl, &pihm->cal, &pihm->forc, pihm->elem);
+    InitForcing(&pihm->rttbl, &pihm->calib, &pihm->forc, pihm->elem);
 #else
-    InitForcing(&pihm->cal, &pihm->forc, pihm->elem);
+    InitForcing(&pihm->calib, &pihm->forc, pihm->elem);
 #endif
 
     /* Initialize river segment properties */
     InitRiver(&pihm->meshtbl, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
-        &pihm->cal, pihm->elem, pihm->river);
+        &pihm->calib, pihm->elem, pihm->river);
 
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
@@ -183,22 +183,22 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
-    InitLsm(pihm->filename.ice, &pihm->ctrl, &pihm->noahtbl, &pihm->cal,
+    InitLsm(pihm->filename.ice, &pihm->ctrl, &pihm->noahtbl, &pihm->calib,
         pihm->elem);
 #endif
 
 #if defined(_CYCLES_)
-    InitCycles(&pihm->cal, &pihm->agtbl, pihm->mgmttbl, pihm->croptbl,
+    InitCycles(&pihm->calib, &pihm->agtbl, pihm->mgmttbl, pihm->croptbl,
         &pihm->soiltbl, pihm->elem);
 #endif
 
 #if defined(_BGC_)
     /* Initialize CN (Biome-BGC) module */
-    InitBgc(&pihm->epctbl, &pihm->cal, pihm->elem);
+    InitBgc(&pihm->epctbl, &pihm->calib, pihm->elem);
 #endif
 
 #if defined(_RT_)
-    InitChem(pihm->filename.cdbs, &pihm->cal, &pihm->forc, pihm->chemtbl,
+    InitChem(pihm->filename.cdbs, &pihm->calib, &pihm->forc, pihm->chemtbl,
         pihm->kintbl, &pihm->rttbl, &pihm->chmictbl, pihm->elem);
 #endif
 
@@ -569,8 +569,8 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].ws.unsat_geol = elem[i].ic.unsat_geol;
         elem[i].ws.gw_geol    = elem[i].ic.gw_geol;
 
-        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.unsat_geol;
-        NV_Ith(CV_Y, FBRGW(i))    = elem[i].ic.gw_geol;
+        NV_Ith(CV_Y, UNSAT_GEOL(i)) = elem[i].ic.unsat_geol;
+        NV_Ith(CV_Y, GW_GEOL(i))    = elem[i].ic.gw_geol;
 #endif
 
 #if defined(_NOAH_)
@@ -686,7 +686,7 @@ void InitWFlux(wflux_struct *wf)
     wf->pcpdrp     = 0.0;
     wf->infil      = 0.0;
     wf->eqv_infil  = 0.0;
-    wf->recharge      = 0.0;
+    wf->recharge   = 0.0;
     wf->drip       = 0.0;
     wf->edir       = 0.0;
     wf->ett        = 0.0;

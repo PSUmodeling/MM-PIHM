@@ -51,9 +51,6 @@ typedef struct matl_struct
     double          cwr;                    /* discharge coefficient (-) */
     double          ksath;                  /* bank hydraulic conductivity
                                              * (m s-1) */
-#if defined(_CYCLES_OBSOLETE_)
-    double          bd;
-#endif
 } matl_struct;
 
 /* River boundary conditions */
@@ -114,10 +111,10 @@ typedef struct river_solute_struct
 typedef struct river_struct
 {
     int             ind;                    /* river index */
-    int             left;                /* left neighbor*/
-    int             right;               /* right neighbor */
-    int             from;               /* upstream node */
-    int             to;                 /* downstream node */
+    int             left;                   /* left neighbor*/
+    int             right;                  /* right neighbor */
+    int             from;                   /* upstream node */
+    int             to;                     /* downstream node */
     int             down;                   /* down stream channel segment */
     river_attrib_struct attrib;
     river_topo_struct topo;

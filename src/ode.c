@@ -37,8 +37,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.gw    = MAX(y[GW(i)], 0.0);
 
 #if defined(_DGW_)
-        elem[i].ws.unsat_geol = MAX(y[FBRUNSAT(i)], 0.0);
-        elem[i].ws.gw_geol    = MAX(y[FBRGW(i)], 0.0);
+        elem[i].ws.unsat_geol = MAX(y[UNSAT_GEOL(i)], 0.0);
+        elem[i].ws.gw_geol    = MAX(y[GW_GEOL(i)], 0.0);
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPEDBGC_)
@@ -150,18 +150,19 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem[i].wf.edir_surf;
         dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.recharge -
             elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
-        dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
+        dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw -
+            elem[i].wf.ett_gw;
 
 #if defined(_DGW_)
         /*
-         * Vertical water fluxes for fractured bedrock
+         * Vertical water fluxes for deep zone
          */
         dy[GW(i)] -= elem[i].wf.infil_geol;
 
-        dy[FBRUNSAT(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
-        dy[FBRGW(i)]    += elem[i].wf.rechg_geol;
+        dy[UNSAT_GEOL(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
+        dy[GW_GEOL(i)]    += elem[i].wf.rechg_geol;
 # if defined(_LUMPED_)
-        dy[FBRGW(i)] -= elem[i].wf.dgw_runoff;
+        dy[GW_GEOL(i)] -= elem[i].wf.dgw_runoff;
 # endif
 #endif
 
@@ -173,15 +174,15 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SURF(i)]  -= elem[i].wf.overland[j] / elem[i].topo.area;
             dy[GW(i)]    -= elem[i].wf.subsurf[j] / elem[i].topo.area;
 #if defined(_DGW_)
-            dy[FBRGW(i)] -= elem[i].wf.dgw[j] / elem[i].topo.area;
+            dy[GW_GEOL(i)] -= elem[i].wf.dgw[j] / elem[i].topo.area;
 #endif
         }
 
         dy[UNSAT(i)] /= elem[i].soil.porosity;
         dy[GW(i)]    /= elem[i].soil.porosity;
 #if defined(_DGW_)
-        dy[FBRUNSAT(i)] /= elem[i].geol.porosity;
-        dy[FBRGW(i)]    /= elem[i].geol.porosity;
+        dy[UNSAT_GEOL(i)] /= elem[i].geol.porosity;
+        dy[GW_GEOL(i)]    /= elem[i].geol.porosity;
 #endif
 
 #if _OBSOLETE_

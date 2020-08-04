@@ -62,7 +62,7 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
 
 #if defined(_DGW_)
     /*
-     * Lateral fractured bedrock flow
+     * Lateral deep groundwater flow
      */
 # if defined(_OPENMP)
 #  pragma omp parallel for
@@ -78,7 +78,8 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
             {
                 elem[i].wf.dgw[j] =
                     DeepBoundFluxElem(elem[i].attrib.bc_geol[j], j,
-                    &elem[i].topo, &elem[i].geol, &elem[i].fbr_bc, &elem[i].ws);
+                    &elem[i].topo, &elem[i].geol, &elem[i].bc_geol,
+                    &elem[i].ws);
             }
             else
             {

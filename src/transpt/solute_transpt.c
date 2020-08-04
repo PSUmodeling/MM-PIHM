@@ -121,8 +121,8 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                 elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
 # if defined(_LUMPED_)
-            /* Fractured bedrock discharge to river.
-             * Note that FBR discharge is always non-negative */
+            /* Deep zone leaching to river.
+             * Note that deep zone runoff is always non-negative */
             elem[i].solute[k].dgw_leach = elem[i].wf.dgw_runoff *
                 elem[i].solute[k].conc_geol;
 # endif
@@ -139,7 +139,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                         0.0 : elem[i].wf.dgw[j] *
                         ((elem[i].wf.dgw[j] > 0.0) ?
                         elem[i].solute[k].conc_geol :
-                        elem[i].fbr_bc.conc[j][k]);
+                        elem[i].bc_geol.conc[j][k]);
                 }
                 else
                 {
@@ -232,7 +232,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
 
 #if defined(_DGW_) && defined(_LUMPED_)
 void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
-    int fbr_to_chanl, elem_struct *bank, river_struct *river)
+    int dgw_to_chanl, elem_struct *bank, river_struct *river)
 #else
 void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
     elem_struct *bank, river_struct *river)
@@ -253,8 +253,8 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
             river->solute[k].conc : bank->solute[k].conc);
 
 #if defined(_DGW_) && defined(_LUMPED_)
-        river->solute[k].flux[fbr_to_chanl] =
-            river->wf.rivflow[fbr_to_chanl] * bank->solute[k].conc_geol;
+        river->solute[k].flux[dgw_to_chanl] =
+            river->wf.rivflow[dgw_to_chanl] * bank->solute[k].conc_geol;
 #endif
 
         for (j = 0; j < NUM_EDGE; j++)

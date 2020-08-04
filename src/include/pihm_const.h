@@ -406,11 +406,11 @@
 #define RIVSTGTEC_CTRL          66
 #define RIVGWTEC_CTRL           67
 /* DGW */
-#define FBRUNSAT_CTRL           68
-#define FBRGW_CTRL              69
-#define FBRINFIL_CTRL           70
-#define FBRRECHG_CTRL           71
-#define FBRFLOW_CTRL            72
+#define GEOLUNSAT_CTRL          68
+#define GEOLGW_CTRL             69
+#define GEOLINFIL_CTRL          70
+#define GEOLRECHG_CTRL          71
+#define DGWFLOW_CTRL            72
 /* RT */
 #define CHEM_CTRL               73
 
@@ -442,7 +442,7 @@
 #define FIXIRR_OP               2
 #define FIXFERT_OP              3
 
-#define ALL_CROPS                -1
+#define ALL_CROPS               -1
 
 #define FC_BOUND                -1
 #define PWP_BOUND               -2
@@ -510,7 +510,7 @@ extern int     first_balance;
 extern int     nthreads;
 #endif
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-int             nsolute;
+int            nsolute;
 #endif
 
 #endif

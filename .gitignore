@@ -35,7 +35,6 @@
 
 # PIHM executables
 /pihm
-/pihm-fbr
 /flux-pihm
 /flux-pihm-bgc
 /cycles-3d

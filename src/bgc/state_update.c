@@ -307,7 +307,7 @@ void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen,
     ns->leafn -= nf->leafn_to_litr3n;
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    ns->retransn += nf->leafn_to_retransn;    /* N retranslocation */
+    ns->retransn += nf->leafn_to_retransn;  /* N retranslocation */
     ns->leafn -= nf->leafn_to_retransn;
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;
@@ -320,11 +320,11 @@ void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen,
     /* Live wood turnover to dead wood */
     ns->deadstemn += nf->livestemn_to_deadstemn;
     ns->livestemn -= nf->livestemn_to_deadstemn;
-    ns->retransn += nf->livestemn_to_retransn;     /* N retranslocation */
+    ns->retransn += nf->livestemn_to_retransn;      /* N retranslocation */
     ns->livestemn -= nf->livestemn_to_retransn;
     ns->deadcrootn += nf->livecrootn_to_deadcrootn;
     ns->livecrootn -= nf->livecrootn_to_deadcrootn;
-    ns->retransn += nf->livecrootn_to_retransn;    /* N retranslocation */
+    ns->retransn += nf->livecrootn_to_retransn;     /* N retranslocation */
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     /* Nitrogen deposition */
