@@ -4,23 +4,20 @@
 /* Element attribute */
 typedef struct attrib_struct
 {
-    int             soil_type;              /* soil type */
-    int             lc_type;                /* land cover type */
-    int             bc_type[NUM_EDGE];      /* boundary condition type*/
-    int             meteo_type;             /* meteorological forcing type */
-    int             lai_type;               /* leaf area index forcing type */
-#if defined(_CYCLES_OBSOLETE_)
-    int             op_type;
-#endif
+    int             soil;                   /* soil type */
+    int             lc;                     /* land cover type */
+    int             bc[NUM_EDGE];           /* boundary condition type*/
+    int             meteo;                  /* meteorological forcing type */
+    int             lai;                    /* leaf area index forcing type */
 #if defined(_DGW_)
-    int             geol_type;              /* geology type */
-    int             fbrbc_type[NUM_EDGE];   /* fractured bedrock layer
-                                             * boundary condition type */
+    int             geol;                   /* geology type */
+    int             bc_geol[NUM_EDGE];      /* deep zone boundary condition
+                                             * type */
 #endif
 #if defined(_RT_)
-    int             prcpc_type;             /* precipitation concentration type
+    int             prcp_conc;              /* precipitation concentration type
                                              */
-    int             chem_ic_type[2];        /* chemical concentration type */
+    int             chem_ic[2];             /* chemical concentration type */
 #endif
 } attrib_struct;
 
@@ -34,9 +31,9 @@ typedef struct topo_struct
     double          zmax;                   /* surface elevation (m) */
     double          edge[NUM_EDGE];         /* length of edge (Edge i is from
                                              * node i - 1 to node i + 1) (m) */
-    double          nabrdist[NUM_EDGE];     /* distance to neighbor (m) */
-    double          nabr_x[NUM_EDGE];       /* x of neighbor centroid (m) */
-    double          nabr_y[NUM_EDGE];       /* y of neighbor centroid (m) */
+    double          dist_nabr[NUM_EDGE];    /* distance to neighbor (m) */
+    double          x_nabr[NUM_EDGE];       /* x of neighbor centroid (m) */
+    double          y_nabr[NUM_EDGE];       /* y of neighbor centroid (m) */
 #if defined(_DGW_)
     double          zbed;                   /* impermeable bedrock elevation (m)
                                              */
@@ -137,7 +134,6 @@ typedef struct lc_struct
     int             glacier;                /* flag that indicates glacier */
 } lc_struct;
 
-#if !defined(_CYCLES_OBSOLETE_)
 /* Ecophysiological parameters */
 typedef struct epconst_struct
 {
@@ -227,7 +223,6 @@ typedef struct epconst_struct
     double          deadwood_flig;          /* dead wood lignin fraction (-) */
 # endif
 } epconst_struct;
-#endif
 
 /* Physical states */
 typedef struct phystate_struct
@@ -301,8 +296,8 @@ typedef struct phystate_struct
     int             nroot;                  /* number of root layers, a function
                                              * of vegetation type */
     double          rtdis[MAXLYR];          /* root distribution (-) */
-    int             nlayers;                  /* number of soil layers */
-    double          soil_depth[MAXLYR];         /* thickness of each soil layer (m)
+    int             nlayers;                /* number of soil layers */
+    double          soil_depth[MAXLYR];     /* thickness of each soil layer (m)
                                              */
     double          zsoil[MAXLYR];          /* distance from land surface to
                                              * bottom of each soil layer (m) */
@@ -409,10 +404,9 @@ typedef struct wstate_struct
                                              */
     double          cmc;                    /* interception storage (m) */
 #if defined(_DGW_)
-    double          fbr_unsat;              /* unsaturated storage in fractured
-                                             * bedrock layer (m) */
-    double          fbr_gw;                 /* deep groundwater in fractured
-                                             * bedrock layer (m) */
+    double          unsat_geol;             /* unsaturated storage in deep zone
+                                             * (m) */
+    double          gw_geol;                /* deep groundwater (m) */
 #endif
 #if defined(_NOAH_)
     double          smc[MAXLYR];            /* total soil moisture content
@@ -427,7 +421,7 @@ typedef struct wstate_struct
 /* Water fluxes */
 typedef struct wflux_struct
 {
-    double          ovlflow[NUM_EDGE];      /* overland flow (m3 s-1) */
+    double          overland[NUM_EDGE];     /* overland flow (m3 s-1) */
     double          subsurf[NUM_EDGE];      /* subsurface flow (m3 s-1) */
     double          prcp;                   /* precipitation (m s-1) */
     double          pcpdrp;                 /* combined prcp and drip (from
@@ -438,7 +432,7 @@ typedef struct wflux_struct
     double          eqv_infil;              /* adjusted equivalent infiltration
                                              * rate for layered soil moisture
                                              * calculation (m s-1) */
-    double          rechg;                  /* recharge rate to groundwater
+    double          recharge;               /* recharge rate to groundwater
                                              * (m s-1) */
     double          drip;                   /* through-fall of precipitation
                                              * and/or dew (m s-1) */
@@ -466,16 +460,14 @@ typedef struct wflux_struct
     double          irrig;                  /* irrigation volume (mm day-1) */
 #endif
 #if defined(_DGW_)
-    double          fbr_infil;              /* fractured bedrock infiltration
-                                             * (m s-1) */
-    double          fbr_rechg;              /* fractured bedrock recharge
-                                             * (m s-1) */
-    double          fbrflow[NUM_EDGE];      /* lateral fractured bedrock flow
+    double          infil_geol;             /* deep zone infiltration (m s-1) */
+    double          rechg_geol;             /* deep zone recharge (m s-1) */
+    double          dgw[NUM_EDGE];          /* lateral deep groundwater flow
                                              * (m3 s-1) */
 # if defined(_LUMPED_)
-    double          fbr_discharge;          /* discharge from fractured bedrock
-                                             * to river (only applies to 2-grid
-                                             * model) (m3 s-1) */
+    double          dgw_runoff;             /* runoff from deep zone to river
+                                             * (only applies to lumped variant)
+                                             * (m3 s-1) */
 # endif
 #endif
 #if defined(_NOAH_)
@@ -585,18 +577,18 @@ typedef struct solute_struct
 # endif
 # if defined(_DGW_)
     double          conc_geol;              /* solute concentration in deep
-                                             * layer (mass/amount of subs m-3)*/
-    double          fbr_infil;              /* solute flux from bedrock
+                                             * zone (mass/amount of subs m-3)*/
+    double          infil_geol;             /* solute flux from deep zone
                                              * infiltration
                                              * (mass/amount of subs m-2 s-1) */
-    double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep layer
+    double          dgwflux[NUM_EDGE];      /* lateral solute flux in deep zone
                                              * (mass/amount of subs s-1) */
-    double          snksrc_geol;            /* deep layer sink/source term
+    double          snksrc_geol;            /* deep zone sink/source term
                                              * (mass/amount of subs m-2 s-1) */
 #  if defined(_LUMPED_)
-    double          fbr_discharge;          /* solute flux from fractured
-                                             * bedrock to river (only applies to
-                                             * 2-grid model)
+    double          dgw_leach;              /* solute flux from deep zone to
+                                             * river (only applies to lumped
+                                             * variant)
                                              * (mass/amount of subs m-2 s-1) */
 #  endif
 # endif
@@ -721,8 +713,8 @@ typedef struct ic_struct
     double          unsat;
     double          gw;
 #if defined(_DGW_)
-    double          fbr_unsat;
-    double          fbr_gw;
+    double          unsat_geol;
+    double          gw_geol;
 #endif
 #if defined(_NOAH_)
     double          t1;

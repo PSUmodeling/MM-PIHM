@@ -98,10 +98,10 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
             elem[i].topo.area / total_area;
 
 #if defined(_DGW_)
-        totalw += (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+        totalw += (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
             elem[i].geol.porosity * elem[i].topo.area / total_area;
 
-        gwgeol += elem[i].ws.fbr_gw * elem[i].topo.area / total_area;
+        gwgeol += elem[i].ws.gw_geol * elem[i].topo.area / total_area;
 #endif
 
 #if defined(_BGC_)

@@ -55,7 +55,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
-                case RIVSTG_CTRL:
+                case STAGE_CTRL:
                     InitPrintCtrl(outputdir, "river.stage", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
@@ -114,7 +114,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].wf.rechg;
+                        print->varctrl[n].var[j] = &elem[j].wf.recharge;
                     }
                     n++;
                     break;
@@ -225,7 +225,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                             HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].wf.ovlflow[k];
+                            print->varctrl[n].var[j] = &elem[j].wf.overland[k];
                         }
                         n++;
                     }
@@ -837,7 +837,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] =
-                            &river[j].solute[NO3].flux[DOWN_CHANL2CHANL];
+                            &river[j].solute[NO3].flux[DOWNSTREAM];
                     }
                     n++;
 
@@ -846,7 +846,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] =
-                            &river[j].solute[NH4].flux[DOWN_CHANL2CHANL];
+                            &river[j].solute[NH4].flux[DOWNSTREAM];
                     }
                     n++;
                     break;
@@ -866,7 +866,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ws.fbr_unsat;
+                        print->varctrl[n].var[j] = &elem[j].ws.unsat_geol;
                     }
                     n++;
                     break;
@@ -875,7 +875,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ws.fbr_gw;
+                        print->varctrl[n].var[j] = &elem[j].ws.gw_geol;
                     }
                     n++;
                     break;
@@ -884,16 +884,16 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].wf.fbr_infil;
+                        print->varctrl[n].var[j] = &elem[j].wf.infil_geol;
                     }
                     n++;
                     break;
                 case FBRRECHG_CTRL:
-                    InitPrintCtrl(outputdir, "deep.rechg", prtvrbl[i],
+                    InitPrintCtrl(outputdir, "deep.recharge", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].wf.fbr_rechg;
+                        print->varctrl[n].var[j] = &elem[j].wf.rechg_geol;
                     }
                     n++;
                     break;
@@ -905,7 +905,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                             HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].wf.fbrflow[k];
+                            print->varctrl[n].var[j] = &elem[j].wf.dgw[k];
                         }
                         n++;
                     }
@@ -959,7 +959,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         for (j = 0; j < nriver; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &river[j].solute[k].flux[DOWN_CHANL2CHANL];
+                                &river[j].solute[k].flux[DOWNSTREAM];
                         }
                         n++;
                     }
@@ -1029,21 +1029,21 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
             &print->varctrl[n]);
 # endif
         print->varctrl[n].var[0] = &elem[i].wf.infil;
-        print->varctrl[n].var[1] = &elem[i].wf.rechg;
+        print->varctrl[n].var[1] = &elem[i].wf.recharge;
         print->varctrl[n].var[2] = &elem[i].wf.ec;
         print->varctrl[n].var[3] = &elem[i].wf.ett;
         print->varctrl[n].var[4] = &elem[i].wf.edir;
         for (k = 0; k < NUM_EDGE; k++)
         {
             print->varctrl[n].var[5 + k] = &elem[i].wf.subsurf[k];
-            print->varctrl[n].var[8 + k] = &elem[i].wf.ovlflow[k];
+            print->varctrl[n].var[8 + k] = &elem[i].wf.overland[k];
         }
 # if defined(_DGW_)
-        print->varctrl[n].var[11] = &elem[i].wf.fbr_infil;
-        print->varctrl[n].var[12] = &elem[i].wf.fbr_rechg;
+        print->varctrl[n].var[11] = &elem[i].wf.infil_geol;
+        print->varctrl[n].var[12] = &elem[i].wf.rechg_geol;
         for (k = 0; k < NUM_EDGE; k++)
         {
-            print->varctrl[n].var[13 + k] = &elem[i].wf.fbrflow[k];
+            print->varctrl[n].var[13 + k] = &elem[i].wf.dgw[k];
         }
 # endif
         n++;
@@ -1062,8 +1062,8 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         print->varctrl[n].var[3] = &elem[i].ws.unsat;
         print->varctrl[n].var[4] = &elem[i].ws.gw;
 # if defined(_DGW_)
-        print->varctrl[n].var[5] = &elem[i].ws.fbr_unsat;
-        print->varctrl[n].var[6] = &elem[i].ws.fbr_gw;
+        print->varctrl[n].var[5] = &elem[i].ws.unsat_geol;
+        print->varctrl[n].var[6] = &elem[i].ws.gw_geol;
 # endif
         n++;
 
@@ -1172,7 +1172,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].solute[k].flux[DOWN_CHANL2CHANL];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[DOWNSTREAM];
     }
     n++;
 
@@ -1181,7 +1181,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].solute[k].flux[LEFT_FBR2CHANL];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[DGW_LEFT];
     }
     n++;
 
@@ -1189,7 +1189,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].solute[k].flux[RIGHT_FBR2CHANL];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[DGW_RIGHT];
     }
     n++;
 #  endif

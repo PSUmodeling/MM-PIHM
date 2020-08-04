@@ -53,10 +53,10 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
 #if defined(_DGW_)
-        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
-        satn = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) / elem[i].geol.depth;
+        satn = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) / elem[i].geol.depth;
         satn = MAX(satn, SATMIN);
         satn = MIN(satn, 1.0);
 

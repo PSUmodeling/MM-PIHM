@@ -60,8 +60,8 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     }
     else
     {
-        pihm_printf(VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n");
-        pihm_printf(VL_ERROR, "leafc = %.7e\n", cs->leafc);
+        pihm_printf(VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n"
+            "leafc = %.7e\n", cs->leafc);
         pihm_exit(EXIT_FAILURE);
     }
 

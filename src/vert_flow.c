@@ -19,12 +19,12 @@ void VerticalFlow(double dt, elem_struct elem[])
 #endif
 
         /* Calculate recharge rate */
-        elem[i].wf.rechg = Recharge(&elem[i].soil, &elem[i].ws, &elem[i].wf);
+        elem[i].wf.recharge = Recharge(&elem[i].soil, &elem[i].ws, &elem[i].wf);
 
 #if defined(_DGW_)
-        elem[i].wf.fbr_infil = GeolInfil(&elem[i].topo, &elem[i].soil,
+        elem[i].wf.infil_geol = GeolInfil(&elem[i].topo, &elem[i].soil,
             &elem[i].geol, &elem[i].ws);
-        elem[i].wf.fbr_rechg = GeolRecharge(&elem[i].geol, &elem[i].ws,
+        elem[i].wf.rechg_geol = GeolRecharge(&elem[i].geol, &elem[i].ws,
             &elem[i].wf);
 #endif
     }
@@ -61,7 +61,7 @@ double Infil(double dt, const topo_struct *topo, const soil_struct *soil,
         appl_rate = 0.0;
         for (j = 0; j < NUM_EDGE; j++)
         {
-            appl_rate += -wf->ovlflow[j] / topo->area;
+            appl_rate += -wf->overland[j] / topo->area;
         }
         appl_rate = MAX(appl_rate, 0.0);
         appl_rate += wf->pcpdrp;
@@ -302,7 +302,7 @@ double GeolInfil(const topo_struct *topo, const soil_struct *soil,
     double          kavg;
     double          infil;
 
-    if (ws->fbr_gw >= geol->depth)
+    if (ws->gw_geol >= geol->depth)
     {
 # if defined(_LUMPED_)
         /* In lumped model, oversaturated deep groundwater should enter stream
@@ -314,7 +314,7 @@ double GeolInfil(const topo_struct *topo, const soil_struct *soil,
     }
     else
     {
-        if (ws->fbr_unsat + ws->fbr_gw > geol->depth || ws->gw <= 0.0)
+        if (ws->unsat_geol + ws->gw_geol > geol->depth || ws->gw <= 0.0)
         {
             infil = 0.0;
         }
@@ -322,9 +322,9 @@ double GeolInfil(const topo_struct *topo, const soil_struct *soil,
         {
             double          ksoil, kgeol;
 
-            deficit = geol->depth - ws->fbr_gw;
+            deficit = geol->depth - ws->gw_geol;
 
-            satn = ws->fbr_unsat / deficit;
+            satn = ws->unsat_geol / deficit;
             satn = MIN(satn, 1.0);
             satn = MAX(satn, SATMIN);
 
@@ -361,33 +361,33 @@ double GeolRecharge(const soil_struct *geol, const wstate_struct *ws,
     double          kavg;
     double          recharge;
 
-    if (ws->fbr_gw >= geol->depth)
+    if (ws->gw_geol >= geol->depth)
     {
 # if defined(_LUMPED_)
         recharge = 0.0;
 # else
-        recharge = wf->fbr_infil;
+        recharge = wf->infil_geol;
 # endif
     }
     else
     {
-        deficit = geol->depth - ws->fbr_gw;
+        deficit = geol->depth - ws->gw_geol;
 
-        satn = ws->fbr_unsat / deficit;
+        satn = ws->unsat_geol / deficit;
         satn = MIN(satn, 1.0);
         satn = MAX(satn, SATMIN);
 
         psi_u = Psi(satn, geol->alpha, geol->beta);
         psi_u = MAX(psi_u, PSIMIN);
 
-        dh_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->fbr_gw));
+        dh_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw_geol));
 
-        kavg = AvgKv(ws->fbr_gw, KrFunc(geol->beta, satn), geol);
+        kavg = AvgKv(ws->gw_geol, KrFunc(geol->beta, satn), geol);
 
         recharge = kavg * dh_dz;
 
-        recharge = (recharge > 0.0 && ws->fbr_unsat <= 0.0) ? 0.0 : recharge;
-        recharge = (recharge < 0.0 && ws->fbr_gw <= 0.0) ? 0.0 : recharge;
+        recharge = (recharge > 0.0 && ws->unsat_geol <= 0.0) ? 0.0 : recharge;
+        recharge = (recharge < 0.0 && ws->gw_geol <= 0.0) ? 0.0 : recharge;
     }
 
     return recharge;

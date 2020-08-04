@@ -62,7 +62,7 @@ void TotalPhotosynthesis(const epconst_struct *epc, const daily_struct *daily,
      * leaf area in the relevant canopy fraction, and this total converted from
      * umol/m2/s -> kgC/m2/d */
     cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) *
-        ps->plaishade * epv->dayl * 12.011e-9;
+        ps->plaishade * epv->dayl * 12.011E-9;
 }
 
 void Photosynthesis(psn_struct *psn)

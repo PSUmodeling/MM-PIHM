@@ -28,13 +28,13 @@ void DailyBgc(int t, pihm_struct pihm)
      * BGC module for the current day
      */
     /* Get co2 and ndep */
-    if (spinup_mode)    /* Spinup mode */
+    if (spinup_mode)                        /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
         ndep = pihm->ndepctrl.ndep / 365.0;
         nfix = pihm->ndepctrl.nfix / 365.0;
     }
-    else    /* Model mode */
+    else                                    /* Model mode */
     {
         /* Atmospheric CO2 handling */
         if (!(pihm->co2.varco2))

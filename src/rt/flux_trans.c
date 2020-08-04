@@ -46,7 +46,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         }
 
 #if defined(_DGW_)
-        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
         for (k = 0; k < nsolute; k++)

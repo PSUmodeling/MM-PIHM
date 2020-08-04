@@ -55,13 +55,13 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib,
         qv = 0.622 * vp / pres;
         qvsat = 0.622 * (vp / rh) / pres;
 
-        if (elem[i].attrib.lai_type > 0)
+        if (elem[i].attrib.lai > 0)
         {
             lai = elem[i].ps.proj_lai;
         }
         else
         {
-            lai = MonthlyLai(t, elem[i].attrib.lc_type);
+            lai = MonthlyLai(t, elem[i].attrib.lc);
         }
 
         meltf = MonthlyMf(t);
@@ -89,7 +89,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib,
         /* ThroughFall and Evaporation from canopy */
         intcp_max = elem[i].lc.cmcfactr * lai * elem[i].lc.shdfac;
 
-        z0 = MonthlyRl(t, elem[i].attrib.lc_type);
+        z0 = MonthlyRl(t, elem[i].attrib.lc);
 
         ra = log(elem[i].ps.zlvl_wind / z0) *
             log(10.0 * elem[i].ps.zlvl_wind / z0) / (wind * 0.16);

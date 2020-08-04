@@ -66,7 +66,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
         int             k;
         int            *ic_type;
 
-        ic_type = elem[i].attrib.chem_ic_type;
+        ic_type = elem[i].attrib.chem_ic;
 
         for (k = 0; k < rttbl->num_stc; k++)
         {
@@ -106,7 +106,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].soil.smcmax, storage, &elem[i].chms);
 
 #if defined(_DGW_)
-        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
         InitChemS(chemtbl, rttbl, &elem[i].restart_input[GEOL_CHMVOL],

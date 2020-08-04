@@ -166,15 +166,15 @@
 #endif
 
 /* River fluxes */
-#define UP_CHANL2CHANL          0
-#define DOWN_CHANL2CHANL        1
-#define LEFT_SURF2CHANL         2
-#define RIGHT_SURF2CHANL        3
-#define LEFT_AQUIF2CHANL        4
-#define RIGHT_AQUIF2CHANL       5
+#define UPSTREAM                0
+#define DOWNSTREAM              1
+#define SURF_LEFT               2
+#define SURF_RIGHT              3
+#define AQUIFER_LEFT            4
+#define AQUIFER_RIGHT           5
 #if defined(_DGW_) && defined(_LUMPED_)
-# define LEFT_FBR2CHANL         6
-# define RIGHT_FBR2CHANL        7
+# define DGW_LEFT               6
+# define DGW_RIGHT              7
 #endif
 
 /* River boundary condition types */
@@ -332,13 +332,10 @@
 #define HOURLY_OUTPUT           -4
 
 /* Output variable types */
-#define ELEMVAR                 0
-#define RIVERVAR                1
-
 #define SURF_CTRL               0
 #define UNSAT_CTRL              1
 #define GW_CTRL                 2
-#define RIVSTG_CTRL             3
+#define STAGE_CTRL             3
 #define RIVGW_CTRL              4
 #define SNOW_CTRL               5
 #define CMC_CTRL                6

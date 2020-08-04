@@ -25,7 +25,7 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
              */
             if (river[i].attrib.riverbc_type != 0)
             {
-                river[i].wf.rivflow[UP_CHANL2CHANL] +=
+                river[i].wf.rivflow[UPSTREAM] +=
                     BoundFluxRiver(river[i].attrib.riverbc_type, &river[i].topo,
                     &river[i].shp, &river[i].matl, &river[i].bc, &river[i].ws);
             }
@@ -35,7 +35,7 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
              */
             down = &river[river[i].down - 1];
 
-            river[i].wf.rivflow[DOWN_CHANL2CHANL] =
+            river[i].wf.rivflow[DOWNSTREAM] =
                 ChannelFlowRiverToRiver(river_mode, &river[i], down);
         }
         else
@@ -43,7 +43,7 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
             /*
              * Outlet flux
              */
-            river[i].wf.rivflow[DOWN_CHANL2CHANL] = OutletFlux(river[i].down,
+            river[i].wf.rivflow[DOWNSTREAM] = OutletFlux(river[i].down,
                 &river[i].topo, &river[i].shp, &river[i].matl, &river[i].bc,
                 &river[i].ws);
         }
@@ -70,8 +70,8 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
         {
             down = &river[river[i].down - 1];
 
-            down->wf.rivflow[UP_CHANL2CHANL] -=
-                river[i].wf.rivflow[DOWN_CHANL2CHANL];
+            down->wf.rivflow[UPSTREAM] -=
+                river[i].wf.rivflow[DOWNSTREAM];
         }
     }
 }
@@ -83,11 +83,11 @@ void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
     {
         double          effk_left;
 
-        river_ptr->wf.rivflow[LEFT_SURF2CHANL] = OvlFlowElemToRiver(surf_mode,
+        river_ptr->wf.rivflow[SURF_LEFT] = OvlFlowElemToRiver(surf_mode,
             river_ptr, left);
 
         effk_left = EffKh(left->ws.gw, &left->soil);
-        river_ptr->wf.rivflow[LEFT_AQUIF2CHANL] = ChannelFlowElemToRiver(effk_left,
+        river_ptr->wf.rivflow[AQUIFER_LEFT] = ChannelFlowElemToRiver(effk_left,
             river_ptr->topo.dist_left, river_ptr, left);
     }
 
@@ -95,44 +95,44 @@ void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
     {
         double          effk_right;
 
-        river_ptr->wf.rivflow[RIGHT_SURF2CHANL] = OvlFlowElemToRiver(surf_mode,
+        river_ptr->wf.rivflow[SURF_RIGHT] = OvlFlowElemToRiver(surf_mode,
             river_ptr, right);
 
         effk_right = EffKh(right->ws.gw, &right->soil);
-        river_ptr->wf.rivflow[RIGHT_AQUIF2CHANL] =
+        river_ptr->wf.rivflow[AQUIFER_RIGHT] =
             ChannelFlowElemToRiver(effk_right, river_ptr->topo.dist_right,
                 river_ptr, right);
     }
 
 #if defined(_DGW_) && defined(_LUMPED_)
-    if (left->ws.fbr_gw > 0.6 * left->geol.depth)
+    if (left->ws.gw_geol > 0.6 * left->geol.depth)
     {
-        left->wf.fbr_discharge = 1.005 *
-            (left->wf.fbr_rechg * left->topo.area - left->wf.fbrflow[0] -
-            left->wf.fbrflow[1] - left->wf.fbrflow[2]) / left->topo.area;
-        left->wf.fbr_discharge = MAX(left->wf.fbr_discharge, 0.0);
-        river_ptr->wf.rivflow[LEFT_FBR2CHANL] = -left->wf.fbr_discharge *
+        left->wf.dgw_runoff = 1.005 *
+            (left->wf.rechg_geol * left->topo.area - left->wf.dgw[0] -
+            left->wf.dgw[1] - left->wf.dgw[2]) / left->topo.area;
+        left->wf.dgw_runoff = MAX(left->wf.dgw_runoff, 0.0);
+        river_ptr->wf.rivflow[DGW_LEFT] = -left->wf.dgw_runoff *
             left->topo.area;
     }
     else
     {
-        left->wf.fbr_discharge = 0.0;
-        river_ptr->wf.rivflow[LEFT_FBR2CHANL] = 0.0;
+        left->wf.dgw_runoff = 0.0;
+        river_ptr->wf.rivflow[DGW_LEFT] = 0.0;
     }
 
-    if (right->ws.fbr_gw > 0.6 * right->geol.depth)
+    if (right->ws.gw_geol > 0.6 * right->geol.depth)
     {
-        right->wf.fbr_discharge = 1.005 *
-            (right->wf.fbr_rechg * right->topo.area - right->wf.fbrflow[0] -
-            right->wf.fbrflow[1] - right->wf.fbrflow[2]) / right->topo.area;
-        right->wf.fbr_discharge = MAX(right->wf.fbr_discharge, 0.0);
-        river_ptr->wf.rivflow[RIGHT_FBR2CHANL] = -right->wf.fbr_discharge *
+        right->wf.dgw_runoff = 1.005 *
+            (right->wf.rechg_geol * right->topo.area - right->wf.dgw[0] -
+            right->wf.dgw[1] - right->wf.dgw[2]) / right->topo.area;
+        right->wf.dgw_runoff = MAX(right->wf.dgw_runoff, 0.0);
+        river_ptr->wf.rivflow[DGW_RIGHT] = -right->wf.dgw_runoff *
             right->topo.area;
     }
     else
     {
-        right->wf.fbr_discharge = 0.0;
-        river_ptr->wf.rivflow[RIGHT_FBR2CHANL] = 0.0;
+        right->wf.dgw_runoff = 0.0;
+        river_ptr->wf.rivflow[DGW_RIGHT] = 0.0;
     }
 #endif
 }
@@ -201,7 +201,7 @@ double OvlFlowElemToRiver(int surf_mode, const river_struct *river_ptr,
     {
         if (bank->nabr_river[j] == river_ptr->ind)
         {
-            bank->wf.ovlflow[j] = -flux;
+            bank->wf.overland[j] = -flux;
             break;
         }
     }

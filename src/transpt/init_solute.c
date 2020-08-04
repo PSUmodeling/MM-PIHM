@@ -32,14 +32,14 @@ void InitSolute(elem_struct elem[])
 
 #if defined(_DGW_)
             elem[i].solute[k].conc_geol      = 0.0;
-            elem[i].solute[k].fbr_infil      = 0.0;
+            elem[i].solute[k].infil_geol      = 0.0;
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].solute[k].fbrflow[j] = 0.0;
+                elem[i].solute[k].dgwflux[j] = 0.0;
             }
             elem[i].solute[k].snksrc_geol    = 0.0;
 # if defined(_LUMPED_)
-            elem[i].solute[k].fbr_discharge  = 0.0;
+            elem[i].solute[k].dgw_leach  = 0.0;
 # endif
 #endif
         }

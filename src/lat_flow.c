@@ -27,7 +27,7 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
         {
             if (elem[i].nabr[j] == 0)       /* Boundary condition flux */
             {
-                BoundFluxElem(elem[i].attrib.bc_type[j], j, &elem[i].topo,
+                BoundFluxElem(elem[i].attrib.bc[j], j, &elem[i].topo,
                     &elem[i].soil, &elem[i].bc, &elem[i].ws, &elem[i].wf);
             }
             else
@@ -47,7 +47,7 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
                         sqrt(dh_dx[nabr->ind - 1] * dh_dx[nabr->ind - 1] +
                         dh_dy[nabr->ind - 1] * dh_dy[nabr->ind - 1])) : 0.0;
 
-                    elem[i].wf.ovlflow[j] = OvlFlowElemToElem(j, avg_sf,
+                    elem[i].wf.overland[j] = OvlFlowElemToElem(j, avg_sf,
                         surf_mode, &elem[i], nabr);
                 }
             }
@@ -76,8 +76,8 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
         {
             if (elem[i].nabr[j] == 0)
             {
-                elem[i].wf.fbrflow[j] =
-                    DeepBoundFluxElem(elem[i].attrib.fbrbc_type[j], j,
+                elem[i].wf.dgw[j] =
+                    DeepBoundFluxElem(elem[i].attrib.bc_geol[j], j,
                     &elem[i].topo, &elem[i].geol, &elem[i].fbr_bc, &elem[i].ws);
             }
             else
@@ -85,8 +85,8 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 /* Groundwater flow modeled by Darcy's Law */
-                elem[i].wf.fbrflow[j] =
-                    DeepFlowElemToElem(elem[i].topo.nabrdist[j],
+                elem[i].wf.dgw[j] =
+                    DeepFlowElemToElem(elem[i].topo.dist_nabr[j],
                         elem[i].topo.edge[j], &elem[i], nabr);
             }
         }
@@ -115,16 +115,16 @@ void FrictionSlope(const elem_struct elem[], const river_struct river[],
             if (elem[i].nabr[j] == 0)
             {
                 surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
-                x[j] = elem[i].topo.nabr_x[j];
-                y[j] = elem[i].topo.nabr_y[j];
+                x[j] = elem[i].topo.x_nabr[j];
+                y[j] = elem[i].topo.y_nabr[j];
             }
             else if (elem[i].nabr_river[j] == 0)
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
-                x[j] = elem[i].topo.nabr_x[j];
-                y[j] = elem[i].topo.nabr_y[j];
+                x[j] = elem[i].topo.x_nabr[j];
+                y[j] = elem[i].topo.y_nabr[j];
             }
             else
             {
@@ -214,7 +214,7 @@ double SubsurfFlow(int j, const elem_struct *elem_ptr, const elem_struct *nabr)
     diff_h = (elem_ptr->ws.gw + elem_ptr->topo.zmin) -
         (nabr->ws.gw + nabr->topo.zmin);
     avg_h = AvgH(diff_h, elem_ptr->ws.gw, nabr->ws.gw);
-    grad_h = diff_h / elem_ptr->topo.nabrdist[j];
+    grad_h = diff_h / elem_ptr->topo.dist_nabr[j];
 
     /* Take into account macropore effect */
     effk = EffKh(elem_ptr->ws.gw, &elem_ptr->soil);
@@ -239,7 +239,7 @@ double OvlFlowElemToElem(int j, double avg_sf, int surf_mode,
         (elem_ptr->ws.surfh + elem_ptr->topo.zmax) -
         (nabr->ws.surfh + nabr->topo.zmax);
     avg_h = AvgHsurf(diff_h, elem_ptr->ws.surfh, nabr->ws.surfh);
-    grad_h = MAX(diff_h / elem_ptr->topo.nabrdist[j], GRADMIN);
+    grad_h = MAX(diff_h / elem_ptr->topo.dist_nabr[j], GRADMIN);
     avg_sf = (surf_mode == KINEMATIC) ? grad_h : MAX(avg_sf, GRADMIN);
     avg_rough = 0.5 * (elem_ptr->lc.rough + nabr->lc.rough);
     cross_area = avg_h * elem_ptr->topo.edge[j];
@@ -258,7 +258,7 @@ void BoundFluxElem(int bc_type, int j, const topo_struct *topo,
     double          grad_h;
 
     /* Assume no flow for surface */
-    wf->ovlflow[j] = 0.0;
+    wf->overland[j] = 0.0;
 
     /* No flow (natural) boundary condition is default */
     if (bc_type == NO_FLOW)
@@ -275,7 +275,7 @@ void BoundFluxElem(int bc_type, int j, const topo_struct *topo,
          * on which boundary condition is defined */
         effk = EffKh(ws->gw, soil);
         avg_ksat = effk;
-        grad_h = diff_h / topo->nabrdist[j];
+        grad_h = diff_h / topo->dist_nabr[j];
         wf->subsurf[j] = avg_ksat * grad_h * avg_h * topo->edge[j];
     }
     else
@@ -296,13 +296,13 @@ double DeepFlowElemToElem(double distance, double edge,
     double          effk, effk_nabr;
     double          avg_ksat;
 
-    diff_h = (elem_ptr->ws.fbr_gw + elem_ptr->topo.zbed) -
-        (nabr->ws.fbr_gw + nabr->topo.zbed);
-    avg_h = AvgH(diff_h, elem_ptr->ws.fbr_gw, nabr->ws.fbr_gw);
+    diff_h = (elem_ptr->ws.gw_geol + elem_ptr->topo.zbed) -
+        (nabr->ws.gw_geol + nabr->topo.zbed);
+    avg_h = AvgH(diff_h, elem_ptr->ws.gw_geol, nabr->ws.gw_geol);
     grad_h = diff_h / distance;
 
-    effk = EffKh(elem_ptr->ws.fbr_gw, &elem_ptr->geol);
-    effk_nabr = EffKh(nabr->ws.fbr_gw, &nabr->geol);
+    effk = EffKh(elem_ptr->ws.gw_geol, &elem_ptr->geol);
+    effk_nabr = EffKh(nabr->ws.gw_geol, &nabr->geol);
     avg_ksat = 0.5 * (effk + effk_nabr);
 
     return avg_ksat * grad_h * avg_h * edge;
@@ -325,12 +325,12 @@ double DeepBoundFluxElem(int bc_type, int j, const topo_struct *topo,
     else if (bc_type > 0)
     {
         /* Dirichlet boundary conditions */
-        diff_h = ws->fbr_gw + topo->zbed - bc->head[j];
-        avg_h = AvgH(diff_h, ws->fbr_gw, bc->head[j] - topo->zbed);
+        diff_h = ws->gw_geol + topo->zbed - bc->head[j];
+        avg_h = AvgH(diff_h, ws->gw_geol, bc->head[j] - topo->zbed);
         /* Minimum distance from circumcenter to the edge of the triangle
          * on which boundary condition is defined */
         effk = geol->ksath;
-        grad_h = diff_h / topo->nabrdist[j];
+        grad_h = diff_h / topo->dist_nabr[j];
         flux = effk * grad_h * avg_h * topo->edge[j];
     }
     else

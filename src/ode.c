@@ -37,8 +37,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.gw    = MAX(y[GW(i)], 0.0);
 
 #if defined(_DGW_)
-        elem[i].ws.fbr_unsat = MAX(y[FBRUNSAT(i)], 0.0);
-        elem[i].ws.fbr_gw    = MAX(y[FBRGW(i)], 0.0);
+        elem[i].ws.unsat_geol = MAX(y[FBRUNSAT(i)], 0.0);
+        elem[i].ws.gw_geol    = MAX(y[FBRGW(i)], 0.0);
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPEDBGC_)
@@ -148,20 +148,20 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
          */
         dy[SURF(i)] += elem[i].wf.pcpdrp - elem[i].wf.infil -
             elem[i].wf.edir_surf;
-        dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.rechg -
+        dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.recharge -
             elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
-        dy[GW(i)] += elem[i].wf.rechg - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
+        dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
 
 #if defined(_DGW_)
         /*
          * Vertical water fluxes for fractured bedrock
          */
-        dy[GW(i)] -= elem[i].wf.fbr_infil;
+        dy[GW(i)] -= elem[i].wf.infil_geol;
 
-        dy[FBRUNSAT(i)] += elem[i].wf.fbr_infil - elem[i].wf.fbr_rechg;
-        dy[FBRGW(i)]    += elem[i].wf.fbr_rechg;
+        dy[FBRUNSAT(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
+        dy[FBRGW(i)]    += elem[i].wf.rechg_geol;
 # if defined(_LUMPED_)
-        dy[FBRGW(i)] -= elem[i].wf.fbr_discharge;
+        dy[FBRGW(i)] -= elem[i].wf.dgw_runoff;
 # endif
 #endif
 
@@ -170,10 +170,10 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
          */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SURF(i)]  -= elem[i].wf.ovlflow[j] / elem[i].topo.area;
+            dy[SURF(i)]  -= elem[i].wf.overland[j] / elem[i].topo.area;
             dy[GW(i)]    -= elem[i].wf.subsurf[j] / elem[i].topo.area;
 #if defined(_DGW_)
-            dy[FBRGW(i)] -= elem[i].wf.fbrflow[j] / elem[i].topo.area;
+            dy[FBRGW(i)] -= elem[i].wf.dgw[j] / elem[i].topo.area;
 #endif
         }
 
@@ -224,12 +224,12 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 # endif
 
 # if defined(_DGW_)
-            dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].fbr_infil;
+            dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].infil_geol;
 
-            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].fbr_infil +
+            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].infil_geol +
                 elem[i].solute[k].snksrc_geol;
 #  if defined(_LUMPED_)
-            dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].fbr_discharge;
+            dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgw_leach;
 #  endif
 # endif
 
@@ -238,7 +238,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] /
                     elem[i].topo.area;
 # if defined(_DGW_)
-                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].fbrflow[j] /
+                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgwflux[j] /
                     elem[i].topo.area;
 # endif
             }

@@ -11,14 +11,14 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             kz;
         double          no3[MAXLYR];
         double          nh4[MAXLYR];
 
-        for (k = 0; k < MAXLYR; k++)
+        for (kz = 0; kz < MAXLYR; kz++)
         {
-            no3[k] = 0.0;
-            nh4[k] = 0.0;
+            no3[kz] = 0.0;
+            nh4[kz] = 0.0;
         }
 
         UpdateNProfile(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns,
@@ -54,16 +54,15 @@ void UpdateNProfile(double dt, const soil_struct *soil,
     const solute_struct solute[], double no3[], double nh4[],
     phystate_struct *ps)
 {
-    int             k;
+    int             kz;
 
     /*
     * Add source sink terms to NO3 and NH4 mass at different layers
     */
-    for (k = 0; k < ps->nlayers; k++)
+    for (kz = 0; kz < ps->nlayers; kz++)
     {
-        no3[k] = ns->no3[k] + solute[NO3].snksrc[k] * dt;
-
-        nh4[k] = ns->nh4[k] + solute[NH4].snksrc[k] * dt;
+        no3[kz] = ns->no3[kz] + solute[NO3].snksrc[kz] * dt;
+        nh4[kz] = ns->nh4[kz] + solute[NH4].snksrc[kz] * dt;
     }
 
     /*
@@ -82,15 +81,15 @@ void LateralNFlow(double kd, const soil_struct *soil,
     const wstate_struct *ws, const phystate_struct *ps,
     const double solute0[], double profile0, double profile, double solute[])
 {
-    int             k;
+    int             kz;
     double          total_weight = 0.0;
     double          weight[MAXLYR];
 
-    for (k = 0; k < ps->nlayers; k++)
+    for (kz = 0; kz < ps->nlayers; kz++)
     {
-        weight[k] = (ps->satdpth[k] > 0.0 && solute[k] > 0.0) ?
-            LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->swc[k],
-            solute[k]) * ps->satdpth[k] * ws->swc[k] * RHOH2O : 0.0;
+        weight[kz] = (ps->satdpth[kz] > 0.0 && solute[kz] > 0.0) ?
+            LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->swc[kz],
+            solute[kz]) * ps->satdpth[kz] * ws->swc[kz] * RHOH2O : 0.0;
     }
 
     total_weight = Profile(ps->nlayers, weight);
@@ -101,27 +100,27 @@ void LateralNFlow(double kd, const soil_struct *soil,
         weight[ps->nlayers - 1] = 1.0;
     }
 
-    for (k = 0; k < ps->nlayers; k++)
+    for (kz = 0; kz < ps->nlayers; kz++)
     {
-        weight[k] /= total_weight;
-        solute[k] += weight[k] * (profile - profile0);
+        weight[kz] /= total_weight;
+        solute[kz] += weight[kz] * (profile - profile0);
     }
 
-    for (k = ps->nlayers - 1; k > 0; k--)
+    for (kz = ps->nlayers - 1; kz > 0; kz--)
     {
-        if (solute[k] < 0.0)
+        if (solute[kz] < 0.0)
         {
-            solute[k - 1] += solute[k];
-            solute[k] = 0.0;
+            solute[kz - 1] += solute[kz];
+            solute[kz] = 0.0;
         }
     }
 
-    for (k = 0; k < ps->nlayers - 1; k++)
+    for (kz = 0; kz < ps->nlayers - 1; kz++)
     {
-        if (solute[k] < 0.0)
+        if (solute[kz] < 0.0)
         {
-            solute[k + 1] += solute[k];
-            solute[k] = 0.0;
+            solute[kz + 1] += solute[kz];
+            solute[kz] = 0.0;
         }
     }
 }
@@ -140,7 +139,7 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
         {
             conc = (solute[k] > 0.0) ?
                 LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->swc[k],
-                    solute[k]) * RHOH2O : 0.0;
+                solute[k]) * RHOH2O : 0.0;
 
             avg_conc += ps->satdpth[k] * conc;
             storage += ps->satdpth[k];

@@ -27,14 +27,14 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         for (k = 0; k < nsolute; k++)
         {
             /* Initialize chemical fluxes */
-            elem[i].solute[k].fbr_infil = 0.0;
+            elem[i].solute[k].infil_geol = 0.0;
 #if defined(_LUMPED_)
-            elem[i].solute[k].fbr_discharge = 0.0;
+            elem[i].solute[k].dgw_leach = 0.0;
 #endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].solute[k].fbrflow[j] = 0.0;
+                elem[i].solute[k].dgwflux[j] = 0.0;
             }
         }
 #endif
@@ -99,8 +99,8 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
 
                         wflux = elem[i].wf.subsurf[j] +
                             ((elem[i].ind == river_ptr->left) ?
-                            river_ptr->wf.rivflow[LEFT_AQUIF2CHANL] :
-                            river_ptr->wf.rivflow[RIGHT_AQUIF2CHANL]);
+                            river_ptr->wf.rivflow[AQUIFER_LEFT] :
+                            river_ptr->wf.rivflow[AQUIFER_RIGHT]);
                     }
 
                     /* Advection, diffusion, and dispersion between triangular
@@ -109,21 +109,21 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                         AdvDiffDisp(diff_coef, disp_coef, cementation,
                         elem[i].solute[k].conc, nabr->solute[k].conc,
                         0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax),
-                        elem[i].topo.nabrdist[j],
+                        elem[i].topo.dist_nabr[j],
                         0.5 * (elem[i].soil.depth + nabr->soil.depth), wflux);
                 }
             }   /* End of element to element */
 
 #if defined(_DGW_)
             /* Bedrock infiltration */
-            elem[i].solute[k].fbr_infil = elem[i].wf.fbr_infil *
-                ((elem[i].wf.fbr_infil > 0.0) ?
+            elem[i].solute[k].infil_geol = elem[i].wf.infil_geol *
+                ((elem[i].wf.infil_geol > 0.0) ?
                 elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
 # if defined(_LUMPED_)
             /* Fractured bedrock discharge to river.
              * Note that FBR discharge is always non-negative */
-            elem[i].solute[k].fbr_discharge = elem[i].wf.fbr_discharge *
+            elem[i].solute[k].dgw_leach = elem[i].wf.dgw_runoff *
                 elem[i].solute[k].conc_geol;
 # endif
 
@@ -134,10 +134,10 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                 {
                     /* Diffusion and dispersion are ignored for boundary fluxes
                      */
-                    elem[i].solute[k].fbrflow[j] =
-                        (elem[i].attrib.fbrbc_type[j] == 0) ?
-                        0.0 : elem[i].wf.fbrflow[j] *
-                        ((elem[i].wf.fbrflow[j] > 0.0) ?
+                    elem[i].solute[k].dgwflux[j] =
+                        (elem[i].attrib.bc_geol[j] == 0) ?
+                        0.0 : elem[i].wf.dgw[j] *
+                        ((elem[i].wf.dgw[j] > 0.0) ?
                         elem[i].solute[k].conc_geol :
                         elem[i].fbr_bc.conc[j][k]);
                 }
@@ -146,13 +146,13 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                     nabr = &elem[elem[i].nabr[j] - 1];
 
                     /* Groundwater advection, diffusion, and dispersion */
-                    elem[i].solute[k].fbrflow[j] =
+                    elem[i].solute[k].dgwflux[j] =
                         AdvDiffDisp(diff_coef, disp_coef, cementation,
                         elem[i].solute[k].conc_geol, nabr->solute[k].conc_geol,
                         0.5 * (elem[i].geol.smcmax + nabr->geol.smcmax),
-                        elem[i].topo.nabrdist[j],
+                        elem[i].topo.dist_nabr[j],
                         0.5 * (elem[i].geol.depth + nabr->geol.depth),
-                        elem[i].wf.fbrflow[j]);
+                        elem[i].wf.dgw[j]);
                 }
             }   /* End of element to element */
 #endif
@@ -175,15 +175,15 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
                 down = &river[river[i].down - 1];
 
                 /* Stream */
-                river[i].solute[k].flux[DOWN_CHANL2CHANL] =
-                    river[i].wf.rivflow[DOWN_CHANL2CHANL] *
-                    ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                river[i].solute[k].flux[DOWNSTREAM] =
+                    river[i].wf.rivflow[DOWNSTREAM] *
+                    ((river[i].wf.rivflow[DOWNSTREAM] > 0.0) ?
                     river[i].solute[k].conc : down->solute[k].conc);
             }
             else
             {
-                river[i].solute[k].flux[DOWN_CHANL2CHANL] =
-                    river[i].wf.rivflow[DOWN_CHANL2CHANL] *
+                river[i].solute[k].flux[DOWNSTREAM] =
+                    river[i].wf.rivflow[DOWNSTREAM] *
                     river[i].solute[k].conc;
             }
         }
@@ -192,10 +192,10 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         if (river[i].left > 0)
         {
 #if defined(_DGW_) && defined(_LUMPED_)
-            RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
-                LEFT_FBR2CHANL, &elem[river[i].left - 1], &river[i]);
+            RiverElemSoluteFlow(SURF_LEFT, AQUIFER_LEFT,
+                DGW_LEFT, &elem[river[i].left - 1], &river[i]);
 #else
-            RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
+            RiverElemSoluteFlow(SURF_LEFT, AQUIFER_LEFT,
                 &elem[river[i].left - 1], &river[i]);
 #endif
         }
@@ -203,10 +203,10 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         if (river[i].right > 0)
         {
 #if defined(_DGW_) && defined(_LUMPED_)
-            RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
-                RIGHT_FBR2CHANL, &elem[river[i].right - 1], &river[i]);
+            RiverElemSoluteFlow(SURF_RIGHT, AQUIFER_RIGHT,
+                DGW_RIGHT, &elem[river[i].right - 1], &river[i]);
 #else
-            RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
+            RiverElemSoluteFlow(SURF_RIGHT, AQUIFER_RIGHT,
                 &elem[river[i].right - 1], &river[i]);
 #endif
         }
@@ -223,8 +223,8 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         {
             if (river[i].down > 0)
             {
-                river[river[i].down - 1].solute[k].flux[UP_CHANL2CHANL] -=
-                    river[i].solute[k].flux[DOWN_CHANL2CHANL];
+                river[river[i].down - 1].solute[k].flux[UPSTREAM] -=
+                    river[i].solute[k].flux[DOWNSTREAM];
             }
         }
     }

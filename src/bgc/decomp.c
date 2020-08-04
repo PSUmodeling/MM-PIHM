@@ -151,7 +151,7 @@ void Decomp(double tsoil, const epconst_struct *epc, const cstate_struct *cs,
 
         ratio = (ns->litr1n > 0.0) ? cn_s1 / cn_l1 : 0.0;
 
-        pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - (ratio))) / cn_s1;
+        pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - ratio)) / cn_s1;
     }
 
     /* 2. Cellulose litter to medium microbial recycling pool */
@@ -160,7 +160,7 @@ void Decomp(double tsoil, const epconst_struct *epc, const cstate_struct *cs,
         plitr2c_loss = kl2 * cs->litr2c;
         ratio = (ns->litr2n > 0.0) ? cn_s2 / cn_l2 : 0.0;
 
-        pmnf_l2s2 = (plitr2c_loss * (1.0 - rfl2s2 - (ratio))) / cn_s2;
+        pmnf_l2s2 = (plitr2c_loss * (1.0 - rfl2s2 - ratio)) / cn_s2;
     }
 
     /* 3. Lignin litter to slow microbial recycling pool */
@@ -169,28 +169,28 @@ void Decomp(double tsoil, const epconst_struct *epc, const cstate_struct *cs,
         plitr4c_loss = kl4 * cs->litr4c;
         ratio = (ns->litr4n > 0.0) ? cn_s3 / cn_l4 : 0.0;
 
-        pmnf_l4s3 = (plitr4c_loss * (1.0 - rfl4s3 - (ratio))) / cn_s3;
+        pmnf_l4s3 = (plitr4c_loss * (1.0 - rfl4s3 - ratio)) / cn_s3;
     }
 
     /* 4. Fast microbial recycling pool to medium microbial recycling pool */
     if (cs->soil1c > 0.0)
     {
         psoil1c_loss = ks1 * cs->soil1c;
-        pmnf_s1s2 = (psoil1c_loss * (1.0 - rfs1s2 - (cn_s2 / cn_s1))) / cn_s2;
+        pmnf_s1s2 = (psoil1c_loss * (1.0 - rfs1s2 - cn_s2 / cn_s1)) / cn_s2;
     }
 
     /* 5. Medium microbial recycling pool to slow microbial recycling pool */
     if (cs->soil2c > 0.0)
     {
         psoil2c_loss = ks2 * cs->soil2c;
-        pmnf_s2s3 = (psoil2c_loss * (1.0 - rfs2s3 - (cn_s3 / cn_s2))) / cn_s3;
+        pmnf_s2s3 = (psoil2c_loss * (1.0 - rfs2s3 - cn_s3 / cn_s2)) / cn_s3;
     }
 
     /* 6. Slow microbial recycling pool to recalcitrant SOM pool */
     if (cs->soil3c > 0.0)
     {
         psoil3c_loss = ks3 * cs->soil3c;
-        pmnf_s3s4 = (psoil3c_loss * (1.0 - rfs3s4 - (cn_s4 / cn_s3))) / cn_s4;
+        pmnf_s3s4 = (psoil3c_loss * (1.0 - rfs3s4 - cn_s4 / cn_s3)) / cn_s4;
     }
 
     /* 7. Mineralization of recalcitrant SOM */

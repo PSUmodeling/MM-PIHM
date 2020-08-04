@@ -164,8 +164,8 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
             plant_calloc = plant_nalloc * (c_allometry / n_allometry);
             excess_c = avail_c - plant_calloc;
             cf->psnsun_to_cpool -= excess_c * (cf->psnsun_to_cpool / day_gpp);
-            cf->psnshade_to_cpool -=
-                excess_c * (cf->psnshade_to_cpool / day_gpp);
+            cf->psnshade_to_cpool -= excess_c *
+                (cf->psnshade_to_cpool / day_gpp);
         }
     }
 
@@ -203,14 +203,14 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
         nf->npool_to_livestemn = (nlc * f3 * f4 / cnlw) * pnow;
         nf->npool_to_livestemn_storage = (nlc * f3 * f4 / cnlw) * (1.0 - pnow);
         nf->npool_to_deadstemn = (nlc * f3 * (1.0 - f4) / cndw) * pnow;
-        nf->npool_to_deadstemn_storage =
-            (nlc * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
+        nf->npool_to_deadstemn_storage = (nlc * f3 * (1.0 - f4) / cndw) *
+            (1.0 - pnow);
         nf->npool_to_livecrootn = (nlc * f2 * f3 * f4 / cnlw) * pnow;
-        nf->npool_to_livecrootn_storage =
-            (nlc * f2 * f3 * f4 / cnlw) * (1.0 - pnow);
+        nf->npool_to_livecrootn_storage = (nlc * f2 * f3 * f4 / cnlw) *
+            (1.0 - pnow);
         nf->npool_to_deadcrootn = (nlc * f2 * f3 * (1.0 - f4) / cndw) * pnow;
-        nf->npool_to_deadcrootn_storage =
-            (nlc * f2 * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
+        nf->npool_to_deadcrootn_storage = (nlc * f2 * f3 * (1.0 - f4) / cndw) *
+            (1.0 - pnow);
     }
 
     /* Calculate the amount of carbon that needs to go into growth respiration

@@ -91,6 +91,6 @@ void InitForcing(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
     for (i = 0; i < nelem; i++)
     {
         elem[i].ps.zlvl_wind =
-            forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;
+            forc->meteo[elem[i].attrib.meteo - 1].zlvl_wind;
     }
 }

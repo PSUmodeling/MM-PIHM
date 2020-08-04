@@ -62,7 +62,7 @@ void NLeachingLumped(elem_struct *elem, river_struct *river)
     {
         if (river[i].down < 0)
         {
-           runoff += river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0;
+           runoff += river[i].wf.rivflow[DOWNSTREAM] * 1000.0;
         }
     }
 

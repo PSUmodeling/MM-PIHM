@@ -39,15 +39,15 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     for (i = 0; i < nelem; i++)
     {
-        pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
+        pihm->elem[i].attrib.soil = pihm->atttbl.soil[i];
 #if defined(_DGW_)
-        pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
+        pihm->elem[i].attrib.geol = pihm->atttbl.geol[i];
 #endif
-        pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
+        pihm->elem[i].attrib.lc = pihm->atttbl.lc[i];
 
 #if defined(_LUMPEDBGC_)
-        soil_counter[pihm->elem[i].attrib.soil_type]++;
-        lc_counter[pihm->elem[i].attrib.lc_type]++;
+        soil_counter[pihm->elem[i].attrib.soil]++;
+        lc_counter[pihm->elem[i].attrib.lc]++;
 #endif
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -56,13 +56,13 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
             if (bc == NO_FLOW)
             {
-                pihm->elem[i].attrib.bc_type[j] = NO_FLOW;
+                pihm->elem[i].attrib.bc[j] = NO_FLOW;
             }
             else
             {
                 /* Adjust bc_type flag so that positive values indicate
                  * Dirichlet type, and negative values indicate Neumann type */
-                pihm->elem[i].attrib.bc_type[j] =
+                pihm->elem[i].attrib.bc[j] =
                     (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
 
@@ -71,26 +71,26 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
             if (bc == NO_FLOW)
             {
-                pihm->elem[i].attrib.fbrbc_type[j] = NO_FLOW;
+                pihm->elem[i].attrib.bc_geol[j] = NO_FLOW;
             }
             else
             {
                 /* Adjust bc_type flag so that positive values indicate
                  * Dirichlet type, and negative values indicate Neumann type */
-                pihm->elem[i].attrib.fbrbc_type[j] =
+                pihm->elem[i].attrib.bc_geol[j] =
                     (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
 #endif
         }
 
-        pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
-        pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
+        pihm->elem[i].attrib.meteo = pihm->atttbl.meteo[i];
+        pihm->elem[i].attrib.lai = pihm->atttbl.lai[i];
 
 #if defined(_RT_)
-        pihm->elem[i].attrib.prcpc_type = pihm->atttbl.prcpc[i];
+        pihm->elem[i].attrib.prcp_conc = pihm->atttbl.prcpc[i];
         for (j = 0; j < NCHMVOL; j++)
         {
-            pihm->elem[i].attrib.chem_ic_type[j] = pihm->atttbl.chem_ic[i][j];
+            pihm->elem[i].attrib.chem_ic[j] = pihm->atttbl.chem_ic[i][j];
         }
 #endif
     }
@@ -98,18 +98,18 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #if defined(_LUMPEDBGC_)
     /* Use the soil type (land cover type) that covers the most number of model
      * grids for the lumped grid */
-    pihm->elem[LUMPEDBGC].attrib.soil_type = 0;
-    pihm->elem[LUMPEDBGC].attrib.lc_type = 0;
+    pihm->elem[LUMPEDBGC].attrib.soil = 0;
+    pihm->elem[LUMPEDBGC].attrib.lc = 0;
     for (i = 0; i < MAX_TYPE; i++)
     {
-        pihm->elem[LUMPEDBGC].attrib.soil_type =
+        pihm->elem[LUMPEDBGC].attrib.soil =
             (soil_counter[i] >
-            soil_counter[pihm->elem[LUMPEDBGC].attrib.soil_type]) ?
-            i : pihm->elem[LUMPEDBGC].attrib.soil_type;
-        pihm->elem[LUMPEDBGC].attrib.lc_type =
+            soil_counter[pihm->elem[LUMPEDBGC].attrib.soil]) ?
+            i : pihm->elem[LUMPEDBGC].attrib.soil;
+        pihm->elem[LUMPEDBGC].attrib.lc =
             (lc_counter[i] >
-            lc_counter[pihm->elem[LUMPEDBGC].attrib.lc_type]) ?
-            i : pihm->elem[LUMPEDBGC].attrib.lc_type;
+            lc_counter[pihm->elem[LUMPEDBGC].attrib.lc]) ?
+            i : pihm->elem[LUMPEDBGC].attrib.lc;
     }
 #endif
 
@@ -422,24 +422,24 @@ void InitSurfL(const meshtbl_struct *meshtbl, elem_struct elem[])
 
             if (elem[i].nabr[j] == 0)
             {
-                elem[i].topo.nabr_x[j] = elem[i].topo.x - 2.0 * distx;
-                elem[i].topo.nabr_y[j] = elem[i].topo.y - 2.0 * disty;
-                elem[i].topo.nabrdist[j] =
+                elem[i].topo.x_nabr[j] = elem[i].topo.x - 2.0 * distx;
+                elem[i].topo.y_nabr[j] = elem[i].topo.y - 2.0 * disty;
+                elem[i].topo.dist_nabr[j] =
                     sqrt(pow(elem[i].topo.edge[0] * elem[i].topo.edge[1] *
                     elem[i].topo.edge[2] / (4.0 * elem[i].topo.area), 2) -
                     pow(elem[i].topo.edge[j] / 2.0, 2));
             }
             else
             {
-                elem[i].topo.nabr_x[j] = elem[elem[i].nabr[j] - 1].topo.x;
-                elem[i].topo.nabr_y[j] = elem[elem[i].nabr[j] - 1].topo.y;
-                elem[i].topo.nabrdist[j] =
-                    (elem[i].topo.x - elem[i].topo.nabr_x[j]) *
-                    (elem[i].topo.x - elem[i].topo.nabr_x[j]);
-                elem[i].topo.nabrdist[j] +=
-                    (elem[i].topo.y - elem[i].topo.nabr_y[j]) *
-                    (elem[i].topo.y - elem[i].topo.nabr_y[j]);
-                elem[i].topo.nabrdist[j] = sqrt(elem[i].topo.nabrdist[j]);
+                elem[i].topo.x_nabr[j] = elem[elem[i].nabr[j] - 1].topo.x;
+                elem[i].topo.y_nabr[j] = elem[elem[i].nabr[j] - 1].topo.y;
+                elem[i].topo.dist_nabr[j] =
+                    (elem[i].topo.x - elem[i].topo.x_nabr[j]) *
+                    (elem[i].topo.x - elem[i].topo.x_nabr[j]);
+                elem[i].topo.dist_nabr[j] +=
+                    (elem[i].topo.y - elem[i].topo.y_nabr[j]) *
+                    (elem[i].topo.y - elem[i].topo.y_nabr[j]);
+                elem[i].topo.dist_nabr[j] = sqrt(elem[i].topo.dist_nabr[j]);
             }
         }
     }
@@ -494,8 +494,8 @@ void RelaxIc(elem_struct elem[], river_struct river[])
         elem[i].ic.gw    = elem[i].soil.depth - INIT_UNSAT;
 
 #if defined(_DGW_)
-        elem[i].ic.fbr_gw = MIN(elem[i].geol.depth, INIT_DGW);
-        elem[i].ic.fbr_unsat = 0.5 * (elem[i].geol.depth - elem[i].ic.fbr_gw);
+        elem[i].ic.gw_geol = MIN(elem[i].geol.depth, INIT_DGW);
+        elem[i].ic.unsat_geol = 0.5 * (elem[i].geol.depth - elem[i].ic.gw_geol);
 #endif
 
 #if defined(_NOAH_)
@@ -566,11 +566,11 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         NV_Ith(CV_Y, GW(i))    = elem[i].ic.gw;
 
 #if defined(_DGW_)
-        elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
-        elem[i].ws.fbr_gw    = elem[i].ic.fbr_gw;
+        elem[i].ws.unsat_geol = elem[i].ic.unsat_geol;
+        elem[i].ws.gw_geol    = elem[i].ic.gw_geol;
 
-        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.fbr_unsat;
-        NV_Ith(CV_Y, FBRGW(i))    = elem[i].ic.fbr_gw;
+        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.unsat_geol;
+        NV_Ith(CV_Y, FBRGW(i))    = elem[i].ic.gw_geol;
 #endif
 
 #if defined(_NOAH_)
@@ -679,14 +679,14 @@ void InitWFlux(wflux_struct *wf)
 
     for (j = 0; j < NUM_EDGE; j++)
     {
-        wf->ovlflow[j] = 0.0;
+        wf->overland[j] = 0.0;
         wf->subsurf[j] = 0.0;
     }
     wf->prcp       = 0.0;
     wf->pcpdrp     = 0.0;
     wf->infil      = 0.0;
     wf->eqv_infil  = 0.0;
-    wf->rechg      = 0.0;
+    wf->recharge      = 0.0;
     wf->drip       = 0.0;
     wf->edir       = 0.0;
     wf->ett        = 0.0;
@@ -701,14 +701,14 @@ void InitWFlux(wflux_struct *wf)
     wf->esnow      = 0.0;
 
 #if defined(_DGW_)
-    wf->fbr_infil = 0.0;
-    wf->fbr_rechg = 0.0;
+    wf->infil_geol = 0.0;
+    wf->rechg_geol = 0.0;
     for (j = 0; j < NUM_EDGE; j++)
     {
-        wf->fbrflow[j] = 0.0;
+        wf->dgw[j] = 0.0;
     }
 # if defined(_LUMPED_)
-    wf->fbr_discharge = 0.0;
+    wf->dgw_runoff = 0.0;
 # endif
 #endif
 

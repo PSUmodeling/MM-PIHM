@@ -249,10 +249,8 @@ void ReadEpc(epctbl_struct *epctbl)
             fgets(cmdstr, MAXSTRING, epc_file);
             sscanf(cmdstr, "%lf", &epctbl->leaf_turnover[i]);
             /* Force leaf turnover fraction to 1.0 if deciduous */
-            if (!epctbl->evergreen[i])
-            {
-                epctbl->leaf_turnover[i] = 1.0;
-            }
+            epctbl->leaf_turnover[i] = (!epctbl->evergreen[i]) ?
+                1.0 : epctbl->leaf_turnover[i];
             epctbl->froot_turnover[i] = epctbl->leaf_turnover[i];
             /* Live wood turnover */
             fgets(cmdstr, MAXSTRING, epc_file);
@@ -281,10 +279,8 @@ void ReadEpc(epctbl_struct *epctbl)
             fgets(cmdstr, MAXSTRING, epc_file);
             sscanf(cmdstr, "%lf", &epctbl->alloc_prop_curgrowth[i]);
             /* Force storage growth to 0.0 if evergreen (following CLM-CN) */
-            if (epctbl->evergreen[i])
-            {
-                epctbl->alloc_prop_curgrowth[i] = 1.0;
-            }
+            epctbl->alloc_prop_curgrowth[i] = (epctbl->evergreen[i]) ?
+                1.0 : epctbl->alloc_prop_curgrowth[i];
             /* Average leaf C:N */
             fgets(cmdstr, MAXSTRING, epc_file);
             sscanf(cmdstr, "%lf", &epctbl->leaf_cn[i]);
@@ -295,8 +291,8 @@ void ReadEpc(epctbl_struct *epctbl)
             if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
             {
                 pihm_printf(VL_ERROR,
-                    "Error: leaf litter C:N must be >= leaf C:N.\n");
-                pihm_printf(VL_ERROR, "Change the values in epc file %s.\n", fn);
+                    "Error: leaf litter C:N must be >= leaf C:N.\n"
+                    "Change the values in epc file %s.\n", fn);
                 pihm_exit(EXIT_FAILURE);
             }
             /* Initial fine root C:N */
@@ -312,8 +308,8 @@ void ReadEpc(epctbl_struct *epctbl)
             if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
             {
                 pihm_printf(VL_ERROR,
-                    "Error: livewood C:N must be >= deadwood C:N.\n");
-                pihm_printf(VL_ERROR, "Change the values in epc file %s.\n", fn);
+                    "Error: livewood C:N must be >= deadwood C:N.\n"
+                    "Change the values in epc file %s.\n", fn);
                 pihm_exit(EXIT_FAILURE);
             }
             /* Leaf litter labile proportion */
@@ -333,8 +329,7 @@ void ReadEpc(epctbl_struct *epctbl)
             {
                 pihm_printf(VL_ERROR,
                     "Error: leaf litter proportions of labile, cellulose, "
-                    "and lignin\n");
-                pihm_printf(VL_ERROR,
+                    "and lignin\n"
                     "must sum to 1.0. Check epc file %s and try again.\n", fn);
                 pihm_exit(EXIT_FAILURE);
             }
@@ -373,8 +368,7 @@ void ReadEpc(epctbl_struct *epctbl)
             {
                 pihm_printf(VL_ERROR,
                     "Error: froot litter proportions of labile, cellulose, "
-                    "and lignin\n");
-                pihm_printf(VL_ERROR,
+                    "and lignin\n"
                     "must sum to 1.0. Check epc file %s and try again.\n", fn);
                 pihm_exit(EXIT_FAILURE);
             }
@@ -408,8 +402,7 @@ void ReadEpc(epctbl_struct *epctbl)
             {
                 pihm_printf(VL_ERROR,
                     "Error: deadwood proportions of cellulose and lignin "
-                    "must sum\n");
-                pihm_printf(VL_ERROR,
+                    "must sum\n"
                     "to 1.0. Check epc file %s and try again.\n", fn);
                 pihm_exit(EXIT_FAILURE);
             }

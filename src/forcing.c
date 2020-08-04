@@ -90,9 +90,9 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[i].attrib.bc_type[j] > 0)
+            if (elem[i].attrib.bc[j] > 0)
             {
-                ind = elem[i].attrib.bc_type[j] - 1;
+                ind = elem[i].attrib.bc[j] - 1;
                 elem[i].bc.head[j] = forc->bc[ind].value[0];
 #if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -101,9 +101,9 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
                 }
 #endif
             }
-            else if (elem[i].attrib.bc_type[j] < 0)
+            else if (elem[i].attrib.bc[j] < 0)
             {
-                ind = -elem[i].attrib.bc_type[j] - 1;
+                ind = -elem[i].attrib.bc[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
 #if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -115,10 +115,10 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 
 
 #if defined(_DGW_)
-            if (elem[i].attrib.fbrbc_type[j] > 0)
+            if (elem[i].attrib.bc_geol[j] > 0)
             {
                 /* Dirichlet type boundary conditions */
-                ind = elem[i].attrib.fbrbc_type[j] - 1;
+                ind = elem[i].attrib.bc_geol[j] - 1;
                 elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -127,10 +127,10 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
                 }
 # endif
             }
-            else if (elem[i].attrib.fbrbc_type[j] < 0)
+            else if (elem[i].attrib.bc_geol[j] < 0)
             {
                 /*  Neumann type boundary conditions */
-                ind = -elem[i].attrib.fbrbc_type[j] - 1;
+                ind = -elem[i].attrib.bc_geol[j] - 1;
                 elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -193,7 +193,7 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
     {
         int             ind;
 
-        ind = elem[i].attrib.meteo_type - 1;
+        ind = elem[i].attrib.meteo - 1;
 
         elem[i].wf.prcp = forc->meteo[ind].value[PRCP_TS] / 1000.0;
         elem[i].es.sfctmp = forc->meteo[ind].value[SFCTMP_TS];
@@ -283,7 +283,7 @@ void ApplyDailyMeteoForcing(int t, int rad_mode,
         {
             int ind;
 
-            ind = elem[i].attrib.meteo_type - 1;
+            ind = elem[i].attrib.meteo - 1;
 
             /* Calculate solar radiation */
             if (rad_mode == TOPO_SOL)
@@ -387,15 +387,15 @@ void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
     {
         int             ind;
 
-        if (elem[i].attrib.lai_type > 0)
+        if (elem[i].attrib.lai > 0)
         {
-            ind = elem[i].attrib.lai_type - 1;
+            ind = elem[i].attrib.lai - 1;
 
             elem[i].ps.proj_lai = forc->lai[ind].value[0];
         }
         else
         {
-            elem[i].ps.proj_lai = MonthlyLai(t, elem[i].attrib.lc_type);
+            elem[i].ps.proj_lai = MonthlyLai(t, elem[i].attrib.lc);
         }
     }
 #endif
@@ -425,7 +425,7 @@ void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc,
             int             k;
             int             ind;
 
-            ind = elem[i].attrib.prcpc_type - 1;
+            ind = elem[i].attrib.prcp_conc - 1;
 
             for (k = 0; k < rttbl->num_spc; k++)
             {
@@ -531,7 +531,7 @@ void IntrplForcing(int t, int nvrbl, int intrpl, tsdata_struct *ts)
     }
 }
 
-double MonthlyLai(int t, int lc_type)
+double MonthlyLai(int t, int lc)
 {
     /*
      * Monthly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
@@ -643,10 +643,10 @@ double MonthlyLai(int t, int lc_type)
 
     pihm_time = PIHMTime(t);
 
-    return lai_tbl[lc_type - 1][pihm_time.month - 1];
+    return lai_tbl[lc - 1][pihm_time.month - 1];
 }
 
-double MonthlyRl(int t, int lc_type)
+double MonthlyRl(int t, int lc)
 {
     /*
      * Monthly roughness length data are calculated using monthly LAI
@@ -780,7 +780,7 @@ double MonthlyRl(int t, int lc_type)
 
     pihm_time = PIHMTime(t);
 
-    return rl_tbl[lc_type - 1][pihm_time.month - 1];
+    return rl_tbl[lc - 1][pihm_time.month - 1];
 }
 
 double MonthlyMf(int t)

@@ -21,15 +21,15 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
     {
         int             soil_ind;
 
-        if (elem[i].attrib.soil_type > soiltbl->number)
+        if (elem[i].attrib.soil > soiltbl->number)
         {
             pihm_printf(VL_ERROR,
                 "Error: Soil type %d for Element %d is not in the soil file.",
-                elem[i].attrib.soil_type, i + 1);
+                elem[i].attrib.soil, i + 1);
             pihm_exit(EXIT_FAILURE);
         }
 
-        soil_ind = elem[i].attrib.soil_type - 1;
+        soil_ind = elem[i].attrib.soil - 1;
 
         elem[i].soil.dinf = calib->dinf * soiltbl->dinf;
 

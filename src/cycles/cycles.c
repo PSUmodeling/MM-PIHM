@@ -37,27 +37,27 @@ void Cycles(int t, elem_struct elem[])
 
 void CalSnkSrc(int nlayers, const nflux_struct *nf, solute_struct solute[])
 {
-    int             k;
+    int             kz;
 
-    for (k = 0; k < MAXLYR; k++)
+    for (kz = 0; kz < MAXLYR; kz++)
     {
-        solute[NO3].snksrc[k] = 0.0;
-        solute[NH4].snksrc[k] = 0.0;
+        solute[NO3].snksrc[kz] = 0.0;
+        solute[NH4].snksrc[kz] = 0.0;
     }
 
     solute[NO3].snksrc[0] += nf->surplus;
     solute[NH4].snksrc[0] += nf->urine;
-    for (k = 0; k < nlayers; k++)
+    for (kz = 0; kz < nlayers; kz++)
     {
-        solute[NO3].snksrc[k] += (nf->nitrif[k] - nf->n2o_from_nitrif[k]) +
-            (-nf->denitrif[k]) + (-nf->no3_uptake[k]) + nf->no3_fert[k] +
-            nf->no3_immobil[k];
+        solute[NO3].snksrc[kz] += (nf->nitrif[kz] - nf->n2o_from_nitrif[kz]) +
+            (-nf->denitrif[kz]) + (-nf->no3_uptake[kz]) + nf->no3_fert[kz] +
+            nf->no3_immobil[kz];
 
-        solute[NH4].snksrc[k] += (-nf->nitrif[k]) + (-nf->volatil[k]) +
-            (-nf->nh4_uptake[k]) + nf->nh4_fert[k] +
-            nf->nh4_immobil[k] + nf->mineral[k];
+        solute[NH4].snksrc[kz] += (-nf->nitrif[kz]) + (-nf->volatil[kz]) +
+            (-nf->nh4_uptake[kz]) + nf->nh4_fert[kz] +
+            nf->nh4_immobil[kz] + nf->mineral[kz];
 
-        solute[NO3].snksrc[k] /= DAYINSEC;
-        solute[NH4].snksrc[k] /= DAYINSEC;
+        solute[NO3].snksrc[kz] /= DAYINSEC;
+        solute[NH4].snksrc[kz] /= DAYINSEC;
     }
 }

@@ -551,8 +551,8 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime,
             fwrite(&elem[i].ws.unsat,     sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.gw,        sizeof(double), 1, init_file);
 #if defined(_DGW_)
-            fwrite(&elem[i].ws.fbr_unsat, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.fbr_gw,    sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.unsat_geol, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.gw_geol,    sizeof(double), 1, init_file);
 #endif
 #if defined(_NOAH_)
             fwrite(&elem[i].es.t1,        sizeof(double), 1, init_file);
@@ -676,7 +676,7 @@ void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[],
 
         if (river[i].down < 0)
         {
-            tot_snk += river[i].wf.rivflow[DOWN_CHANL2CHANL] * dt;
+            tot_snk += river[i].wf.rivflow[DOWNSTREAM] * dt;
         }
     }
 

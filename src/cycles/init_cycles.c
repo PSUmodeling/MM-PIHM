@@ -12,37 +12,37 @@ void InitCycles(const calib_struct *cal, const agtbl_struct *agtbl,
     for (i = 0; i < nelem; i++)
     {
         int             soil_ind;
-        int             k, kcrop;
+        int             kz, kcrop;
         /*
          * Initialize initial soil variables
          */
-        soil_ind = elem[i].attrib.soil_type - 1;
+        soil_ind = elem[i].attrib.soil - 1;
 
-        for (k = 0; k < MAXLYR; k++)
+        for (kz = 0; kz < MAXLYR; kz++)
         {
-            if (k < elem[i].ps.nlayers)
+            if (kz < elem[i].ps.nlayers)
             {
-                elem[i].soil.clay[k] = soiltbl->clay_layer[soil_ind][k];
-                elem[i].soil.sand[k] = soiltbl->sand_layer[soil_ind][k];
-                elem[i].soil.bd[k]   = soiltbl->bd_layer[soil_ind][k];
-                elem[i].soil.fc[k]   = soiltbl->fc[soil_ind][k];
-                elem[i].soil.pwp[k]  = soiltbl->pwp[soil_ind][k];
-                elem[i].soil.b[k]    = soiltbl->b[soil_ind][k];
-                elem[i].soil.air_entry_pot[k] =
-                                        soiltbl->air_entry_pot[soil_ind][k];
+                elem[i].soil.clay[kz] = soiltbl->clay_layer[soil_ind][kz];
+                elem[i].soil.sand[kz] = soiltbl->sand_layer[soil_ind][kz];
+                elem[i].soil.bd[kz]   = soiltbl->bd_layer[soil_ind][kz];
+                elem[i].soil.fc[kz]   = soiltbl->fc[soil_ind][kz];
+                elem[i].soil.pwp[kz]  = soiltbl->pwp[soil_ind][kz];
+                elem[i].soil.b[kz]    = soiltbl->b[soil_ind][kz];
+                elem[i].soil.air_entry_pot[kz] =
+                                        soiltbl->air_entry_pot[soil_ind][kz];
 
-                elem[i].soil.fc[k]  *= cal->porosity;
-                elem[i].soil.pwp[k] *= cal->porosity;
+                elem[i].soil.fc[kz]  *= cal->porosity;
+                elem[i].soil.pwp[kz] *= cal->porosity;
             }
             else
             {
-                elem[i].soil.clay[k]          = BADVAL;
-                elem[i].soil.sand[k]          = BADVAL;
-                elem[i].soil.bd[k]            = BADVAL;
-                elem[i].soil.fc[k]            = BADVAL;
-                elem[i].soil.pwp[k]           = BADVAL;
-                elem[i].soil.b[k]             = BADVAL;
-                elem[i].soil.air_entry_pot[k] = BADVAL;
+                elem[i].soil.clay[kz]          = BADVAL;
+                elem[i].soil.sand[kz]          = BADVAL;
+                elem[i].soil.bd[kz]            = BADVAL;
+                elem[i].soil.fc[kz]            = BADVAL;
+                elem[i].soil.pwp[kz]           = BADVAL;
+                elem[i].soil.b[kz]             = BADVAL;
+                elem[i].soil.air_entry_pot[kz] = BADVAL;
             }
         }
 
@@ -73,10 +73,10 @@ void FirstDay(const soiltbl_struct *soiltbl, const ctrl_struct *ctrl,
 
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             kz;
         int             soil_ind;
 
-        soil_ind = elem[i].attrib.soil_type - 1;
+        soil_ind = elem[i].attrib.soil - 1;
 
         elem[i].restart_input.water_residue_stan = 0.0;
         elem[i].restart_input.water_residue_flat = 0.0;
@@ -87,54 +87,55 @@ void FirstDay(const soiltbl_struct *soiltbl, const ctrl_struct *ctrl,
         elem[i].restart_input.n_residue_flat     = 0.0;
         elem[i].restart_input.n_manure_surface   = 0.0;
 
-        for (k = 0; k < MAXLYR; k++)
+        for (kz = 0; kz < MAXLYR; kz++)
         {
-            elem[i].restart_input.c_residue_abgd[k]  = BADVAL;
-            elem[i].restart_input.c_residue_root[k]  = BADVAL;
-            elem[i].restart_input.c_residue_rhizo[k] = BADVAL;
-            elem[i].restart_input.c_manure[k]        = BADVAL;
-            elem[i].restart_input.n_residue_abgd[k]  = BADVAL;
-            elem[i].restart_input.n_residue_root[k]  = BADVAL;
-            elem[i].restart_input.n_residue_rhizo[k] = BADVAL;
-            elem[i].restart_input.n_manure[k]        = BADVAL;
-            elem[i].restart_input.soc[k]             = BADVAL;
-            elem[i].restart_input.mbc[k]             = BADVAL;
-            elem[i].restart_input.son[k]             = BADVAL;
-            elem[i].restart_input.mbn[k]             = BADVAL;
-            elem[i].restart_input.no3[k]             = BADVAL;
-            elem[i].restart_input.nh4[k]             = BADVAL;
+            elem[i].restart_input.c_residue_abgd[kz]  = BADVAL;
+            elem[i].restart_input.c_residue_root[kz]  = BADVAL;
+            elem[i].restart_input.c_residue_rhizo[kz] = BADVAL;
+            elem[i].restart_input.c_manure[kz]        = BADVAL;
+            elem[i].restart_input.n_residue_abgd[kz]  = BADVAL;
+            elem[i].restart_input.n_residue_root[kz]  = BADVAL;
+            elem[i].restart_input.n_residue_rhizo[kz] = BADVAL;
+            elem[i].restart_input.n_manure[kz]        = BADVAL;
+            elem[i].restart_input.soc[kz]             = BADVAL;
+            elem[i].restart_input.mbc[kz]             = BADVAL;
+            elem[i].restart_input.son[kz]             = BADVAL;
+            elem[i].restart_input.mbn[kz]             = BADVAL;
+            elem[i].restart_input.no3[kz]             = BADVAL;
+            elem[i].restart_input.nh4[kz]             = BADVAL;
         }
 
-        for (k = 0; k < elem[i].ps.nlayers; k++)
+        for (kz = 0; kz < elem[i].ps.nlayers; kz++)
         {
-            elem[i].restart_input.c_residue_abgd[k]  = 0.0;
-            elem[i].restart_input.c_residue_root[k]  = 0.0;
-            elem[i].restart_input.c_residue_rhizo[k] = 0.0;
-            elem[i].restart_input.c_manure[k]        = 0.0;
-            elem[i].restart_input.n_residue_abgd[k]  = 0.0;
-            elem[i].restart_input.n_residue_root[k]  = 0.0;
-            elem[i].restart_input.n_residue_rhizo[k] = 0.0;
-            elem[i].restart_input.n_manure[k]        = 0.0;
-            elem[i].restart_input.soc[k]             = BADVAL;
-            elem[i].restart_input.mbc[k]             = BADVAL;
-            elem[i].restart_input.son[k]             = BADVAL;
-            elem[i].restart_input.mbn[k]             = BADVAL;
-            elem[i].restart_input.no3[k]             = BADVAL;
-            elem[i].restart_input.nh4[k]             = BADVAL;
+            elem[i].restart_input.c_residue_abgd[kz]  = 0.0;
+            elem[i].restart_input.c_residue_root[kz]  = 0.0;
+            elem[i].restart_input.c_residue_rhizo[kz] = 0.0;
+            elem[i].restart_input.c_manure[kz]        = 0.0;
+            elem[i].restart_input.n_residue_abgd[kz]  = 0.0;
+            elem[i].restart_input.n_residue_root[kz]  = 0.0;
+            elem[i].restart_input.n_residue_rhizo[kz] = 0.0;
+            elem[i].restart_input.n_manure[kz]        = 0.0;
+            elem[i].restart_input.soc[kz]             = BADVAL;
+            elem[i].restart_input.mbc[kz]             = BADVAL;
+            elem[i].restart_input.son[kz]             = BADVAL;
+            elem[i].restart_input.mbn[kz]             = BADVAL;
+            elem[i].restart_input.no3[kz]             = BADVAL;
+            elem[i].restart_input.nh4[kz]             = BADVAL;
 
-            elem[i].restart_input.soc[k] = soiltbl->om_layer[soil_ind][k] /
-                100.0 * 0.58 * elem[i].ps.soil_depth[k] * elem[i].soil.bd[k] *
+            elem[i].restart_input.soc[kz] = soiltbl->om_layer[soil_ind][kz] /
+                100.0 * 0.58 * elem[i].ps.soil_depth[kz] * elem[i].soil.bd[kz] *
                 1.0E4;
             /* Initializes as 3% of SOC_Mass but "added" C */
-            elem[i].restart_input.mbc[k] = 0.03 * elem[i].restart_input.soc[k];
+            elem[i].restart_input.mbc[kz] = 0.03 *
+                elem[i].restart_input.soc[kz];
             /* Initializes with CN ratio = 10 */
-            elem[i].restart_input.son[k] = elem[i].restart_input.soc[k] * 0.1;
+            elem[i].restart_input.son[kz] = elem[i].restart_input.soc[kz] * 0.1;
             /* Initializes with CN ratio = 10 */
-            elem[i].restart_input.mbn[k] = elem[i].restart_input.mbc[k] * 0.1;
-            elem[i].restart_input.no3[k] = soiltbl->no3[soil_ind][k] * 1.0E-3 *
-                elem[i].ps.soil_depth[k] / ctrl->soil_depth[k];
-            elem[i].restart_input.nh4[k] = soiltbl->nh4[soil_ind][k] * 1.0E-3 *
-                elem[i].ps.soil_depth[k] / ctrl->soil_depth[k];
+            elem[i].restart_input.mbn[kz] = elem[i].restart_input.mbc[kz] * 0.1;
+            elem[i].restart_input.no3[kz] = soiltbl->no3[soil_ind][kz] *
+                1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
+            elem[i].restart_input.nh4[kz] = soiltbl->nh4[soil_ind][kz] *
+                1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
         }
     }
 }
@@ -145,7 +146,7 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             kz;
 
         elem[i].ws.stan_residue   = elem[i].restart_input.water_residue_stan;
         elem[i].ws.flat_residue   = elem[i].restart_input.water_residue_flat;
@@ -153,28 +154,28 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].cs.flat_residue   = elem[i].restart_input.c_residue_flat;
         elem[i].cs.manure_surface = elem[i].restart_input.c_manure_surface;
 
-        for (k = 0; k < MAXLYR; k++)
+        for (kz = 0; kz < MAXLYR; kz++)
         {
-            elem[i].cs.abgd_residue[k] =
-                elem[i].restart_input.c_residue_abgd[k];
-            elem[i].cs.root_residue[k] =
-                elem[i].restart_input.c_residue_root[k];
-            elem[i].cs.rhizo_residue[k] =
-                elem[i].restart_input.c_residue_rhizo[k];
-            elem[i].cs.manure[k] = elem[i].restart_input.c_manure[k];
-            elem[i].ns.residue_abgd[k] =
-                elem[i].restart_input.n_residue_abgd[k];
-            elem[i].ns.residue_root[k] =
-                elem[i].restart_input.n_residue_root[k];
-            elem[i].ns.residue_rhizo[k] =
-                elem[i].restart_input.n_residue_rhizo[k];
-            elem[i].ns.manure[k] = elem[i].restart_input.n_manure[k];
-            elem[i].cs.soc[k] = elem[i].restart_input.soc[k];
-            elem[i].cs.mbc[k] = elem[i].restart_input.mbc[k];
-            elem[i].ns.son[k] = elem[i].restart_input.son[k];
-            elem[i].ns.mbn[k] = elem[i].restart_input.mbn[k];
-            elem[i].ns.no3[k] = elem[i].restart_input.no3[k];
-            elem[i].ns.nh4[k] = elem[i].restart_input.nh4[k];
+            elem[i].cs.abgd_residue[kz] =
+                elem[i].restart_input.c_residue_abgd[kz];
+            elem[i].cs.root_residue[kz] =
+                elem[i].restart_input.c_residue_root[kz];
+            elem[i].cs.rhizo_residue[kz] =
+                elem[i].restart_input.c_residue_rhizo[kz];
+            elem[i].cs.manure[kz] = elem[i].restart_input.c_manure[kz];
+            elem[i].ns.residue_abgd[kz] =
+                elem[i].restart_input.n_residue_abgd[kz];
+            elem[i].ns.residue_root[kz] =
+                elem[i].restart_input.n_residue_root[kz];
+            elem[i].ns.residue_rhizo[kz] =
+                elem[i].restart_input.n_residue_rhizo[kz];
+            elem[i].ns.manure[kz] = elem[i].restart_input.n_manure[kz];
+            elem[i].cs.soc[kz] = elem[i].restart_input.soc[kz];
+            elem[i].cs.mbc[kz] = elem[i].restart_input.mbc[kz];
+            elem[i].ns.son[kz] = elem[i].restart_input.son[kz];
+            elem[i].ns.mbn[kz] = elem[i].restart_input.mbn[kz];
+            elem[i].ns.no3[kz] = elem[i].restart_input.no3[kz];
+            elem[i].ns.nh4[kz] = elem[i].restart_input.nh4[kz];
         }
 
         ZeroFluxes(&elem[i].wf, &elem[i].cf, &elem[i].nf);
