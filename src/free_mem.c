@@ -123,7 +123,6 @@ void FreeAtttbl(atttbl_struct *atttbl)
     free(atttbl->lc);
     free(atttbl->meteo);
     free(atttbl->lai);
-    free(atttbl->source);
 }
 
 void FreeSoiltbl(soiltbl_struct *soiltbl)

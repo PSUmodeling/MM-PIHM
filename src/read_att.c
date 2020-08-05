@@ -18,7 +18,6 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
     atttbl->bc     = (int **)malloc(nelem * sizeof(int *));
     atttbl->meteo  = (int *)malloc(nelem * sizeof(int));
     atttbl->lai    = (int *)malloc(nelem * sizeof(int));
-    atttbl->source = (int *)malloc(nelem * sizeof(int));
     for (i = 0; i < nelem; i++)
     {
         atttbl->bc[i] = (int *)malloc(NUM_EDGE * sizeof(int));
@@ -28,12 +27,12 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
     for (i = 0; i < nelem; i++)
     {
         NextLine(att_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d",
             &index,
             &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
-            &atttbl->meteo[i], &atttbl->lai[i], &atttbl->source[i],
+            &atttbl->meteo[i], &atttbl->lai[i],
             &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
-        if (match != 10)
+        if (match != 9 || index != i + 1)
         {
             pihm_printf(VL_ERROR,
                 "Error reading attribute of the %dth element.\n", i + 1);

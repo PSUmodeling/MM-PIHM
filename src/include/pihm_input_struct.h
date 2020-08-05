@@ -120,7 +120,6 @@ typedef struct atttbl_struct
     int            *lai;                    /* leaf area index forcing type
                                              * 0: use climatological values;
                                              * else: use forcing file */
-    int            *source;                 /* source forcing type */
 #if defined(_DGW_)
     int           **bc_geol;                /* boundary condition type for
                                              * deep zone */
