@@ -135,6 +135,7 @@ double          ChannelFlowElemToRiver(double, double, const river_struct *,
 double          ChannelFlowRiverToRiver(const river_struct *,
     const river_struct *);
 void            CheckCVodeFlag(int);
+int             CheckHeader(const char [], int , ...);
 #if defined(_BGC_)
 int             CheckSteadyState(int, int, int, double, const elem_struct []);
 #else

@@ -168,3 +168,52 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
 
     return prtvrbl;
 }
+
+int CheckHeader(const char buffer[], int nvar, ...)
+{
+    va_list         valist;
+    char            token[MAXSTRING];
+    char            var[MAXSTRING];
+    char            expected[MAXSTRING];
+    int             k;
+    int             bytes_now;
+    int             bytes_consumed = 0;
+    int             success = 1;
+
+    /* Initialize valist for num number of arguments */
+    va_start(valist, nvar);
+
+    expected[0] = '\0';
+
+    for (k = 0; k < nvar; k++)
+    {
+        /* Expected header from input */
+        strcpy(token, va_arg(valist, char *));
+
+        strcat(expected, token);
+        strcat(expected, " ");
+
+        /* Read header from line */
+        if (sscanf(buffer + bytes_consumed, "%s%n", var, &bytes_now) != 1)
+        {
+            success = 0;
+        }
+
+        if (strcasecmp(token, var) != 0)
+        {
+            success = 0;
+        }
+
+        bytes_consumed += bytes_now;
+    }
+
+    /* Clean memory reserved for valist */
+    va_end(valist);
+
+    if (success == 0)
+    {
+        pihm_printf(VL_ERROR, "Expected header: %s\n", expected);
+    }
+
+    return success;
+}
