@@ -184,7 +184,6 @@ void ReadRad(const char filename[], forc_struct *forc)
 
         /* Skip header lines */
         NextLine(rad_file, cmdstr, &lno);
-        NextLine(rad_file, cmdstr, &lno);
         forc->rad[i].length = CountLine(rad_file, cmdstr, 1, "RAD_TS");
     }
 
@@ -193,7 +192,6 @@ void ReadRad(const char filename[], forc_struct *forc)
     for (i = 0; i < forc->nrad; i++)
     {
         /* Skip header lines */
-        NextLine(rad_file, cmdstr, &lno);
         NextLine(rad_file, cmdstr, &lno);
         NextLine(rad_file, cmdstr, &lno);
 
