@@ -52,7 +52,6 @@ void ReadLai(const char filename[], const atttbl_struct *atttbl,
                 }
                 /* Skip header lines */
                 NextLine(lai_file, cmdstr, &lno);
-                NextLine(lai_file, cmdstr, &lno);
                 forc->lai[i].length = CountLine(lai_file, cmdstr, 1, "LAI_TS");
             }
 
@@ -61,7 +60,6 @@ void ReadLai(const char filename[], const atttbl_struct *atttbl,
             for (i = 0; i < forc->nlai; i++)
             {
                 /* Skip header lines */
-                NextLine(lai_file, cmdstr, &lno);
                 NextLine(lai_file, cmdstr, &lno);
                 NextLine(lai_file, cmdstr, &lno);
 
