@@ -17,11 +17,11 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
     EtUptake(elem);
 
     /* Water flow */
-    LateralFlow(ctrl->surf_mode, river, elem);
+    LateralFlow(river, elem);
 
     VerticalFlow((double)ctrl->stepsize, elem);
 
-    RiverFlow(ctrl->surf_mode, ctrl->riv_mode, elem, river);
+    RiverFlow(elem, river);
 }
 
 void EtUptake(elem_struct elem[])

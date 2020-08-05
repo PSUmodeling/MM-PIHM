@@ -35,15 +35,6 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "WRITE_IC", 'i', fn, lno, &ctrl->write_ic);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "UNSAT_MODE", 'i', fn, lno, &ctrl->unsat_mode);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SURF_MODE", 'i', fn, lno, &ctrl->surf_mode);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RIV_MODE", 'i', fn, lno, &ctrl->riv_mode);
-
-    NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "START", 't', fn, lno, &ctrl->starttime);
 
     NextLine(fp, cmdstr, &lno);

@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
-    river_struct river[])
+void RiverFlow(elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -36,7 +35,7 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
             down = &river[river[i].down - 1];
 
             river[i].wf.rivflow[DOWNSTREAM] =
-                ChannelFlowRiverToRiver(river_mode, &river[i], down);
+                ChannelFlowRiverToRiver(&river[i], down);
         }
         else
         {
@@ -54,7 +53,7 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
         left = &elem[river[i].left - 1];
         right = &elem[river[i].right - 1];
 
-        RiverToElem(surf_mode, &river[i], left, right);
+        RiverToElem(&river[i], left, right);
     }
 
     /*
@@ -76,15 +75,14 @@ void RiverFlow(int surf_mode, int river_mode, elem_struct elem[],
     }
 }
 
-void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
+void RiverToElem(river_struct *river_ptr, elem_struct *left,
     elem_struct *right)
 {
     if (river_ptr->left > 0)
     {
         double          effk_left;
 
-        river_ptr->wf.rivflow[SURF_LEFT] = OvlFlowElemToRiver(surf_mode,
-            river_ptr, left);
+        river_ptr->wf.rivflow[SURF_LEFT] = OvlFlowElemToRiver(river_ptr, left);
 
         effk_left = EffKh(left->ws.gw, &left->soil);
         river_ptr->wf.rivflow[AQUIFER_LEFT] = ChannelFlowElemToRiver(effk_left,
@@ -95,8 +93,8 @@ void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
     {
         double          effk_right;
 
-        river_ptr->wf.rivflow[SURF_RIGHT] = OvlFlowElemToRiver(surf_mode,
-            river_ptr, right);
+        river_ptr->wf.rivflow[SURF_RIGHT] = OvlFlowElemToRiver(river_ptr,
+            right);
 
         effk_right = EffKh(right->ws.gw, &right->soil);
         river_ptr->wf.rivflow[AQUIFER_RIGHT] =
@@ -137,8 +135,7 @@ void RiverToElem(int surf_mode, river_struct *river_ptr, elem_struct *left,
 #endif
 }
 
-double OvlFlowElemToRiver(int surf_mode, const river_struct *river_ptr,
-    elem_struct *bank)
+double OvlFlowElemToRiver(const river_struct *river_ptr, elem_struct *bank)
 {
     int             j;
     double          z_bank;
@@ -149,8 +146,7 @@ double OvlFlowElemToRiver(int surf_mode, const river_struct *river_ptr,
     z_bank = (river_ptr->topo.zmax > bank->topo.zmax) ?
         river_ptr->topo.zmax : bank->topo.zmax;
 
-    bank_h = (surf_mode == DIFF_WAVE) ?
-        bank->topo.zmax + bank->ws.surfh : bank->topo.zmax;
+    bank_h = bank->topo.zmax + bank->ws.surfh;
     river_h = river_ptr->topo.zbed + river_ptr->ws.stage;
 
     /*
@@ -209,7 +205,7 @@ double OvlFlowElemToRiver(int surf_mode, const river_struct *river_ptr,
     return flux;
 }
 
-double ChannelFlowRiverToRiver(int river_mode, const river_struct *river_ptr,
+double ChannelFlowRiverToRiver(const river_struct *river_ptr,
     const river_struct *down)
 {
     double          total_h;
@@ -239,8 +235,7 @@ double ChannelFlowRiverToRiver(int river_mode, const river_struct *river_ptr,
     avg_rough = 0.5 * (river_ptr->matl.rough + down->matl.rough);
     distance = 0.5 * (river_ptr->shp.length + down->shp.length);
 
-    diff_h = (river_mode == KINEMATIC) ?
-        river_ptr->topo.zbed - down->topo.zbed : total_h - total_h_down;
+    diff_h = total_h - total_h_down;
     grad_h = diff_h / distance;
     avg_sf = (grad_h > 0.0) ? grad_h : RIVGRADMIN;
     crossa = RiverCrossSectArea(river_ptr->shp.intrpl_ord, river_ptr->ws.stage,

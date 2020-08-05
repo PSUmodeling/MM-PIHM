@@ -132,7 +132,7 @@ double          BoundFluxRiver(int, const river_topo_struct *,
 void            CalcModelSteps(ctrl_struct *);
 double          ChannelFlowElemToRiver(double, double, const river_struct *,
     elem_struct *);
-double          ChannelFlowRiverToRiver(int, const river_struct *,
+double          ChannelFlowRiverToRiver(const river_struct *,
     const river_struct *);
 void            CheckCVodeFlag(int);
 #if defined(_BGC_)
@@ -206,7 +206,7 @@ void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, const calib_struct *, elem_struct []);
 void            IntrplForcing(int, int, int, tsdata_struct *);
 double          KrFunc(double, double);
-void            LateralFlow(int, const river_struct [], elem_struct []);
+void            LateralFlow(const river_struct [], elem_struct []);
 #if defined(_CYCLES_)
 void            MapOutput(const char [], const int [], const crop_struct [],
     const elem_struct [], const river_struct [], print_struct *);
@@ -234,9 +234,9 @@ int             Ode(realtype, N_Vector, N_Vector, void *);
 double          OutletFlux(int, const river_topo_struct *, const shp_struct *,
     const matl_struct *, const river_bc_struct *, const river_wstate_struct *);
 double          OverLandFlow(double, double, double, double, double);
-double          OvlFlowElemToElem(int, double, int, const elem_struct *,
+double          OvlFlowElemToElem(int, double, const elem_struct *,
     const elem_struct *);
-double          OvlFlowElemToRiver(int, const river_struct *, elem_struct *);
+double          OvlFlowElemToRiver(const river_struct *, elem_struct *);
 void            ParseCmdLineParam(int, char *[], char []);
 void            PIHM(double, pihm_struct, void *, N_Vector);
 pihm_t_struct   PIHMTime(int);
@@ -282,9 +282,9 @@ double          Recharge(const soil_struct *, const wstate_struct *,
     const wflux_struct *);
 double          RiverCrossSectArea(int, double, double);
 double          RiverEqWid(int, double, double);
-void            RiverFlow(int, int, elem_struct [], river_struct []);
+void            RiverFlow(elem_struct [], river_struct []);
 double          RiverPerim(int, double, double);
-void            RiverToElem(int, river_struct *, elem_struct *, elem_struct *);
+void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
 int             roundi(double);
 #if defined(_OPENMP)
 void            RunTime(double, double *, double *);

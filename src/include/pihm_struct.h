@@ -150,12 +150,6 @@ typedef struct ctrl_struct
     int             init_type;              /* initialization mode:
                                              * 0 = relaxed mode,
                                              * 1 = use .ic file */
-    int             unsat_mode;             /* unsaturation formulation:
-                                             * 1 = kinematic, 2 = diffusion */
-    int             surf_mode;              /* surface overland flow formulation
-                                             * 1 = kinematic, 2 = diffusion */
-    int             riv_mode;               /* river routing formulation:
-                                             * 1 = kinematic, 2 = diffusion */
     int             etstep;                 /* land surface (ET) time step (s)*/
     int             starttime;              /* start time of simulation (ctime)
                                              */

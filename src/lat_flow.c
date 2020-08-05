@@ -1,18 +1,15 @@
 #include "pihm.h"
 
-void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
+void LateralFlow(const river_struct river[], elem_struct elem[])
 {
     int             i;
     double         *dh_dx;
     double         *dh_dy;
 
-    if (surf_mode == DIFF_WAVE)
-    {
-        dh_dx = (double *)malloc(nelem * sizeof(double));
-        dh_dy = (double *)malloc(nelem * sizeof(double));
+    dh_dx = (double *)malloc(nelem * sizeof(double));
+    dh_dy = (double *)malloc(nelem * sizeof(double));
 
-        FrictionSlope(elem, river, dh_dx, dh_dy);
-    }
+    FrictionSlope(elem, river, dh_dx, dh_dy);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -42,23 +39,20 @@ void LateralFlow(int surf_mode, const river_struct river[], elem_struct elem[])
                 {
                     /* Surface flux between triangular elements */
                     /* avg_sf not needed in kinematic mode */
-                    avg_sf = (surf_mode == DIFF_WAVE) ?
-                        0.5 * (sqrt(dh_dx[i] * dh_dx[i] + dh_dy[i] * dh_dy[i]) +
+                    avg_sf = 0.5 *
+                        (sqrt(dh_dx[i] * dh_dx[i] + dh_dy[i] * dh_dy[i]) +
                         sqrt(dh_dx[nabr->ind - 1] * dh_dx[nabr->ind - 1] +
-                        dh_dy[nabr->ind - 1] * dh_dy[nabr->ind - 1])) : 0.0;
+                        dh_dy[nabr->ind - 1] * dh_dy[nabr->ind - 1]));
 
                     elem[i].wf.overland[j] = OvlFlowElemToElem(j, avg_sf,
-                        surf_mode, &elem[i], nabr);
+                        &elem[i], nabr);
                 }
             }
         }    /* End of neighbor loop */
     }    /* End of element loop */
 
-    if (surf_mode == DIFF_WAVE)
-    {
-        free(dh_dx);
-        free(dh_dy);
-    }
+    free(dh_dx);
+    free(dh_dy);
 
 #if defined(_DGW_)
     /*
@@ -226,8 +220,8 @@ double SubsurfFlow(int j, const elem_struct *elem_ptr, const elem_struct *nabr)
     return avg_ksat * grad_h * avg_h * elem_ptr->topo.edge[j];
 }
 
-double OvlFlowElemToElem(int j, double avg_sf, int surf_mode,
-    const elem_struct *elem_ptr, const elem_struct *nabr)
+double OvlFlowElemToElem(int j, double avg_sf, const elem_struct *elem_ptr,
+    const elem_struct *nabr)
 {
     double          diff_h;
     double          avg_h;
@@ -235,13 +229,11 @@ double OvlFlowElemToElem(int j, double avg_sf, int surf_mode,
     double          avg_rough;
     double          cross_area;
 
-    diff_h = (surf_mode == KINEMATIC) ?
-        elem_ptr->topo.zmax - nabr->topo.zmax :
-        (elem_ptr->ws.surfh + elem_ptr->topo.zmax) -
+    diff_h = (elem_ptr->ws.surfh + elem_ptr->topo.zmax) -
         (nabr->ws.surfh + nabr->topo.zmax);
     avg_h = AvgHsurf(diff_h, elem_ptr->ws.surfh, nabr->ws.surfh);
     grad_h = MAX(diff_h / elem_ptr->topo.dist_nabr[j], GRADMIN);
-    avg_sf = (surf_mode == KINEMATIC) ? grad_h : MAX(avg_sf, GRADMIN);
+    avg_sf = MAX(avg_sf, GRADMIN);
     avg_rough = 0.5 * (elem_ptr->lc.rough + nabr->lc.rough);
     cross_area = avg_h * elem_ptr->topo.edge[j];
 
