@@ -32,8 +32,15 @@ void ReadLc(const char filename[], lctbl_struct *lctbl)
     lctbl->rough     = (double *)malloc(lctbl->number * sizeof(double));
     lctbl->rzd       = (double *)malloc(lctbl->number * sizeof(double));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(lc_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 16, "INDEX", "SHDFAC", "DROOT", "RS", "RGL", "HS",
+        "SNUP", "LAIMIN", "LAIMAX", "EMISMIN", "EMISMAX", "ALBMIN", "ALBMAX",
+        "Z0MIN", "Z0MAX", "ROUGH"))
+    {
+        pihm_printf(VL_ERROR, "Land cover file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < lctbl->number; i++)
     {

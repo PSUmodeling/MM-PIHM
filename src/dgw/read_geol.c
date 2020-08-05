@@ -26,8 +26,14 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     geoltbl->areafv = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->dmac   = (double *)malloc(geoltbl->number * sizeof (double));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine (fp, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 10, "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC",
+        "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
+    {
+        pihm_printf(VL_ERROR, "Geology file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < geoltbl->number; i++)
     {

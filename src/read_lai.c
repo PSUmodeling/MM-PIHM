@@ -50,8 +50,13 @@ void ReadLai(const char filename[], const atttbl_struct *atttbl,
                         filename, lno);
                     pihm_exit(EXIT_FAILURE);
                 }
-                /* Skip header lines */
+                /* Check header lines */
                 NextLine(lai_file, cmdstr, &lno);
+                if (!CheckHeader(cmdstr, 2, "TIME", "LAI"))
+                {
+                    pihm_printf(VL_ERROR, "LAI forcing file header error.\n");
+                    pihm_exit(EXIT_FAILURE);
+                }
                 forc->lai[i].length = CountLine(lai_file, cmdstr, 1, "LAI_TS");
             }
 

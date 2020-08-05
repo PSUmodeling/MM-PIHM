@@ -38,8 +38,15 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
     soiltbl->smcref = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->smcwlt = (double *)malloc(soiltbl->number * sizeof(double));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(soil_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 16, "INDEX", "SILT", "CLAY", "OM", "BD", "KINF",
+        "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF",
+        "DMAC", "QTZ"))
+    {
+        pihm_printf(VL_ERROR, "Soil file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < soiltbl->number; i++)
     {

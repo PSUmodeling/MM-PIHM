@@ -6,6 +6,7 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
     int             i, j;
     FILE           *riv_file;
     char            cmdstr[MAXSTRING];
+    char            tempstr[2][MAXSTRING];
     int             match;
     int             index;
     int             lno = 0;
@@ -41,8 +42,15 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
     rivtbl->bc    = (int *)malloc(nriver * sizeof(int));
     rivtbl->rsvr  = (int *)malloc(nriver * sizeof(int));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(riv_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 10, "INDEX", "FROM", "TO", "DOWN", "LEFT", "RIGHT",
+        "SHAPE", "MATL", "BC", "RES"))
+    {
+        pihm_printf(VL_ERROR,
+            "River file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     /* Read river segment information */
     for (i = 0; i < nriver; i++)
@@ -68,12 +76,17 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
     ReadKeyword(cmdstr, "SHAPE", 'i', filename, lno, &shptbl->number);
 
     /* Allocate */
-    shptbl->depth      = (double *)malloc(shptbl->number * sizeof(double));
+    shptbl->depth = (double *)malloc(shptbl->number * sizeof(double));
     shptbl->intrpl_ord = (int *)malloc(shptbl->number * sizeof(int));
-    shptbl->coeff      = (double *)malloc(shptbl->number * sizeof(double));
+    shptbl->coeff = (double *)malloc(shptbl->number * sizeof(double));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(riv_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 4, "INDEX", "DPTH", "OINT", "CWID"))
+    {
+        pihm_printf(VL_ERROR, "River file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < shptbl->number; i++)
     {
@@ -101,8 +114,13 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
     matltbl->cwr   = (double *)malloc(matltbl->number * sizeof(double));
     matltbl->ksath = (double *)malloc(matltbl->number * sizeof(double));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(riv_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 4, "INDEX", "ROUGH", "CWR", "KH"))
+    {
+        pihm_printf(VL_ERROR, "River file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < matltbl->number; i++)
     {
@@ -132,9 +150,11 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
         NextLine(riv_file, cmdstr, &lno);
         for (i = 0; i < forc->nriverbc; i++)
         {
-            match = sscanf(cmdstr, "%*s %d %*s %d", &index,
-                &forc->riverbc[i].bc_type);
-            if (match != 2 || i != index - 1)
+            match = sscanf(cmdstr, "%s %d %s %d", tempstr[0], &index,
+                tempstr[1], &forc->riverbc[i].bc_type);
+            if (match != 4 || i != index - 1 ||
+                strcasecmp(tempstr[0], "RIV_TS") != 0 ||
+                strcasecmp(tempstr[1], "TYPE") != 0)
             {
                 pihm_printf(VL_ERROR, "Error reading description "
                     "of the %dth river boundary condition.\n", i);
@@ -153,7 +173,15 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
                     filename, lno);
                 pihm_exit(EXIT_FAILURE);
             }
+            /* Check header */
             NextLine(riv_file, cmdstr, &lno);
+            if (!CheckHeader(cmdstr, 2, "TIME",
+                (forc->riverbc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
+            {
+                pihm_printf(VL_ERROR, "River file header error.\n");
+                pihm_exit(EXIT_FAILURE);
+            }
+
             forc->riverbc[i].length =
                 CountLine(riv_file, cmdstr, 2, "RIV_TS", "RES");
         }

@@ -21,8 +21,13 @@ void ReadBedrock(const char fn[], meshtbl_struct *meshtbl,
         atttbl->bc_geol[i] = (int *)malloc(NUM_EDGE * sizeof(int));
     }
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(fp, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 4, "INDEX", "BC1", "BC2", "BC3"))
+    {
+        pihm_printf(VL_ERROR, "Bedrock file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
     for (i = 0; i < nelem; i++)
     {
         NextLine(fp, cmdstr, &lno);

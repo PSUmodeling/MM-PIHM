@@ -15,6 +15,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     double          temp_conc[MAXSPS];
     char            chemn[MAXSTRING];
     char            cmdstr[MAXSTRING];
+    char            tempstr[2][MAXSTRING];
 
     fp = pihm_fopen(filen, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
@@ -32,8 +33,11 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
         NextLine(fp, cmdstr, &lno);
         for (i = 0; i < forc->nprcpc; i++)
         {
-            match = sscanf(cmdstr, "%*s %d %*s %d", &tsind, &nsps[i]);
-            if (match != 2 || i != tsind - 1)
+            match = sscanf(cmdstr, "%s %d %s %d", tempstr[0], &tsind,
+                tempstr[1], &nsps[i]);
+            if (match != 4 || i != tsind - 1 ||
+                strcasecmp(tempstr[0], "PRCP_CONC_TS") != 0 ||
+                strcasecmp(tempstr[1], "PCONC") != 0)
             {
                 pihm_printf(VL_ERROR,
                     "Error reading the %dth precipitation concentration"
@@ -57,6 +61,23 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
 
             NextLine(fp, cmdstr, &lno);
             bytes_consumed = 0;
+            /* Check header line with TIME keyword */
+            if (sscanf(cmdstr + bytes_consumed, "%s%n", tempstr[0],
+                &bytes_now) != 1)
+            {
+                pihm_printf(VL_ERROR,
+                    "Error reading precipitation conc. "
+                    "in %s near Line %d.\n", filen, lno);
+                pihm_exit(EXIT_FAILURE);
+            }
+            bytes_consumed += bytes_now;
+            if (strcasecmp(tempstr[0], "TIME") != 0)
+            {
+                pihm_printf(VL_ERROR,
+                    "Expect header line starting with \"TIME\" "
+                    "in %s near Line %d.\n", filen, lno);
+                pihm_exit(EXIT_FAILURE);
+            }
             for (j = 0; j < nsps[i]; j++)
             {
                 if (sscanf(cmdstr + bytes_consumed, "%s%n", chemn,

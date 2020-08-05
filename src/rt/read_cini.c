@@ -19,8 +19,17 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
     atttbl->prcpc = (int *)malloc(nelem * sizeof(int));
     atttbl->chem_ic = (int **)malloc(nelem * sizeof(int *));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(fp, cmdstr, &lno);
+#if defined(_DGW_)
+    if (!CheckHeader(cmdstr, 4, "ELEM", "PRCPC", "SOIL", "GEOL"))
+#else
+    if (!CheckHeader(cmdstr, 3, "ELEM", "PRCPC", "SOIL", "GEOL"))
+#endif
+    {
+        pihm_printf(VL_ERROR, "Cini file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
     for (i = 0; i < nelem; i++)
     {
         atttbl->chem_ic[i] = (int *)malloc(NCHMVOL * sizeof(int));

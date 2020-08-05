@@ -13,6 +13,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
     FILE           *bc_file;
     int             read_bc = 0;
     char            cmdstr[MAXSTRING];
+    char            tempstr[2][MAXSTRING];
     int             match;
     int             index;
     int             lno = 0;
@@ -70,9 +71,11 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
             NextLine(bc_file, cmdstr, &lno);
             for (i = 0; i < forc->nbc; i++)
             {
-                match = sscanf(cmdstr, "%*s %d %*s %d",
-                    &index, &forc->bc[i].bc_type);
-                if (match != 2 || i != index - 1)
+                match = sscanf(cmdstr, "%s %d %s %d", tempstr[0], &index,
+                    tempstr[1], &forc->bc[i].bc_type);
+                if (match != 4 || i != index - 1 ||
+                    strcasecmp(tempstr[0], "BC_TS") != 0 ||
+                    strcasecmp(tempstr[1], "TYPE") != 0)
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading the %dth boundary condition "
@@ -104,8 +107,17 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                 NextLine(bc_file, cmdstr, &lno);
 
                 /* Skip the first two columns (TIME and HEAD/FLUX) */
-                sscanf(cmdstr + bytes_consumed, "%*s %*s%n", &bytes_now);
+                sscanf(cmdstr + bytes_consumed, "%s %s%n",
+                    tempstr[0], tempstr[1], &bytes_now);
                 bytes_consumed += bytes_now;
+                if (strcasecmp(tempstr[0], "TIME") != 0 ||
+                    strcasecmp(tempstr[1],
+                    (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX")!= 0)
+                {
+                    pihm_printf(VL_ERROR,
+                        "Boundary condition file header error.\n");
+                    pihm_exit(EXIT_FAILURE);
+                }
 
                 for (k = 0; k < rttbl->num_stc; k++)
                 {
@@ -131,8 +143,15 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                     }
                 }
 #else
-                /* Skip header lines */
+                /* Check header lines */
                 NextLine(bc_file, cmdstr, &lno);
+                if (!CheckHeader(cmdstr, 2, "TIME",
+                    (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
+                {
+                    pihm_printf(VL_ERROR,
+                        "Boundary condition file header error.\n");
+                    pihm_exit(EXIT_FAILURE);
+                }
 #endif
                 forc->bc[i].length = CountLine(bc_file, cmdstr, 1, "BC_TS");
             }

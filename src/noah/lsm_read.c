@@ -182,8 +182,13 @@ void ReadRad(const char filename[], forc_struct *forc)
             pihm_exit(EXIT_FAILURE);
         }
 
-        /* Skip header lines */
+        /* Check header lines */
         NextLine(rad_file, cmdstr, &lno);
+        if (!CheckHeader(cmdstr, 3, "TIME", "SDIR", "SDIF"))
+        {
+            pihm_printf(VL_ERROR, "Radiation forcing file header error.\n");
+            pihm_exit(EXIT_FAILURE);
+        }
         forc->rad[i].length = CountLine(rad_file, cmdstr, 1, "RAD_TS");
     }
 

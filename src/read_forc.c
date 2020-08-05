@@ -4,6 +4,7 @@ void ReadMeteo(const char fn[], forc_struct *forc)
 {
     FILE           *fp;
     char            cmdstr[MAXSTRING];
+    char            tempstr[2][MAXSTRING];
     int             i, j;
     int             match;
     int             index;
@@ -25,9 +26,11 @@ void ReadMeteo(const char fn[], forc_struct *forc)
         NextLine(fp, cmdstr, &lno);
         for (i = 0; i < forc->nmeteo; i++)
         {
-            match = sscanf(cmdstr, "%*s %d %*s %lf",
-                &index, &forc->meteo[i].zlvl_wind);
-            if (match != 2 || i != index - 1)
+            match = sscanf(cmdstr, "%s %d %s %lf", tempstr[0], &index,
+                tempstr[1], &forc->meteo[i].zlvl_wind);
+            if (match != 4 || i != index - 1 ||
+                strcasecmp(tempstr[0], "METEO_TS") != 0 ||
+                strcasecmp(tempstr[1], "WIND_LVL") != 0)
             {
                 pihm_printf(VL_ERROR,
                     "Error reading the %dth meteorological forcing"
@@ -35,8 +38,14 @@ void ReadMeteo(const char fn[], forc_struct *forc)
                 pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
                 pihm_exit(EXIT_FAILURE);
             }
-            /* Skip header lines */
+            /* Check header lines */
             NextLine(fp, cmdstr, &lno);
+            if (!CheckHeader(cmdstr, 8, "TIME", "PRCP", "SFCTMP", "RH",
+                "SFCSPD", "SOLAR", "LONGWV", "PRES"))
+            {
+                pihm_printf(VL_ERROR, "Meteorological forcing file header error.\n");
+                pihm_exit(EXIT_FAILURE);
+            }
             forc->meteo[i].length = CountLine(fp, cmdstr, 1, "METEO_TS");
         }
 

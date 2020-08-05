@@ -21,8 +21,14 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     meshtbl->node = (int **)malloc(nelem * sizeof(int *));
     meshtbl->nabr = (int **)malloc(nelem * sizeof(int *));
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(mesh_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 7, "INDEX", "NODE1", "NODE2", "NODE3", "NABR1",
+        "NABR2", "NABR3"))
+    {
+        pihm_printf(VL_ERROR, "Mesh file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < nelem; i++)
     {
@@ -48,8 +54,13 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     NextLine(mesh_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMNODE", 'i', filename, lno, &meshtbl->numnodes);
 
-    /* Skip header line */
+    /* Check header line */
     NextLine(mesh_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 5, "INDEX", "X", "Y", "ZMIN", "ZMAX"))
+    {
+        pihm_printf(VL_ERROR, "Mesh file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
 
     meshtbl->x    = (double *)malloc(meshtbl->numnodes * sizeof(double));
     meshtbl->y    = (double *)malloc(meshtbl->numnodes * sizeof(double));

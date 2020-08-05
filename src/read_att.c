@@ -23,7 +23,14 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
         atttbl->bc[i] = (int *)malloc(NUM_EDGE * sizeof(int));
     }
 
+    /* Check header line */
     NextLine(att_file, cmdstr, &lno);
+    if (!CheckHeader(cmdstr, 9, "INDEX", "SOIL", "GEOL", "LC", "METEO", "LAI",
+        "BC1", "BC2", "BC3"))
+    {
+        pihm_printf(VL_ERROR, "Attribute file header error.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
     for (i = 0; i < nelem; i++)
     {
         NextLine(att_file, cmdstr, &lno);
