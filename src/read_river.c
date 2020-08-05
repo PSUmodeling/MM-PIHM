@@ -154,7 +154,6 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
                 pihm_exit(EXIT_FAILURE);
             }
             NextLine(riv_file, cmdstr, &lno);
-            NextLine(riv_file, cmdstr, &lno);
             forc->riverbc[i].length =
                 CountLine(riv_file, cmdstr, 2, "RIV_TS", "RES");
         }
@@ -164,7 +163,6 @@ void ReadRiver(const char filename[], rivtbl_struct *rivtbl,
 
         for (i = 0; i < forc->nriverbc; i++)
         {
-            NextLine(riv_file, cmdstr, &lno);
             NextLine(riv_file, cmdstr, &lno);
             NextLine(riv_file, cmdstr, &lno);
 

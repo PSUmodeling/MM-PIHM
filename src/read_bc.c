@@ -130,12 +130,8 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                         pihm_exit(EXIT_FAILURE);
                     }
                 }
-
-                /* Skip unit header line */
-                NextLine(bc_file, cmdstr, &lno);
 #else
                 /* Skip header lines */
-                NextLine(bc_file, cmdstr, &lno);
                 NextLine(bc_file, cmdstr, &lno);
 #endif
                 forc->bc[i].length = CountLine(bc_file, cmdstr, 1, "BC_TS");
@@ -146,7 +142,6 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
             for (i = 0; i < forc->nbc; i++)
             {
                 /* Skip header lines */
-                NextLine(bc_file, cmdstr, &lno);
                 NextLine(bc_file, cmdstr, &lno);
                 NextLine(bc_file, cmdstr, &lno);
 
