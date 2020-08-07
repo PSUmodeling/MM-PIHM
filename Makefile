@@ -122,6 +122,7 @@ SRCS_ = main.c\
 HEADERS_ = \
 	include/elem_struct.h\
 	include/pihm_const.h\
+	include/pihm_errors.h\
 	include/pihm_func.h\
 	include/pihm_input_struct.h\
 	include/pihm_struct.h\

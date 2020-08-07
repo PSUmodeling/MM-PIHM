@@ -52,6 +52,7 @@
 #endif
 
 /* PIHM system function */
+#define pihm_error(...)         _error(__FILE__, __LINE__, __FUNCTION__, debug_mode, __VA_ARGS__)
 #define pihm_exit(...)          _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
 #define pihm_printf(...)        _custom_printf(verbose_mode, __VA_ARGS__)
 #define pihm_fopen              _custom_fopen

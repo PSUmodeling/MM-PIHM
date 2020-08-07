@@ -14,6 +14,8 @@
 void            _custom_exit(const char *, int, const char *, int, int);
 void            _custom_printf(int, int, const char *, ...);
 FILE*           _custom_fopen(const char [], const char []);
+void            _error(const char [], int, const char [], int, const char [],
+    ...);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, const char *);
 void            FindLine(FILE *, const char *, int *, const char *);

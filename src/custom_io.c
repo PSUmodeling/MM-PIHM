@@ -251,3 +251,21 @@ int Readable(const char *cmdstr)
 
     return readable;
 }
+
+void _error(const char fn[], int lineno, const char func[], int debug,
+    const char fmt[], ...)
+{
+    va_list         va;
+    char            error_msg[MAXSTRING];
+
+    va_start(va, fmt);
+
+    vsprintf(error_msg, fmt, va);
+
+    va_end(va);
+
+    fprintf(stderr, "Error: %s\n\n", error_msg);
+    fflush(stderr);
+
+    _custom_exit(fn, lineno, func, debug, EXIT_FAILURE);
+}

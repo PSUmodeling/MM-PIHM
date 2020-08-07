@@ -60,5 +60,6 @@
 #include "river_struct.h"
 #include "pihm_struct.h"
 #include "pihm_func.h"
+#include "pihm_errors.h"
 
 #endif
