@@ -39,16 +39,20 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
 int ReadKeyword(const char buffer[], const char keyword[], char type,
     const char fn[], int lno, void *value)
 {
-    int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     char            optstr[MAXSTRING];
     int             success = 1;
 
     if (NULL == value)
     {
-        match = sscanf(buffer, "%s", optstr);
-        if (match != 1 || strcasecmp(keyword, optstr) != 0)
+        if (sscanf(buffer, "%s", optstr) != 0)
         {
+            success = 0;
+        }
+        else if (strcasecmp(keyword, optstr) != 0)
+        {
+            pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
+                "detected keyword \"%s\".\n", keyword, optstr);
             success = 0;
         }
     }
@@ -57,8 +61,11 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
         switch (type)
         {
             case 'd':
-                match = sscanf(buffer, "%s %lf", optstr, (double *)value);
-                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                if (sscanf(buffer, "%s %lf", optstr, (double *)value) != 2)
+                {
+                    success = 0;
+                }
+                else if (strcasecmp(keyword, optstr) != 0)
                 {
                     pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
@@ -66,8 +73,11 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 }
                 break;
             case 'i':
-                match = sscanf(buffer, "%s %d", optstr, (int *)value);
-                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                if (sscanf(buffer, "%s %d", optstr, (int *)value) != 2)
+                {
+                    success = 0;
+                }
+                else if (strcasecmp(keyword, optstr) != 0)
                 {
                     pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
@@ -75,8 +85,11 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 }
                 break;
             case 's':
-                match = sscanf(buffer, "%s %[^\n]", optstr, (char *)value);
-                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                if (sscanf(buffer, "%s %[^\n]", optstr, (char *)value) != 2)
+                {
+                    success = 0;
+                }
+                else if (strcasecmp(keyword, optstr) != 0)
                 {
                     pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
@@ -84,8 +97,11 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 }
                 break;
             case 'w':
-                match = sscanf(buffer, "%s %s", optstr, (char *)value);
-                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                if (sscanf(buffer, "%s %s", optstr, (char *)value) != 2)
+                {
+                    success = 0;
+                }
+                else if (strcasecmp(keyword, optstr) != 0)
                 {
                     pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
@@ -93,8 +109,11 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 }
                 break;
             case 't':
-                match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
-                if (match != 3 || strcasecmp(keyword, optstr) != 0)
+                if (sscanf(buffer, "%s %s %s", optstr, ts1, ts2) != 3)
+                {
+                    success = 0;
+                }
+                else if (strcasecmp(keyword, optstr) != 0)
                 {
                     pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
                         "detected keyword \"%s\".\n", keyword, optstr);
@@ -124,13 +143,15 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
 int ReadPrintCtrl(const char buffer[], const char keyword[],
     const char fn[], int lno)
 {
-    int             match;
     int             prtvrbl;
     char            ctrlstr[MAXSTRING];
     char            optstr[MAXSTRING];
 
-    match = sscanf(buffer, "%s %s", optstr, ctrlstr);
-    if (match != 2 || strcasecmp(keyword, optstr) != 0)
+    if (sscanf(buffer, "%s %s", optstr, ctrlstr) != 2)
+    {
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+    }
+    else if (strcasecmp(keyword, optstr) != 0)
     {
         pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
             "detected keyword \"%s\".\n", keyword, optstr);
@@ -155,10 +176,10 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
     }
     else
     {
-        match = sscanf(ctrlstr, "%d", &prtvrbl);
-        if (match != 1)
+        if (sscanf(ctrlstr, "%d", &prtvrbl) != 1)
         {
-            pihm_printf(VL_ERROR, "Unknown output control option %s.\n");
+            pihm_printf(VL_ERROR, "Unknown output control option %s.\n",
+                ctrlstr);
             pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
