@@ -1,16 +1,16 @@
 #include "pihm.h"
 
-void ReadAtt(const char filename[], atttbl_struct *atttbl)
+void ReadAtt(const char fn[], atttbl_struct *atttbl)
 {
     int             i;
-    FILE           *att_file;
+    FILE           *fp;
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
     int             lno = 0;
 
-    att_file = pihm_fopen(filename, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     atttbl->soil   = (int *)malloc(nelem * sizeof(int));
     atttbl->geol   = (int *)malloc(nelem * sizeof(int));
@@ -24,7 +24,7 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
     }
 
     /* Check header line */
-    NextLine(att_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 9, "INDEX", "SOIL", "GEOL", "LC", "METEO", "LAI",
         "BC1", "BC2", "BC3"))
     {
@@ -33,7 +33,7 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
     }
     for (i = 0; i < nelem; i++)
     {
-        NextLine(att_file, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d",
             &index,
             &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
@@ -43,10 +43,10 @@ void ReadAtt(const char filename[], atttbl_struct *atttbl)
         {
             pihm_printf(VL_ERROR,
                 "Error reading attribute of the %dth element.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
 
-    fclose(att_file);
+    fclose(fp);
 }

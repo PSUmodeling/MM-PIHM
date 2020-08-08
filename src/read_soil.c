@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
+void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
 {
-    FILE           *soil_file;
+    FILE           *fp;
     int             i;
     char            cmdstr[MAXSTRING];
     int             match;
@@ -13,12 +13,12 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
     int             ptf_used = 0;
     int             lno = 0;
 
-    soil_file = pihm_fopen(filename, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     /* Start reading soil file */
-    NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMSOIL", 'i', filename, lno, &soiltbl->number);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NUMSOIL", 'i', fn, lno, &soiltbl->number);
 
     soiltbl->silt   = (double *)malloc(soiltbl->number * sizeof(double));
     soiltbl->clay   = (double *)malloc(soiltbl->number * sizeof(double));
@@ -39,7 +39,7 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
     soiltbl->smcwlt = (double *)malloc(soiltbl->number * sizeof(double));
 
     /* Check header line */
-    NextLine(soil_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 16, "INDEX", "SILT", "CLAY", "OM", "BD", "KINF",
         "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF",
         "DMAC", "QTZ"))
@@ -50,7 +50,7 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
 
     for (i = 0; i < soiltbl->number; i++)
     {
-        NextLine(soil_file, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr,
             "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
             &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
@@ -65,7 +65,7 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
         {
             pihm_printf(VL_ERROR,
                 "Error reading properties of the %dth soil type.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
 
@@ -128,14 +128,14 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
             soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
     }
 
-    NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DINF", 'd', filename, lno, &soiltbl->dinf);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DINF", 'd', fn, lno, &soiltbl->dinf);
 
-    NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACV_RO", 'd', filename, lno, &soiltbl->kmacv_ro);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KMACV_RO", 'd', fn, lno, &soiltbl->kmacv_ro);
 
-    NextLine(soil_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACH_RO", 'd', filename, lno, &soiltbl->kmach_ro);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KMACH_RO", 'd', fn, lno, &soiltbl->kmach_ro);
 
     if (ptf_used)
     {
@@ -160,5 +160,5 @@ void ReadSoil(const char filename[], soiltbl_struct *soiltbl)
         }
     }
 
-    fclose(soil_file);
+    fclose(fp);
 }

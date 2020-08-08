@@ -1,16 +1,16 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ReadBc(const char filename[], const atttbl_struct *atttbl,
+void ReadBc(const char fn[], const atttbl_struct *atttbl,
     const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     forc_struct *forc)
 #else
-void ReadBc(const char filename[], const atttbl_struct *atttbl,
+void ReadBc(const char fn[], const atttbl_struct *atttbl,
     forc_struct *forc)
 #endif
 {
     int             i, j;
-    FILE           *bc_file;
+    FILE           *fp;
     int             read_bc = 0;
     char            cmdstr[MAXSTRING];
     char            tempstr[2][MAXSTRING];
@@ -55,20 +55,20 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
 
     if (read_bc)
     {
-        bc_file = pihm_fopen(filename, "r");
-        pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+        fp = pihm_fopen(fn, "r");
+        pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-        FindLine(bc_file, "BOF", &lno, filename);
+        FindLine(fp, "BOF", &lno, fn);
 
-        forc->nbc = CountOccurr(bc_file, "BC_TS");
+        forc->nbc = CountOccurr(fp, "BC_TS");
 
-        FindLine(bc_file, "BOF", &lno, filename);
+        FindLine(fp, "BOF", &lno, fn);
         if (forc->nbc > 0)
         {
             forc->bc =
                 (tsdata_struct *)malloc(forc->nbc * sizeof(tsdata_struct));
 
-            NextLine(bc_file, cmdstr, &lno);
+            NextLine(fp, cmdstr, &lno);
             for (i = 0; i < forc->nbc; i++)
             {
                 match = sscanf(cmdstr, "%s %d %s %d", tempstr[0], &index,
@@ -81,7 +81,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                         "Error reading the %dth boundary condition "
                         "time series.\n", i + 1);
                     pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                        fn, lno);
                     pihm_exit(EXIT_FAILURE);
                 }
                 if (forc->bc[i].bc_type != DIRICHLET &&
@@ -94,7 +94,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                         "Boundary condition type should be "
                         "either Dirichlet (1) or Neumann (2).\n");
                     pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                        fn, lno);
                     pihm_exit(EXIT_FAILURE);
                 }
 #if defined(_RT_)
@@ -104,7 +104,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
 
                 /* When reactive transport is turned on, the header line
                  * contains the names of species that need to be read */
-                NextLine(bc_file, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
 
                 /* Skip the first two columns (TIME and HEAD/FLUX) */
                 sscanf(cmdstr + bytes_consumed, "%s %s%n",
@@ -144,7 +144,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                 }
 #else
                 /* Check header lines */
-                NextLine(bc_file, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME",
                     (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
                 {
@@ -153,16 +153,16 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                     pihm_exit(EXIT_FAILURE);
                 }
 #endif
-                forc->bc[i].length = CountLine(bc_file, cmdstr, 1, "BC_TS");
+                forc->bc[i].length = CountLine(fp, cmdstr, 1, "BC_TS");
             }
 
             /* Rewind and read */
-            FindLine(bc_file, "BOF", &lno, filename);
+            FindLine(fp, "BOF", &lno, fn);
             for (i = 0; i < forc->nbc; i++)
             {
                 /* Skip header lines */
-                NextLine(bc_file, cmdstr, &lno);
-                NextLine(bc_file, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
 
                 forc->bc[i].ftime =
                     (int *)malloc(forc->bc[i].length * sizeof(int));
@@ -176,7 +176,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
 #else
                     forc->bc[i].data[j] = (double *)malloc(sizeof(double));
 #endif
-                    NextLine(bc_file, cmdstr, &lno);
+                    NextLine(fp, cmdstr, &lno);
 #if defined(_RT_)
                     if (!ReadTs(cmdstr, rttbl->num_stc + 1,
                         &forc->bc[i].ftime[j], bcval))
@@ -188,7 +188,7 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
                         pihm_printf(VL_ERROR,
                             "Error reading boundary condition.");
                         pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                            filename, lno);
+                            fn, lno);
                         pihm_exit(EXIT_FAILURE);
                     }
 #if defined(_RT_)
@@ -219,6 +219,6 @@ void ReadBc(const char filename[], const atttbl_struct *atttbl,
             }
         }
 
-        fclose(bc_file);
+        fclose(fp);
     }
 }

@@ -166,10 +166,10 @@ void RestartOutput(const epvar_struct *epv, const cstate_struct *cs,
 
 void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
 {
-    FILE           *init_file;
+    FILE           *fp;
     int             i;
 
-    init_file = pihm_fopen(fn, "rb");
+    fp = pihm_fopen(fn, "rb");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
 #if defined(_LUMPEDBGC_)
@@ -178,7 +178,7 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
     for (i = 0; i < nelem; i++)
 #endif
     {
-        fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, init_file);
+        fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, fp);
 
         /* If simulation is accelerated spinup, adjust soil C pool sizes if
          * needed */
@@ -200,23 +200,23 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
     for (i = 0; i < nriver; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
-            init_file);
+            fp);
     }
 #endif
 
-    fclose(init_file);
+    fclose(fp);
 }
 
 void WriteBgcIc(const char outputdir[], elem_struct elem[],
     river_struct river[])
 {
     int             i;
-    FILE           *restart_file;
-    char            restart_fn[MAXSTRING];
+    FILE           *fp;
+    char            fn[MAXSTRING];
 
-    sprintf(restart_fn, "%s/restart/%s.bgcic", outputdir, project);
+    sprintf(fn, "%s/restart/%s.bgcic", outputdir, project);
 
-    restart_file = pihm_fopen(restart_fn, "wb");
+    fp = pihm_fopen(fn, "wb");
     pihm_printf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
 #if defined(_LUMPEDBGC_)
@@ -244,7 +244,7 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
         }
 
         fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1,
-            restart_file);
+            fp);
     }
 
 #if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
@@ -253,9 +253,9 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
         river[i].restart_output.streamn = river[i].ns.streamn;
 
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
-            restart_file);
+            fp);
     }
 #endif
 
-    fclose(restart_file);
+    fclose(fp);
 }

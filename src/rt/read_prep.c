@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
+void ReadPrep(const char fn[], const chemtbl_struct chemtbl[],
     const rttbl_struct *rttbl, forc_struct *forc)
 {
     FILE           *fp;
@@ -17,12 +17,12 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     char            cmdstr[MAXSTRING];
     char            tempstr[2][MAXSTRING];
 
-    fp = pihm_fopen(filen, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     forc->nprcpc = CountOccurr(fp, "PRCP_CONC_TS");
 
-    FindLine(fp, "BOF", &lno, filen);
+    FindLine(fp, "BOF", &lno, fn);
 
     if (forc->nprcpc > 0)
     {
@@ -43,7 +43,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                     "Error reading the %dth precipitation concentration"
                     " time series.\n", i + 1);
                 pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                    filen, lno);
+                    fn, lno);
                 pihm_exit(EXIT_FAILURE);
             }
             /* Skip header lines */
@@ -53,7 +53,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
         }
 
         /* Rewind and read */
-        FindLine(fp, "BOF", &lno, filen);
+        FindLine(fp, "BOF", &lno, fn);
         for (i = 0; i < forc->nprcpc; i++)
         {
             /* Skip header lines */
@@ -67,7 +67,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
             {
                 pihm_printf(VL_ERROR,
                     "Error reading precipitation conc. "
-                    "in %s near Line %d.\n", filen, lno);
+                    "in %s near Line %d.\n", fn, lno);
                 pihm_exit(EXIT_FAILURE);
             }
             bytes_consumed += bytes_now;
@@ -75,7 +75,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
             {
                 pihm_printf(VL_ERROR,
                     "Expect header line starting with \"TIME\" "
-                    "in %s near Line %d.\n", filen, lno);
+                    "in %s near Line %d.\n", fn, lno);
                 pihm_exit(EXIT_FAILURE);
             }
             for (j = 0; j < nsps[i]; j++)
@@ -85,7 +85,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading precipitation conc. "
-                        "in %s near Line %d.\n", filen, lno);
+                        "in %s near Line %d.\n", fn, lno);
                     pihm_exit(EXIT_FAILURE);
                 }
                 bytes_consumed += bytes_now;

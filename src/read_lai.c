@@ -1,11 +1,11 @@
 #include "pihm.h"
 
-void ReadLai(const char filename[], const atttbl_struct *atttbl,
+void ReadLai(const char fn[], const atttbl_struct *atttbl,
     forc_struct *forc)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
-    FILE           *lai_file;
+    FILE           *fp;
     int             i, j;
     int             index;
     int             lno = 0;
@@ -23,50 +23,50 @@ void ReadLai(const char filename[], const atttbl_struct *atttbl,
 
     if (read_lai)
     {
-        lai_file = pihm_fopen(filename, "r");
-        pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+        fp = pihm_fopen(fn, "r");
+        pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
         /* Start reading lai_file */
-        FindLine(lai_file, "BOF", &lno, filename);
+        FindLine(fp, "BOF", &lno, fn);
 
-        forc->nlai = CountOccurr(lai_file, "LAI_TS");
+        forc->nlai = CountOccurr(fp, "LAI_TS");
 
-        FindLine(lai_file, "BOF", &lno, filename);
+        FindLine(fp, "BOF", &lno, fn);
         if (forc->nlai > 0)
         {
             forc->lai =
                 (tsdata_struct *)malloc(forc->nlai * sizeof(tsdata_struct));
 
-            NextLine(lai_file, cmdstr, &lno);
+            NextLine(fp, cmdstr, &lno);
             for (i = 0; i < forc->nlai; i++)
             {
-                ReadKeyword(cmdstr, "LAI_TS", 'i', filename, lno, &index);
+                ReadKeyword(cmdstr, "LAI_TS", 'i', fn, lno, &index);
 
                 if (i != index - 1)
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading the %dth LAI time series.\n", i + 1);
                     pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                        fn, lno);
                     pihm_exit(EXIT_FAILURE);
                 }
                 /* Check header lines */
-                NextLine(lai_file, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME", "LAI"))
                 {
                     pihm_printf(VL_ERROR, "LAI forcing file header error.\n");
                     pihm_exit(EXIT_FAILURE);
                 }
-                forc->lai[i].length = CountLine(lai_file, cmdstr, 1, "LAI_TS");
+                forc->lai[i].length = CountLine(fp, cmdstr, 1, "LAI_TS");
             }
 
             /* Rewind and read */
-            FindLine(lai_file, "BOF", &lno, filename);
+            FindLine(fp, "BOF", &lno, fn);
             for (i = 0; i < forc->nlai; i++)
             {
                 /* Skip header lines */
-                NextLine(lai_file, cmdstr, &lno);
-                NextLine(lai_file, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
+                NextLine(fp, cmdstr, &lno);
 
                 forc->lai[i].ftime =
                     (int *)malloc(forc->lai[i].length * sizeof(int));
@@ -75,18 +75,18 @@ void ReadLai(const char filename[], const atttbl_struct *atttbl,
                 for (j = 0; j < forc->lai[i].length; j++)
                 {
                     forc->lai[i].data[j] = (double *)malloc(sizeof(double));
-                    NextLine(lai_file, cmdstr, &lno);
+                    NextLine(fp, cmdstr, &lno);
                     if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j],
                         &forc->lai[i].data[j][0]))
                     {
                         pihm_printf(VL_ERROR, "Error reading LAI forcing."
-                            "Error in %s near Line %d.\n", filename, lno);
+                            "Error in %s near Line %d.\n", fn, lno);
                         pihm_exit(EXIT_FAILURE);
                     }
                 }
             }
         }
 
-        fclose(lai_file);
+        fclose(fp);
     }
 }

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
+void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
     kintbl_struct kintbl[], rttbl_struct *rttbl)
 {
     int             i, j, k;
@@ -18,10 +18,10 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
     /*
      * Find temperature point in database
      */
-    NextLine(database, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     while(MatchWrappedKey(cmdstr, "'temperature points'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
     }
     ReadTempPoints(cmdstr, rttbl->tmp, &total_temp_points,
         &keq_position);
@@ -41,7 +41,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
 
     while (MatchWrappedKey(cmdstr, "'Debye-Huckel adh'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
     }
     ReadDHParam(cmdstr, keq_position, &rttbl->adh);
     if (roundi(rttbl->adh) == BADVAL)
@@ -53,7 +53,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
 
     while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdh'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
     }
     ReadDHParam(cmdstr, keq_position, &rttbl->bdh);
     if (roundi(rttbl->bdh) == BADVAL)
@@ -65,7 +65,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
 
     while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdt'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
     }
     ReadDHParam(cmdstr, keq_position, &rttbl->bdt);
     if (roundi(rttbl->bdt) == BADVAL)
@@ -119,7 +119,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
      */
     while (MatchWrappedKey(cmdstr, "'End of primary'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         ReadPrimary(cmdstr, rttbl->num_stc, chemtbl);
     }
 
@@ -128,7 +128,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
      */
     while (MatchWrappedKey(cmdstr, "'End of secondary'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         ReadSecondary(cmdstr, total_temp_points, keq_position, chemtbl, rttbl);
     }
 
@@ -137,7 +137,7 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
      */
     while (MatchWrappedKey(cmdstr, "'End of minerals'") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         ReadMinerals(cmdstr, total_temp_points, keq_position, pot_dep,
             keq_kin_all, chemtbl, rttbl);
     }
@@ -161,14 +161,14 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
     while (strcmp(cmdstr, "End of surface complexation\r\n") != 0 &&
         strcmp(cmdstr, "End of surface complexation\n") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         ReadAdsorption(cmdstr, total_temp_points, keq_position, chemtbl, rttbl);
     }
 
     while (strcmp(cmdstr, "End of exchange\r\n") != 0 &&
         strcmp(cmdstr, "End of exchange\n") != 0)
     {
-        NextLine(database, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         ReadCationEchg(cmdstr, calib->Xsorption, chemtbl, rttbl);
     }
 
@@ -184,20 +184,20 @@ void Lookup(FILE *database, const calib_struct *calib, chemtbl_struct chemtbl[],
 
     for (i = 0; i < rttbl->num_mkr; i++)
     {
-        FindLine(database, "BOF", &lno, ".cdbs");
-        NextLine(database, cmdstr, &lno);
+        FindLine(fp, "BOF", &lno, ".cdbs");
+        NextLine(fp, cmdstr, &lno);
         while (strcmp(cmdstr, "Begin mineral kinetics\r\n") != 0 &&
             strcmp(cmdstr, "Begin mineral kinetics\n") != 0)
         {
-            NextLine(database, cmdstr, &lno);
+            NextLine(fp, cmdstr, &lno);
         }
 
         while (strcmp(cmdstr, "End of mineral kinetics\r\n") != 0 &&
             strcmp(cmdstr, "End of mineral kinetics\n") != 0)
         {
-            ReadMinKin(database, rttbl->num_stc, calib->rate, &lno, cmdstr,
+            ReadMinKin(fp, rttbl->num_stc, calib->rate, &lno, cmdstr,
                 chemtbl, &kintbl[i]);
-            NextLine(database, cmdstr, &lno);
+            NextLine(fp, cmdstr, &lno);
         }
     }
 
@@ -728,7 +728,7 @@ void ReadCationEchg(const char cmdstr[], double calval,
     }
 }
 
-void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
+void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno,
     char cmdstr[], chemtbl_struct chemtbl[], kintbl_struct *kintbl)
 {
     int             bytes_now;
@@ -743,7 +743,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
 
     if (strcmp(chemtbl[kintbl->position].name, chemn) == 0)
     {
-        NextLine(database, cmdstr, lno);
+        NextLine(fp, cmdstr, lno);
         sscanf(cmdstr, "%*s = %s", label);
 
         if (strcmp(kintbl->label, label) == 0)
@@ -757,7 +757,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
              * Optional lines are:
              *   dependence, monod_terms, inhibition, and biomass */
             /* Read type */
-            NextLine(database, cmdstr, lno);
+            NextLine(fp, cmdstr, lno);
             sscanf(cmdstr, "%s = %s", optstr, label);
             if (strcmp(optstr, "type") == 0)
             {
@@ -787,7 +787,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             }
 
             /* Read rate */
-            NextLine(database, cmdstr, lno);
+            NextLine(fp, cmdstr, lno);
             sscanf(cmdstr, "%s = %lf", optstr, &kintbl->rate);
             if (strcmp(optstr, "rate(25C)") == 0)
             {
@@ -807,7 +807,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             }
 
             /* Read activation */
-            NextLine(database, cmdstr, lno);
+            NextLine(fp, cmdstr, lno);
             sscanf(cmdstr, "%s = %lf", optstr, &kintbl->actv);
             if (strcmp(optstr, "activation") == 0)
             {
@@ -825,7 +825,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
             kintbl->nmonod = 0;
             kintbl->ninhib = 0;
 
-            NextLine(database, cmdstr, lno);
+            NextLine(fp, cmdstr, lno);
             while (cmdstr[0] != '+')
             {
                 bytes_consumed = 0;
@@ -924,7 +924,7 @@ void ReadMinKin(FILE *database, int num_stc, double calval, int *lno,
                     }
                 }
 
-                NextLine(database, cmdstr, lno);
+                NextLine(fp, cmdstr, lno);
             }
         }
     }

@@ -1,38 +1,38 @@
 #include "pihm.h"
 
-void ReadIc(const char filename[], elem_struct elem[], river_struct river[])
+void ReadIc(const char fn[], elem_struct elem[], river_struct river[])
 {
-    FILE           *ic_file;
+    FILE           *fp;
     int             i;
     int             size;
 
-    ic_file = pihm_fopen(filename, "rb");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "rb");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    fseek(ic_file, 0L, SEEK_END);
-    size = ftell(ic_file);
+    fseek(fp, 0L, SEEK_END);
+    size = ftell(fp);
 
     if (size !=
         (int)(sizeof(ic_struct) * nelem + sizeof(river_ic_struct) * nriver))
     {
         pihm_printf(VL_ERROR,
             "Error in initial condition file %s.\n"
-            "The file size does not match requirement.\n", filename);
+            "The file size does not match requirement.\n", fn);
         pihm_printf(VL_ERROR, "Please use a correct initial condition file.\n");
         pihm_exit(EXIT_FAILURE);
     }
 
-    fseek(ic_file, 0L, SEEK_SET);
+    fseek(fp, 0L, SEEK_SET);
 
     for (i = 0; i < nelem; i++)
     {
-        fread(&elem[i].ic, sizeof(ic_struct), 1, ic_file);
+        fread(&elem[i].ic, sizeof(ic_struct), 1, fp);
     }
 
     for (i = 0; i < nriver; i++)
     {
-        fread(&river[i].ic, sizeof(river_ic_struct), 1, ic_file);
+        fread(&river[i].ic, sizeof(river_ic_struct), 1, fp);
     }
 
-    fclose(ic_file);
+    fclose(fp);
 }

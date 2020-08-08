@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
+void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
 {
     FILE           *fp;
     char            cmdstr[MAXSTRING];
@@ -11,13 +11,13 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     int             lno = 0;
 
     /* Open simulation control file */
-    fp = pihm_fopen(filen, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     agtbl->oper = (int *)malloc(nelem * sizeof(int));
 
     /* Read simulation control file */
-    FindLine(fp, "BOF", &lno, filen);
+    FindLine(fp, "BOF", &lno, fn);
     /* Skip header line */
     NextLine(fp, cmdstr, &lno);
 
@@ -29,12 +29,12 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
             pihm_printf(VL_ERROR,
                 "Error reading information of the %dth element for Cycles.\n",
                 i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
 
-    FindLine(fp, "OPERATION_FILE", &lno, filen);
+    FindLine(fp, "OPERATION_FILE", &lno, fn);
 
     n = 0;
     while (1)
@@ -52,7 +52,7 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         if (match != 2 || n != index - 1)
         {
             pihm_printf(VL_ERROR, "Error reading operation description.\n");
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
         n++;
@@ -61,67 +61,67 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     agtbl->noper = n;
 
     /* Output control */
-    FindLine(fp, "BOF", &lno, filen);
+    FindLine(fp, "BOF", &lno, fn);
 
 #if TEMP_DISABLED
-    FindLine(fp, "RESTART_CTRL", &lno, filen);
+    FindLine(fp, "RESTART_CTRL", &lno, fn);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "READ_IC", 'i', filen, lno, &ctrl->read_cycles_restart);
+    ReadKeyword(cmdstr, "READ_IC", 'i', fn, lno, &ctrl->read_cycles_restart);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WRITE_IC", 'i', filen, lno, &ctrl->write_cycles_restart);
+    ReadKeyword(cmdstr, "WRITE_IC", 'i', fn, lno, &ctrl->write_cycles_restart);
 #endif
 
-    FindLine(fp, "PRINT_CTRL", &lno, filen);
+    FindLine(fp, "PRINT_CTRL", &lno, fn);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[YIELD_CTRL] = ReadPrintCtrl(cmdstr, "YIELD", filen, lno);
+    ctrl->prtvrbl[YIELD_CTRL] = ReadPrintCtrl(cmdstr, "YIELD", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrintCtrl(cmdstr, "BIOMASS", filen, lno);
+    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrintCtrl(cmdstr, "BIOMASS", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[LAI_CTRL] = ReadPrintCtrl(cmdstr, "LAI", filen, lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrintCtrl(cmdstr, "LAI", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrintCtrl(cmdstr, "RADN_INTCP",
-        filen, lno);
+        fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrintCtrl(cmdstr, "WATER_STRESS",
-        filen, lno);
+        fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_STS_CTRL] = ReadPrintCtrl(cmdstr, "N_STRESS", filen, lno);
+    ctrl->prtvrbl[N_STS_CTRL] = ReadPrintCtrl(cmdstr, "N_STRESS", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrintCtrl(cmdstr, "CROP_TRANSP", filen, lno);
+    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrintCtrl(cmdstr, "CROP_TRANSP", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrintCtrl(cmdstr, "CROP_POT_TRANSP",
-        filen, lno);
+        fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrintCtrl(cmdstr, "N_PROFILE", filen,
+    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrintCtrl(cmdstr, "N_PROFILE", fn,
         lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrintCtrl(cmdstr, "N_RIVER",
-        filen, lno);
+        fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrintCtrl(cmdstr, "DENITRIF",
-        filen, lno);
+        fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING",
-        filen, lno);
+        fn, lno);
 
     fclose(fp);
 }
 
-void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
+void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
 {
     FILE           *fp;
     char            cmdstr[MAXSTRING];
@@ -133,8 +133,8 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     /*
      * Open soil initialization file
      */
-    fp = pihm_fopen(filen, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     soiltbl->nlayers    = (int *)malloc(soiltbl->number * sizeof(int));
     soiltbl->clay_layer = (double **)malloc(soiltbl->number * sizeof(double *));
@@ -149,25 +149,25 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
                         = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->b          = (double **)malloc(soiltbl->number * sizeof(double *));
 
-    FindLine(fp, "BOF", &lno, filen);
+    FindLine(fp, "BOF", &lno, fn);
 
     /* Read soil information for the ith soil type */
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        ReadKeyword(cmdstr, "SOIL_TYPE", 'i', filen, lno, &index);
+        ReadKeyword(cmdstr, "SOIL_TYPE", 'i', fn, lno, &index);
 
         if (i != index - 1)
         {
             pihm_printf(VL_ERROR,
                 "Error reading soil description of the %dth soil type.\n",
                 i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
 
         NextLine(fp, cmdstr, &lno);
-        ReadKeyword(cmdstr, "TOTAL_LAYERS", 'i', filen, lno,
+        ReadKeyword(cmdstr, "TOTAL_LAYERS", 'i', fn, lno,
             &soiltbl->nlayers[i]);
 
         soiltbl->clay_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
@@ -206,7 +206,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
                     "Error reading description of the %dth layer of the %dth"
                     "soil type.\n", kz + 1, i + 1);
                 pihm_printf(VL_ERROR,
-                    "Error in %s near Line %d.\n", filen, lno);
+                    "Error in %s near Line %d.\n", fn, lno);
                 pihm_exit(EXIT_FAILURE);
             }
 
@@ -283,13 +283,13 @@ void ReadMultOper(const agtbl_struct *agtbl, mgmt_struct mgmttbl[],
     crop_struct croptbl[])
 {
     int             i;
-    char            filen[MAXSTRING];
+    char            fn[MAXSTRING];
 
     for (i = 0; i < agtbl->noper; i++)
     {
-        sprintf(filen, "input/%s/%s", project, agtbl->oper_filen[i]);
+        sprintf(fn, "input/%s/%s", project, agtbl->oper_filen[i]);
 
-        ReadOper(filen, BADVAL, BADVAL, &mgmttbl[i], croptbl);
+        ReadOper(fn, BADVAL, BADVAL, &mgmttbl[i], croptbl);
     }
 }
 

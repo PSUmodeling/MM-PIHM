@@ -6,7 +6,7 @@
 *****************************************************************************/
 #include "pihm.h"
 
-void InitChem(const char cdbs_filen[], const calib_struct *calib,
+void InitChem(const char fn[], const calib_struct *calib,
     forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
 {
@@ -14,7 +14,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *calib,
     int             chem_ind;
     FILE           *fp;
 
-    fp = pihm_fopen(cdbs_filen, "r");
+    fp = pihm_fopen(fn, "r");
 
     /*
      * Look up database to find required parameters and dependencies for

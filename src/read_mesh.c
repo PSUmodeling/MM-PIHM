@@ -1,28 +1,28 @@
 #include "pihm.h"
 
-void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
+void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
 {
-    FILE           *mesh_file;
+    FILE           *fp;
     int             i;
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
     int             lno = 0;
 
-    mesh_file = pihm_fopen(filename, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     /*
      * Read element mesh block
      */
-    NextLine(mesh_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMELE", 'i', filename, lno, &nelem);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NUMELE", 'i', fn, lno, &nelem);
 
     meshtbl->node = (int **)malloc(nelem * sizeof(int *));
     meshtbl->nabr = (int **)malloc(nelem * sizeof(int *));
 
     /* Check header line */
-    NextLine(mesh_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 7, "INDEX", "NODE1", "NODE2", "NODE3", "NABR1",
         "NABR2", "NABR3"))
     {
@@ -35,7 +35,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
         meshtbl->node[i] = (int *)malloc(NUM_EDGE * sizeof(int));
         meshtbl->nabr[i] = (int *)malloc(NUM_EDGE * sizeof(int));
 
-        NextLine(mesh_file, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d", &index,
             &meshtbl->node[i][0], &meshtbl->node[i][1], &meshtbl->node[i][2],
             &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
@@ -43,7 +43,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
         {
             pihm_printf(VL_ERROR,
                 "Error reading mesh description of the %dth element.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
@@ -51,11 +51,11 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     /*
      * Read node block
      */
-    NextLine(mesh_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMNODE", 'i', filename, lno, &meshtbl->numnodes);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NUMNODE", 'i', fn, lno, &meshtbl->numnodes);
 
     /* Check header line */
-    NextLine(mesh_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 5, "INDEX", "X", "Y", "ZMIN", "ZMAX"))
     {
         pihm_printf(VL_ERROR, "Mesh file header error.\n");
@@ -69,7 +69,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
 
     for (i = 0; i < meshtbl->numnodes; i++)
     {
-        NextLine(mesh_file, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index,
             &meshtbl->x[i], &meshtbl->y[i],
             &meshtbl->zmin[i], &meshtbl->zmax[i]);
@@ -77,10 +77,10 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
         {
             pihm_printf(VL_ERROR,
                 "Error reading description of the %dth node!\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
 
-    fclose(mesh_file);
+    fclose(fp);
 }

@@ -5,11 +5,11 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
 {
     int             i;
     FILE           *fp;
-    char            restart_fn[MAXSTRING];
+    char            fn[MAXSTRING];
 
-    sprintf(restart_fn, "%s/restart/%s.rtic", outputdir, project);
+    sprintf(fn, "%s/restart/%s.rtic", outputdir, project);
 
-    fp = pihm_fopen(restart_fn, "wb");
+    fp = pihm_fopen(fn, "wb");
     pihm_printf(VL_VERBOSE, "Writing RT initial conditions.\n");
 
     for (i = 0; i < nelem; i++)

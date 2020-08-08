@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
+void ReadCini(const char fn[], const chemtbl_struct *chemtbl, int num_stc,
     atttbl_struct *atttbl, chmictbl_struct *chmictbl)
 {
     FILE           *fp;
@@ -13,8 +13,8 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
     int             lno = 0;
     int             convert = 0;
 
-    fp = pihm_fopen(filen, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filen);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     atttbl->prcpc = (int *)malloc(nelem * sizeof(int));
     atttbl->chem_ic = (int **)malloc(nelem * sizeof(int *));
@@ -50,13 +50,13 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
             pihm_printf(VL_ERROR,
                 "Error reading chemistry attribute of the %dth element.\n",
                 i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
 
     chmictbl->nic = CountOccurr(fp, "CONDITION");
-    FindLine(fp, "BOF", &lno, filen);
+    FindLine(fp, "BOF", &lno, fn);
 
     chmictbl->conc = (double **)malloc(chmictbl->nic * sizeof(double *));
     chmictbl->ssa = (double **)malloc(chmictbl->nic * sizeof(double *));
@@ -69,7 +69,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
         chmictbl->conc[i] = (double *)calloc(num_stc, sizeof(double));
         chmictbl->ssa[i] = (double *)calloc(num_stc, sizeof(double));
 
-        FindLine(fp, "CONDITION", &lno, filen);
+        FindLine(fp, "CONDITION", &lno, fn);
 
         for (k = 0; k < num_stc; k++)
         {
@@ -94,7 +94,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
-                        filen, lno);
+                        fn, lno);
                 }
             }
             else
@@ -103,7 +103,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
                 {
                     pihm_printf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
-                        filen, lno);
+                        fn, lno);
                 }
             }
 

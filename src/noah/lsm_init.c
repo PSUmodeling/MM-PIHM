@@ -8,7 +8,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl,
     double          frzfact;
     int             read_ice_flag = 0;
     double         *iceh;
-    FILE           *ice_file;
+    FILE           *fp;
     const double    ICEH = 0.5;
 
     iceh = (double *)malloc(nelem * sizeof(double));
@@ -28,8 +28,8 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl,
 
     if (read_ice_flag == 1)
     {
-        ice_file = fopen(ice_fn, "r");
-        if (ice_file == NULL)
+        fp = fopen(ice_fn, "r");
+        if (fp == NULL)
         {
             read_ice_flag = 0;
             pihm_printf(VL_NORMAL,

@@ -4,128 +4,128 @@ void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl,
     co2control_struct *co2, ndepcontrol_struct *ndepctrl,
     cninit_struct * cninit)
 {
-    FILE           *bgc_file;
+    FILE           *fp;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
     int             acc_flag = 0;
 
     /* Read bgc simulation control file */
-    bgc_file = pihm_fopen(fn, "r");
+    fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    FindLine(bgc_file, "RESTART", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "RESTART", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%d", &ctrl->read_bgc_restart);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%d", &ctrl->write_bgc_restart);
 
-    FindLine(bgc_file, "TIME_DEFINE", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "TIME_DEFINE", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     if (spinup_mode)
     {
         sscanf(cmdstr, "%d", &acc_flag);
         spinup_mode = (acc_flag == 1) ? ACC_SPINUP_MODE : SPINUP_MODE;
     }
 
-    FindLine(bgc_file, "CO2_CONTROL", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "CO2_CONTROL", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%d", &co2->varco2);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &co2->co2ppm);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%s", co2_fn);
 
-    FindLine(bgc_file, "NDEP_CONTROL", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "NDEP_CONTROL", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%d", &ndepctrl->varndep);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &ndepctrl->ndep);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &ndepctrl->nfix);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%s", ndep_fn);
 
-    FindLine(bgc_file, "C_STATE", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "C_STATE", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->max_leafc);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->max_stemc);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->cwdc);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->litr1c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->litr2c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->litr3c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->litr4c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->soil1c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->soil2c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->soil3c);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->soil4c);
 
-    FindLine(bgc_file, "N_STATE", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
+    FindLine(fp, "N_STATE", &lno, fn);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->litr1n);
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->sminn);
 
-    FindLine(bgc_file, "OUTPUT_CONTROL", &lno, fn);
+    FindLine(fp, "OUTPUT_CONTROL", &lno, fn);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[LAI_CTRL] = ReadPrintCtrl(cmdstr, "LAI", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[NPP_CTRL] = ReadPrintCtrl(cmdstr, "NPP", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[NEP_CTRL] = ReadPrintCtrl(cmdstr, "NEP", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[NEE_CTRL] = ReadPrintCtrl(cmdstr, "NEE", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[GPP_CTRL] = ReadPrintCtrl(cmdstr, "GPP", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[MR_CTRL] = ReadPrintCtrl(cmdstr, "MR", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[GR_CTRL] = ReadPrintCtrl(cmdstr, "GR", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[HR_CTRL] = ReadPrintCtrl(cmdstr, "HR", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[FIRE_CTRL] = ReadPrintCtrl(cmdstr, "FIRE", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[LITFALLC_CTRL] = ReadPrintCtrl(cmdstr, "LITFALLC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[VEGC_CTRL] = ReadPrintCtrl(cmdstr, "VEGC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[AGC_CTRL] = ReadPrintCtrl(cmdstr, "AGC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[LITRC_CTRL] = ReadPrintCtrl(cmdstr, "LITRC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[SOILC_CTRL] = ReadPrintCtrl(cmdstr, "SOILC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[TOTALC_CTRL] = ReadPrintCtrl(cmdstr, "TOTALC", fn, lno);
 
-    NextLine(bgc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[SMINN_CTRL] = ReadPrintCtrl(cmdstr, "SMINN", fn, lno);
 
-    fclose(bgc_file);
+    fclose(fp);
 }
 
 void ReadEpc(epctbl_struct *epctbl)
@@ -133,7 +133,7 @@ void ReadEpc(epctbl_struct *epctbl)
     int             i;
     char            fn[MAXSTRING];
     double          t1, t2, t3, t4, r1;
-    FILE           *epc_file;
+    FILE           *fp;
     char            cmdstr[MAXSTRING];
 
     epctbl->woody = (int *)malloc(NLCTYPE * sizeof(int));
@@ -192,35 +192,35 @@ void ReadEpc(epctbl_struct *epctbl)
         {
             case IGBP_ENF:
                 strcpy(fn, "input/epc/enf.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_EBF:
                 strcpy(fn, "input/epc/ebf.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_DNF:
                 strcpy(fn, "input/epc/dnf.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_DBF:
                 strcpy(fn, "input/epc/dbf.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_GRASS:
                 strcpy(fn, "input/epc/c3grass.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_CLOSE_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             case IGBP_OPEN_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
-                epc_file = pihm_fopen(fn, "r");
+                fp = pihm_fopen(fn, "r");
                 break;
             default:
                 strcpy(fn, "N/A");
-                epc_file = NULL;
+                fp = NULL;
         }
 
         if (strcasecmp(fn, "N/A") != 0)
@@ -228,64 +228,64 @@ void ReadEpc(epctbl_struct *epctbl)
             pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
             /* Skip header file */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             /* Read epc */
             /* Woody/non-woody flag */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->woody[i]);
             /* Evergreen/deciduous flag */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->evergreen[i]);
             /* C3/C4 flag */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->c3_flag[i]);
             /* Transfer days */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->transfer_days[i]);
             /* Litter fall days */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->litfall_days[i]);
             /* Leaf turnover */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->leaf_turnover[i]);
             /* Force leaf turnover fraction to 1.0 if deciduous */
             epctbl->leaf_turnover[i] = (!epctbl->evergreen[i]) ?
                 1.0 : epctbl->leaf_turnover[i];
             epctbl->froot_turnover[i] = epctbl->leaf_turnover[i];
             /* Live wood turnover */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->livewood_turnover[i]);
             /* Whole-plant mortality */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t1);
             epctbl->daily_mortality_turnover[i] = t1 / 365.0;
             /* Fire mortality */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t1);
             epctbl->daily_fire_turnover[i] = t1 / 365.0;
             /* Froot C:leaf C */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->alloc_frootc_leafc[i]);
             /* New stem C:new leaf C */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->alloc_newstemc_newleafc[i]);
             /* New livewood C:new wood C */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->alloc_newlivewoodc_newwoodc[i]);
             /* Croot C:stem C */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->alloc_crootc_stemc[i]);
             /* New growth:storage growth */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->alloc_prop_curgrowth[i]);
             /* Force storage growth to 0.0 if evergreen (following CLM-CN) */
             epctbl->alloc_prop_curgrowth[i] = (epctbl->evergreen[i]) ?
                 1.0 : epctbl->alloc_prop_curgrowth[i];
             /* Average leaf C:N */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->leaf_cn[i]);
             /* Leaf litter C:N */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->leaflitr_cn[i]);
             /* Test for leaflitter C:N > leaf C:N */
             if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
@@ -296,13 +296,13 @@ void ReadEpc(epctbl_struct *epctbl)
                 pihm_exit(EXIT_FAILURE);
             }
             /* Initial fine root C:N */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->froot_cn[i]);
             /* Initial livewood C:N */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->livewood_cn[i]);
             /* Initial deadwood C:N */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->deadwood_cn[i]);
             /* Test for deadwood C:N > livewood C:N */
             if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
@@ -313,14 +313,14 @@ void ReadEpc(epctbl_struct *epctbl)
                 pihm_exit(EXIT_FAILURE);
             }
             /* Leaf litter labile proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t1);
             epctbl->leaflitr_flab[i] = t1;
             /* Leaf litter cellulose proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t2);
             /* Leaf litter lignin proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t3);
             epctbl->leaflitr_flig[i] = t3;
 
@@ -352,14 +352,14 @@ void ReadEpc(epctbl_struct *epctbl)
                 epctbl->leaflitr_fucel[i] = 0.2 * t2;
             }
             /* Froot litter labile proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t1);
             epctbl->frootlitr_flab[i] = t1;
             /* Froot litter cellulose proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t2);
             /* Froot litter lignin proportion */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t3);
             epctbl->frootlitr_flig[i] = t3;
 
@@ -391,10 +391,10 @@ void ReadEpc(epctbl_struct *epctbl)
                 epctbl->frootlitr_fucel[i] = 0.2 * t2;
             }
             /* Dead wood cellulose */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t1);
             /* Dead wood lignin */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &t2);
             epctbl->deadwood_flig[i] = t2;
             /* Test for litter fractions sum to 1.0 */
@@ -425,34 +425,34 @@ void ReadEpc(epctbl_struct *epctbl)
                 epctbl->deadwood_fucel[i] = 0.2 * t1;
             }
             /* Canopy light ext coef */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->ext_coef[i]);
             /* All to projected LA ratio */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->lai_ratio[i]);
             /* Canopy average projected specific leaf area */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->avg_proj_sla[i]);
             /* Sunlit SLA ratio */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->sla_ratio[i]);
             /* Rubisco N fraction */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->flnr[i]);
             /* Psi_sat */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->psi_open[i]);
             /* Psi_close */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->psi_close[i]);
             /* Vpd_max */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->vpd_open[i]);
             /* Vpd_min */
-            fgets(cmdstr, MAXSTRING, epc_file);
+            fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%lf", &epctbl->vpd_close[i]);
 
-            fclose(epc_file);
+            fclose(fp);
         }
         else
         {
@@ -505,25 +505,25 @@ void ReadEpc(epctbl_struct *epctbl)
 
 void ReadAnnualFile(const char fn[], tsdata_struct *ts)
 {
-    FILE           *fid;
+    FILE           *fp;
     char            timestr[MAXSTRING];
     char            cmdstr[MAXSTRING];
     int             k;
     int             match;
     int             lno = 0;
 
-    fid = pihm_fopen(fn, "r");
+    fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    ts->length = CountLine(fid, cmdstr, 1, "EOF");
+    ts->length = CountLine(fp, cmdstr, 1, "EOF");
     ts->ftime = (int *)malloc(ts->length * sizeof(int));
     ts->data = (double **)malloc(ts->length * sizeof(double *));
 
-    FindLine(fid, "BOF", &lno, fn);
+    FindLine(fp, "BOF", &lno, fn);
     for (k = 0; k < ts->length; k++)
     {
         ts->data[k] = (double *)malloc(sizeof(double));
-        NextLine(fid, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%s %lf", timestr, &ts->data[k][0]);
 
         if (match != 2)
@@ -537,5 +537,5 @@ void ReadAnnualFile(const char fn[], tsdata_struct *ts)
         ts->ftime[k] = StrTime(timestr);
     }
 
-    fclose(fid);
+    fclose(fp);
 }

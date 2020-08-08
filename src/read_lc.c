@@ -1,20 +1,20 @@
 #include "pihm.h"
 
-void ReadLc(const char filename[], lctbl_struct *lctbl)
+void ReadLc(const char fn[], lctbl_struct *lctbl)
 {
-    FILE           *lc_file;    /* Pointer to .lc file */
+    FILE           *fp;
     int             i;
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
     int             lno = 0;
 
-    lc_file = pihm_fopen(filename, "r");
-    pihm_printf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = pihm_fopen(fn, "r");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
     /* Start reading land cover file */
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMLC", 'i', filename, lno, &lctbl->number);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NUMLC", 'i', fn, lno, &lctbl->number);
 
     lctbl->laimax    = (double *)malloc(lctbl->number * sizeof(double));
     lctbl->laimin    = (double *)malloc(lctbl->number * sizeof(double));
@@ -33,7 +33,7 @@ void ReadLc(const char filename[], lctbl_struct *lctbl)
     lctbl->rzd       = (double *)malloc(lctbl->number * sizeof(double));
 
     /* Check header line */
-    NextLine(lc_file, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 16, "INDEX", "SHDFAC", "DROOT", "RS", "RGL", "HS",
         "SNUP", "LAIMIN", "LAIMAX", "EMISMIN", "EMISMAX", "ALBMIN", "ALBMAX",
         "Z0MIN", "Z0MAX", "ROUGH"))
@@ -44,7 +44,7 @@ void ReadLc(const char filename[], lctbl_struct *lctbl)
 
     for (i = 0; i < lctbl->number; i++)
     {
-        NextLine(lc_file, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         match =
             sscanf(cmdstr,
             "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
@@ -60,19 +60,19 @@ void ReadLc(const char filename[], lctbl_struct *lctbl)
             pihm_printf(VL_ERROR,
                 "Error reading properties of the %dth landcover type.\n",
                 i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
             pihm_exit(EXIT_FAILURE);
         }
     }
 
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TOPT_DATA", 'd', filename, lno, &lctbl->topt);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "TOPT_DATA", 'd', fn, lno, &lctbl->topt);
 
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CFACTR_DATA", 'd', filename, lno, &lctbl->cfactr);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CFACTR_DATA", 'd', fn, lno, &lctbl->cfactr);
 
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RSMAX_DATA", 'd', filename, lno, &lctbl->rsmax);
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RSMAX_DATA", 'd', fn, lno, &lctbl->rsmax);
 
-    fclose(lc_file);
+    fclose(fp);
 }
