@@ -44,18 +44,13 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
 
                 if (i != index - 1)
                 {
-                    pihm_printf(VL_ERROR,
-                        "Error reading the %dth LAI time series.\n", i + 1);
-                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        fn, lno);
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
                 /* Check header lines */
                 NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME", "LAI"))
                 {
-                    pihm_printf(VL_ERROR, "LAI forcing file header error.\n");
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
                 forc->lai[i].length = CountLine(fp, cmdstr, 1, "LAI_TS");
             }
@@ -79,9 +74,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
                     if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j],
                         &forc->lai[i].data[j][0]))
                     {
-                        pihm_printf(VL_ERROR, "Error reading LAI forcing."
-                            "Error in %s near Line %d.\n", fn, lno);
-                        pihm_exit(EXIT_FAILURE);
+                        pihm_error(ERR_WRONG_FORMAT, fn, lno);
                     }
                 }
             }

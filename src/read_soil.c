@@ -44,8 +44,7 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
         "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF",
         "DMAC", "QTZ"))
     {
-        pihm_printf(VL_ERROR, "Soil file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < soiltbl->number; i++)
@@ -63,10 +62,7 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
 
         if (match != 16 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading properties of the %dth soil type.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
 
         /* Fill in missing organic matter and bulk density values */

@@ -47,9 +47,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
     if (!CheckHeader(cmdstr, 10, "INDEX", "FROM", "TO", "DOWN", "LEFT", "RIGHT",
         "SHAPE", "MATL", "BC", "RES"))
     {
-        pihm_printf(VL_ERROR,
-            "River file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     /* Read river segment information */
@@ -62,10 +60,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
             &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading river attribute for the %dth segment.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -84,8 +79,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 4, "INDEX", "DPTH", "OINT", "CWID"))
     {
-        pihm_printf(VL_ERROR, "River file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < shptbl->number; i++)
@@ -95,11 +89,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
             &shptbl->depth[i], &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading river shape description for the %dth shape.\n",
-                i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -118,8 +108,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 4, "INDEX", "ROUGH", "CWR", "KH"))
     {
-        pihm_printf(VL_ERROR, "River file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < matltbl->number; i++)
@@ -129,10 +118,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
             &matltbl->rough[i], &matltbl->cwr[i], &matltbl->ksath[i]);
         if (match != 4 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading description of the %dth material.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -156,30 +142,21 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
                 strcasecmp(tempstr[0], "RIV_TS") != 0 ||
                 strcasecmp(tempstr[1], "TYPE") != 0)
             {
-                pihm_printf(VL_ERROR, "Error reading description "
-                    "of the %dth river boundary condition.\n", i);
-                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                    fn, lno);
-                pihm_exit(EXIT_FAILURE);
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
             if (forc->riverbc[i].bc_type != DIRICHLET &&
                 forc->riverbc[i].bc_type != NEUMANN)
             {
-                pihm_printf(VL_ERROR, "Error reading the %dth river boundary "
-                    "condition time series.\n", i + 1);
                 pihm_printf(VL_ERROR, "Boundary condition type should be "
                     "either Dirichlet (1) or Neumann (2).\n");
-                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                    fn, lno);
-                pihm_exit(EXIT_FAILURE);
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
             /* Check header */
             NextLine(fp, cmdstr, &lno);
             if (!CheckHeader(cmdstr, 2, "TIME",
                 (forc->riverbc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
             {
-                pihm_printf(VL_ERROR, "River file header error.\n");
-                pihm_exit(EXIT_FAILURE);
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
 
             forc->riverbc[i].length =
@@ -205,11 +182,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl,
                 if (!ReadTs(cmdstr, 1, &forc->riverbc[i].ftime[j],
                     &forc->riverbc[i].data[j][0]))
                 {
-                    pihm_printf(VL_ERROR,
-                        "Error reading river boundary condition.\n");
-                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        fn, lno);
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
             }
         }

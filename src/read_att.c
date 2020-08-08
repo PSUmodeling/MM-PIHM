@@ -28,8 +28,7 @@ void ReadAtt(const char fn[], atttbl_struct *atttbl)
     if (!CheckHeader(cmdstr, 9, "INDEX", "SOIL", "GEOL", "LC", "METEO", "LAI",
         "BC1", "BC2", "BC3"))
     {
-        pihm_printf(VL_ERROR, "Attribute file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
     for (i = 0; i < nelem; i++)
     {
@@ -41,10 +40,7 @@ void ReadAtt(const char fn[], atttbl_struct *atttbl)
             &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 9 || index != i + 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading attribute of the %dth element.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

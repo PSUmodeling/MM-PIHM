@@ -26,8 +26,7 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
     if (!CheckHeader(cmdstr, 7, "INDEX", "NODE1", "NODE2", "NODE3", "NABR1",
         "NABR2", "NABR3"))
     {
-        pihm_printf(VL_ERROR, "Mesh file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < nelem; i++)
@@ -41,10 +40,7 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
             &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading mesh description of the %dth element.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -58,8 +54,7 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 5, "INDEX", "X", "Y", "ZMIN", "ZMAX"))
     {
-        pihm_printf(VL_ERROR, "Mesh file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     meshtbl->x    = (double *)malloc(meshtbl->numnodes * sizeof(double));
@@ -75,10 +70,7 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
             &meshtbl->zmin[i], &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading description of the %dth node!\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

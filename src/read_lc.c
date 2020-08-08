@@ -38,8 +38,7 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
         "SNUP", "LAIMIN", "LAIMAX", "EMISMIN", "EMISMAX", "ALBMIN", "ALBMAX",
         "Z0MIN", "Z0MAX", "ROUGH"))
     {
-        pihm_printf(VL_ERROR, "Land cover file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < lctbl->number; i++)
@@ -57,11 +56,7 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
             &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading properties of the %dth landcover type.\n",
-                i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

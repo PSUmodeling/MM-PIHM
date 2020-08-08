@@ -77,25 +77,15 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl,
                     strcasecmp(tempstr[0], "BC_TS") != 0 ||
                     strcasecmp(tempstr[1], "TYPE") != 0)
                 {
-                    pihm_printf(VL_ERROR,
-                        "Error reading the %dth boundary condition "
-                        "time series.\n", i + 1);
-                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        fn, lno);
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
                 if (forc->bc[i].bc_type != DIRICHLET &&
                     forc->bc[i].bc_type != NEUMANN)
                 {
                     pihm_printf(VL_ERROR,
-                        "Error reading the %dth boundary condition "
-                        "time series.\n", i + 1);
-                    pihm_printf(VL_ERROR,
                         "Boundary condition type should be "
                         "either Dirichlet (1) or Neumann (2).\n");
-                    pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                        fn, lno);
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
 #if defined(_RT_)
                 int             k;
@@ -114,9 +104,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl,
                     strcasecmp(tempstr[1],
                     (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX")!= 0)
                 {
-                    pihm_printf(VL_ERROR,
-                        "Boundary condition file header error.\n");
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
 
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -148,9 +136,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl,
                 if (!CheckHeader(cmdstr, 2, "TIME",
                     (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
                 {
-                    pihm_printf(VL_ERROR,
-                        "Boundary condition file header error.\n");
-                    pihm_exit(EXIT_FAILURE);
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
 #endif
                 forc->bc[i].length = CountLine(fp, cmdstr, 1, "BC_TS");
@@ -185,11 +171,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl,
                         &forc->bc[i].data[j][0]))
 #endif
                     {
-                        pihm_printf(VL_ERROR,
-                            "Error reading boundary condition.");
-                        pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                            fn, lno);
-                        pihm_exit(EXIT_FAILURE);
+                        pihm_error(ERR_WRONG_FORMAT, fn, lno);
                     }
 #if defined(_RT_)
                     else

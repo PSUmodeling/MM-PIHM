@@ -31,8 +31,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     if (!CheckHeader(cmdstr, 10, "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC",
         "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
     {
-        pihm_printf(VL_ERROR, "Geology file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < geoltbl->number; i++)
@@ -47,10 +46,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
 
         if (match != 10 || i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading properties of the %dth geology type.\n", i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

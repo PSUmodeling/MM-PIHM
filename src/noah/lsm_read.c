@@ -47,9 +47,7 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl,
         if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[kz],
             &bytes_now) != 1)
         {
-            pihm_printf(VL_ERROR, "Error reading soil layer depths.\n"
-                "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
         bytes_consumed += bytes_now;
     }
@@ -175,19 +173,14 @@ void ReadRad(const char fn[], forc_struct *forc)
 
         if (i != index - 1)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading the %dth radiation forcing time series.\n",
-                i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
 
         /* Check header lines */
         NextLine(fp, cmdstr, &lno);
         if (!CheckHeader(cmdstr, 3, "TIME", "SDIR", "SDIF"))
         {
-            pihm_printf(VL_ERROR, "Radiation forcing file header error.\n");
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
         forc->rad[i].length = CountLine(fp, cmdstr, 1, "RAD_TS");
     }
@@ -233,11 +226,7 @@ void ReadGlacierIce(const char fn[], double iceh[])
         match = sscanf(cmdstr, "%d %lf", &index, &iceh[i]);
         if (match != 2)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading glacier ice depth of the %dth element.\n",
-                i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

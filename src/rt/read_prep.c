@@ -39,12 +39,7 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[],
                 strcasecmp(tempstr[0], "PRCP_CONC_TS") != 0 ||
                 strcasecmp(tempstr[1], "PCONC") != 0)
             {
-                pihm_printf(VL_ERROR,
-                    "Error reading the %dth precipitation concentration"
-                    " time series.\n", i + 1);
-                pihm_printf(VL_ERROR, "Error in %s near Line %d.\n",
-                    fn, lno);
-                pihm_exit(EXIT_FAILURE);
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
             /* Skip header lines */
             NextLine(fp, cmdstr, &lno);
@@ -65,18 +60,14 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[],
             if (sscanf(cmdstr + bytes_consumed, "%s%n", tempstr[0],
                 &bytes_now) != 1)
             {
-                pihm_printf(VL_ERROR,
-                    "Error reading precipitation conc. "
-                    "in %s near Line %d.\n", fn, lno);
-                pihm_exit(EXIT_FAILURE);
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
             bytes_consumed += bytes_now;
             if (strcasecmp(tempstr[0], "TIME") != 0)
             {
                 pihm_printf(VL_ERROR,
-                    "Expect header line starting with \"TIME\" "
-                    "in %s near Line %d.\n", fn, lno);
-                pihm_exit(EXIT_FAILURE);
+                    "Expect header line starting with \"TIME\".\n");
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
             for (j = 0; j < nsps[i]; j++)
             {

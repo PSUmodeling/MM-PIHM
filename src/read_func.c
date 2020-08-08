@@ -37,7 +37,7 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
 }
 
 int ReadKeyword(const char buffer[], const char keyword[], char type,
-    const char filename[], int lno, void *value)
+    const char fn[], int lno, void *value)
 {
     int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
@@ -115,16 +115,14 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
 
     if (!success)
     {
-        pihm_printf(VL_ERROR, "Error reading %s near Line %d.\n",
-            filename, lno);
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     return success;
 }
 
 int ReadPrintCtrl(const char buffer[], const char keyword[],
-    const char filename[], int lno)
+    const char fn[], int lno)
 {
     int             match;
     int             prtvrbl;
@@ -136,7 +134,7 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
     {
         pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
             "detected keyword \"%s\".\n", keyword, optstr);
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
     if (strcasecmp(ctrlstr, "YEARLY") == 0)
@@ -160,9 +158,8 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
         match = sscanf(ctrlstr, "%d", &prtvrbl);
         if (match != 1)
         {
-            pihm_printf(VL_ERROR, "Unknown output control option %s "
-                "in %s near Line %d.\n", ctrlstr, filename, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_printf(VL_ERROR, "Unknown output control option %s.\n");
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

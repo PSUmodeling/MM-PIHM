@@ -27,8 +27,7 @@ void ReadCini(const char fn[], const chemtbl_struct *chemtbl, int num_stc,
     if (!CheckHeader(cmdstr, 3, "ELEM", "PRCPC", "SOIL", "GEOL"))
 #endif
     {
-        pihm_printf(VL_ERROR, "Cini file header error.\n");
-        pihm_exit(EXIT_FAILURE);
+        pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
     for (i = 0; i < nelem; i++)
     {
@@ -47,11 +46,7 @@ void ReadCini(const char fn[], const chemtbl_struct *chemtbl, int num_stc,
 
         if (match != NCHMVOL + 2)
         {
-            pihm_printf(VL_ERROR,
-                "Error reading chemistry attribute of the %dth element.\n",
-                i + 1);
-            pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
