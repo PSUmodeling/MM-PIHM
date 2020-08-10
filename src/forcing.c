@@ -273,7 +273,7 @@ void ApplyDailyMeteoForcing(int t, int rad_mode,
             }
 
             /* Calculate Sun position for topographic solar radiation */
-            SunPos(siteinfo, kt, &spa);
+            SunPos(kt, siteinfo, &spa);
         }
 
 #if defined(_OPENMP)
@@ -297,8 +297,8 @@ void ApplyDailyMeteoForcing(int t, int rad_mode,
             elem[i].ps.rh += forc->meteo[ind].value[RH_TS] / 24.0;
             elem[i].ps.sfcspd += forc->meteo[ind].value[SFCSPD_TS] / 24.0;
             elem[i].ef.soldn += (rad_mode > 0 && forc->nrad > 0) ?
-                MAX(TopoRadn(&elem[i].topo, elem[i].ef.soldir,
-                elem[i].ef.soldif, spa.zenith, spa.azimuth180), 0.0) / 24.0 :
+                MAX(TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif, spa.zenith,
+                spa.azimuth180, &elem[i].topo), 0.0) / 24.0 :
                 MAX(forc->meteo[ind].value[SOLAR_TS], 0.0) / 24.0;
             elem[i].ef.longwave += forc->meteo[ind].value[LONGWAVE_TS] / 24.0;
             elem[i].ps.sfcprs += forc->meteo[ind].value[PRES_TS] / 24.0;

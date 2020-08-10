@@ -539,6 +539,7 @@ typedef struct realized_crop_struct
     double          transp_pot;             /* potential crop transpiration (mm)
                                              */
     double          soil_evap;              /* soil evaporation (mm) */
+    double          irrig;                  /* irrigation (mm) */
 } realized_crop_struct;
 
 typedef struct crop_struct
