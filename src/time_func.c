@@ -24,38 +24,55 @@ pihm_t_struct PIHMTime(int t)
 int StrTime(const char timestr[])
 {
     struct tm      *timestamp;
-    int             t;
+    int             t = 0;
 
     timestamp = (struct tm *)malloc(sizeof(struct tm));
 
     switch (strlen(timestr))
     {
         case 4:
-            sscanf(timestr, "%d", &timestamp->tm_year);
-            timestamp->tm_year -= 1900;
-            timestamp->tm_mon   = 0;
-            timestamp->tm_mday  = 1;
-            timestamp->tm_hour  = 0;
-            timestamp->tm_min   = 0;
-            timestamp->tm_sec   = 0;
-            timestamp->tm_isdst = 0;
+            if (sscanf(timestr, "%d", &timestamp->tm_year) != 1)
+            {
+                t = BADVAL;
+                pihm_printf(VL_ERROR,
+                    "Error converting from time string to time.\n");
+            }
+            else
+            {
+                timestamp->tm_year -= 1900;
+                timestamp->tm_mon   = 0;
+                timestamp->tm_mday  = 1;
+                timestamp->tm_hour  = 0;
+                timestamp->tm_min   = 0;
+                timestamp->tm_sec   = 0;
+                timestamp->tm_isdst = 0;
+            }
             break;
         case 16:
-            sscanf(timestr, "%d-%d-%d %d:%d",
+            if (sscanf(timestr, "%d-%d-%d %d:%d",
                 &timestamp->tm_year, &timestamp->tm_mon, &timestamp->tm_mday,
-                &timestamp->tm_hour, &timestamp->tm_min);
-            timestamp->tm_year -= 1900;
-            timestamp->tm_mon--;
-            timestamp->tm_sec = 0;
-            timestamp->tm_isdst = 0;
+                &timestamp->tm_hour, &timestamp->tm_min) != 5)
+            {
+                t = BADVAL;
+                pihm_printf(VL_ERROR,
+                    "Error converting from time string to time.\n");
+            }
+            else
+            {
+                timestamp->tm_year -= 1900;
+                timestamp->tm_mon--;
+                timestamp->tm_sec = 0;
+                timestamp->tm_isdst = 0;
+            }
             break;
         default:
+            t = BADVAL;
             pihm_printf(VL_ERROR,
                 "Error converting from time string to time.\n");
-            pihm_exit(EXIT_FAILURE);
+            break;
     }
 
-    t = (int)timegm(timestamp);
+    t = (t == BADVAL) ? BADVAL : (int)timegm(timestamp);
 
     free(timestamp);
 

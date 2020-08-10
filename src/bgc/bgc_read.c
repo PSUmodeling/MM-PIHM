@@ -509,7 +509,6 @@ void ReadAnnualFile(const char fn[], tsdata_struct *ts)
     char            timestr[MAXSTRING];
     char            cmdstr[MAXSTRING];
     int             k;
-    int             match;
     int             lno = 0;
 
     fp = pihm_fopen(fn, "r");
@@ -524,17 +523,16 @@ void ReadAnnualFile(const char fn[], tsdata_struct *ts)
     {
         ts->data[k] = (double *)malloc(sizeof(double));
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%s %lf", timestr, &ts->data[k][0]);
-
-        if (match != 2)
+        if (sscanf(cmdstr, "%s %lf", timestr, &ts->data[k][0]) != 2)
         {
-            pihm_printf(VL_ERROR, "Error reading %s.\n", fn);
-            pihm_printf(VL_ERROR,
-                "Please check file format near Line %s.\n", lno);
-            pihm_exit(EXIT_FAILURE);
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
 
         ts->ftime[k] = StrTime(timestr);
+        if (ts->ftime[k] == BADVAL)
+        {
+            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        }
     }
 
     fclose(fp);

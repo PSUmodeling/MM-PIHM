@@ -18,19 +18,28 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
     }
     else
     {
-        for (i = 0; i < nvrbl; i++)
-        {
-            match =
-                sscanf(cmdstr + bytes_consumed, "%lf%n", &data[i], &bytes_now);
-            if (match != 1)
-            {
-                success = 0;
-            }
-            bytes_consumed += bytes_now;
-        }
-
         sprintf(timestr, "%s %s", ts1, ts2);
+
         *ftime = StrTime(timestr);
+
+        if (*ftime == BADVAL)
+        {
+            success = 0;
+        }
+        else
+        {
+            for (i = 0; i < nvrbl; i++)
+            {
+                match = sscanf(cmdstr + bytes_consumed, "%lf%n", &data[i],
+                    &bytes_now);
+                if (match != 1)
+                {
+                    success = 0;
+                    break;
+                }
+                bytes_consumed += bytes_now;
+            }
+        }
     }
 
     return success;
@@ -45,7 +54,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
 
     if (NULL == value)
     {
-        if (sscanf(buffer, "%s", optstr) != 0)
+        if (sscanf(buffer, "%s", optstr) != 1)
         {
             success = 0;
         }
@@ -123,6 +132,10 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 {
                     sprintf(timestr, "%s %s", ts1, ts2);
                     *((int *)value) = StrTime(timestr);
+                    if (*((int *)value) == BADVAL)
+                    {
+                        success = 0;
+                    }
                 }
                 break;
             default:
