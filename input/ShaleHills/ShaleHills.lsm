@@ -10,7 +10,7 @@ SALP_DATA       2.6
 FRZK_DATA       0.15
 ZBOT_DATA       -8.0
 TBOT_DATA       282.15
-CZIL_DATA       0.1
+CZIL_DATA       0.05
 LVCOEF_DATA     0.5
 ######################
 # Print Control      #

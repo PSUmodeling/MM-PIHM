@@ -21,8 +21,8 @@ RIV_WDTH        1.0     # river channel width
 LSM_CALIBRATION
 DRIP            1.0     # through-fall of precipitation and/or dew
 CMCMAX          2.0     # maximum canopy water capacity
-RS              0.85    # canopy resistance
-CZIL            0.8     # Zilitinkevich constant
+RS              0.8     # canopy resistance
+CZIL            1.0     # Zilitinkevich constant
 FXEXP           1.0     # soil evaporation exponent used in direct evaporation
 CFACTR          1.0     # parameter used in the canopy interception calculation
 RGL             1.0     # reference incoming solar flux
