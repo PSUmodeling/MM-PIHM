@@ -341,35 +341,35 @@ ifneq ($(CMAKE_EXIST),1)
 endif
 
 pihm:			## Compile PIHM
-pihm: $(OBJS) $(MODULE_OBJS)
+pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
-flux-pihm: $(OBJS) $(MODULE_OBJS)
+flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 rt-flux-pihm:		## Compile RT-Flux-PIHM (PIHM with land surface and reactive transport modules)
-rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
+rt-flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
-flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
+flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 cycles-3d:	        ## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-cycles-3d: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
+cycles-3d: check_latest_vers check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -387,6 +387,9 @@ test: clean
 
 check_cycles_vers:
 	@util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
+
+check_latest_vers:
+	@util/check_latest_vers.sh
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@

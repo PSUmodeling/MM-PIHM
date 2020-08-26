@@ -47,6 +47,7 @@
 *.pbs.o*
 __pycache__
 !/util/check_cycles_vers.sh
+!/util/check_latest_vers.sh
 !/util/pihm_func.py
 !/util/plot.py
 
