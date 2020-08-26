@@ -83,6 +83,9 @@ def read_output(simulation, outputdir, ext):
     else:
         dim = num_elem
 
+    varname = 'MM-PIHM output'
+    unit = 'N/A'
+
     if ext == 'surf':
         varname = 'Surface water'
         unit = 'm'
