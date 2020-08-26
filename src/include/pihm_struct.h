@@ -81,7 +81,6 @@ typedef struct calib_struct
     double          kinfv;
     double          kmach;
     double          kmacv;
-    double          dinf;
     double          rzd;
     double          dmac;
     double          porosity;

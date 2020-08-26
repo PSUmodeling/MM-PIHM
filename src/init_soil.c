@@ -31,7 +31,7 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
 
         soil_ind = elem[i].attrib.soil - 1;
 
-        elem[i].soil.dinf = calib->dinf * soiltbl->dinf;
+        elem[i].soil.dinf = soiltbl->dinf;
 
         elem[i].soil.depth = elem[i].topo.zmax - elem[i].topo.zmin;
 

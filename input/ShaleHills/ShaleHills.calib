@@ -3,7 +3,6 @@ KSATV           2.0     # vertical saturated hydraulic conductivity
 KINF            1.0     # vertical saturated hydraulic conductivity
 KMACSATH        3.5     # macropore horizontal saturated hydraulic conductivity
 KMACSATV        1.0     # macropore vertical saturated hydraulic conductivity
-DINF            1.0     # depth of infiltration layer
 DROOT           1.0     # rooting depth
 DMAC            1.6     # macropore depth
 POROSITY        0.85    # soil porosity

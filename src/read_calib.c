@@ -25,9 +25,6 @@ void ReadCalib(const char fn[], calib_struct *calib)
     ReadKeyword(cmdstr, "KMACSATV", 'd', fn, lno, &calib->kmacv);
 
     NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DINF", 'd', fn, lno, &calib->dinf);
-
-    NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DROOT", 'd', fn, lno, &calib->rzd);
 
     NextLine(fp, cmdstr, &lno);
