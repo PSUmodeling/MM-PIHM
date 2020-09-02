@@ -1,5 +1,5 @@
 NUMRIV  12
-INDEX   FROM    TO      DOWN    LEFT    RIGHT   SHAPE   MATRL   BC  RES
+INDEX   FROM    TO      DOWN    LEFT    RIGHT   SHAPE   MATL    BC  RES
 1       1       2       2       43      93      1       1       0   0
 2       2       3       3       23      48      1       1       0   0
 3       3       4       4       45      46      1       1       0   0

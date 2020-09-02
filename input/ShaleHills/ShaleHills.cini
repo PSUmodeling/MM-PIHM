@@ -536,8 +536,12 @@ ELEM    PRCPC   SOIL    GEOL
 535     1       1       4
 
 Condition RT
-# concentrations and names of species of condition X.
-# recommanded order: aqueous primary, adsorption, cation exchange, mineral
+# Names and concentrations of species of condition X.
+# Recommended order: aqueous primary, adsorption, cation exchange, mineral
+# Concentration units: mol L-1; minerals concentration: volume fraction v/v;
+#   ssa unit: m2 g-1
+
+
 pH          4.56
 Cl-         3.69E-5
 DOC         20.0E-6
