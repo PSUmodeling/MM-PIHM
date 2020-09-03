@@ -386,10 +386,10 @@ test: clean
 	@echo "# Results can be visualized by running \"./util/plot.py\"."
 
 check_cycles_vers:
-	@util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
+	@/bin/sh util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
 
 check_latest_vers:
-	@util/check_latest_vers.sh
+	@/bin/sh util/check_latest_vers.sh
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@

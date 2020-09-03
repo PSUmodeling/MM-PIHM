@@ -24,7 +24,7 @@
 # include <omp.h>
 #endif
 
-#define VERSION    "1.0.0-rc1"
+#define VERSION    "1.0.0-rc1.post"
 
 /*
  * SUNDIAL Header Files
