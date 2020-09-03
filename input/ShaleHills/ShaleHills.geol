@@ -1,5 +1,6 @@
 NUMGEOL     1
 INDEX   KSATV       KSATH       MAXSMC  MINSMC  ALPHA   BETA    MACHF   MACVF   DMAC
+#-      m/s         m/s         m3/m3   m3/m3   1/m     -       m2/m2   m2/m2   m
 1       1.625E-7    1.202E-7    0.0370  0.00    10.0    2.0     0.01    0.01    1.0
 
 KMACV_RO    100.0

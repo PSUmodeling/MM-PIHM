@@ -14,9 +14,11 @@ INDEX   FROM    TO      DOWN    LEFT    RIGHT   SHAPE   MATL    BC  RES
 12      10      11      -3      57      82      1       1       0   0
 SHAPE   1
 INDEX   DPTH    OINT    CWID
+#-      m       -       -
 1       0.6     1       2.0
 MATERIAL    1
 INDEX   ROUGH   CWR     KH
+#-      s/m1/3  -       m/s
 1       0.04    0.60    1.157E-05
 BC  0
 RES 0

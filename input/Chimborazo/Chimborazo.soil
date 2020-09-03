@@ -1,8 +1,9 @@
 NUMSOIL     3
 INDEX   SILT    CLAY    OM      BD      KINF    KSATV   KSATH   MAXSMC  MINSMC  ALPHA   BETA    MACHF   MACVF   DMAC    QTZ
+#-      %       %       %       g/cm3   m/s     m/s     m/s     m3/m3   m3/m3   1/m     -       m2/m2   m2/m2   m       100%
 1       30.67   40.20   7.62    1.93    -999    -999    -999    -999    -999    -999    -999    0.01    0.01    1.0     -999
 2       30.90   40.85   7.74    2.13    -999    -999    -999    -999    -999    -999    -999    0.01    0.01    1.0     -999
 3       30.90   40.85   6.94    2.13    -999    -999    -999    -999    -999    -999    -999    0.01    0.01    1.0     -999
-DINF        0.10
+DINF        0.10            # m
 KMACV_RO    100.0
 KMACH_RO    1000.0
