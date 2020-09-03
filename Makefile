@@ -239,7 +239,7 @@ endif
 # Flux-PIHM-Cycles
 #-------------------
 CYCLES_PATH = ../Cycles_dev/src
-RQD_CYCLES_VERS = R0.8.0-alpha
+RQD_CYCLES_VERS = 0.12.4-alpha
 ifeq ($(MAKECMDGOALS),cycles-3d)
   SFLAGS += -D_NOAH_ -D_CYCLES_
   MODULE_SRCS_= \
