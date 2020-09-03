@@ -200,7 +200,11 @@ void ReadRad(const char fn[], forc_struct *forc)
         {
             forc->rad[i].data[j] = (double *)malloc(2 * sizeof(double));
             NextLine(fp, cmdstr, &lno);
-            ReadTs(cmdstr, 2, &forc->rad[i].ftime[j], &forc->rad[i].data[j][0]);
+            if (!ReadTs(cmdstr, 2, &forc->rad[i].ftime[j],
+                &forc->rad[i].data[j][0]))
+            {
+                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            }
         }
     }
 

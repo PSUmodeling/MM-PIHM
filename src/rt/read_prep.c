@@ -112,7 +112,11 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[],
                     (double *)malloc(rttbl->num_spc * sizeof(double));
 
                 NextLine(fp, cmdstr, &lno);
-                ReadTs(cmdstr, nsps[i], &forc->prcpc[i].ftime[j], temp_conc);
+                if (!ReadTs(cmdstr, nsps[i], &forc->prcpc[i].ftime[j],
+                    temp_conc))
+                {
+                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                }
 
                 for (k = 0; k < rttbl->num_spc; k++)
                 {
