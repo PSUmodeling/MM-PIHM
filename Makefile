@@ -2,6 +2,17 @@
 # MM-PIHM Makefile
 # -----------------------------------------------------------------
 
+# Valid make options for MM-PIHM
+PARAMS := WARNING DEBUG OMP DGW LUMPED CVODE_OMP
+
+# Get all make options
+CMDVARS := $(strip $(foreach V,$(.VARIABLES),$(if $(findstring command,$(origin $V)),$V)))
+
+# Test if invalid make options exist
+ifneq ($(and $(CMDVARS),$(filter-out $(PARAMS),$(CMDVARS))),)
+    $(error Make option $(filter-out $(PARAMS),$(CMDVARS)) is not supported)
+endif
+
 CC = gcc
 CFLAGS = -g -O0
 
