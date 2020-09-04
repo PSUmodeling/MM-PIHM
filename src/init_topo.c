@@ -107,14 +107,20 @@ void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
         elem[i].topo.slope = atan(c / normal_vector[ZCOMP]) * 180.0 / PI;
 
         /* Calculate aspect */
-        ce = normal_vector[XCOMP] / c;
-        se = normal_vector[YCOMP] / c;
-        elem[i].topo.aspect = acos(ce) * 180.0 / PI;
-
-        elem[i].topo.aspect = (se < 0.0) ?
-            360.0 - elem[i].topo.aspect : elem[i].topo.aspect;
-
-        elem[i].topo.aspect = Mod(360.0 - elem[i].topo.aspect + 270.0, 360.0);
+        if (c == 0.0)
+        {
+            elem[i].topo.aspect = 0.0;
+        }
+        else
+        {
+            ce = normal_vector[XCOMP] / c;
+            se = normal_vector[YCOMP] / c;
+            elem[i].topo.aspect = acos(ce) * 180.0 / PI;
+            elem[i].topo.aspect = (se < 0.0) ?
+                360.0 - elem[i].topo.aspect : elem[i].topo.aspect;
+            elem[i].topo.aspect =
+                Mod(360.0 - elem[i].topo.aspect + 270.0, 360.0);
+        }
 
         /*
          * Calculate sky view factor (Dozier and Frew 1990)
