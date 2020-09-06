@@ -12,19 +12,18 @@ def read_mesh(simulation):
 
     # Read mesh file into an array of strings with leading white spaces removed
     # Line starting with "#" are not read in
-    meshstr = []
     with open(fname) as file:
-        [meshstr.append(line.strip()) for line in file
-         if line.strip() and line.strip()[0] != '#']
+        meshstr = [line.strip() for line in file
+                                if line.strip() and line.strip()[0] != '#']
 
     # Read number of elements
     num_elem = int(meshstr[0].split()[1])
 
     # Read nodes information
     tri = []
-    for nline in range(num_elem):
-        strs = meshstr[2 + nline].split()[1:4]
-        tri.append([int(i) - 1 for i in strs])
+    for elem in range(num_elem):
+        strs = meshstr[2 + elem].split()[1:4]
+        tri.append([int(c) - 1 for c in strs])
 
     # Read number of nodes
     num_nodes = int(meshstr[2 + num_elem].split()[1])
@@ -34,8 +33,8 @@ def read_mesh(simulation):
     y = []
     zmin = []
     zmax = []
-    for nline in range(num_nodes):
-        strs = meshstr[4 + num_elem + nline].split()[1:]
+    for node in range(num_nodes):
+        strs = meshstr[4 + num_elem + node].split()[1:]
         x.append(float(strs[0]))
         y.append(float(strs[1]))
         zmin.append(float(strs[2]))
@@ -52,10 +51,9 @@ def read_river(simulation):
 
     # Read river file into an array of strings with leading white spaces removed
     # Line starting with "#" are not read in
-    riverstr = []
     with open(fname) as file:
-        [riverstr.append(line.strip()) for line in file
-         if line.strip() and line.strip()[0] != '#']
+        riverstr = [line.strip() for line in file
+                    if line.strip() and line.strip()[0] != '#']
 
     # Read number of river segments
     num_rivers = int(riverstr[0].split()[1])
@@ -63,8 +61,8 @@ def read_river(simulation):
     # Read nodes information
     from_node = []
     to_node = []
-    for kriver in range(num_rivers):
-        strs = riverstr[2 + kriver].split()[1:3]
+    for river in range(num_rivers):
+        strs = riverstr[2 + river].split()[1:3]
         from_node.append(int(strs[0]) - 1)
         to_node.append(int(strs[1]) - 1)
 
@@ -78,10 +76,7 @@ def read_output(simulation, outputdir, ext):
     num_elem, _, _, _, _, _, _ = read_mesh(simulation)
 
     # Determine output dimension, variable name and unit from extension
-    if ext[0:6] == 'river.':
-        dim = num_rivers
-    else:
-        dim = num_elem
+    dim = num_rivers if ext[0:6] == 'river.' else num_elem
 
     varname = 'MM-PIHM output'
     unit = 'N/A'
@@ -318,8 +313,7 @@ def read_output(simulation, outputdir, ext):
         sim_val = data_array[:, 1:]
 
         # Convert simulation time
-        sim_time = []
-        [sim_time.append(datetime.utcfromtimestamp(data_array[i, 0]))
-         for i in range(int(fsize / (dim + 1)))]
+        sim_time = [datetime.utcfromtimestamp(data_array[i, 0])
+                    for i in range(int(fsize / (dim + 1)))]
 
     return (sim_time, sim_val, varname, unit)

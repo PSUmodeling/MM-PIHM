@@ -36,17 +36,16 @@ def main():
     # should be used
     domain_xy_ratio = (np.max(x) - np.min(x)) / (np.max(y) - np.min(y))
 
-    if domain_xy_ratio < 1.33:
-        ax = fig.add_axes([0, 0, 0.8, 1])
-    else:
-        ax = fig.add_axes([0, 0.2, 1, 0.8])
+    ax = fig.add_axes([0, 0, 0.8, 1]) if domain_xy_ratio < 1.33 \
+         else fig.add_axes([0, 0.2, 1, 0.8])
 
     # Plot groundwater in space
     tpc = ax.tripcolor(x, y, tri,
                        facecolors=var,
-                       vmin = 0, vmax = 1.5,
+                       vmin=0,
+                       vmax=1.5,
                        edgecolors='k',
-                       lw = 0.5,
+                       lw=0.5,
                        cmap='RdBu')
     ax.set_aspect('equal')
 
