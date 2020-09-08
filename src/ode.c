@@ -57,7 +57,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
 # if defined(_DGW_)
-            elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
+            elem[i].chms_geol.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
 # endif
         }
 #endif
