@@ -4,7 +4,7 @@ int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[],
     int nsps)
 {
     int             i;
-    int             ind = -1;
+    int             ind = BADVAL;
 
     for (i = 0; i < nsps; i++)
     {

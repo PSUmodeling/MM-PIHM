@@ -82,18 +82,19 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[],
                 bytes_consumed += bytes_now;
 
                 index[j] = FindChem(chemn, chemtbl, rttbl->num_stc);
-                if (index[j] < rttbl->num_spc)
+
+                if (index[j] < 0 || index[j] >= rttbl->num_spc)
                 {
-                    pihm_printf(VL_VERBOSE,
-                        "  Precipitation concentration of '%s' "
-                        "is a time series.\n", chemn);
+                    pihm_printf(VL_ERROR,
+                        "Error: Precipitation species %s is not defined in the "
+                        "simulation.\n", chemn);
+                    pihm_exit(EXIT_FAILURE);
                 }
                 else
                 {
                     pihm_printf(VL_VERBOSE,
-                        "Error: Precipitation species index is larger than "
-                        "number of primary species.\n");
-                    pihm_exit(EXIT_FAILURE);
+                        "  Precipitation concentration of '%s' "
+                        "is a time series.\n", chemn);
                 }
             }
 
