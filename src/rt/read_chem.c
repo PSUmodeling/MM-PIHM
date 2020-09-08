@@ -264,6 +264,15 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
                 chem_fn, lno);
         }
         p_type[i] = SpeciesType(db_fp, chemn[i]);
+
+        /* Species type is 0 when it is not found in the database. */
+        if (p_type[i] == 0)
+        {
+            pihm_printf(VL_ERROR,
+                "Error finding primary species %s in the database.\n",
+                chemn[i]);
+            pihm_exit(EXIT_FAILURE);
+        }
     }
 
     SortChem(chemn, p_type, rttbl->num_stc, chemtbl);
