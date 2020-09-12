@@ -233,18 +233,16 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitVar(pihm->elem, pihm->river, CV_Y);
 
 #if defined(_CYCLES_)
-# if TEMP_DISABLED
     /* Initialize Cycles module */
     if (pihm->ctrl.read_cycles_restart)
     {
-        ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
+        ReadCyclesIc(pihm->filename.cyclesic, pihm->elem);
     }
-# endif
+    else
+    {
+        FirstDay(&pihm->soiltbl, &pihm->ctrl, pihm->elem);
+    }
 
-    FirstDay(&pihm->soiltbl, &pihm->ctrl, pihm->elem);
-#endif
-
-#if defined(_CYCLES_)
     InitAgVar(pihm->elem, pihm->river, CV_Y);
 #endif
 

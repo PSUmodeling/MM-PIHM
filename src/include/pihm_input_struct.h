@@ -27,10 +27,10 @@ typedef struct filename_struct
     char            cycles[MAXSTRING];
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
+    char            cyclesic[MAXSTRING];
 #endif
 #if defined(_CYCLES_OBSOLETE_)
     char            op[MAXOP][MAXSTRING];
-    char            cyclesic[MAXSTRING];
 #endif
 #if defined(_DGW_)
     char            geol[MAXSTRING];        /* geology property file */

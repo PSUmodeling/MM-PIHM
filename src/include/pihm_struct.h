@@ -175,7 +175,7 @@ typedef struct ctrl_struct
     int             read_bgc_restart;       /* flag to read BGC restart file */
     int             write_bgc_restart;      /* flag to write BGC restart file */
 #endif
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     int             read_cycles_restart;
     int             write_cycles_restart;
 #endif

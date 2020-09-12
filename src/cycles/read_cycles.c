@@ -57,7 +57,6 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     /* Output control */
     FindLine(fp, "BOF", &lno, fn);
 
-#if TEMP_DISABLED
     FindLine(fp, "RESTART_CTRL", &lno, fn);
 
     NextLine(fp, cmdstr, &lno);
@@ -65,7 +64,6 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
 
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "WRITE_IC", 'i', fn, lno, &ctrl->write_cycles_restart);
-#endif
 
     FindLine(fp, "PRINT_CTRL", &lno, fn);
 
@@ -278,41 +276,18 @@ void ReadMultOper(const agtbl_struct *agtbl, mgmt_struct mgmttbl[],
     }
 }
 
-//int CropExist(char *cropName, const croptbl_struct *croptbl)
-//{
-//    int             i;
-//    int             exist = 0;
-//
-//    for (i = 0; i < croptbl->number; i++)
-//    {
-//        if (strcmp(cropName, croptbl->cropName[i]) == 0)
-//        {
-//            exist = 1;
-//            break;
-//        }
-//    }
-//
-//    return (exist);
-//}
-//
-//void ReadCyclesIC(char *fn, elem_struct *elem, river_struct *riv)
-//{
-//    FILE           *init_file;
-//    int             i;
-//
-//    init_file = pihm_fopen(fn, "rb");
-//    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
-//
-//    for (i = 0; i < nelem; i++)
-//    {
-//        fread(&elem[i].cycles_restart, sizeof(cyclesic_struct), 1, init_file);
-//    }
-//
-//    for (i = 0; i < nriver; i++)
-//    {
-//        fread(&riv[i].cycles_restart, sizeof(river_cyclesic_struct), 1,
-//            init_file);
-//    }
-//
-//    fclose(init_file);
-//}
+void ReadCyclesIc(const char fn[], elem_struct elem[])
+{
+    FILE           *fp;
+    int             i;
+
+    fp = pihm_fopen(fn, "rb");
+    pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread(&elem[i].restart_input, sizeof(agic_struct), 1, fp);
+    }
+
+    fclose(fp);
+}

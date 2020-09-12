@@ -136,6 +136,10 @@ int main(int argc, char *argv[])
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
 
+#if defined(_CYCLES_)
+        WriteCyclesIc(outputdir, pihm->elem);
+#endif
+
 #if defined(_RT_)
         WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem);
 #endif
@@ -181,20 +185,18 @@ int main(int argc, char *argv[])
         }
 #endif
 
+#if defined(_CYCLES_)
+        if (ctrl->write_cycles_restart)
+        {
+            WriteCyclesIc(outputdir, pihm->elem);
+        }
+#endif
+
 #if defined(_RT_)
         if (ctrl->write_rt_restart)
         {
             WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem);
         }
-#endif
-
-# if TEMP_DISABLED
-#if defined(_CYCLES_)
-        if (ctrl->write_cycles_restart)
-        {
-            WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
-        }
-# endif
 #endif
     }
 

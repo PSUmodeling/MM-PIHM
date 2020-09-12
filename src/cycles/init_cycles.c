@@ -209,48 +209,87 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         NV_Ith(CV_Y, SOLUTE_RIVER(i, NH4)) = river[i].ns.nh4;
     }
 }
-//
-//void WriteCyclesIC(char *restart_fn, elem_struct *elem, river_struct *riv)
-//{
-//    int             i, j;
-//    FILE           *restart_file;
-//
-//    restart_file = pihm_fopen(restart_fn, "wb");
-//    pihm_printf(VL_VERBOSE, "Writing Cycles initial conditions.\n");
-//
-//    for (i = 0; i < nelem; i++)
-//    {
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.SOC_Mass[j], sizeof(double), 1, restart_file);
-//        }
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.SON_Mass[j], sizeof(double), 1, restart_file);
-//        }
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.MBC_Mass[j], sizeof(double), 1, restart_file);
-//        }
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.MBN_Mass[j], sizeof(double), 1, restart_file);
-//        }
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.NO3[j], sizeof(double), 1, restart_file);
-//        }
-//        for (j = 0; j < MAXLYR; j++)
-//        {
-//            fwrite(&elem[i].soil.NH4[j], sizeof(double), 1, restart_file);
-//        }
-//    }
-//
-//    for (i = 0; i < nriver; i++)
-//    {
-//        fwrite(&riv[i].NO3sol.soluteMass, sizeof(double), 1, restart_file);
-//        fwrite(&riv[i].NH4sol.soluteMass, sizeof(double), 1, restart_file);
-//    }
-//
-//    fclose(restart_file);
-//}
+
+void WriteCyclesIc(const char outputdir[], const elem_struct elem[])
+{
+    int             i, k;
+    char            fn[MAXSTRING];
+    FILE           *fp;
+
+    /* Cycles restart file name */
+    sprintf(fn, "%s/restart/%s.cyclesic", outputdir, project);
+
+    /* Open Cycles restart file */
+    fp = pihm_fopen(fn, "wb");
+    pihm_printf(VL_VERBOSE, "Writing Cycles initial conditions.\n");
+
+    for (i = 0; i < nelem; i++)
+    {
+        fwrite(&elem[i].ws.stan_residue,   sizeof(double), 1, fp);
+        fwrite(&elem[i].ws.flat_residue,   sizeof(double), 1, fp);
+        fwrite(&elem[i].cs.stan_residue,   sizeof(double), 1, fp);
+        fwrite(&elem[i].cs.flat_residue,   sizeof(double), 1, fp);
+        fwrite(&elem[i].cs.manure_surface, sizeof(double), 1, fp);
+        fwrite(&elem[i].ns.residue_stan,   sizeof(double), 1, fp);
+        fwrite(&elem[i].ns.residue_flat,   sizeof(double), 1, fp);
+        fwrite(&elem[i].ns.manure_surface, sizeof(double), 1, fp);
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.abgd_residue[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.root_residue[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.rhizo_residue[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.manure[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.residue_abgd[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.residue_root[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.residue_rhizo[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.manure[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.soc[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].cs.mbc[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.son[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.mbn[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.no3[k], sizeof(double), 1, fp);
+        }
+        for (k = 0; k < MAXLYR; k++)
+        {
+            fwrite(&elem[i].ns.nh4[k], sizeof(double), 1, fp);
+        }
+    }
+
+    fclose(fp);
+}

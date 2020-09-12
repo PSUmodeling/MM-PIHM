@@ -43,8 +43,6 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
     sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
     sprintf(pihm->filename.crop,     "input/%s/%s.crop",     proj, proj);
-#endif
-#if defined(_CYCLES_OBSOLETE_)
     sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", proj, proj);
 #endif
 #if defined(_BGC_)
@@ -149,11 +147,6 @@ void ReadAlloc(pihm_struct pihm)
 
     /* Read operation files */
     ReadMultOper(&pihm->agtbl, pihm->mgmttbl, pihm->croptbl);
-#endif
-
-#if defined(_CYCLES_OBSOLETE_)
-    /* Read operation file */
-    ReadMultOper(&pihm->agtbl, pihm->epctbl, pihm->opertbl);
 #endif
 
 #if defined(_BGC_)

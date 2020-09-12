@@ -697,6 +697,7 @@ double          Profile(int, const double []);
 void            RadIntcp(crop_struct []);
 void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadCyclesIc(const char [], elem_struct []);
 void            ReadMultOper(const agtbl_struct *, mgmt_struct [],
     crop_struct []);
 void            ReadOper(const char [], int, int, mgmt_struct *,
@@ -747,17 +748,12 @@ double          WaterContentLimitToEvap(double, double, double);
 void            WaterUptake(double, const soil_struct *,
     const weather_struct *, const phystate_struct *,
     crop_struct [], wstate_struct *, wflux_struct *);
+void            WriteCyclesIc(const char [], const elem_struct []);
 void            ZeroFluxes(wflux_struct *, cflux_struct *, nflux_struct *);
 void            ZeroHarvest(crop_struct *);
 void            NRT(double, double, double [], const soil_struct *,
     const wstate_struct *, const wstate_struct *, const phystate_struct *,
     double []);
-#endif
-#if defined(_CYCLES_OBSOLETE_)
-void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
-    nstate_struct *, nflux_struct *);
-double          AvgSolConc(int, double, const double [],
-    const double [], const double [], double, const double []);
 #endif
 
 #if defined(_RT_)
