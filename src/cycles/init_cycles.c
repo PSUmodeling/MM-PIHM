@@ -63,6 +63,8 @@ void InitCycles(const calib_struct *calib, const agtbl_struct *agtbl,
          * Initialize management structure
          */
         elem[i].mgmt = mgmttbl[agtbl->oper[i] - 1];
+
+        InitMgmt(&elem[i].mgmt);
     }
 }
 

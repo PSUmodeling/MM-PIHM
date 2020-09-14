@@ -656,6 +656,7 @@ void            InitCropStateVar(crop_struct *);
 void            InitCycles(const calib_struct *, const agtbl_struct *,
     const mgmt_struct [], const crop_struct [], const soiltbl_struct *,
     elem_struct []);
+void            InitMgmt(mgmt_struct *);
 double          IntegRoot(double, double);
 int             InTimeWindow(int, int, int);
 int             IsLeapYear(int);

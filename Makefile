@@ -276,6 +276,7 @@ ifeq ($(MAKECMDGOALS),cycles-3d)
 	daily_operation.c\
 	fertilization.c\
 	field_operation.c\
+	initialize.c\
 	irrigation.c\
 	misc_func.c\
 	read_crop.c\
