@@ -88,7 +88,7 @@ void LateralNFlow(double kd, const soil_struct *soil,
     for (kz = 0; kz < ps->nlayers; kz++)
     {
         weight[kz] = (ps->satdpth[kz] > 0.0 && solute[kz] > 0.0) ?
-            LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->swc[kz],
+            LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz],
             solute[kz]) * ps->satdpth[kz] * ws->swc[kz] * RHOH2O : 0.0;
     }
 
@@ -138,7 +138,7 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
         if (ps->satdpth[k] > 0.0)
         {
             conc = (solute[k] > 0.0) ?
-                LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->swc[k],
+                LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->smc[k],
                 solute[k]) * RHOH2O : 0.0;
 
             avg_conc += ps->satdpth[k] * conc;
