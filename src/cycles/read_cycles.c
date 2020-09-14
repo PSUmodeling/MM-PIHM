@@ -110,6 +110,9 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING",
         fn, lno);
 
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[SOC_CTRL] = ReadPrintCtrl(cmdstr, "SOC", fn, lno);
+
     fclose(fp);
 }
 

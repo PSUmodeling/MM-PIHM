@@ -287,6 +287,8 @@ typedef struct phystate_struct
     double          nh4_prev;               /* total ammonium in soil profile
                                              * from previous time step (Mg ha-1)
                                              */
+    double          soc;                    /* total organic carbon in soil
+                                             * profile (Mg ha-1) */
 #endif
 #if defined(_NOAH_)
     double          alb;                    /* background snow-free surface

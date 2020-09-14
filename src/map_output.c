@@ -858,6 +858,15 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
+                case SOC_CTRL:
+                    InitPrintCtrl(outputdir, "soc", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.soc;
+                    }
+                    n++;
+                    break;
                 case LAI_CTRL:
                     InitPrintCtrl(outputdir, "lai", prtvrbl[i],
                         CN_STEP, nelem, &print->varctrl[n]);
