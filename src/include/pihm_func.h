@@ -623,6 +623,7 @@ void            DistRootDetritus(double, double, double, double,
     nstate_struct *);
 int             Doy(int, int, int);
 void            Doy2Date(int, int, int *, int *);
+void            EndRotation(elem_struct []);
 void            ExecuteTillage(const tillage_struct *, const phystate_struct *,
      double [], soil_struct *, wstate_struct *, cstate_struct *,
      nstate_struct *);

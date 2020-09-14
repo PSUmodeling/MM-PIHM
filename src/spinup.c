@@ -26,6 +26,10 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
             PIHM(0.0, pihm, cvode_mem, CV_Y);
         }
 
+#if defined(_CYCLES_)
+        EndRotation(pihm->elem);
+#endif
+
         /* Reset solver parameters */
         SetCVodeParam(pihm, cvode_mem, sun_ls, CV_Y);
 
@@ -83,6 +87,11 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
     double          totalc = 0.0;
     static double   soilc_prev = 0.0;
 #endif
+#if defined(_CYCLES_)
+    static double   soc_prev = 0.0;
+    double          soc = 0.0;
+    double          cdiff;
+#endif
 #if defined(_DGW_)
     double          gwgeol = 0.0;
     static double   gwgeol_prev = 0.0;
@@ -112,6 +121,12 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
             (double)(totalt / DAYINSEC) / total_area;
         t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
 #endif
+
+#if defined(_CYCLES_)
+        soc += Profile(elem[i].ps.nlayers, elem[i].cs.soc) *
+            elem[i].topo.area / total_area;
+        cdiff = (soc_prev > 0.0) ? (soc - soc_prev) / soc_prev : BADVAL;
+#endif
     }
 
     if (!first_cycle)
@@ -124,6 +139,9 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 #if defined(_BGC_)
         steady = (steady && (fabs(t1) < SPINUP_C_TOLERANCE));
 #endif
+#if defined(_CYCLES_)
+        steady = (steady && (fabs(cdiff) < 1.0E-2));
+#endif
 
         pihm_printf(VL_BRIEF, "spinyears = %d ", spinyears);
         pihm_printf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
@@ -135,6 +153,10 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 #if defined(_BGC_)
         pihm_printf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
             soilc_prev, soilc, t1);
+#endif
+#if defined(_CYCLES_)
+        pihm_printf(VL_BRIEF, "soc_prev = %lg soc = %lg cdiff = %lg\n",
+            soc_prev, soc, cdiff);
 #endif
     }
     else
@@ -149,6 +171,9 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 #if defined(_BGC_)
     soilc_prev = soilc;
 #endif
+#if defined(_CYCLES_)
+    soc_prev = soc;
+#endif
 
     if (steady)
     {
@@ -158,3 +183,27 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 
     return steady;
 }
+
+#if defined(_CYCLES_)
+void EndRotation(elem_struct elem[])
+{
+    int             i;
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             kcrop;
+
+        for (kcrop = 0; kcrop < MAXCROP; kcrop++)
+        {
+            elem[i].crop[kcrop].stage_growth = NO_CROP;
+            InitCropStateVar(&elem[i].crop[kcrop]);
+
+            InitMgmt(&elem[i].mgmt);
+        }
+    }
+}
+#endif
+
