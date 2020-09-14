@@ -89,7 +89,7 @@ void LateralNFlow(double kd, const soil_struct *soil,
     {
         weight[kz] = (ps->satdpth[kz] > 0.0 && solute[kz] > 0.0) ?
             LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz],
-            solute[kz]) * ps->satdpth[kz] * ws->swc[kz] * RHOH2O : 0.0;
+            solute[kz]) * ps->satdpth[kz] * ws->smc[kz] * RHOH2O : 0.0;
     }
 
     total_weight = Profile(ps->nlayers, weight);
