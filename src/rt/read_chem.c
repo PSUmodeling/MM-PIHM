@@ -291,6 +291,14 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
                 "Error reading secondary_species in %s near Line %d.\n",
                 chem_fn, lno);
         }
+
+        if (SpeciesType(db_fp, chemtbl[rttbl->num_stc + i].name) == 0)
+        {
+            pihm_printf(VL_ERROR,
+                "Error finding secondary species %s in the database.\n",
+                chemtbl[rttbl->num_stc + i].name);
+            pihm_exit(EXIT_FAILURE);
+        }
     }
 
     /*
