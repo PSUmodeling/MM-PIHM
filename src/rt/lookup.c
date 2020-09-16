@@ -184,6 +184,9 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
 
     for (i = 0; i < rttbl->num_mkr; i++)
     {
+        /* Initialize kinetic reaction type */
+        kintbl[i].type = BADVAL;
+
         FindLine(fp, "BOF", &lno, ".cdbs");
         NextLine(fp, cmdstr, &lno);
         while (strcmp(cmdstr, "Begin mineral kinetics\r\n") != 0 &&
@@ -198,6 +201,14 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
             ReadMinKin(fp, rttbl->num_stc, calib->rate, &lno, cmdstr,
                 chemtbl, &kintbl[i]);
             NextLine(fp, cmdstr, &lno);
+        }
+
+        if (kintbl[i].type == BADVAL)
+        {
+            pihm_printf(VL_ERROR,
+                "Error finding mineral kinetic %s -label %s in the database.\n",
+                chemtbl[kintbl[i].position].name, kintbl[i].label);
+            pihm_exit(EXIT_FAILURE);
         }
     }
 
