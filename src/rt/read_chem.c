@@ -78,7 +78,8 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TRANSPORT_ONLY", 'i', chem_fn, lno, &rttbl->transpt_flag);
+    ReadKeyword(cmdstr, "TRANSPORT_ONLY", 'i', chem_fn, lno,
+        &rttbl->transpt_flag);
     switch (rttbl->transpt_flag)
     {
         case KIN_REACTION:
@@ -183,11 +184,13 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "T_SPECIES", 'i', chem_fn, lno, &rttbl->num_stc);
-    pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n", rttbl->num_stc);
+    pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n",
+        rttbl->num_stc);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "S_SPECIES", 'i', chem_fn, lno, &rttbl->num_ssc);
-    pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n", rttbl->num_ssc);
+    pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n",
+        rttbl->num_ssc);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "MIN_SPECIES", 'i', chem_fn, lno, &rttbl->num_min);
@@ -195,14 +198,17 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "ADSORPTION", 'i', chem_fn, lno, &rttbl->num_ads);
-    pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n", rttbl->num_ads);
+    pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n",
+        rttbl->num_ads);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CATION_EXCHANGE", 'i', chem_fn, lno, &rttbl->num_cex);
-    pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->num_cex);
+    pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n",
+        rttbl->num_cex);
 
     /* The number of species that are mobile */
-    rttbl->num_spc = rttbl->num_stc - (rttbl->num_min + rttbl->num_ads + rttbl->num_cex);
+    rttbl->num_spc = rttbl->num_stc -
+        (rttbl->num_min + rttbl->num_ads + rttbl->num_cex);
     if (rttbl->num_spc <= 0)
     {
         pihm_printf(VL_ERROR,
@@ -234,16 +240,19 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DIFFUSION", 'd', chem_fn, lno, &rttbl->diff_coef);
-    pihm_printf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->diff_coef);
+    pihm_printf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n",
+        rttbl->diff_coef);
     rttbl->diff_coef /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DISPERSION", 'd', chem_fn, lno, &rttbl->disp_coef);
-    pihm_printf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n", rttbl->disp_coef);
+    pihm_printf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n",
+        rttbl->disp_coef);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CEMENTATION", 'd', chem_fn, lno, &rttbl->cementation);
-    pihm_printf(VL_VERBOSE, "  Cementation factor = %2.1f \n", rttbl->cementation);
+    pihm_printf(VL_VERBOSE, "  Cementation factor = %2.1f \n",
+        rttbl->cementation);
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "TEMPERATURE", 'd', chem_fn, lno, &rttbl->tmp);

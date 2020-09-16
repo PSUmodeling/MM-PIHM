@@ -195,7 +195,8 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         if (strcmp(chemtbl[i].name, "'H+'") != 0)
                         {
                             tmpval = 0.0;
-                            for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
+                            for (j = 0; j < rttbl->num_stc + rttbl->num_ssc;
+                                j++)
                             {
                                 tmpval += rttbl->conc_contrib[i][j] *
                                     pow(10, tmpconc[j]);
@@ -305,7 +306,8 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
                     {
-                        tmpval += rttbl->conc_contrib[i][j] * pow(10, tmpconc[j]);
+                        tmpval += rttbl->conc_contrib[i][j] *
+                            pow(10, tmpconc[j]);
                     }
                     residue_t[i] = tmpval - chms->tot_conc[i];
                     jcb[k][i] = (residue_t[i] - residue[i]) / tmpprb;

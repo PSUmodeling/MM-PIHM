@@ -81,8 +81,10 @@ void DailyVar(int t, int start_time, elem_struct elem[])
         elem[LUMPEDBGC].daily.tmin = 0.0;
         for (i = 0; i < nelem; i++)
         {
-            elem[LUMPEDBGC].daily.tmax += elem[i].daily.tmax * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.tmin += elem[i].daily.tmin * elem[i].topo.area;
+            elem[LUMPEDBGC].daily.tmax += elem[i].daily.tmax *
+                elem[i].topo.area;
+            elem[LUMPEDBGC].daily.tmin += elem[i].daily.tmin *
+                elem[i].topo.area;
             elem[LUMPEDBGC].daily.avg_sfctmp +=
                 elem[i].daily.avg_sfctmp * elem[i].topo.area;
             /* When running lumped model, only average root zone to avoid uneven

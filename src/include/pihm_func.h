@@ -180,8 +180,8 @@ void            InitLc(const lctbl_struct *, const calib_struct *,
     elem_struct []);
 void            InitMesh(const meshtbl_struct *, elem_struct []);
 #if defined(_LUMPED_) && defined(_RT_)
-void            InitOutputFiles(const char [], int, int, const chemtbl_struct [],
-    const rttbl_struct *, print_struct *);
+void            InitOutputFiles(const char [], int, int,
+    const chemtbl_struct [], const rttbl_struct *, print_struct *);
 #else
 void            InitOutputFiles(const char [], int, int, print_struct *);
 #endif
@@ -762,8 +762,8 @@ void            NRT(double, double, double [], const soil_struct *,
 void            InitChem(const char [], const calib_struct *, forc_struct *forc,
     chemtbl_struct [], kintbl_struct [], rttbl_struct *, chmictbl_struct *,
     elem_struct []);
-void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
-    const rttbl_struct *, elem_struct []);
+void            Reaction(double, const chemtbl_struct [],
+    const kintbl_struct [], const rttbl_struct *, elem_struct []);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, double, chmstate_struct *);
 void            ReactControl(const chemtbl_struct [], const kintbl_struct [],
@@ -778,7 +778,8 @@ int             SpeciesType(FILE *, const char []);
 void            Unwrap(const char [], char []);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
-void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
+void            SortChem(char[][MAXSTRING], const int [], int,
+    chemtbl_struct []);
 int             FindChem(const char [], const chemtbl_struct [], int);
 void            ReadChem(const char[], const char[], chemtbl_struct [],
     kintbl_struct [], rttbl_struct *, forc_struct *, ctrl_struct *);
@@ -807,8 +808,8 @@ void            ReadAdsorption(const char [], int, int, chemtbl_struct [],
     rttbl_struct *);
 void            ReadCationEchg(const char [], double, chemtbl_struct [],
     rttbl_struct *);
-void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [],
-    kintbl_struct *);
+void            ReadMinKin(FILE *, int, double, int *, char [],
+    chemtbl_struct [], kintbl_struct *);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);

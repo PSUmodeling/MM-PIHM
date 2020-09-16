@@ -37,7 +37,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
             for (klayer = 0; klayer < elem[i].ps.nlayers; klayer++)
             {
-                avg_stc += elem[i].es.stc[klayer] * elem[i].ps.soil_depth[klayer];
+                avg_stc += elem[i].es.stc[klayer] *
+                    elem[i].ps.soil_depth[klayer];
             }
             avg_stc /= elem[i].soil.depth;
 
@@ -56,7 +57,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
-        satn = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) / elem[i].geol.depth;
+        satn = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) /
+            elem[i].geol.depth;
         satn = MAX(satn, SATMIN);
         satn = MIN(satn, 1.0);
 
@@ -221,7 +223,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         if (Rate_pre[i] < 0.0)
         {
             /* Mineral cutoff when mineral is disappearing */
-            if (chms->prim_conc[min_pos + rttbl->num_stc - rttbl->num_min] < 1.0E-8)
+            if (chms->prim_conc[min_pos + rttbl->num_stc - rttbl->num_min] <
+                1.0E-8)
             {
                 area[min_pos] = 0.0;
             }
@@ -425,7 +428,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
                     {
-                        tmpval += rttbl->conc_contrib[i][j] * pow(10, tmpconc[j]);
+                        tmpval += rttbl->conc_contrib[i][j] *
+                            pow(10, tmpconc[j]);
                     }
                     residue_t[i] = tmpval - (chms->tot_conc[i] +
                         (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);

@@ -87,15 +87,15 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
             pot_dep[i][j]           = 0.0;  /* num_min x num_stc */
             rttbl->dep_mtx[i][j]    = 0.0;  /* num_ssc x num_sdc */
             rttbl->dep_kin[i][j]    = 0.0;  /* (num_mkr + num_akr) x num_stc */
-            rttbl->conc_contrib[i][j]  = 0.0;  /* num_stc x (num_stc + num_ssc) */
+            rttbl->conc_contrib[i][j]  = 0.0;/* num_stc x (num_stc + num_ssc) */
 #if NOT_YET_IMPLEMENTED
             rttbl->Totalconck[i][j] = 0.0;  /* num_stc x (num_stc + num_ssc) */
 #endif
         }
         /* Keqs of equilibrium: kinetic and kinetic all */
-        keq_kin_all[i] = 0.0;          /* num_min */
-        rttbl->keq[i] = 0.0;                    /* num_ssc */
-        rttbl->keq_kin[i] = 0.0;              /* num_mkr + num_akr */
+        keq_kin_all[i] = 0.0;               /* num_min */
+        rttbl->keq[i] = 0.0;                /* num_ssc */
+        rttbl->keq_kin[i] = 0.0;            /* num_mkr + num_akr */
     }
 
     /*
@@ -289,9 +289,9 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
     double          Cal_Keq = 1.0;
     for (i = 0; i < rttbl->num_akr + rttbl->num_mkr; i++)
     {
-        rttbl->KeqKinect[i] +=
-            (!strcmp(chemtbl[i + rttbl->num_spc + rttbl->num_ads + rttbl->num_cex].name,
-            "'CO2(*g)'")) ? log10(Cal_PCO2) : log10(Cal_Keq);
+        rttbl->KeqKinect[i] += (!strcmp(chemtbl[i + rttbl->num_spc +
+            rttbl->num_ads + rttbl->num_cex].name, "'CO2(*g)'")) ?
+            log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
     pihm_printf(VL_VERBOSE, "\n Kinetic Mass Matrix (calibrated Keq)! \n");
@@ -509,8 +509,9 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
                 }
             }
 
-            sscanf(cmdstr + bytes_consumed, "%lf %lf %lf", &chemtbl[ind].size_fac,
-                &chemtbl[ind].charge, &chemtbl[ind].molar_mass);
+            sscanf(cmdstr + bytes_consumed, "%lf %lf %lf",
+                &chemtbl[ind].size_fac, &chemtbl[ind].charge,
+                &chemtbl[ind].molar_mass);
             pihm_printf(VL_VERBOSE,
                 " molar_mass = %6.4f, Charge = %6.4f,"
                 " SizeFactor = %6.4f\n\n",
@@ -792,7 +793,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno,
             else
             {
                 pihm_printf(VL_VERBOSE,
-                    "Error: Cannot find  mineral kinetics type in .cdbs "
+                    "Error: Cannot find mineral kinetics type in .cdbs "
                     "near Line %d.\n");
                 pihm_exit(EXIT_FAILURE);
             }
@@ -812,7 +813,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno,
             else
             {
                 pihm_printf(VL_VERBOSE,
-                    "Error: Cannot find  mineral kinetics rate in .cdbs "
+                    "Error: Cannot find mineral kinetics rate in .cdbs "
                     "near Line %d.\n");
                 pihm_exit(EXIT_FAILURE);
             }
@@ -827,7 +828,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno,
             else
             {
                 pihm_printf(VL_VERBOSE,
-                    "Error: Cannot find  mineral kinetics activation in .cdbs "
+                    "Error: Cannot find mineral kinetics activation in .cdbs "
                     "near Line %d.\n");
                 pihm_exit(EXIT_FAILURE);
             }
