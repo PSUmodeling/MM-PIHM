@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.collections import LineCollection
 from pihm_func import read_mesh
+from pihm_func import read_river
 from pihm_func import read_output
 
 def main():
-
     '''
     An example Python script that uses functions in pihm_func.py to plot MM-PIHM
     output results.
@@ -22,9 +23,25 @@ def main():
     # Read mesh file and groundwater output. Mesh file is needed to plot spatial
     # distribution
     _, _, tri, x, y, _, _ = read_mesh('ShaleHills')
+    num_river, from_node, to_node = read_river('ShaleHills')
     sim_time, gw, vname, unit = read_output('ShaleHills',           # Project
                                             'ShaleHillsTestRun',    # Output dir
                                             'gw')                   # Variable
+
+    river_xc = [np.mean(x[[from_node[kriver], to_node[kriver]]])
+                for kriver in range (num_river)]
+    river_yc = [np.mean(y[[from_node[kriver], to_node[kriver]]])
+                for kriver in range (num_river)]
+
+    # Create line collection of river segments for plotting
+    lines = [[(x[from_node[kriver]], y[from_node[kriver]]),
+              (x[to_node[kriver]], y[to_node[kriver]])]
+             for kriver in range(num_river)]
+    river_segments = LineCollection(lines,
+                                    linewidths=5,
+                                    colors='blue',
+                                    alpha=0.7,
+                                    linestyle='solid')
 
     # Plot spatial distribution of groundwater
     fig = plt.figure(figsize=(8, 6))
@@ -47,6 +64,7 @@ def main():
                        edgecolors='k',
                        lw=0.5,
                        cmap='RdBu')
+    ax.add_collection(river_segments)
     ax.set_aspect('equal')
 
     # Add color bar with variable name and unit
@@ -63,7 +81,7 @@ def main():
                             shrink=0.8,
                             extend='max',
                             cax=cbaxes)
-    cbar.set_label(label=vname + '(' + unit + ')', size=18)
+    cbar.set_label(label='%s (%s)' % (vname, unit), size=18)
     ax.axis('off')
 
     # Plot average groundwater storage in time
@@ -72,9 +90,9 @@ def main():
 
     # Set x and y axis labels
     ax.set_xlabel('Date', fontsize=18)
-    ax.set_ylabel(vname + ' (' + unit + ')', fontsize=18)
+    ax.set_ylabel('%s (%s)' % (vname, unit), fontsize=18)
 
-    ## Clean up the x axis dates
+    # Clean up the x axis dates
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%y"))
 
