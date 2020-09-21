@@ -8,22 +8,21 @@ from datetime import datetime
 def read_mesh(simulation):
 
     # Full file name
-    fname = 'input/' + simulation + '/' + simulation + '.mesh'
+    fname = 'input/%s/%s.mesh' % (simulation, simulation)
 
     # Read mesh file into an array of strings with leading white spaces removed
     # Line starting with "#" are not read in
     with open(fname) as file:
         meshstr = [line.strip() for line in file
-                                if line.strip() and line.strip()[0] != '#']
+                   if line.strip() and line.strip()[0] != '#']
 
     # Read number of elements
     num_elem = int(meshstr[0].split()[1])
 
     # Read nodes information
     tri = []
-    for elem in range(num_elem):
-        strs = meshstr[2 + elem].split()[1:4]
-        tri.append([int(c) - 1 for c in strs])
+    for line in meshstr[2:2 + num_elem]:
+        tri.append([int(c) - 1 for c in line.split()[1:4]])
 
     # Read number of nodes
     num_nodes = int(meshstr[2 + num_elem].split()[1])
@@ -33,8 +32,8 @@ def read_mesh(simulation):
     y = []
     zmin = []
     zmax = []
-    for node in range(num_nodes):
-        strs = meshstr[4 + num_elem + node].split()[1:]
+    for line in meshstr[4 + num_elem:4 + num_elem + num_nodes]:
+        strs = line.split()[1:]
         x.append(float(strs[0]))
         y.append(float(strs[1]))
         zmin.append(float(strs[2]))
@@ -47,7 +46,7 @@ def read_mesh(simulation):
 def read_river(simulation):
 
     # Full file name
-    fname = 'input/' + simulation + '/' + simulation + '.riv'
+    fname = 'input/%s/%s.riv' % (simulation, simulation)
 
     # Read river file into an array of strings with leading white spaces removed
     # Line starting with "#" are not read in
@@ -61,8 +60,8 @@ def read_river(simulation):
     # Read nodes information
     from_node = []
     to_node = []
-    for river in range(num_rivers):
-        strs = riverstr[2 + river].split()[1:3]
+    for line in riverstr[2:2 + num_rivers]:
+        strs = line.split()[1:3]
         from_node.append(int(strs[0]) - 1)
         to_node.append(int(strs[1]) - 1)
 
@@ -296,7 +295,7 @@ def read_output(simulation, outputdir, ext):
         unit = 'kmol s$^{-1}$'
 
     # Full file name (binary file)
-    fname = 'output/' + outputdir + '/' + simulation + '.' + ext + '.dat'
+    fname = 'output/%s/%s.%s.dat' % (outputdir, simulation, ext)
 
     # Check size of output file
     fsize = int(os.path.getsize(fname) / 8)

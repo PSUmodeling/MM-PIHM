@@ -20,23 +20,18 @@ def main():
     # Set font size
     matplotlib.rcParams.update({'font.size': 14})
 
+    simulation = 'ShaleHills'
+    outputdir = 'ShaleHillsTestRun'
+
     # Read mesh file and groundwater output. Mesh file is needed to plot spatial
     # distribution
-    _, _, tri, x, y, _, _ = read_mesh('ShaleHills')
-    num_river, from_node, to_node = read_river('ShaleHills')
-    sim_time, gw, vname, unit = read_output('ShaleHills',           # Project
-                                            'ShaleHillsTestRun',    # Output dir
-                                            'gw')                   # Variable
-
-    river_xc = [np.mean(x[[from_node[kriver], to_node[kriver]]])
-                for kriver in range (num_river)]
-    river_yc = [np.mean(y[[from_node[kriver], to_node[kriver]]])
-                for kriver in range (num_river)]
+    _, _, tri, x, y, _, _ = read_mesh(simulation)
+    _, from_node, to_node = read_river(simulation)
+    sim_time, gw, vname, unit = read_output(simulation, outputdir, 'gw')
 
     # Create line collection of river segments for plotting
-    lines = [[(x[from_node[kriver]], y[from_node[kriver]]),
-              (x[to_node[kriver]], y[to_node[kriver]])]
-             for kriver in range(num_river)]
+    lines = [[(x[node1], y[node1]), (x[node2], y[node2])]
+             for (node1, node2) in zip(from_node, to_node)]
     river_segments = LineCollection(lines,
                                     linewidths=5,
                                     colors='blue',
