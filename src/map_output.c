@@ -1009,6 +1009,17 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
                         n++;
 # endif
+
+                        /* River concentration */
+                        sprintf(ext, "river.conc.%s", chemn);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chms.sec_conc[k];
+                        }
+                        n++;
                     }
 #endif
                 default:
@@ -1180,10 +1191,14 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
 # if defined(_RT_)
     InitPrintCtrl(outputdir, "river.conc", DAILY_OUTPUT, RT_STEP,
-        rttbl->num_stc, &print->varctrl[n]);
+        rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].chms.prim_conc[k];
+    }
+    for (k = 0; k < rttbl->num_ssc; k++)
+    {
+        print->varctrl[n].var[rttbl->num_stc + k] = &river[i].chms.sec_conc[k];
     }
     n++;
 

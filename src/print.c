@@ -362,7 +362,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
 # if defined(_RT_)
     /* River concentration file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-    for (k = 0; k < rttbl->num_stc; k++)
+    for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
     {
         char                chemn[MAXSTRING];
         Unwrap(chemtbl[k].name, chemn);
@@ -372,7 +372,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    for (k = 0; k < rttbl->num_stc; k++)
+    for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
     {
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
     }
