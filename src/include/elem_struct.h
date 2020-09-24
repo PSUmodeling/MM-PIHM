@@ -681,6 +681,13 @@ typedef struct nflux_struct
     double          nh4_uptake[MAXLYR];     /* NO3 uptake (Mg N ha-1) */
     double          surplus;                /* surplus N added to soil
                                              * (Mg N ha-1) */
+    double          harvest;                /* N content in removed biomass
+                                             * (Mg N ha-1) */
+    double          auto_added;             /* N added in auto fertilization
+                                             * (Mg N ha-1) */
+    double          fixation;               /* N fixation (Mg N ha-1) */
+    double          manure_fert;            /* organic N fertilized (Mg N ha-1)
+                                             */
     double          no3_fert[MAXLYR];       /* NO3 fertilized (Mg N ha-1) */
     double          nh4_fert[MAXLYR];       /* NH4 fertilized (Mg N ha-1) */
     double          no3_immobil[MAXLYR];    /* NO3 immobilization (Mg ha-1) */

@@ -647,7 +647,7 @@ int             ForcedClip(int, crop_struct []);
 int             ForcedMaturity(int, int, int, int, int, int);
 double          Fraction(double, double, double, double, double);
 void            GrainHarvest(int, int, double, crop_struct *, wstate_struct *,
-    cstate_struct *, nstate_struct *);
+    cstate_struct *, nstate_struct *, nflux_struct *);
 void            GrowingCrop(int, int, int, const soil_struct *,
     const weather_struct *, crop_struct [], wstate_struct *,
     wflux_struct *, cstate_struct *, nstate_struct *, nflux_struct *,
