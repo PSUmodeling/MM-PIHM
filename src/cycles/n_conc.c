@@ -22,7 +22,7 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
         }
 
         UpdateNProfile(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns,
-            elem[i].solute, no3, nh4, &elem[i].ps);
+            elem[i].solute, no3, nh4, &elem[i].ps, &elem[i].nf);
 
         /* Calculate NO3 and NH4 concentrations */
         elem[i].solute[NO3].conc_surf = 0.0;
@@ -52,7 +52,7 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 void UpdateNProfile(double dt, const soil_struct *soil,
     const wstate_struct *ws, const nstate_struct *ns,
     const solute_struct solute[], double no3[], double nh4[],
-    phystate_struct *ps)
+    phystate_struct *ps, nflux_struct *nf)
 {
     int             kz;
 
@@ -71,19 +71,22 @@ void UpdateNProfile(double dt, const soil_struct *soil,
     FindWaterTable(ps->nlayers, ws->gw, ps->soil_depth, ps->satdpth);
 
     LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, Profile(ps->nlayers, no3),
-        ps->no3, no3);
+        ps->no3, &nf->no3_leach, no3);
 
     LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4),
-        ps->nh4, nh4);
+        ps->nh4, &nf->nh4_leach, nh4);
 }
 
 void LateralNFlow(double kd, const soil_struct *soil,
     const wstate_struct *ws, const phystate_struct *ps,
-    const double solute0[], double profile0, double profile, double solute[])
+    const double solute0[], double profile0, double profile, double *leaching,
+    double solute[])
 {
     int             kz;
     double          total_weight = 0.0;
     double          weight[MAXLYR];
+
+    *leaching = profile - profile0;
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {

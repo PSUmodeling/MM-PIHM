@@ -667,7 +667,7 @@ void            KillCrop(int, int, const phystate_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            LateralNFlow(double, const soil_struct *,
     const wstate_struct *, const phystate_struct *, const double [], double,
-    double, double []);
+    double, double *, double []);
 double          LinearEqmConc(double, double, double, double, double);
 double          MaxAbgdHumifFactor(double);
 double          MaxManureHumifFactor(double);
@@ -738,7 +738,7 @@ double          TmpFuncGrowth(double, double, double, double);
 double          TmpLimit(double, double, double);
 void            UpdateNProfile(double, const soil_struct *,
     const wstate_struct *, const nstate_struct *, const solute_struct [],
-    double [], double [], phystate_struct *);
+    double [], double [], phystate_struct *, nflux_struct *);
 void            UpdateOperPtr(mgmt_struct *);
 double          VolatilDepthFunc(double);
 void            Volatilization(const weather_struct *, const crop_struct [],

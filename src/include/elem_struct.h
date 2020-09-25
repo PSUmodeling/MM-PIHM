@@ -672,6 +672,8 @@ typedef struct nstate_struct
 
 typedef struct nflux_struct
 {
+    double          no3_leach;              /* NO3 leaching (Mg N ha-1) */
+    double          nh4_leach;              /* NH4 leaching (Mg N ha-1) */
     double          nitrif[MAXLYR];         /* NH4 nitrification (Mg ha-1) */
     double          n2o_from_nitrif[MAXLYR];/* N2O emissions from nitrification
                                              * (Mg ha-1) */
