@@ -867,6 +867,15 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
+                case N2O_CTRL:
+                    InitPrintCtrl(outputdir, "n2o", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.n2o_emis;
+                    }
+                    n++;
+                    break;
                 case LAI_CTRL:
                     InitPrintCtrl(outputdir, "lai", prtvrbl[i],
                         CN_STEP, nelem, &print->varctrl[n]);
