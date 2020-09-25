@@ -290,6 +290,7 @@ typedef struct phystate_struct
     double          soc;                    /* total organic carbon in soil
                                              * profile (Mg ha-1) */
     double          n2o_emis;               /* N2O emission (Mg ha-1) */
+    double          n_input;                /* total nitrogen input (Mg ha-1) */
 #endif
 #if defined(_NOAH_)
     double          alb;                    /* background snow-free surface
