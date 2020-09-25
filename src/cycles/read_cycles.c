@@ -113,6 +113,16 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[SOC_CTRL] = ReadPrintCtrl(cmdstr, "SOC", fn, lno);
 
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N2O_CTRL] = ReadPrintCtrl(cmdstr, "N2O", fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N_HARVEST_CTRL] = ReadPrintCtrl(cmdstr, "N_IN_HARVEST",
+        fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N_INPUT_CTRL] = ReadPrintCtrl(cmdstr, "N_INPUT", fn, lno);
+
     fclose(fp);
 }
 
