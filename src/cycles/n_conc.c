@@ -86,7 +86,7 @@ void LateralNFlow(double kd, const soil_struct *soil,
     double          total_weight = 0.0;
     double          weight[MAXLYR];
 
-    *leaching = profile - profile0;
+    *leaching = profile0 - profile;
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {
