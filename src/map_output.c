@@ -840,6 +840,22 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LEACHING_CTRL:
+                    InitPrintCtrl(outputdir, "NO3leaching", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].nf.no3_leach;
+                    }
+                    n++;
+
+                    InitPrintCtrl(outputdir, "NH4leaching", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].nf.nh4_leach;
+                    }
+                    n++;
+
                     InitPrintCtrl(outputdir, "river.NO3leaching", prtvrbl[i],
                         HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
