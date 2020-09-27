@@ -315,4 +315,4 @@ def read_output(simulation, outputdir, ext):
         sim_time = [datetime.utcfromtimestamp(data_array[i, 0])
                     for i in range(int(fsize / (dim + 1)))]
 
-    return (sim_time, sim_val, varname, unit)
+    return (np.array(sim_time), sim_val, varname, unit)
