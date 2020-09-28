@@ -637,8 +637,6 @@ typedef struct tillage_struct
     double          sdr;                    /* soil disturb ratio (-) */
     double          mixing_eff;             /* mixing efficiency (-) */
     int             crop_id;
-    int             grain_harvest;          /* grain harvest flag */
-    double          forage_harvest;         /* forage harvest fraction */
 #if defined(_DYNAMIC_)
     int             days_after_plant;       /* days after planting (-) */
 #endif
