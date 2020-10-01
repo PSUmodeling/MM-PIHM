@@ -100,6 +100,13 @@ void ReadCalib(const char fn[], calib_struct *calib)
     ReadKeyword(cmdstr, "WLTSMC", 'd', fn, lno, &calib->smcwlt);
 #endif
 
+#if defined(_CYCLES_)
+    FindLine(fp, "AG_CALIBRATION", &lno, fn);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "FERTILIZATION", 'd', fn, lno, &calib->fert);
+#endif
+
 #if defined(_DGW_)
     FindLine(fp, "DGW_CALIBRATION", &lno, fn);
 
