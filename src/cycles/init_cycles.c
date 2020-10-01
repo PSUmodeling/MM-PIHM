@@ -5,6 +5,18 @@ void InitCycles(const calib_struct *calib, const agtbl_struct *agtbl,
     const soiltbl_struct *soiltbl, elem_struct elem[])
 {
     int             i;
+    int             kop;
+
+    /* Apply calibration to fertilization rate */
+    for (kop = 0; kop < agtbl->noper; kop++)
+    {
+        int             kfert;
+
+        for (kfert = 0; kfert < mgmttbl[kop].n_oper[FIXFERT_OP]; kfert++)
+        {
+            mgmttbl[kop].fert[kfert].mass *= calib->fert;
+        }
+    }
 
 #if defined(_OPENMP)
 # pragma omp parallel for
