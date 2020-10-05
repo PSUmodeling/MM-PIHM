@@ -839,6 +839,15 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
+                case VOLATIL_CTRL:
+                    InitPrintCtrl(outputdir, "volatil", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.volatil;
+                    }
+                    n++;
+                    break;
                 case LEACHING_CTRL:
                     InitPrintCtrl(outputdir, "NO3leaching", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);

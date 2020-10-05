@@ -107,6 +107,10 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         fn, lno);
 
     NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[VOLATIL_CTRL] = ReadPrintCtrl(cmdstr, "VOLATILIZATION",
+        fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING",
         fn, lno);
 
