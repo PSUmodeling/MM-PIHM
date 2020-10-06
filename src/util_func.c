@@ -146,14 +146,14 @@ void CreateOutputDir(char outputdir[])
         }
         else
         {
-            pihm_printf(VL_NORMAL,
+            pihm_printf(VL_BRIEF,
                 "Output directory %s already exists. Overwriting.\n",
                 outputdir);
         }
     }
     else
     {
-        pihm_printf(VL_NORMAL, "Output directory %s was created.\n", outputdir);
+        pihm_printf(VL_BRIEF, "Output directory %s was created.\n", outputdir);
     }
 
     sprintf(icdir, "%srestart/", outputdir);
