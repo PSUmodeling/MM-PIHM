@@ -95,24 +95,28 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrintCtrl(cmdstr, "N_PROFILE", fn,
-        lno);
+    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrintCtrl(cmdstr, "N_PROFILE", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrintCtrl(cmdstr, "N_RIVER",
-        fn, lno);
+    ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrintCtrl(cmdstr, "N_RIVER", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrintCtrl(cmdstr, "DENITRIF",
-        fn, lno);
+    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrintCtrl(cmdstr, "DENITRIF", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[VOLATIL_CTRL] = ReadPrintCtrl(cmdstr, "VOLATILIZATION",
-        fn, lno);
+    ctrl->prtvrbl[NITRIF_CTRL] = ReadPrintCtrl(cmdstr, "NITRIF", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING",
-        fn, lno);
+    ctrl->prtvrbl[IMMOBIL_CTRL] = ReadPrintCtrl(cmdstr, "IMMOBIL", fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[MINERAL_CTRL] = ReadPrintCtrl(cmdstr, "MINERAL", fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[VOLATIL_CTRL] = ReadPrintCtrl(cmdstr, "VOLATIL", fn, lno);
+
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[LEACHING_CTRL] = ReadPrintCtrl(cmdstr, "LEACHING", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[SOC_CTRL] = ReadPrintCtrl(cmdstr, "SOC", fn, lno);

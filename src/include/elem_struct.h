@@ -277,6 +277,9 @@ typedef struct phystate_struct
     double          comp_factor[MAXLYR];
     double          denitrif;               /* total NO3 denitrification
                                              * (Mg ha-1) */
+    double          nitrif;                 /* total NH4 nitrification (Mg ha-1) */
+    double          immobil;                /* total immobilization (Mg ha-1) */
+    double          mineral;                /* total N mineralization (Mg ha-1) */
     double          no3;                    /* total nitrate in soil profile
                                              * (Mg ha-1) */
     double          nh4;                    /* total ammonium in soil profile

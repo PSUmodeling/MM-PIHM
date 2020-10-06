@@ -839,6 +839,33 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     n++;
                     break;
+                case NITRIF_CTRL:
+                    InitPrintCtrl(outputdir, "nitrif", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.nitrif;
+                    }
+                    n++;
+                    break;
+                case IMMOBIL_CTRL:
+                    InitPrintCtrl(outputdir, "immobil", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.immobil;
+                    }
+                    n++;
+                    break;
+                case MINERAL_CTRL:
+                    InitPrintCtrl(outputdir, "mineral", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.mineral;
+                    }
+                    n++;
+                    break;
                 case VOLATIL_CTRL:
                     InitPrintCtrl(outputdir, "volatil", prtvrbl[i],
                         CN_STEP, nelem, &print->varctrl[n]);
