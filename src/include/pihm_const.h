@@ -332,92 +332,94 @@
 #define HOURLY_OUTPUT           -4
 
 /* Output variable types */
-#define SURF_CTRL               0
-#define UNSAT_CTRL              1
-#define GW_CTRL                 2
-#define STAGE_CTRL              3
-#define SNOW_CTRL               4
-#define CMC_CTRL                5
-#define INFIL_CTRL              6
-#define RECHARGE_CTRL           7
-#define EC_CTRL                 8
-#define ETT_CTRL                9
-#define EDIR_CTRL               10
-#define RIVFLX0_CTRL            11
-#define RIVFLX1_CTRL            12
-#define RIVFLX2_CTRL            13
-#define RIVFLX3_CTRL            14
-#define RIVFLX4_CTRL            15
-#define RIVFLX5_CTRL            16
-#define SUBFLX_CTRL             17
-#define SURFFLX_CTRL            18
-/* System */
-#define IC_CTRL                 19
-#define WB_CTRL                 20
-/* Noah */
-#define T1_CTRL                 21
-#define STC_CTRL                22
-#define SMC_CTRL                23
-#define SH2O_CTRL               24
-#define SNOWH_CTRL              25
-#define ALBEDO_CTRL             26
-#define LE_CTRL                 27
-#define SH_CTRL                 28
-#define G_CTRL                  29
-#define ETP_CTRL                30
-#define ESNOW_CTRL              31
-#define ROOTW_CTRL              32
-#define SOILM_CTRL              33
-#define SOLAR_CTRL              34
-#define CH_CTRL                 35
-/* BGC or Cycles */
-#define LAI_CTRL                36
-#define N_PROFILE_CTRL          37
-#define N_RIVER_CTRL            38
-#define LEACHING_CTRL           39
-/* Cycles */
-#define YIELD_CTRL              40
-#define BIOMASS_CTRL            41
-#define RADNINTCP_CTRL          42
-#define WATER_STS_CTRL          43
-#define N_STS_CTRL              44
-#define CROP_TR_CTRL            45
-#define CROP_POTTR_CTRL         46
-#define DENITRIF_CTRL           47
-#define VOLATIL_CTRL            48
-#define SOC_CTRL                49
-#define N2O_CTRL                50
-#define N_HARVEST_CTRL          51
-#define N_INPUT_CTRL            52
-/* BGC */
-#define NPP_CTRL                53
-#define NEP_CTRL                54
-#define NEE_CTRL                55
-#define GPP_CTRL                56
-#define MR_CTRL                 57
-#define GR_CTRL                 58
-#define HR_CTRL                 59
-#define FIRE_CTRL               60
-#define LITFALLC_CTRL           61
-#define VEGC_CTRL               62
-#define AGC_CTRL                63
-#define LITRC_CTRL              64
-#define SOILC_CTRL              65
-#define TOTALC_CTRL             66
-#define SMINN_CTRL              67
-#define SURFTEC_CTRL            68
-#define UNSATTEC_CTRL           69
-#define GWTEC_CTRL              70
-#define RIVSTGTEC_CTRL          71
-#define RIVGWTEC_CTRL           72
-/* DGW */
-#define GEOLUNSAT_CTRL          73
-#define GEOLGW_CTRL             74
-#define GEOLINFIL_CTRL          75
-#define GEOLRECHG_CTRL          76
-#define DGWFLOW_CTRL            77
-/* RT */
-#define CHEM_CTRL               78
+enum output_var{
+    SURF_CTRL,
+    UNSAT_CTRL,
+    GW_CTRL,
+    STAGE_CTRL,
+    SNOW_CTRL,
+    CMC_CTRL,
+    INFIL_CTRL,
+    RECHARGE_CTRL,
+    EC_CTRL,
+    ETT_CTRL,
+    EDIR_CTRL,
+    RIVFLX0_CTRL,
+    RIVFLX1_CTRL,
+    RIVFLX2_CTRL,
+    RIVFLX3_CTRL,
+    RIVFLX4_CTRL,
+    RIVFLX5_CTRL,
+    SUBFLX_CTRL,
+    SURFFLX_CTRL,
+    /* System */
+    IC_CTRL,
+    WB_CTRL,
+    /* Noah */
+    T1_CTRL,
+    STC_CTRL,
+    SMC_CTRL,
+    SH2O_CTRL,
+    SNOWH_CTRL,
+    ALBEDO_CTRL,
+    LE_CTRL,
+    SH_CTRL,
+    G_CTRL,
+    ETP_CTRL,
+    ESNOW_CTRL,
+    ROOTW_CTRL,
+    SOILM_CTRL,
+    SOLAR_CTRL,
+    CH_CTRL,
+    /* BGC or Cycles */
+    LAI_CTRL,
+    N_PROFILE_CTRL,
+    N_RIVER_CTRL,
+    LEACHING_CTRL,
+    /* Cycles */
+    YIELD_CTRL,
+    BIOMASS_CTRL,
+    RADNINTCP_CTRL,
+    WATER_STS_CTRL,
+    N_STS_CTRL,
+    CROP_TR_CTRL,
+    CROP_POTTR_CTRL,
+    DENITRIF_CTRL,
+    VOLATIL_CTRL,
+    SOC_CTRL,
+    N2O_CTRL,
+    N_HARVEST_CTRL,
+    N_INPUT_CTRL,
+    /* BGC */
+    NPP_CTRL,
+    NEP_CTRL,
+    NEE_CTRL,
+    GPP_CTRL,
+    MR_CTRL,
+    GR_CTRL,
+    HR_CTRL,
+    FIRE_CTRL,
+    LITFALLC_CTRL,
+    VEGC_CTRL,
+    AGC_CTRL,
+    LITRC_CTRL,
+    SOILC_CTRL,
+    TOTALC_CTRL,
+    SMINN_CTRL,
+    SURFTEC_CTRL,
+    UNSATTEC_CTRL,
+    GWTEC_CTRL,
+    RIVSTGTEC_CTRL,
+    RIVGWTEC_CTRL,
+    /* DGW */
+    GEOLUNSAT_CTRL,
+    GEOLGW_CTRL,
+    GEOLINFIL_CTRL,
+    GEOLRECHG_CTRL,
+    DGWFLOW_CTRL,
+    /* RT */
+    CHEM_CTRL
+};
 
 #if defined(_CYCLES_)
 #define MAXOP                   100
