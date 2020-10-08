@@ -667,7 +667,7 @@ void            KillCrop(int, int, const phystate_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            LateralNFlow(double, const soil_struct *,
     const wstate_struct *, const phystate_struct *, const double [], double,
-    double, double *, double []);
+    double, double []);
 double          LinearEqmConc(double, double, double, double, double);
 double          MaxAbgdHumifFactor(double);
 double          MaxManureHumifFactor(double);

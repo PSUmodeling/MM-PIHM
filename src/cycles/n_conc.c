@@ -65,28 +65,28 @@ void UpdateNProfile(double dt, const soil_struct *soil,
         nh4[kz] = ns->nh4[kz] + solute[NH4].snksrc[kz] * dt;
     }
 
+    nf->no3_leach = (Profile(ps->nlayers, no3) - ps->no3) / dt * DAYINSEC;
+    nf->nh4_leach = (Profile(ps->nlayers, nh4) - ps->nh4) / dt * DAYINSEC;
+
     /*
     * Add lateral transport fluxes to NO3 and NH4 mass
     */
     FindWaterTable(ps->nlayers, ws->gw, ps->soil_depth, ps->satdpth);
 
     LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, Profile(ps->nlayers, no3),
-        ps->no3, &nf->no3_leach, no3);
+        ps->no3, no3);
 
     LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4),
-        ps->nh4, &nf->nh4_leach, nh4);
+        ps->nh4, nh4);
 }
 
 void LateralNFlow(double kd, const soil_struct *soil,
     const wstate_struct *ws, const phystate_struct *ps,
-    const double solute0[], double profile0, double profile, double *leaching,
-    double solute[])
+    const double solute0[], double profile0, double profile, double solute[])
 {
     int             kz;
     double          total_weight = 0.0;
     double          weight[MAXLYR];
-
-    *leaching = profile0 - profile;
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {
