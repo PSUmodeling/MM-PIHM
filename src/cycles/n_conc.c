@@ -99,14 +99,14 @@ void LateralNFlow(double kd, const soil_struct *soil,
 
     if (total_weight <= 0.0)
     {
-        total_weight = 1.0;
-        weight[ps->nlayers - 1] = 1.0;
+        solute[ps->nlayers - 1] += profile - profile0;
     }
-
-    for (kz = 0; kz < ps->nlayers; kz++)
+    else
     {
-        weight[kz] /= total_weight;
-        solute[kz] += weight[kz] * (profile - profile0);
+        for (kz = 0; kz < ps->nlayers; kz++)
+        {
+            solute[kz] += weight[kz] / total_weight * (profile - profile0);
+        }
     }
 
     for (kz = ps->nlayers - 1; kz > 0; kz--)
@@ -132,24 +132,27 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
     const wstate_struct *ws, const phystate_struct *ps)
 {
     int             k;
-    double          conc;
+    double          weight[MAXLYR];
     double          avg_conc = 0.0;
-    double          storage = 0.0;
+    double          total_weight = 0.0;
 
     for (k = 0; k < ps->nlayers; k++)
     {
-        if (ps->satdpth[k] > 0.0)
-        {
-            conc = (solute[k] > 0.0) ?
-                LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->smc[k],
-                solute[k]) * RHOH2O : 0.0;
-
-            avg_conc += ps->satdpth[k] * conc;
-            storage += ps->satdpth[k];
-        }
+        weight[k] = ps->satdpth[k];
     }
 
-    avg_conc /= storage;
+    total_weight = Profile(ps->nlayers, weight);
+
+    for (k = 0; k < ps->nlayers; k++)
+    {
+        double          conc;
+
+        conc = (solute[k] > 0.0) ?
+            LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->smc[k],
+            solute[k]) * RHOH2O : 0.0;
+
+        avg_conc += weight[k] / total_weight * conc;
+    }
 
     return avg_conc;
 }
