@@ -90,9 +90,16 @@ void LateralNFlow(double kd, const soil_struct *soil,
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {
-        weight[kz] = (ps->satdpth[kz] > 0.0 && solute[kz] > 0.0) ?
+        double          satn;
+
+        satn = (ws->swc[kz] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+        satn = MIN(satn, 1.0);
+        satn = MAX(satn, SATMIN);
+
+        weight[kz] = ps->soil_depth[kz] * ws->smc[kz] *
             LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz],
-            solute[kz]) * ps->satdpth[kz] * ws->smc[kz] * RHOH2O : 0.0;
+            solute[kz]) * KrFunc(soil->beta, satn) /
+            (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
     }
 
     total_weight = Profile(ps->nlayers, weight);
@@ -138,7 +145,14 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil,
 
     for (k = 0; k < ps->nlayers; k++)
     {
-        weight[k] = ps->satdpth[k];
+        double          satn;
+
+        satn = (ws->swc[k] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+        satn = MIN(satn, 1.0);
+        satn = MAX(satn, SATMIN);
+
+        weight[k] = ps->soil_depth[k] * ws->smc[k] * KrFunc(soil->beta, satn) /
+            (soil->depth + ps->zsoil[k] + 0.5 * ps->soil_depth[k]);
     }
 
     total_weight = Profile(ps->nlayers, weight);
