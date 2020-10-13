@@ -65,8 +65,10 @@ void UpdateNProfile(double dt, const soil_struct *soil,
         nh4[kz] = ns->nh4[kz] + solute[NH4].snksrc[kz] * dt;
     }
 
-    nf->no3_leach = (Profile(ps->nlayers, no3) - ps->no3) / dt * DAYINSEC;
-    nf->nh4_leach = (Profile(ps->nlayers, nh4) - ps->nh4) / dt * DAYINSEC;
+    nf->no3_leach = (dt == 0.0) ?
+        0.0 : (Profile(ps->nlayers, no3) - ps->no3) / dt * DAYINSEC;
+    nf->nh4_leach = (dt == 0.0) ?
+        0.0 : (Profile(ps->nlayers, nh4) - ps->nh4) / dt * DAYINSEC;
 
     /*
     * Add lateral transport fluxes to NO3 and NH4 mass
