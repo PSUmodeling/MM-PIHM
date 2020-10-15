@@ -646,6 +646,8 @@ void            ForageSeedHarvest(int, int, const phystate_struct *,
 int             ForcedClip(int, crop_struct []);
 int             ForcedMaturity(int, int, int, int, int, int);
 double          Fraction(double, double, double, double, double);
+void            FreeAgtbl(agtbl_struct *);
+void            FreeMgmttbl(int, mgmt_struct []);
 void            GrainHarvest(int, int, double, crop_struct *, wstate_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 void            GrowingCrop(int, int, int, const soil_struct *,

@@ -28,6 +28,12 @@ void FreeMem(pihm_struct pihm)
     FreeEpctbl(&pihm->epctbl);
 #endif
 
+#if defined(_CYCLES_)
+    FreeMgmttbl(pihm->agtbl.noper, pihm->mgmttbl);
+
+    FreeAgtbl(&pihm->agtbl);
+#endif
+
     FreeCtrl(&pihm->ctrl);
 
     /*
@@ -144,6 +150,35 @@ void FreeSoiltbl(soiltbl_struct *soiltbl)
     free(soiltbl->dmac);
     free(soiltbl->smcref);
     free(soiltbl->smcwlt);
+#if defined(_CYCLES_)
+    int             i;
+
+    for (i = 0; i < soiltbl->number; i++)
+    {
+        free(soiltbl->clay_layer[i]);
+        free(soiltbl->sand_layer[i]);
+        free(soiltbl->om_layer[i]);
+        free(soiltbl->bd_layer[i]);
+        free(soiltbl->no3[i]);
+        free(soiltbl->nh4[i]);
+        free(soiltbl->fc[i]);
+        free(soiltbl->pwp[i]);
+        free(soiltbl->air_entry_pot[i]);
+        free(soiltbl->b[i]);
+    }
+
+    free(soiltbl->nlayers);
+    free(soiltbl->clay_layer);
+    free(soiltbl->sand_layer);
+    free(soiltbl->om_layer);
+    free(soiltbl->bd_layer);
+    free(soiltbl->no3);
+    free(soiltbl->nh4);
+    free(soiltbl->fc);
+    free(soiltbl->pwp);
+    free(soiltbl->air_entry_pot);
+    free(soiltbl->b);
+#endif
 }
 
 #if defined(_DGW_)
@@ -350,6 +385,27 @@ void FreeEpctbl(epctbl_struct *epctbl)
     free(epctbl->deadwood_fucel);
     free(epctbl->deadwood_fscel);
     free(epctbl->deadwood_flig);
+}
+#endif
+
+#if defined(_CYCLES_)
+void FreeMgmttbl(int noper, mgmt_struct mgmttbl[])
+{
+    int             i;
+
+    for (i = 0; i < noper; i++)
+    {
+        free(mgmttbl[i].planting);
+        free(mgmttbl[i].fert);
+        free(mgmttbl[i].fixed_irrig);
+        free(mgmttbl[i].tillage);
+        free(mgmttbl[i].auto_irrig);
+    }
+}
+
+void FreeAgtbl(agtbl_struct *agtbl)
+{
+    free(agtbl->oper);
 }
 #endif
 
