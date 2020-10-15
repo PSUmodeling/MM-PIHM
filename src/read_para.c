@@ -58,9 +58,8 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
             start_time.hour != end_time.hour ||
             start_time.minute != end_time.minute)
         {
-            pihm_printf(VL_ERROR,
-                "Error: In BGC spinup mode, simulation period should be full "
-                "years.\nPlease check your .para input file.\n");
+            pihm_printf(VL_ERROR, "Error: In spinup mode, simulation period "
+                "should be full years. Please check your\n.para input file.\n");
             pihm_exit(EXIT_FAILURE);
         }
     }
