@@ -12,13 +12,6 @@ AVGSCL          600     # reaction time step (s)
 OUTINTVL        DAILY   # output interval. Can be "YEARLY", "MONTHLY", "DAILY", "HOURLY", or any positive integer to indicate intervals in seconds. Setting interval to 0 will turn off output
 
 GLOBAL
-T_SPECIES       9       # number of total species including 1) primary species, 2) primary minerals, 3) primary adsorptions
-S_SPECIES       2       # number of secondary species
-MIN_SPECIES     3       # number of mineral species
-ADSORPTION      0       # number of primary surface complexation species. Note that secondary surface complexation goes to secondary species
-CATION_EXCHANGE 1       # number of primary cation exchange species
-MINERAL_KINETIC 3       # number of mineral kinetic reactions
-AQUEOUS_KINETIC 0       # number of aqueous kinetic reactions
 DIFFUSION       1E-5    # diffusion coefficient (cm2 s-1)
 DISPERSION      0.10    # dispersion coefficient (m)
 CEMENTATION     1       # cementation factor
@@ -39,7 +32,7 @@ SECONDARY_SPECIES       # list of secondary species
 OH-
 XDOC
 
-MINERALS                # list of minerals
+MINERAL_KINETICS       # list of minerals
 Quartz         -label     default
 SOC            -label     test
 C5H7O2N(s)     -label     default
@@ -54,3 +47,4 @@ Quartz	      1.00E-10  -ssa    1.48
 SOC           1.00E-10  -ssa    5.0
 C5H7O2N(s)    1.00E-10  -ssa    5.0
 X-            1.00E-10
+

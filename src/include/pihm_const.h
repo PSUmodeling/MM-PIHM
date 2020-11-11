@@ -304,6 +304,7 @@
 #define ADSORPTION              2
 #define CATION_ECHG             3
 #define MINERAL                 4
+#define SECONDARY               5
 
 /* RT mass action types */
 #define IMMOBILE_MA             0

@@ -183,62 +183,6 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
     FindLine(chem_fp, "GLOBAL", &lno, chem_fn);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "T_SPECIES", 'i', chem_fn, lno, &rttbl->num_stc);
-    pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n",
-        rttbl->num_stc);
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "S_SPECIES", 'i', chem_fn, lno, &rttbl->num_ssc);
-    pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n",
-        rttbl->num_ssc);
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_SPECIES", 'i', chem_fn, lno, &rttbl->num_min);
-    pihm_printf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->num_min);
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ADSORPTION", 'i', chem_fn, lno, &rttbl->num_ads);
-    pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n",
-        rttbl->num_ads);
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CATION_EXCHANGE", 'i', chem_fn, lno, &rttbl->num_cex);
-    pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n",
-        rttbl->num_cex);
-
-    /* The number of species that are mobile */
-    rttbl->num_spc = rttbl->num_stc -
-        (rttbl->num_min + rttbl->num_ads + rttbl->num_cex);
-    if (rttbl->num_spc <= 0)
-    {
-        pihm_printf(VL_ERROR,
-            "Error: number of total species should be larger than the sum of "
-            " mineral, surface complexation, and cation exchange species.\n");
-        pihm_exit(EXIT_FAILURE);
-    }
-    nsolute = rttbl->num_spc;
-
-    /* The number of species that others depend on */
-    rttbl->num_sdc = rttbl->num_stc - rttbl->num_min;
-    if (rttbl->num_sdc < 0)
-    {
-        pihm_printf(VL_ERROR,
-            "Error: number of total species should not be smaller than number "
-            "of minerals.\n");
-        pihm_exit(EXIT_FAILURE);
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MINERAL_KINETIC", 'i', chem_fn, lno, &rttbl->num_mkr);
-    pihm_printf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
-        rttbl->num_mkr);
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", 'i', chem_fn, lno, &rttbl->num_akr);
-    pihm_printf(VL_VERBOSE, "  %d aqueous kinetic reaction(s) specified. \n",
-        rttbl->num_akr);
-
-    NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DIFFUSION", 'd', chem_fn, lno, &rttbl->diff_coef);
     pihm_printf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n",
         rttbl->diff_coef);
@@ -259,10 +203,23 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
     pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
 
     /*
+     * Count numbers of species and reactions
+     */
+    FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_fn);
+    rttbl->num_stc = CountLine(chem_fp, cmdstr, 1, "SECONDARY_SPECIES");
+    rttbl->num_ssc = CountLine(chem_fp, cmdstr, 1, "MINERAL_KINETICS");
+    rttbl->num_mkr = CountLine(chem_fp, cmdstr, 1, "PRECIPITATION_CONC");
+    rttbl->num_akr = 0;                     /* Not implemented yet */
+
+    /*
      * Primary species block
      */
     pihm_printf(VL_VERBOSE, "\n Primary species block\n");
+    pihm_printf(VL_VERBOSE, "  %d chemical species specified. \n",
+        rttbl->num_stc);
+    FindLine(chem_fp, "BOF", &lno, chem_fn);
     FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_fn);
+
     for (i = 0; i < rttbl->num_stc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
@@ -274,22 +231,60 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
         }
         p_type[i] = SpeciesType(db_fp, chemn[i]);
 
-        /* Species type is 0 when it is not found in the database. */
-        if (p_type[i] == 0)
+        switch (p_type[i])
         {
-            pihm_printf(VL_ERROR,
-                "Error finding primary species %s in the database.\n",
-                chemn[i]);
-            pihm_exit(EXIT_FAILURE);
+            case 0:
+                /* Species type is 0 when it is not found in the database. */
+                pihm_printf(VL_ERROR,
+                    "Error finding primary species %s in the database.\n",
+                    chemn[i]);
+                pihm_exit(EXIT_FAILURE);
+            case AQUEOUS:
+                rttbl->num_spc++;
+                break;
+            case ADSORPTION:
+                rttbl->num_ads++;
+                break;
+            case CATION_ECHG:
+                rttbl->num_cex++;
+                break;
+            case MINERAL:
+                rttbl->num_min++;
+                break;
+            case SECONDARY:
+                pihm_printf(VL_ERROR,
+                    "%s is a secondary species, "
+                    "but is listed as a primary species.\n"
+                    "Error at Line %d in %s.\n", chemn[i], lno, chem_fn);
+                pihm_exit(EXIT_FAILURE);
+                break;
+            default:
+                break;
         }
     }
 
+    pihm_printf(VL_VERBOSE, "  %d aqueous species specified. \n",
+        rttbl->num_spc);
+    pihm_printf(VL_VERBOSE, "  %d surface complexation specified. \n",
+        rttbl->num_ads);
+    pihm_printf(VL_VERBOSE, "  %d cation exchange specified. \n",
+        rttbl->num_cex);
+    pihm_printf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->num_min);
+
     SortChem(chemn, p_type, rttbl->num_stc, chemtbl);
+
+    /* Number of species in CVODE matrix */
+    nsolute = rttbl->num_spc;
+
+    /* Number of species that others depend on */
+    rttbl->num_sdc = rttbl->num_stc - rttbl->num_min;
 
     /*
      * Secondary_species block
      */
     pihm_printf(VL_VERBOSE, "\n Secondary species block\n");
+    pihm_printf(VL_VERBOSE, "  %d secondary species specified. \n",
+        rttbl->num_ssc);
     FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_fn);
     for (i = 0; i < rttbl->num_ssc; i++)
     {
@@ -314,7 +309,10 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
      * Minerals block
      */
     pihm_printf(VL_VERBOSE, "\n Minerals block\n");
-    FindLine(chem_fp, "MINERALS", &lno, chem_fn);
+    pihm_printf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
+        rttbl->num_mkr);
+    FindLine(chem_fp, "MINERAL_KINETICS", &lno, chem_fn);
+
     for (i = 0; i < rttbl->num_mkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
