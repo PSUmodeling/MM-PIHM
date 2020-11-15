@@ -273,8 +273,7 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
     pihm_printf(VL_VERBOSE, "\n");
     for (j = 0; j < rttbl->num_mkr + rttbl->num_akr; j++)
     {
-        pihm_printf(VL_VERBOSE, " %-14s",
-            chemtbl[j + rttbl->num_spc + rttbl->num_ads + rttbl->num_cex].name);
+        pihm_printf(VL_VERBOSE, " %-14s", chemtbl[kintbl[j].position].name);
         for (i = 0; i < rttbl->num_stc; i++)
         {
             pihm_printf(VL_VERBOSE, "%-14f", rttbl->dep_kin[j][i]);
