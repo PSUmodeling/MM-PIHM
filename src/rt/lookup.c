@@ -264,7 +264,7 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[],
         pihm_printf(VL_VERBOSE, "\n");
     }
 
-    pihm_printf(VL_VERBOSE, " \n Kinetic Mass Matrx!\n");
+    pihm_printf(VL_VERBOSE, " \n Kinetic Mass Matrix!\n");
     pihm_printf(VL_VERBOSE, "%-15s", " ");
     for (i = 0; i < rttbl->num_stc; i++)
     {
