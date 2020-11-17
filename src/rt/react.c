@@ -168,11 +168,10 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             IAP[i] = 0.0;
             for (j = 0; j < rttbl->num_stc; j++)
             {
-                IAP[i] += log10(chms->prim_actv[j]) *
-                    rttbl->dep_kin[min_pos][j];
+                IAP[i] += log10(chms->prim_actv[j]) * rttbl->dep_kin[i][j];
             }
             IAP[i] = pow(10, IAP[i]);
-            tmpKeq = pow(10, rttbl->keq_kin[min_pos]);
+            tmpKeq = pow(10, rttbl->keq_kin[i]);
             dependency[i] = 1.0;
             for (k = 0; k < kintbl[i].ndep; k++)
                 dependency[i] *=
@@ -213,7 +212,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
         for (j = 0; j < rttbl->num_stc; j++)
         {
-            Rate_spe[j] += Rate_pre[i] * rttbl->dep_kin[min_pos][j];
+            Rate_spe[j] += Rate_pre[i] * rttbl->dep_kin[i][j];
         }
     }
 
@@ -327,11 +326,11 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     if (chemtbl[j].itype != MINERAL)
                     {
                         IAP[i] += (tmpconc[j] + gamma[j]) *
-                            rttbl->dep_kin[min_pos][j];
+                            rttbl->dep_kin[i][j];
                     }
                 }
                 IAP[i] = pow(10, IAP[i]);
-                tmpKeq = pow(10, rttbl->keq_kin[min_pos]);
+                tmpKeq = pow(10, rttbl->keq_kin[i]);
                 /*
                  * if ( IAP[i] < tmpKeq)
                  * rct_drct[i] = 1.0;
@@ -383,7 +382,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
             for (j = 0; j < rttbl->num_stc; j++)
             {
-                Rate_spet[j] += Rate_pre[i] * rttbl->dep_kin[min_pos][j];
+                Rate_spet[j] += Rate_pre[i] * rttbl->dep_kin[i][j];
             }
             /* Adjust the unit of the calculated rate. Note that for mineral,
              * the unit of rate and the unit of concentration are mol/L porous
