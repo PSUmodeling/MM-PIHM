@@ -103,35 +103,13 @@ void RiverToElem(river_struct *river_ptr, elem_struct *left,
     }
 
 #if defined(_DGW_) && defined(_LUMPED_)
-    if (left->ws.gw_geol > 0.6 * left->geol.depth)
-    {
-        left->wf.dgw_runoff = 1.005 *
-            (left->wf.rechg_geol * left->topo.area - left->wf.dgw[0] -
-            left->wf.dgw[1] - left->wf.dgw[2]) / left->topo.area;
-        left->wf.dgw_runoff = MAX(left->wf.dgw_runoff, 0.0);
-        river_ptr->wf.rivflow[DGW_LEFT] = -left->wf.dgw_runoff *
-            left->topo.area;
-    }
-    else
-    {
-        left->wf.dgw_runoff = 0.0;
-        river_ptr->wf.rivflow[DGW_LEFT] = 0.0;
-    }
+    left->wf.dgw_runoff = left->geol.k2 * MAX(left->ws.gw_geol, 0.0) *
+        left->geol.porosity;
+    river_ptr->wf.rivflow[DGW_LEFT] = -left->wf.dgw_runoff * left->topo.area;
 
-    if (right->ws.gw_geol > 0.6 * right->geol.depth)
-    {
-        right->wf.dgw_runoff = 1.005 *
-            (right->wf.rechg_geol * right->topo.area - right->wf.dgw[0] -
-            right->wf.dgw[1] - right->wf.dgw[2]) / right->topo.area;
-        right->wf.dgw_runoff = MAX(right->wf.dgw_runoff, 0.0);
-        river_ptr->wf.rivflow[DGW_RIGHT] = -right->wf.dgw_runoff *
-            right->topo.area;
-    }
-    else
-    {
-        right->wf.dgw_runoff = 0.0;
-        river_ptr->wf.rivflow[DGW_RIGHT] = 0.0;
-    }
+    right->wf.dgw_runoff = right->geol.k2 * MAX(right->ws.gw_geol, 0.0) *
+        right->geol.porosity;
+    river_ptr->wf.rivflow[DGW_RIGHT] = -right->wf.dgw_runoff * right->topo.area;
 #endif
 }
 

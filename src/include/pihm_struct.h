@@ -116,6 +116,9 @@ typedef struct calib_struct
     double          geol_kmacv;
     double          geol_areafv;
     double          geol_areafh;
+# if defined(_LUMPED_)
+    double          k2;
+# endif
 #endif
 #if defined(_NOAH_)
     double          smcref;
