@@ -113,12 +113,6 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RT_DELAY", 'i', chem_fn, lno, &ctrl->RT_delay);
-    pihm_printf(VL_VERBOSE,
-        "  Flux-PIHM-RT will start after running PIHM for %d seconds. \n",
-        ctrl->RT_delay);
-
-    NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CONDENSATION", 'd', chem_fn, lno, &rttbl->cond);
     pihm_printf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
         "is set to be %f times of concentrations in precipitation. \n",

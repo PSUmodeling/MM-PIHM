@@ -50,8 +50,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
      */
     if (pihm->rttbl.transpt_flag == KIN_REACTION)
     {
-        if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
-            (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
+        if ((t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
         {
             Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
                 &pihm->rttbl, pihm->elem);
