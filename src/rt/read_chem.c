@@ -194,7 +194,19 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "TEMPERATURE", 'd', chem_fn, lno, &rttbl->tmp);
-    pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
+    pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n", rttbl->tmp);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SW_THRESHOLD", 'd', chem_fn, lno, &rttbl->sw_thld);
+    pihm_printf(VL_VERBOSE, "  SW threshold = %.2f\n", rttbl->sw_thld);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SW_EXP", 'd', chem_fn, lno, &rttbl->sw_exp);
+    pihm_printf(VL_VERBOSE, "  SW exponent = %.2f\n", rttbl->sw_exp);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Q10", 'd', chem_fn, lno, &rttbl->q10);
+    pihm_printf(VL_VERBOSE, "  Q10 = %.2f\n\n", rttbl->q10);
 
     /*
      * Count numbers of species and reactions
