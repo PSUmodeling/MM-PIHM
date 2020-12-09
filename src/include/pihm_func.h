@@ -812,6 +812,7 @@ void            ReadCationEchg(const char [], double, chemtbl_struct [],
     rttbl_struct *);
 void            ReadMinKin(FILE *, int, double, int *, char [],
     chemtbl_struct [], kintbl_struct *);
+double          SoilTempFactor(double, double);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
@@ -820,7 +821,6 @@ void            UpdatePConc(const rttbl_struct *, elem_struct [],
     river_struct []);
 void            WriteRtIc(const char *, const chemtbl_struct [],
     const rttbl_struct *, elem_struct []);
-double          SoilTempFactor(double);
 #endif
 
 #endif

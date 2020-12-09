@@ -42,7 +42,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             }
             avg_stc /= elem[i].soil.depth;
 
-            ftemp = SoilTempFactor(avg_stc);
+            ftemp = SoilTempFactor(rttbl->q10, avg_stc);
 
             ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
                 &elem[i].chms, elem[i].chmf.react);
@@ -72,7 +72,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (satn > 1.0E-2)
         {
-            ftemp = SoilTempFactor(elem[i].ps.tbot);
+            ftemp = SoilTempFactor(rttbl->q10, elem[i].ps.tbot);
             ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
                 &elem[i].chms_geol, elem[i].chmf.react_geol);
         }
@@ -581,7 +581,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     }
 }
 
-double SoilTempFactor(double stc)
+double SoilTempFactor(double q10, double stc)
 {
-    return pow(2.0, (stc - TFREEZ - 20.0) / 10.0);
+    return pow(q10, (stc - TFREEZ - 20.0) / 10.0);
 }
