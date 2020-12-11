@@ -139,13 +139,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     {
         if (satn < 1.0)
         {
-#if NOT_YET_IMPLEMENTED
-            surf_ratio = 1.0;               /* # 1 function */
-#endif
-            surf_ratio = exp(satn) - 1.0;   /* # 3 function */
-#if NOT_YET_IMPLEMENTED
-            surf_ratio = 1.0 - pow(exp(-1.0 / satn), 0.6);  /* # 4 function */
-#endif
+            surf_ratio = (satn <= rttbl->sw_thld) ?
+                pow(satn / rttbl->sw_thld, rttbl->sw_exp) :
+                pow((1.0 - satn) / (1.0 - rttbl->sw_thld), rttbl->sw_exp);
 
             for (i = 0; i < rttbl->num_min; i++)
             {
