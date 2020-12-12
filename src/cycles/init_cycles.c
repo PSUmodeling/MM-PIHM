@@ -161,6 +161,7 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     for (i = 0; i < nelem; i++)
     {
         int             kz;
+        int             kday;
 
         elem[i].ws.stan_residue   = elem[i].restart_input.water_residue_stan;
         elem[i].ws.flat_residue   = elem[i].restart_input.water_residue_flat;
@@ -190,6 +191,14 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
             elem[i].ns.mbn[kz] = elem[i].restart_input.mbn[kz];
             elem[i].ns.no3[kz] = elem[i].restart_input.no3[kz];
             elem[i].ns.nh4[kz] = elem[i].restart_input.nh4[kz];
+
+            elem[i].ps.comp_factor[kz] = 0.0;
+            elem[i].ps.tillage_factor[kz] = 0.0;
+        }
+
+        for (kday = 0; kday < NUM_MA_DAYS; kday++)
+        {
+            elem[i].ps.soil_tmp_hist[kday] = BADVAL;
         }
 
         ZeroFluxes(&elem[i].wf, &elem[i].cf, &elem[i].nf);
