@@ -596,7 +596,7 @@ void            ComputeColdDamage(const weather_struct *,
     nstate_struct *);
 double          ComputeHarvestIndex(double, double, double, double, double);
 int             CondPlant(int, int, const plant_struct *, const soil_struct *,
-    const wstate_struct *, const estate_struct *);
+    const wstate_struct *, const estate_struct *, phystate_struct *);
 double          CropGrowth(double, const soil_struct *, const weather_struct *,
     const wstate_struct *, const phystate_struct *, crop_struct *);
 void            CropNConc(double, const crop_struct *, double *, double *,
@@ -664,7 +664,8 @@ double          IntegRoot(double, double);
 int             InTimeWindow(int, int, int);
 int             IsLeapYear(int);
 int             IsOperToday(int, int, const soil_struct *,
-    const wstate_struct *, const estate_struct *, int *, mgmt_struct *);
+    const wstate_struct *, const estate_struct *, int *, mgmt_struct *,
+    phystate_struct *);
 void            KillCrop(int, int, const phystate_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            LateralNFlow(double, const soil_struct *,
@@ -725,6 +726,7 @@ void            SoilCarbonBalance(const double [], const soil_struct *,
 void            SoilEvap(double, double, const crop_struct [],
     const soil_struct *, const phystate_struct *, wstate_struct *,
     wflux_struct *);
+double          SoilTmpMovingAvg(double, double []);
 double          SoilWaterContent(double, double, double, double);
 double          SoilWaterPot(double, double, double, double);
 void            SoluteConc(double, elem_struct [], river_struct []);
@@ -812,6 +814,7 @@ void            ReadCationEchg(const char [], double, chemtbl_struct [],
     rttbl_struct *);
 void            ReadMinKin(FILE *, int, double, int *, char [],
     chemtbl_struct [], kintbl_struct *);
+double          SoilTempFactor(double, double);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
@@ -820,7 +823,6 @@ void            UpdatePConc(const rttbl_struct *, elem_struct [],
     river_struct []);
 void            WriteRtIc(const char *, const chemtbl_struct [],
     const rttbl_struct *, elem_struct []);
-double          SoilTempFactor(double);
 #endif
 
 #endif

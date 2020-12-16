@@ -458,6 +458,8 @@ enum output_var{
 #define FC_BOUND                -1
 #define PWP_BOUND               -2
 
+#define NUM_MA_DAYS             7
+
 #define STAN_RESIDUE_SA         4.0         /* Standing residue area to mass
                                              * ratio (m2/kg) */
 #define FLAT_RESIDUE_SA         4.0         /* Flat residue area to mass ratio

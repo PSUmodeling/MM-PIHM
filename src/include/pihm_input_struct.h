@@ -220,6 +220,9 @@ typedef struct geoltbl_struct
                                              * macropore hydraulic conductivity
                                              * and horizontal saturated
                                              * hydraulic conductivity (-) */
+#if defined(_LUMPED_)
+    double          k2;                     /* recession coefficient (day-1) */
+#endif
 } geoltbl_struct;
 
 /* Land cover parameters */
@@ -802,6 +805,12 @@ typedef struct rttbl_struct
     double          adh;                    /* Debye Huckel parameter */
     double          bdh;                    /* Debye Huckel parameter */
     double          bdt;                    /* Debye Huckel parameter */
+    double          sw_thld;                /* threshold in soil moisture
+                                             * function (-) */
+    double          sw_exp;                 /* exponent in soil moisture
+                                             * function (-) */
+    double          q10;                    /* Q10 factor for soil temperature
+                                             * function */
 } rttbl_struct;
 
 typedef struct chmictbl_struct

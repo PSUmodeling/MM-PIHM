@@ -92,6 +92,10 @@ typedef struct soil_struct
     double          b[MAXLYR];
     double          air_entry_pot[MAXLYR];
 #endif
+#if defined(_DGW_) && defined(_LUMPED_)
+    double          k2;                     /* linear recession coefficient
+                                             * (s-1) */
+#endif
 #if defined(_NOAH_)
     double          csoil;                  /* soil heat capacity (J m-3 K-1) */
     double          quartz;                 /* soil quartz content (-) */
@@ -275,6 +279,8 @@ typedef struct phystate_struct
     double          tau_flat;
     double          tillage_factor[MAXLYR];
     double          comp_factor[MAXLYR];
+    double          soil_tmp_hist[NUM_MA_DAYS];/* soil temperature history
+                                            * (degree C) */
     double          denitrif;               /* total NO3 denitrification
                                              * (Mg ha-1) */
     double          nitrif;                 /* total NH4 nitrification (Mg ha-1) */

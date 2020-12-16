@@ -113,12 +113,6 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RT_DELAY", 'i', chem_fn, lno, &ctrl->RT_delay);
-    pihm_printf(VL_VERBOSE,
-        "  Flux-PIHM-RT will start after running PIHM for %d seconds. \n",
-        ctrl->RT_delay);
-
-    NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "CONDENSATION", 'd', chem_fn, lno, &rttbl->cond);
     pihm_printf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
         "is set to be %f times of concentrations in precipitation. \n",
@@ -200,7 +194,19 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "TEMPERATURE", 'd', chem_fn, lno, &rttbl->tmp);
-    pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->tmp);
+    pihm_printf(VL_VERBOSE, "  Temperature = %3.1f \n", rttbl->tmp);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SW_THRESHOLD", 'd', chem_fn, lno, &rttbl->sw_thld);
+    pihm_printf(VL_VERBOSE, "  SW threshold = %.2f\n", rttbl->sw_thld);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SW_EXP", 'd', chem_fn, lno, &rttbl->sw_exp);
+    pihm_printf(VL_VERBOSE, "  SW exponent = %.2f\n", rttbl->sw_exp);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Q10", 'd', chem_fn, lno, &rttbl->q10);
+    pihm_printf(VL_VERBOSE, "  Q10 = %.2f\n\n", rttbl->q10);
 
     /*
      * Count numbers of species and reactions

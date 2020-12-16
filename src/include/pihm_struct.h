@@ -116,6 +116,9 @@ typedef struct calib_struct
     double          geol_kmacv;
     double          geol_areafv;
     double          geol_areafh;
+# if defined(_LUMPED_)
+    double          k2;
+# endif
 #endif
 #if defined(_NOAH_)
     double          smcref;
@@ -193,8 +196,6 @@ typedef struct ctrl_struct
                                              * file */
     int             write_rt_restart;       /* flag to write chemistry restart
                                              * file */
-    int             RT_delay;               /* RT start after PIHM running for a
-                                             * period of time (s) */
     int             AvgScl;                 /* reaction time step (s) */
 #endif
 } ctrl_struct;

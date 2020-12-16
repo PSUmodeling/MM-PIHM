@@ -42,7 +42,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             }
             avg_stc /= elem[i].soil.depth;
 
-            ftemp = SoilTempFactor(avg_stc);
+            ftemp = SoilTempFactor(rttbl->q10, avg_stc);
 
             ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
                 &elem[i].chms, elem[i].chmf.react);
@@ -72,7 +72,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (satn > 1.0E-2)
         {
-            ftemp = SoilTempFactor(elem[i].ps.tbot);
+            ftemp = SoilTempFactor(rttbl->q10, elem[i].ps.tbot);
             ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
                 &elem[i].chms_geol, elem[i].chmf.react_geol);
         }
@@ -139,13 +139,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     {
         if (satn < 1.0)
         {
-#if NOT_YET_IMPLEMENTED
-            surf_ratio = 1.0;               /* # 1 function */
-#endif
-            surf_ratio = exp(satn) - 1.0;   /* # 3 function */
-#if NOT_YET_IMPLEMENTED
-            surf_ratio = 1.0 - pow(exp(-1.0 / satn), 0.6);  /* # 4 function */
-#endif
+            surf_ratio = (satn <= rttbl->sw_thld) ?
+                pow(satn / rttbl->sw_thld, rttbl->sw_exp) :
+                pow((1.0 - satn) / (1.0 - rttbl->sw_thld), rttbl->sw_exp);
 
             for (i = 0; i < rttbl->num_min; i++)
             {
@@ -581,7 +577,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     }
 }
 
-double SoilTempFactor(double stc)
+double SoilTempFactor(double q10, double stc)
 {
-    return pow(2.0, (stc - TFREEZ - 20.0) / 10.0);
+    return pow(q10, (stc - TFREEZ - 20.0) / 10.0);
 }
