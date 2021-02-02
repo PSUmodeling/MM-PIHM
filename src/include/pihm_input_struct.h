@@ -430,12 +430,12 @@ typedef struct agtbl_struct
 typedef struct crop_epc_struct
 {
     char            name[MAXSTRING];        /* name of crop (-) */
-    double          flower_thermal_time;    /* thermal time to flowering
+    double          thermal_time_flower;    /* thermal time to flowering
                                              * (degree C day) */
-    double          mat_thermal_time;       /* thermal time to maturity
+    double          thermal_time_mat;       /* thermal time to maturity
                                              * (degree C day) */
-    double          max_soil_cover;         /* maximum crop cover (-) */
-    double          max_rooting_depth;      /* maximum rooting depth (m) */
+    double          soil_cover_max;         /* maximum crop cover (-) */
+    double          rooting_depth_max;      /* maximum rooting depth (m) */
     double          frac_residue_stand;     /* fraction of aboveground residues
                                              * in standing position (-) */
     double          frac_residue_removed;   /* fraction of non-grain crop

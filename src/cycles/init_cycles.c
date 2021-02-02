@@ -163,19 +163,19 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         int             kz;
         int             kday;
 
-        elem[i].ws.stan_residue   = elem[i].restart_input.water_residue_stan;
-        elem[i].ws.flat_residue   = elem[i].restart_input.water_residue_flat;
-        elem[i].cs.stan_residue   = elem[i].restart_input.c_residue_stan;
-        elem[i].cs.flat_residue   = elem[i].restart_input.c_residue_flat;
+        elem[i].ws.residue_stan   = elem[i].restart_input.water_residue_stan;
+        elem[i].ws.residue_flat   = elem[i].restart_input.water_residue_flat;
+        elem[i].cs.residue_stan   = elem[i].restart_input.c_residue_stan;
+        elem[i].cs.residue_flat   = elem[i].restart_input.c_residue_flat;
         elem[i].cs.manure_surface = elem[i].restart_input.c_manure_surface;
 
         for (kz = 0; kz < MAXLYR; kz++)
         {
-            elem[i].cs.abgd_residue[kz] =
+            elem[i].cs.residue_abgd[kz] =
                 elem[i].restart_input.c_residue_abgd[kz];
-            elem[i].cs.root_residue[kz] =
+            elem[i].cs.residue_root[kz] =
                 elem[i].restart_input.c_residue_root[kz];
-            elem[i].cs.rhizo_residue[kz] =
+            elem[i].cs.residue_rhizo[kz] =
                 elem[i].restart_input.c_residue_rhizo[kz];
             elem[i].cs.manure[kz] = elem[i].restart_input.c_manure[kz];
             elem[i].ns.residue_abgd[kz] =
@@ -248,25 +248,25 @@ void WriteCyclesIc(const char outputdir[], const elem_struct elem[])
 
     for (i = 0; i < nelem; i++)
     {
-        fwrite(&elem[i].ws.stan_residue,   sizeof(double), 1, fp);
-        fwrite(&elem[i].ws.flat_residue,   sizeof(double), 1, fp);
-        fwrite(&elem[i].cs.stan_residue,   sizeof(double), 1, fp);
-        fwrite(&elem[i].cs.flat_residue,   sizeof(double), 1, fp);
+        fwrite(&elem[i].ws.residue_stan,   sizeof(double), 1, fp);
+        fwrite(&elem[i].ws.residue_flat,   sizeof(double), 1, fp);
+        fwrite(&elem[i].cs.residue_stan,   sizeof(double), 1, fp);
+        fwrite(&elem[i].cs.residue_flat,   sizeof(double), 1, fp);
         fwrite(&elem[i].cs.manure_surface, sizeof(double), 1, fp);
         fwrite(&elem[i].ns.residue_stan,   sizeof(double), 1, fp);
         fwrite(&elem[i].ns.residue_flat,   sizeof(double), 1, fp);
         fwrite(&elem[i].ns.manure_surface, sizeof(double), 1, fp);
         for (k = 0; k < MAXLYR; k++)
         {
-            fwrite(&elem[i].cs.abgd_residue[k], sizeof(double), 1, fp);
+            fwrite(&elem[i].cs.residue_abgd[k], sizeof(double), 1, fp);
         }
         for (k = 0; k < MAXLYR; k++)
         {
-            fwrite(&elem[i].cs.root_residue[k], sizeof(double), 1, fp);
+            fwrite(&elem[i].cs.residue_root[k], sizeof(double), 1, fp);
         }
         for (k = 0; k < MAXLYR; k++)
         {
-            fwrite(&elem[i].cs.rhizo_residue[k], sizeof(double), 1, fp);
+            fwrite(&elem[i].cs.residue_rhizo[k], sizeof(double), 1, fp);
         }
         for (k = 0; k < MAXLYR; k++)
         {

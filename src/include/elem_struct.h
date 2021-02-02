@@ -410,9 +410,9 @@ typedef struct wstate_struct
                                              * depth (m) */
     double          surfh;                  /* actual surface water level (m) */
 #if defined(_CYCLES_)
-    double          stan_residue;           /* standing residue water content
+    double          residue_stan;           /* standing residue water content
                                              * (mm) */
-    double          flat_residue;           /* flattened residue water content
+    double          residue_flat;           /* flattened residue water content
                                              * (mm) */
 #endif
     double          cmcmax;                 /* maximum canopy water capacity (m)
@@ -630,17 +630,17 @@ typedef struct cstate_struct
     double          soc[MAXLYR];            /* soil organic carbon (Mg ha-1) */
     double          mbc[MAXLYR];            /* microbial biomass carbon
                                              * (Mg ha-1) */
-    double          stan_residue;           /* standing residue carbon (Mg ha-1)
+    double          residue_stan;           /* standing residue carbon (Mg ha-1)
                                              */
-    double          flat_residue;           /* flattened residue carbon
+    double          residue_flat;           /* flattened residue carbon
                                              * (Mg ha-1) */
     double          manure_surface;         /* remaining manure carbon content
                                              * (Mg ha-1) */
-    double          abgd_residue[MAXLYR];   /* shoot residue carbon in soil
+    double          residue_abgd[MAXLYR];   /* shoot residue carbon in soil
                                              * (Mg ha-1) */
-    double          root_residue[MAXLYR];   /* root residue carbon in soil
+    double          residue_root[MAXLYR];   /* root residue carbon in soil
                                              * (Mg ha-1) */
-    double          rhizo_residue[MAXLYR];  /* rhizo residue carbon in soil
+    double          residue_rhizo[MAXLYR];  /* rhizo residue carbon in soil
                                              * (Mg ha-1) */
     double          manure[MAXLYR];         /* manure carbon content (Mg ha-1)*/
 } cstate_struct;
