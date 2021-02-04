@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void InitBgc(const epctbl_struct *epctbl, const calib_struct *calib,
-    elem_struct elem[])
+void InitBgc(const epctbl_struct *epctbl, const calib_struct *calib, elem_struct elem[])
 {
     int             i;
 
@@ -18,13 +17,10 @@ void InitBgc(const epctbl_struct *epctbl, const calib_struct *calib,
 
         epc_ind = elem[i].attrib.lc;
 
-        if (epc_ind != IGBP_ENF && epc_ind != IGBP_EBF && epc_ind != IGBP_DNF &&
-            epc_ind != IGBP_DBF && epc_ind != IGBP_GRASS &&
-            epc_ind != IGBP_CLOSE_SHRUB && epc_ind != IGBP_OPEN_SHRUB)
+        if (epc_ind != IGBP_ENF && epc_ind != IGBP_EBF && epc_ind != IGBP_DNF && epc_ind != IGBP_DBF &&
+            epc_ind != IGBP_GRASS && epc_ind != IGBP_CLOSE_SHRUB && epc_ind != IGBP_OPEN_SHRUB)
         {
-            pihm_printf(VL_ERROR,
-                "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
-                epc_ind);
+            pihm_printf(VL_ERROR, "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n", epc_ind);
             pihm_exit(EXIT_FAILURE);
         }
 
@@ -42,13 +38,11 @@ void InitBgc(const epctbl_struct *epctbl, const calib_struct *calib,
         epc->leaf_turnover = epctbl->leaf_turnover[epc_ind];
         epc->froot_turnover = epctbl->froot_turnover[epc_ind];
         epc->livewood_turnover = epctbl->livewood_turnover[epc_ind];
-        epc->daily_mortality_turnover =
-            epctbl->daily_mortality_turnover[epc_ind] * calib->mortality;
+        epc->daily_mortality_turnover = epctbl->daily_mortality_turnover[epc_ind] * calib->mortality;
         epc->daily_fire_turnover = epctbl->daily_fire_turnover[epc_ind];
         epc->alloc_frootc_leafc = epctbl->alloc_frootc_leafc[epc_ind];
         epc->alloc_newstemc_newleafc = epctbl->alloc_newstemc_newleafc[epc_ind];
-        epc->alloc_newlivewoodc_newwoodc =
-            epctbl->alloc_newlivewoodc_newwoodc[epc_ind];
+        epc->alloc_newlivewoodc_newwoodc = epctbl->alloc_newlivewoodc_newwoodc[epc_ind];
         epc->alloc_crootc_stemc = epctbl->alloc_crootc_stemc[epc_ind];
         epc->alloc_prop_curgrowth = epctbl->alloc_prop_curgrowth[epc_ind];
         epc->avg_proj_sla = epctbl->avg_proj_sla[epc_ind] * calib->sla;
@@ -89,11 +83,9 @@ void InitBgcVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     for (i = 0; i < nelem; i++)
 #endif
     {
-        RestartInput(&elem[i].restart_input, &elem[i].epv, &elem[i].cs,
-            &elem[i].ns);
+        RestartInput(&elem[i].restart_input, &elem[i].epv, &elem[i].cs, &elem[i].ns);
 
-        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary,
-            &elem[i].solute[0]);
+        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary, &elem[i].solute[0]);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
 #if !defined(_LUMPEDBGC_)

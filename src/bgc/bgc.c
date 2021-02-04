@@ -30,26 +30,26 @@ void DailyBgc(int t, pihm_struct pihm)
     for (i = 0; i < nelem; i++)
 #endif
     {
-        /* First test for nitrogen balance from previous day */
+        // First test for nitrogen balance from previous day
         CheckNitrogenBalance(&elem[i].ns, &elem[i].epv.old_n_balance);
     }
 
-    /*
-     * BGC module for the current day
-     */
-    /* Get co2 and ndep */
-    if (spinup_mode)                        /* Spinup mode */
+    //
+    // BGC module for the current day
+    //
+    // Get co2 and ndep
+    if (spinup_mode)                        // Spinup mode
     {
         co2lvl = co2->co2ppm;
         ndep = ndepctrl->ndep / 365.0;
         nfix = ndepctrl->nfix / 365.0;
     }
-    else                                    /* Model mode */
+    else                                    // Model mode
     {
-        /* Atmospheric CO2 handling */
+        // Atmospheric CO2 handling
         if (!(co2->varco2))
         {
-            /* Constant CO2, constant Ndep */
+            // Constant CO2, constant Ndep
             co2lvl = co2->co2ppm;
             ndep = ndepctrl->ndep / 365.0;
             nfix = ndepctrl->nfix / 365.0;
@@ -59,10 +59,10 @@ void DailyBgc(int t, pihm_struct pihm)
             co2lvl = GetCO2(t, &forc->co2[0]);
         }
 
-        /* Ndep handling */
+        // Ndep handling
         if (!(ndepctrl->varndep))
         {
-            /* Constant Ndep */
+            // Constant Ndep
             ndep = ndepctrl->ndep / 365.0;
             nfix = ndepctrl->nfix / 365.0;
         }
@@ -74,7 +74,7 @@ void DailyBgc(int t, pihm_struct pihm)
         }
     }
 
-    /* Calculate daylengths */
+    // Calculate daylengths
     SunPos(t, siteinfo, &spa);
     SunPos(t - DAYINSEC, siteinfo, &prev_spa);
 
@@ -84,7 +84,7 @@ void DailyBgc(int t, pihm_struct pihm)
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
     prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 24.0 * 3600.0) : prev_dayl;
 
-    /* Calculate average soil water content for all model grids */
+    // Calculate average soil water content for all model grids
 #if defined(_LUMPEDBGC_)
     vwc = (double *)malloc((nelem + 1) * sizeof(double));
 #else
@@ -159,46 +159,42 @@ void DailyBgc(int t, pihm_struct pihm)
         psn_shade = &elem[i].psn_shade;
         summary = &elem[i].summary;
 
-        /* Determine daylengths */
+        // Determine daylengths
         epv->dayl = dayl;
         epv->prev_dayl = prev_dayl;
 
-        /* Determine CO2 level */
+        // Determine CO2 level
         ps->co2 = co2lvl;
 
         PrecisionControl(cs, ns);
 
-        /* Zero all the flux variables */
+        // Zero all the flux variables
         MakeZeroFluxStruct(cf, nf);
 
-        /* Phenology fluxes */
+        // Phenology fluxes
         Phenology(epc, daily, cs, ns, epv, cf, nf);
 
-        /* Test for the annual allocation day */
-        annual_alloc = (epv->offset_flag == 1 && epv->offset_counter == 1) ?
-            1 : 0;
+        // Test for the annual allocation day
+        annual_alloc = (epv->offset_flag == 1 && epv->offset_counter == 1) ? 1 : 0;
 
-        /* Calculate leaf area index, sun and shade fractions, and specific leaf
-         * area for sun and shade canopy fractions, then calculate canopy
-         * radiation interception and transmission */
+        // Calculate leaf area index, sun and shade fractions, and specific leaf area for sun and shade canopy
+        // fractions, then calculate canopy radiation interception and transmission
         RadTrans(cs, epc, daily, epv, ps, ef);
 
         SoilPsi(soil, vwc[i], &epv->psi);
 
-        /* Maintenance respiration */
+        // Maintenance respiration
         MaintResp(epc, daily, cs, ns, epv, cf);
 
-        /* Begin canopy bio-physical process simulation */
+        // Begin canopy bio-physical process simulation
         if (cs->leafc && epv->dayl)
         {
-            /* Conductance */
+            // Conductance
             CanopyCond(soil, epc, daily, ps, ef, epv);
         }
 
-        /* Do photosynthesis only when it is part of the current growth season,
-         * as defined by the remdays_curgrowth flag. This keeps the occurrence
-         * of new growth consistent with the treatment of litterfall and
-         * allocation */
+        // Do photosynthesis only when it is part of the current growth season, as defined by the remdays_curgrowth
+        // flag. This keeps the occurrence of new growth consistent with the treatment of litterfall and allocation
         if (cs->leafc && !epv->dormant_flag && epv->dayl)
         {
             TotalPhotosynthesis(epc, daily, ps, epv, cf, psn_sun, psn_shade);
@@ -211,43 +207,38 @@ void DailyBgc(int t, pihm_struct pihm)
         nf->ndep_to_sminn = ndep;
         nf->nfix_to_sminn = nfix;
 
-        /* Daily litter and soil decomp and nitrogen fluxes */
+        // Daily litter and soil decomp and nitrogen fluxes
         Decomp(daily->avg_stc[0] - TFREEZ, epc, cs, ns, epv, cf, nf, nt);
 
-        /* Allocation gets called whether or not this is a current growth day,
-         * because the competition between decomp immobilization fluxes and
-         * plant growth N demand is resolved here. On days with no growth, no
-         * allocation occurs, but immobilization fluxes are updated normally. */
+        // Allocation gets called whether or not this is a current growth day, because the competition between decomp
+        // immobilization fluxes and plant growth N demand is resolved here. On days with no growth, no allocation
+        // occurs, but immobilization fluxes are updated normally.
         DailyAllocation(epc, cs, ns, epv, cf, nf, nt);
 
-        /* Growth respiration */
+        // Growth respiration
         GrowthResp(epc, cf);
 
-        /* Update of carbon state variables */
-        DailyCarbonStateUpdate(annual_alloc, epc->woody, epc->evergreen, cs,
-            cf);
+        // Update of carbon state variables
+        DailyCarbonStateUpdate(annual_alloc, epc->woody, epc->evergreen, cs, cf);
 
-        /* Update of nitrogen state variables */
-        DailyNitrogenStateUpdate(annual_alloc, epc->woody, epc->evergreen, ns,
-            nf, solute);
+        // Update of nitrogen state variables
+        DailyNitrogenStateUpdate(annual_alloc, epc->woody, epc->evergreen, ns, nf, solute);
 
-        /* Calculate mortality fluxes and update state variables */
-        /* This is done last, with a special state update procedure, to ensure
-         * that pools don't go negative due to mortality fluxes conflicting with
-         * other proportional fluxes */
+        // Calculate mortality fluxes and update state variables
+        // This is done last, with a special state update procedure, to ensure that pools don't go negative due to
+        // mortality fluxes conflicting with other proportional fluxes
         Mortality(epc, cs, cf, ns, nf);
 
-        /* Test for carbon balance */
+        // Test for carbon balance
         CheckCarbonBalance(cs, &epv->old_c_balance);
 
 #if OBSOLETE
-        /* Nitrogen balance is checked the next day at the beginning of DailyBgc
-         * function because a bgc cycle is not finished until N state variables
-         * are solved by CVODE */
+        // Nitrogen balance is checked the next day at the beginning of DailyBgc function because a bgc cycle is not
+        // finished until N state variables are solved by CVODE
         CheckNitrogenBalance (ns, &epv->old_n_balance);
 #endif
 
-        /* Calculate carbon summary variables */
+        // Calculate carbon summary variables
         CSummary(cs, cf, summary);
 
         if (spinup_mode)

@@ -4,12 +4,9 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     const daily_struct *daily, epvar_struct *epv, phystate_struct *ps,
     eflux_struct *ef)
 {
-    /*
-     * Calculate the projected leaf area and SLA for sun and shade fractions and
-     * the canopy transmission and absorption of shortwave radiation based on
-     * the Beer's Law assumption of radiation attenuation as a function of
-     * projected LAI.
-     */
+    // Calculate the projected leaf area and SLA for sun and shade fractions and the canopy transmission and absorption
+    // of shortwave radiation based on the Beer's Law assumption of radiation attenuation as a function of projected
+    // LAI.
     double          proj_lai;
     double          albedo_sw, albedo_par;
     double          sw, par;
@@ -22,31 +19,26 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     double          parabs_plaisun, parabs_plaishade;
     double          parabs_per_plaisun, parabs_per_plaishade;
 
-    /* The following equations estimate the albedo and extinction coefficients
-     * for the shortwave and PAR spectra from the values given for the entire
-     * shortwave range (from Jones, H.G., 1992. Plants and Microclimate, 2nd
-     * Edition. Cambridge University Press. pp. 30-38.) These conversions are
-     * approximated from the information given in Jones. */
+    // The following equations estimate the albedo and extinction coefficients for the shortwave and PAR spectra from
+    // the values given for the entire shortwave range (from Jones, H.G., 1992. Plants and Microclimate, 2nd Edition.
+    // Cambridge University Press. pp. 30-38.) These conversions are approximated from the information given in Jones.
     if (cs->leafc > 0.0)
     {
-        /* Calculate whole-canopy projected and all-sided LAI */
+        // Calculate whole-canopy projected and all-sided LAI
         ps->proj_lai = cs->leafc * epc->avg_proj_sla;
         ps->all_lai = ps->proj_lai * epc->lai_ratio;
 
-        /* Calculate projected LAI for sunlit and shaded canopy portions */
+        // Calculate projected LAI for sunlit and shaded canopy portions
         ps->plaisun = 1.0 - exp(-ps->proj_lai);
         ps->plaishade = ps->proj_lai - ps->plaisun;
         if (ps->plaishade < 0.0)
         {
-            pihm_printf(VL_ERROR, "FATAL ERROR: Negative plaishade.\n"
-                "LAI of shaded canopy = %lf\n", ps->plaishade);
+            pihm_printf(VL_ERROR, "FATAL ERROR: Negative plaishade.\nLAI of shaded canopy = %lf\n", ps->plaishade);
             pihm_exit(EXIT_FAILURE);
         }
 
-        /* Calculate the projected specific leaf area for sunlit and shaded
-         * canopy fractions */
-        epv->sun_proj_sla = (ps->plaisun + (ps->plaishade / epc->sla_ratio)) /
-            cs->leafc;
+        // Calculate the projected specific leaf area for sunlit and shaded canopy fractions
+        epv->sun_proj_sla = (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
         epv->shade_proj_sla = epv->sun_proj_sla * epc->sla_ratio;
     }
     else if (cs->leafc == 0.0)
@@ -60,15 +52,14 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     }
     else
     {
-        pihm_printf(VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n"
-            "leafc = %.7e\n", cs->leafc);
+        pihm_printf(VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\nleafc = %.7e\n", cs->leafc);
         pihm_exit(EXIT_FAILURE);
     }
 
     k = epc->ext_coef;
     proj_lai = ps->proj_lai;
 
-    /* Calculate total shortwave absorbed */
+    // Calculate total shortwave absorbed
     k_sw = k;
     albedo_sw = daily->avg_albedo;
 
@@ -76,15 +67,14 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     swabs = sw * (1.0 - exp(-k_sw * proj_lai));
     swtrans = sw - swabs;
 
-    /* Calculate PAR absorbed */
+    // Calculate PAR absorbed
     k_par = k * 1.0;
     albedo_par = daily->avg_albedo / 3.0;
 
     par = MAX(daily->avg_soldn, 0.0) * RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp(-k_par * proj_lai));
 
-    /* Calculate the total shortwave absorbed by the sunlit and shaded canopy
-     * fractions */
+    // Calculate the total shortwave absorbed by the sunlit and shaded canopy fractions
     swabs_plaisun = k_sw * sw * ps->plaisun;
     swabs_plaishade = swabs - swabs_plaisun;
 
@@ -94,8 +84,7 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
         swabs_plaishade = 0.0;
     }
 
-    /* Convert this to the shortwave absorbed per unit LAI in the sunlit and
-     * shaded canopy fractions */
+    // Convert this to the shortwave absorbed per unit LAI in the sunlit and shaded canopy fractions
     if (proj_lai > 0.0)
     {
         swabs_per_plaisun = swabs_plaisun / ps->plaisun;
@@ -106,8 +95,7 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
         swabs_per_plaisun = swabs_per_plaishade = 0.0;
     }
 
-    /* Calculate the total PAR absorbed by the sunlit and shaded canopy
-     * fractions */
+    // Calculate the total PAR absorbed by the sunlit and shaded canopy fractions
     parabs_plaisun = k_par * par * ps->plaisun;
     parabs_plaishade = parabs - parabs_plaisun;
 
@@ -117,8 +105,7 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
         parabs_plaishade = 0.0;
     }
 
-    /* Convert this to the PAR absorbed per unit LAI in the sunlit and shaded
-     * canopy fractions */
+    // Convert this to the PAR absorbed per unit LAI in the sunlit and shaded canopy fractions
     if (proj_lai > 0.0)
     {
         parabs_per_plaisun = parabs_plaisun / ps->plaisun;
@@ -132,8 +119,7 @@ void RadTrans(const cstate_struct *cs, const epconst_struct *epc,
     ef->swabs_per_plaisun = swabs_per_plaisun;
     ef->swabs_per_plaishade = swabs_per_plaishade;
 
-    /* Calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
-     * unit conversion: W/m2 --> umol/m2/s. */
+    // Calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J) unit conversion: W/m2 --> umol/m2/s.
     ps->ppfd_per_plaisun = parabs_per_plaisun * EPAR;
     ps->ppfd_per_plaishade = parabs_per_plaishade * EPAR;
 }

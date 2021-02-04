@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void RestartInput(const bgcic_struct *restart, epvar_struct *epv,
-    cstate_struct *cs, nstate_struct *ns)
+void RestartInput(const bgcic_struct *restart, epvar_struct *epv, cstate_struct *cs, nstate_struct *ns)
 {
     cs->leafc               = restart->leafc;
     cs->leafc_storage       = restart->leafc_storage;
@@ -82,8 +81,7 @@ void RestartInput(const bgcic_struct *restart, epvar_struct *epv,
     epv->offset_swi     = restart->offset_swi;
 }
 
-void RestartOutput(const epvar_struct *epv, const cstate_struct *cs,
-    const nstate_struct *ns, bgcic_struct *restart)
+void RestartOutput(const epvar_struct *epv, const cstate_struct *cs, const nstate_struct *ns, bgcic_struct *restart)
 {
     restart->leafc               = cs->leafc;
     restart->leafc_storage       = cs->leafc_storage;
@@ -180,8 +178,7 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
     {
         fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, fp);
 
-        /* If simulation is accelerated spinup, adjust soil C pool sizes if
-         * needed */
+        // If simulation is accelerated spinup, adjust soil C pool sizes if needed
         if (spinup_mode == ACC_SPINUP_MODE)
         {
             elem[i].restart_input.soil1c /= KS1_ACC;
@@ -199,8 +196,7 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
 #if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
-        fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
-            fp);
+        fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1, fp);
     }
 #endif
 
@@ -228,8 +224,7 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
         RestartOutput(&elem[i].epv, &elem[i].cs, &elem[i].ns,
             &elem[i].restart_output);
 
-        /* If initial conditions are obtained using accelerated spinup, adjust
-         * soil C pool sizes if needed */
+        // If initial conditions are obtained using accelerated spinup, adjust soil C pool sizes if needed
         if (spinup_mode == ACC_SPINUP_MODE)
         {
             elem[i].restart_output.soil1c *= KS1_ACC;
@@ -243,8 +238,7 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
             elem[i].restart_output.soil4n *= KS4_ACC;
         }
 
-        fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1,
-            fp);
+        fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1, fp);
     }
 
 #if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
@@ -252,8 +246,7 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
 
-        fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
-            fp);
+        fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1, fp);
     }
 #endif
 

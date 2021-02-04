@@ -1,48 +1,36 @@
 #include "pihm.h"
 
-void CSummary(const cstate_struct *cs, const cflux_struct *cf,
-    summary_struct *summary)
+void CSummary(const cstate_struct *cs, const cflux_struct *cf, summary_struct *summary)
 {
     double          gpp, mr, gr, hr, fire;
     double          npp, nep, nee;
 
-    /* Calculate daily NPP, positive for net growth */
-    /* NPP = Gross PSN - Maintenance Resp - Growth Resp */
+    // Calculate daily NPP, positive for net growth
+    // NPP = Gross PSN - Maintenance Resp - Growth Resp
     gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
-    mr = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr +
-        cf->livecroot_mr;
-    gr = cf->cpool_leaf_gr + cf->cpool_leaf_storage_gr +
-        cf->transfer_leaf_gr + cf->cpool_froot_gr +
-        cf->cpool_froot_storage_gr + cf->transfer_froot_gr +
-        cf->cpool_livestem_gr + cf->cpool_livestem_storage_gr +
-        cf->transfer_livestem_gr + cf->cpool_deadstem_gr +
-        cf->cpool_deadstem_storage_gr + cf->transfer_deadstem_gr +
-        cf->cpool_livecroot_gr + cf->cpool_livecroot_storage_gr +
-        cf->transfer_livecroot_gr + cf->cpool_deadcroot_gr +
+    mr = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr;
+    gr = cf->cpool_leaf_gr + cf->cpool_leaf_storage_gr + cf->transfer_leaf_gr + cf->cpool_froot_gr +
+        cf->cpool_froot_storage_gr + cf->transfer_froot_gr + cf->cpool_livestem_gr + cf->cpool_livestem_storage_gr +
+        cf->transfer_livestem_gr + cf->cpool_deadstem_gr + cf->cpool_deadstem_storage_gr + cf->transfer_deadstem_gr +
+        cf->cpool_livecroot_gr + cf->cpool_livecroot_storage_gr + cf->transfer_livecroot_gr + cf->cpool_deadcroot_gr +
         cf->cpool_deadcroot_storage_gr + cf->transfer_deadcroot_gr;
     npp = gpp - mr - gr;
 
-    /* Calculate daily NEP, positive for net sink */
-    /* NEP = NPP - Autotrophic Resp */
-    hr = cf->litr1_hr + cf->litr2_hr + cf->litr4_hr + cf->soil1_hr +
-        cf->soil2_hr + cf->soil3_hr + cf->soil4_hr;
+    // Calculate daily NEP, positive for net sink
+    // NEP = NPP - Autotrophic Resp
+    hr = cf->litr1_hr + cf->litr2_hr + cf->litr4_hr + cf->soil1_hr + cf->soil2_hr + cf->soil3_hr + cf->soil4_hr;
     nep = npp - hr;
 
-    /* Calculate daily NEE, positive for net sink */
-    /* NEE = NEP - fire losses */
-    fire = cf->m_leafc_to_fire + cf->m_frootc_to_fire +
-        cf->m_leafc_storage_to_fire + cf->m_frootc_storage_to_fire +
-        cf->m_livestemc_storage_to_fire + cf->m_deadstemc_storage_to_fire +
-        cf->m_livecrootc_storage_to_fire + cf->m_deadcrootc_storage_to_fire +
-        cf->m_leafc_transfer_to_fire + cf->m_frootc_transfer_to_fire +
-        cf->m_livestemc_transfer_to_fire + cf->m_deadstemc_transfer_to_fire +
-        cf->m_livecrootc_transfer_to_fire +
-        cf->m_deadcrootc_transfer_to_fire + cf->m_livestemc_to_fire +
-        cf->m_deadstemc_to_fire + cf->m_livecrootc_to_fire +
-        cf->m_deadcrootc_to_fire + cf->m_gresp_storage_to_fire +
-        cf->m_gresp_transfer_to_fire + cf->m_litr1c_to_fire +
-        cf->m_litr2c_to_fire + cf->m_litr3c_to_fire + cf->m_litr4c_to_fire +
-        cf->m_cwdc_to_fire;
+    // Calculate daily NEE, positive for net sink
+    // NEE = NEP - fire losses
+    fire = cf->m_leafc_to_fire + cf->m_frootc_to_fire + cf->m_leafc_storage_to_fire + cf->m_frootc_storage_to_fire +
+        cf->m_livestemc_storage_to_fire + cf->m_deadstemc_storage_to_fire + cf->m_livecrootc_storage_to_fire +
+        cf->m_deadcrootc_storage_to_fire + cf->m_leafc_transfer_to_fire + cf->m_frootc_transfer_to_fire +
+        cf->m_livestemc_transfer_to_fire + cf->m_deadstemc_transfer_to_fire + cf->m_livecrootc_transfer_to_fire +
+        cf->m_deadcrootc_transfer_to_fire + cf->m_livestemc_to_fire + cf->m_deadstemc_to_fire +
+        cf->m_livecrootc_to_fire + cf->m_deadcrootc_to_fire + cf->m_gresp_storage_to_fire +
+        cf->m_gresp_transfer_to_fire + cf->m_litr1c_to_fire + cf->m_litr2c_to_fire + cf->m_litr3c_to_fire +
+        cf->m_litr4c_to_fire + cf->m_cwdc_to_fire;
     nee = nep - fire;
 
     summary->daily_npp = npp;
@@ -62,39 +50,26 @@ void CSummary(const cstate_struct *cs, const cflux_struct *cf,
     summary->cum_hr += hr;
     summary->cum_fire += fire;
 
-    /* Other flux summary variables */
-    summary->daily_litfallc = cf->m_leafc_to_litr1c + cf->m_leafc_to_litr2c +
-        cf->m_leafc_to_litr3c + cf->m_leafc_to_litr4c +
-        cf->m_frootc_to_litr1c + cf->m_frootc_to_litr2c +
-        cf->m_frootc_to_litr3c + cf->m_frootc_to_litr4c +
-        cf->m_leafc_storage_to_litr1c + cf->m_frootc_storage_to_litr1c +
-        cf->m_livestemc_storage_to_litr1c +
-        cf->m_deadstemc_storage_to_litr1c +
-        cf->m_livecrootc_storage_to_litr1c +
-        cf->m_deadcrootc_storage_to_litr1c + cf->m_leafc_transfer_to_litr1c +
-        cf->m_frootc_transfer_to_litr1c + cf->m_livestemc_transfer_to_litr1c +
-        cf->m_deadstemc_transfer_to_litr1c +
-        cf->m_livecrootc_transfer_to_litr1c +
-        cf->m_deadcrootc_transfer_to_litr1c + cf->m_livestemc_to_cwdc +
-        cf->m_deadstemc_to_cwdc + cf->m_livecrootc_to_cwdc +
-        cf->m_deadcrootc_to_cwdc + cf->m_gresp_storage_to_litr1c +
-        cf->m_gresp_transfer_to_litr1c + cf->leafc_to_litr1c +
-        cf->leafc_to_litr2c + cf->leafc_to_litr3c + cf->leafc_to_litr4c +
-        cf->frootc_to_litr1c + cf->frootc_to_litr2c + cf->frootc_to_litr3c +
-        cf->frootc_to_litr4c;
+    // Other flux summary variables
+    summary->daily_litfallc = cf->m_leafc_to_litr1c + cf->m_leafc_to_litr2c + cf->m_leafc_to_litr3c +
+        cf->m_leafc_to_litr4c + cf->m_frootc_to_litr1c + cf->m_frootc_to_litr2c + cf->m_frootc_to_litr3c +
+        cf->m_frootc_to_litr4c + cf->m_leafc_storage_to_litr1c + cf->m_frootc_storage_to_litr1c +
+        cf->m_livestemc_storage_to_litr1c + cf->m_deadstemc_storage_to_litr1c + cf->m_livecrootc_storage_to_litr1c +
+        cf->m_deadcrootc_storage_to_litr1c + cf->m_leafc_transfer_to_litr1c + cf->m_frootc_transfer_to_litr1c +
+        cf->m_livestemc_transfer_to_litr1c + cf->m_deadstemc_transfer_to_litr1c + cf->m_livecrootc_transfer_to_litr1c +
+        cf->m_deadcrootc_transfer_to_litr1c + cf->m_livestemc_to_cwdc + cf->m_deadstemc_to_cwdc +
+        cf->m_livecrootc_to_cwdc + cf->m_deadcrootc_to_cwdc + cf->m_gresp_storage_to_litr1c +
+        cf->m_gresp_transfer_to_litr1c + cf->leafc_to_litr1c + cf->leafc_to_litr2c + cf->leafc_to_litr3c +
+        cf->leafc_to_litr4c + cf->frootc_to_litr1c + cf->frootc_to_litr2c + cf->frootc_to_litr3c + cf->frootc_to_litr4c;
 
-    /* Summarize carbon stocks */
-    summary->vegc = cs->leafc + cs->leafc_storage + cs->leafc_transfer +
-        cs->frootc +
-        cs->frootc_storage + cs->frootc_transfer + cs->livestemc +
-        cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc +
-        cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc +
-        cs->livecrootc_storage + cs->livecrootc_transfer + cs->deadcrootc +
-        cs->deadcrootc_storage + cs->deadcrootc_transfer + cs->gresp_storage +
-        cs->gresp_transfer + cs->cpool;
+    // Summarize carbon stocks
+    summary->vegc = cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc + cs->frootc_storage +
+        cs->frootc_transfer + cs->livestemc + cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc +
+        cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc + cs->livecrootc_storage +
+        cs->livecrootc_transfer + cs->deadcrootc + cs->deadcrootc_storage + cs->deadcrootc_transfer +
+        cs->gresp_storage + cs->gresp_transfer + cs->cpool;
     summary->agc = cs->leafc + cs->livestemc + cs->deadstemc;
-    summary->litrc = cs->cwdc +
-        cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
+    summary->litrc = cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
     summary->soilc = cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c;
     summary->totalc = summary->vegc + summary->litrc + summary->soilc;
 }

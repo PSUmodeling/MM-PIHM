@@ -2,12 +2,10 @@
 
 void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
 {
-    /* CARBON AND NITROGEN STATE VARIABLES */
-    /* Force very low leaf C to 0.0, to avoid roundoff error in canopy
-     * radiation routines. Send excess to litter 1.
-     * Fine root C and N follow leaf C and N. This control is triggered
-     * at a higher value than the others because leafc is used in exp()
-     * in radtrans, and so can cause rounding error at larger values. */
+    // CARBON AND NITROGEN STATE VARIABLES
+    // Force very low leaf C to 0.0, to avoid roundoff error in canopy radiation routines. Send excess to litter 1.
+    // Fine root C and N follow leaf C and N. This control is triggered at a higher value than the others because leafc
+    // is used in exp() in radtrans, and so can cause rounding error at larger values.
     if (cs->leafc < 1.0E-7)
     {
         cs->litr1c += cs->leafc;
@@ -20,7 +18,7 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
         ns->frootn = 0.0;
     }
 
-    /* Tests for other plant pools. Excess goes to litter 1 */
+    // Tests for other plant pools. Excess goes to litter 1
     if (cs->livestemc < CRIT_PREC)
     {
         cs->litr1c += cs->livestemc;
@@ -57,8 +55,7 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
         ns->cwdn = 0.0;
     }
 
-    /* Test for litter and soil pools. Excess goes to hr sink (C) or volatilized
-     * sink (N) */
+    // Test for litter and soil pools. Excess goes to hr sink (C) or volatilized sink (N)
     if (cs->litr1c < CRIT_PREC)
     {
         cs->litr1_hr_snk += cs->litr1c;
@@ -75,7 +72,7 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
     }
     if (cs->litr3c < CRIT_PREC)
     {
-        cs->litr4_hr_snk += cs->litr3c;     /* NO LITR3C HR SINK */
+        cs->litr4_hr_snk += cs->litr3c;     // NO LITR3C HR SINK
         ns->nvol_snk     += ns->litr3n;
         cs->litr3c = 0.0;
         ns->litr3n = 0.0;
@@ -116,9 +113,9 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
         ns->soil4n = 0.0;
     }
 
-    /* Additional tests for soil mineral N and retranslocated N */
+    // Additional tests for soil mineral N and retranslocated N
 #if OBSOLETE
-    /* Sminn should not be changed outside CVode */
+    // Sminn should not be changed outside CVode
     if (ns->sminn < CRIT_PREC)
     {
         ns->nvol_snk += ns->sminn;

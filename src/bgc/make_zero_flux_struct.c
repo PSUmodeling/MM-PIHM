@@ -2,7 +2,7 @@
 
 void MakeZeroFluxStruct(cflux_struct *cf, nflux_struct *nf)
 {
-    /* Carbon fluxes */
+    // Carbon fluxes
     cf->m_leafc_to_litr1c                         = 0.0;
     cf->m_leafc_to_litr2c                         = 0.0;
     cf->m_leafc_to_litr3c                         = 0.0;
@@ -133,7 +133,7 @@ void MakeZeroFluxStruct(cflux_struct *cf, nflux_struct *nf)
     cf->livestemc_to_deadstemc                    = 0.0;
     cf->livecrootc_to_deadcrootc                  = 0.0;
 
-    /* Nitrogen fluxes */
+    // Nitrogen fluxes
     nf->m_leafn_to_litr1n                         = 0.0;
     nf->m_leafn_to_litr2n                         = 0.0;
     nf->m_leafn_to_litr3n                         = 0.0;
@@ -228,7 +228,7 @@ void MakeZeroFluxStruct(cflux_struct *cf, nflux_struct *nf)
     nf->sminn_to_nvol_s4                          = 0.0;
     nf->sminn_to_denitrif                         = 0.0;
 #if OBSOLETE
-    /* sminn_leached is calculated out of bgc functions */
+    // sminn_leached is calculated out of bgc functions
     nf->sminn_leached                             = 0.0;
 #endif
     nf->retransn_to_npool                         = 0.0;
