@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib,
-    elem_struct elem[])
+void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib, elem_struct elem[])
 {
     int             i;
     int             geol_ind;
@@ -10,8 +9,7 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib,
     {
         if (elem[i].attrib.geol > geoltbl->number)
         {
-            pihm_printf(VL_ERROR,
-                "Error: Geol type %d for Element %d is not in the geol file.",
+            pihm_printf(VL_ERROR, "Error: Geol type %d for Element %d is not in the geol file.",
                 elem[i].attrib.geol, i + 1);
             pihm_exit(EXIT_FAILURE);
         }
@@ -28,8 +26,7 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib,
         elem[i].geol.porosity = elem[i].geol.smcmax - elem[i].geol.smcmin;
         if (elem[i].geol.porosity > 1.0 || elem[i].geol.porosity <= 0.0)
         {
-            pihm_printf (VL_ERROR,
-                "Error: Porosity value out of bounds for Element %d", i + 1);
+            pihm_printf (VL_ERROR, "Error: Porosity value out of bounds for Element %d", i + 1);
             pihm_exit (EXIT_FAILURE);
         }
         elem[i].geol.alpha = calib->geol_alpha * geoltbl->alpha[geol_ind];
@@ -41,10 +38,8 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib,
         elem[i].geol.areafh = calib->geol_areafh * geoltbl->areafh[geol_ind];
         elem[i].geol.areafv = calib->geol_areafv * geoltbl->areafv[geol_ind];
 
-        elem[i].geol.kmacv = calib->geol_kmacv * geoltbl->kmacv_ro *
-            geoltbl->ksatv[geol_ind];
-        elem[i].geol.kmach = calib->geol_kmach * geoltbl->kmach_ro *
-            geoltbl->ksath[geol_ind];
+        elem[i].geol.kmacv = calib->geol_kmacv * geoltbl->kmacv_ro * geoltbl->ksatv[geol_ind];
+        elem[i].geol.kmach = calib->geol_kmach * geoltbl->kmach_ro * geoltbl->ksath[geol_ind];
 
 #if defined(_LUMPED_)
         elem[i].geol.k2 = calib->k2 * geoltbl->k2 / DAYINSEC;

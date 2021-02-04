@@ -12,7 +12,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    /* Start reading soil file */
+    // Start reading soil file
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMGEOL", 'i', fn, lno, &geoltbl->number);
 
@@ -26,10 +26,10 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     geoltbl->areafv = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->dmac   = (double *)malloc(geoltbl->number * sizeof (double));
 
-    /* Check header line */
+    // Check header line
     NextLine (fp, cmdstr, &lno);
-    if (!CheckHeader(cmdstr, 10, "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC",
-        "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
+    if (!CheckHeader(cmdstr, 10,
+        "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
     {
         pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
@@ -38,11 +38,8 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     {
         NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &geoltbl->ksatv[i], &geoltbl->ksath[i],
-            &geoltbl->smcmax[i], &geoltbl->smcmin[i],
-            &geoltbl->alpha[i], &geoltbl->beta[i],
-            &geoltbl->areafh[i], &geoltbl->areafv[i],
-            &geoltbl->dmac[i]);
+            &index, &geoltbl->ksatv[i], &geoltbl->ksath[i], &geoltbl->smcmax[i], &geoltbl->smcmin[i],
+            &geoltbl->alpha[i], &geoltbl->beta[i], &geoltbl->areafh[i], &geoltbl->areafv[i], &geoltbl->dmac[i]);
 
         if (match != 10 || i != index - 1)
         {
