@@ -16,15 +16,15 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMGEOL", 'i', fn, lno, &geoltbl->number);
 
-    geoltbl->ksatv  = (double *)malloc(geoltbl->number * sizeof (double));
-    geoltbl->ksath  = (double *)malloc(geoltbl->number * sizeof (double));
+    geoltbl->ksatv = (double *)malloc(geoltbl->number * sizeof (double));
+    geoltbl->ksath = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->smcmax = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->smcmin = (double *)malloc(geoltbl->number * sizeof (double));
-    geoltbl->alpha  = (double *)malloc(geoltbl->number * sizeof (double));
-    geoltbl->beta   = (double *)malloc(geoltbl->number * sizeof (double));
+    geoltbl->alpha = (double *)malloc(geoltbl->number * sizeof (double));
+    geoltbl->beta = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->areafh = (double *)malloc(geoltbl->number * sizeof (double));
     geoltbl->areafv = (double *)malloc(geoltbl->number * sizeof (double));
-    geoltbl->dmac   = (double *)malloc(geoltbl->number * sizeof (double));
+    geoltbl->dmac = (double *)malloc(geoltbl->number * sizeof (double));
 
     // Check header line
     NextLine (fp, cmdstr, &lno);

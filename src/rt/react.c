@@ -3,8 +3,8 @@
 #define TOL                     1E-7
 #define SKIP_JACOB              1
 
-void Reaction(double stepsize, const chemtbl_struct chemtbl[],
-    const kintbl_struct kintbl[], const rttbl_struct *rttbl, elem_struct elem[])
+void Reaction(double stepsize, const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], const rttbl_struct *rttbl,
+    elem_struct elem[])
 {
     int             i;
 
@@ -18,8 +18,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         double          ftemp;
         int             k;
 
-        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin;
+        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity + elem[i].soil.depth * elem[i].soil.smcmin;
 
         satn = (elem[i].ws.unsat + elem[i].ws.gw) / elem[i].soil.depth;
         satn = MAX(satn, SATMIN);
@@ -37,15 +36,13 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
             for (klayer = 0; klayer < elem[i].ps.nlayers; klayer++)
             {
-                avg_stc += elem[i].es.stc[klayer] *
-                    elem[i].ps.soil_depth[klayer];
+                avg_stc += elem[i].es.stc[klayer] * elem[i].ps.soil_depth[klayer];
             }
             avg_stc /= elem[i].soil.depth;
 
             ftemp = SoilTempFactor(rttbl->q10, avg_stc);
 
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
-                &elem[i].chms, elem[i].chmf.react);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp, &elem[i].chms, elem[i].chmf.react);
         }
 
         for (k = 0; k < nsolute; k++)
@@ -54,11 +51,10 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
 #if defined(_DGW_)
-        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
-            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
+        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) * elem[i].geol.porosity +
+            elem[i].geol.depth * elem[i].geol.smcmin;
 
-        satn = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) /
-            elem[i].geol.depth;
+        satn = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) / elem[i].geol.depth;
         satn = MAX(satn, SATMIN);
         satn = MIN(satn, 1.0);
 
@@ -67,28 +63,23 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             elem[i].chmf.react_geol[k] = 0.0;
         }
 
-        /*
-         * Deep zone
-         */
+        // Deep zone
         if (satn > 1.0E-2)
         {
             ftemp = SoilTempFactor(rttbl->q10, elem[i].ps.tbot);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
-                &elem[i].chms_geol, elem[i].chmf.react_geol);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp, &elem[i].chms_geol, elem[i].chmf.react_geol);
         }
 
         for (k = 0; k < nsolute; k++)
         {
-            elem[i].solute[k].snksrc_geol = elem[i].chmf.react_geol[k] *
-                storage;
+            elem[i].solute[k].snksrc_geol = elem[i].chmf.react_geol[k] * storage;
         }
 #endif
     }
 }
 
-int _React(double stepsize, const chemtbl_struct chemtbl[],
-    const kintbl_struct kintbl[], const rttbl_struct *rttbl, double satn,
-    double ftemp, chmstate_struct *chms)
+int _React(double stepsize, const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], const rttbl_struct *rttbl,
+    double satn, double ftemp, chmstate_struct *chms)
 {
     int             i, j, k;
     int             kmonod, kinhib;
@@ -140,15 +131,14 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         if (satn < 1.0)
         {
             surf_ratio = (satn <= rttbl->sw_thld) ?
-                pow(satn / rttbl->sw_thld, rttbl->sw_exp) :
-                pow((1.0 - satn) / (1.0 - rttbl->sw_thld), rttbl->sw_exp);
+                pow(satn / rttbl->sw_thld, rttbl->sw_exp) : pow((1.0 - satn) / (1.0 - rttbl->sw_thld), rttbl->sw_exp);
 
             for (i = 0; i < rttbl->num_min; i++)
             {
                 area[i] *= surf_ratio;
             }
         }
-    }   /* Lichtner's 2 third law if SUF_EFF is turned on */
+    }   // Lichtner's 2 third law if SUF_EFF is turned on
 
     for (i = 0; i < rttbl->num_stc; i++)
     {
@@ -173,41 +163,37 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             dependency[i] = 1.0;
             for (k = 0; k < kintbl[i].ndep; k++)
             {
-                dependency[i] *= pow(chms->prim_actv[kintbl[i].dep_index[k]],
-                    kintbl[i].dep_power[k]);
+                dependency[i] *= pow(chms->prim_actv[kintbl[i].dep_index[k]], kintbl[i].dep_power[k]);
             }
 
-            /* Calculate the predicted rate depending on the type of rate law
-             *   rate_pre: rate per reaction (mol L-1 water s-1)
-             *   area: m2 L-1 water
-             *   rate: mol m-2 s-1
-             *   dependency: dimensionless */
-            rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) *
-                dependency[i] * (1.0 - iap[i] / temp_keq);
+            // Calculate the predicted rate depending on the type of rate law
+            //   rate_pre: rate per reaction (mol L-1 water s-1)
+            //   area: m2 L-1 water
+            //   rate: mol m-2 s-1
+            //   dependency: dimensionless
+            rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * dependency[i] * (1.0 - iap[i] / temp_keq);
         }
         else if (kintbl[i].type == MONOD)
         {
-            monodterm = 1.0;    /* re-set for new species */
-            inhibterm = 1.0;    /*re-set for new species */
+            monodterm = 1.0;    // re-set for new species
+            inhibterm = 1.0;    //re-set for new species
 
-            /* Calculate rate */
+            // Calculate rate
             for (kmonod = 0; kmonod < kintbl[i].nmonod; kmonod++)
             {
-                monodterm *= chms->prim_conc[kintbl[i].monod_index[kmonod]] /
-                    (chms->prim_conc[kintbl[i].monod_index[kmonod]] +
+                monodterm *=
+                    chms->prim_conc[kintbl[i].monod_index[kmonod]] / (chms->prim_conc[kintbl[i].monod_index[kmonod]] +
                     kintbl[i].monod_para[kmonod]);
             }
 
             for (kinhib = 0; kinhib < kintbl[i].ninhib; kinhib++)
             {
-                inhibterm *= kintbl[i].inhib_para[kinhib] /
-                    (kintbl[i].inhib_para[kinhib] +
+                inhibterm *= kintbl[i].inhib_para[kinhib] / (kintbl[i].inhib_para[kinhib] +
                     chms->prim_conc[kintbl[i].inhib_index[kinhib]]);
             }
 
-            /* Based on CrunchTope */
-            rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) *
-                monodterm * ftemp;
+            // Based on CrunchTope
+            rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * monodterm * ftemp;
         }
 
         for (j = 0; j < rttbl->num_stc; j++)
@@ -222,20 +208,18 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
         if (rate_pre[i] < 0.0)
         {
-            /* Mineral cutoff when mineral is disappearing */
-            area[min_pos] = (chms->prim_conc[kintbl[i].position] < 1.0E-8) ?
-                0.0 : area[min_pos];
+            // Mineral cutoff when mineral is disappearing
+            area[min_pos] = (chms->prim_conc[kintbl[i].position] < 1.0E-8) ? 0.0 : area[min_pos];
         }
     }
 
     for (i = 0; i < rttbl->num_spc; i++)
     {
-        /* Aqueous species, saturation term for aqueous volume */
+        // Aqueous species, saturation term for aqueous volume
         rate_spe[i] *= (chemtbl[i].itype == AQUEOUS) ? inv_sat : 1.0;
     }
 
-    jcb = newDenseMat(rttbl->num_stc - rttbl->num_min,
-        rttbl->num_stc - rttbl->num_min);
+    jcb = newDenseMat(rttbl->num_stc - rttbl->num_min, rttbl->num_stc - rttbl->num_min);
 
     if (rttbl->tmp_coup == 0)
     {
@@ -253,15 +237,11 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     imat = 0;
     for (i = 0; i < rttbl->num_stc + rttbl->num_ssc; i++)
     {
-        tmpconc[i] = (i < rttbl->num_stc) ?
-            log10(chms->prim_conc[i]) :
-            log10(chms->sec_conc[i - rttbl->num_stc]);
+        tmpconc[i] = (i < rttbl->num_stc) ? log10(chms->prim_conc[i]) : log10(chms->sec_conc[i - rttbl->num_stc]);
 
-        tot_cec += (chemtbl[i].itype == CATION_ECHG) ?
-            pow(10, tmpconc[i]) : 0.0;
+        tot_cec += (chemtbl[i].itype == CATION_ECHG) ? pow(10, tmpconc[i]) : 0.0;
 
-        imat += 0.5 * pow(10, tmpconc[i]) *
-            chemtbl[i].charge * chemtbl[i].charge;
+        imat += 0.5 * pow(10, tmpconc[i]) * chemtbl[i].charge * chemtbl[i].charge;
     }
     iroot = sqrt(imat);
 
@@ -270,8 +250,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         switch (chemtbl[i].itype)
         {
             case AQUEOUS:
-                gamma[i] =
-                    (-adh * chemtbl[i].charge * chemtbl[i].charge * iroot) /
+                gamma[i] = (-adh * chemtbl[i].charge * chemtbl[i].charge * iroot) /
                     (1.0 + bdh * chemtbl[i].size_fac * iroot) + bdt * imat;
                 break;
             case ADSORPTION:
@@ -315,25 +294,24 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 iap[i] = 0.0;
                 for (j = 0; j < rttbl->num_stc; j++)
                 {
-                    iap[i] += (chemtbl[j].itype != MINERAL) ?
-                        (tmpconc[j] + gamma[j]) * rttbl->dep_kin[i][j] : 0.0;
+                    iap[i] += (chemtbl[j].itype != MINERAL) ? (tmpconc[j] + gamma[j]) * rttbl->dep_kin[i][j] : 0.0;
                 }
                 iap[i] = pow(10, iap[i]);
                 temp_keq = pow(10, rttbl->keq_kin[i]);
 
 #if NOT_YET_IMPLEMENTED
-                 if (iap[i] < temp_keq)
-                 {
+                if (iap[i] < temp_keq)
+                {
                     rct_drct[i] = 1.0;
-                 }
-                 else if (iap[i] > temp_keq)
-                 {
+                }
+                else if (iap[i] > temp_keq)
+                {
                     rct_drct[i] = -1.0;
-                 }
-                 else
-                 {
+                }
+                else
+                {
                     rct_drct[i] = 0.0;
-                 }
+                }
 #endif
 
                 dependency[i] = 0.0;
@@ -344,48 +322,43 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 }
                 dependency[i] = pow(10, dependency[i]);
 
-                /* Calculate predicted rate depending on type of rate law
-                 * rate_pre: in mol / L water / s
-                 * area: m2/L water
-                 * rate: mol/m2/s
-                 * dependency: dimensionless; */
-                rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) *
-                    dependency[i] * (1.0 - (iap[i] / temp_keq));
+                // Calculate predicted rate depending on type of rate law
+                // rate_pre: in mol / L water / s
+                // area: m2/L water
+                // rate: mol/m2/s
+                // dependency: dimensionless
+                rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * dependency[i] * (1.0 - (iap[i] / temp_keq));
             }
             else if (kintbl[i].type == MONOD)
             {
                 monodterm = 1.0;
                 inhibterm = 1.0;
 
-                /* Calculate rate */
+                // Calculate rate
                 for (kmonod = 0; kmonod < kintbl[i].nmonod; kmonod++)
                 {
-                    monodterm *=
-                        chms->prim_conc[kintbl[i].monod_index[kmonod]] /
+                    monodterm *= chms->prim_conc[kintbl[i].monod_index[kmonod]] /
                         (chms->prim_conc[kintbl[i].monod_index[kmonod]] +
                         kintbl[i].monod_para[kmonod]);
                 }
 
                 for (kinhib = 0; kinhib < kintbl[i].ninhib; kinhib++)
                 {
-                    inhibterm *= kintbl[i].inhib_para[kinhib] /
-                        (kintbl[i].inhib_para[kinhib] +
+                    inhibterm *= kintbl[i].inhib_para[kinhib] / (kintbl[i].inhib_para[kinhib] +
                         chms->prim_conc[kintbl[i].inhib_index[kinhib]]);
                 }
 
-                /* Based on CrunchTope */
-                rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) *
-                    monodterm * ftemp;
+                // Based on CrunchTope
+                rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * monodterm * ftemp;
             }
 
             for (j = 0; j < rttbl->num_stc; j++)
             {
                 rate_spet[j] += rate_pre[i] * rttbl->dep_kin[i][j];
             }
-            /* Adjust the unit of the calculated rate. Note that for mineral,
-             * the unit of rate and the unit of concentration are mol/L porous
-             * media. For the aqueous species, the unit of the rate and the unit
-             * of the concentration are mol/L pm and mol/L water respectively.*/
+            // Adjust the unit of the calculated rate. Note that for mineral, the unit of rate and the unit of
+            // concentration are mol/L porous media. For the aqueous species, the unit of the rate and the unit of the
+            // concentration are mol/L pm and mol/L water respectively.
         }
 
         for (i = 0; i < rttbl->num_spc; i++)
@@ -401,8 +374,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 tmpval += rttbl->conc_contrib[i][j] * pow(10, tmpconc[j]);
             }
             tot_conc[i] = tmpval;
-            residue[i] = tmpval - (chms->tot_conc[i] +
-                (rate_spe[i] + rate_spet[i]) * stepsize * 0.5);
+            residue[i] = tmpval - (chms->tot_conc[i] + (rate_spe[i] + rate_spet[i]) * stepsize * 0.5);
         }
 
         if (control % SKIP_JACOB == 0)
@@ -415,8 +387,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->num_sdc; j++)
                     {
-                        tmpval +=
-                            (tmpconc[j] + gamma[j]) * rttbl->dep_mtx[i][j];
+                        tmpval += (tmpconc[j] + gamma[j]) * rttbl->dep_mtx[i][j];
                     }
                     tmpval -= keq[i] + gamma[i + rttbl->num_stc];
                     tmpconc[i + rttbl->num_stc] = tmpval;
@@ -426,11 +397,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
                     {
-                        tmpval += rttbl->conc_contrib[i][j] *
-                            pow(10, tmpconc[j]);
+                        tmpval += rttbl->conc_contrib[i][j] * pow(10, tmpconc[j]);
                     }
-                    residue_t[i] = tmpval - (chms->tot_conc[i] +
-                        (rate_spe[i] + rate_spet[i]) * stepsize * 0.5);
+                    residue_t[i] = tmpval - (chms->tot_conc[i] + (rate_spe[i] + rate_spet[i]) * stepsize * 0.5);
                     jcb[k][i] = (residue_t[i] - residue[i]) * TMPPRB_INV;
                 }
                 tmpconc[k] -= TMPPRB;
@@ -441,8 +410,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             x[i] = -residue[i];
         }
 
-        pivot_flg = denseGETRF(jcb, rttbl->num_stc - rttbl->num_min,
-            rttbl->num_stc - rttbl->num_min, p);
+        pivot_flg = denseGETRF(jcb, rttbl->num_stc - rttbl->num_min, rttbl->num_stc - rttbl->num_min, p);
         if (pivot_flg != 0)
         {
             return 1;
@@ -502,8 +470,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         {
             if (chemtbl[i].itype == MINERAL)
             {
-                chms->tot_conc[i] +=
-                    (rate_spe[i] + rate_spet[i]) * stepsize * 0.5;
+                chms->tot_conc[i] += (rate_spe[i] + rate_spet[i]) * stepsize * 0.5;
                 chms->prim_actv[i] = 1.0;
                 chms->prim_conc[i] = chms->tot_conc[i];
             }
@@ -526,9 +493,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     return 0;
 }
 
-void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
-    const rttbl_struct *rttbl, double stepsize, double satn, double ftemp,
-    chmstate_struct *chms, double react_flux[])
+void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], const rttbl_struct *rttbl,
+    double stepsize, double satn, double ftemp, chmstate_struct *chms, double react_flux[])
 {
     double          t_conc0[MAXSPS];
     double          substep;
@@ -549,7 +515,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
 
         if (flag == 0)
         {
-            /* Reaction passed with current step */
+            // Reaction passed with current step
             step_counter += substep;
         }
         else
@@ -562,8 +528,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     {
         if (roundi(substep) != roundi(stepsize))
         {
-            pihm_printf(VL_VERBOSE,
-                " Reaction passed with minimum step of %f s.\n", substep);
+            pihm_printf(VL_VERBOSE, " Reaction passed with minimum step of %f s.\n", substep);
         }
     }
     else

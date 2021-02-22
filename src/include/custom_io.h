@@ -22,10 +22,10 @@ void            FindLine(FILE *, const char *, int *, const char *);
 void            NextLine(FILE *, char *, int *);
 int             Readable(const char *);
 
-/* Maximum string length */
+// Maximum string length
 #define MAXSTRING               1024
 
-/* Verbosity level */
+// Verbosity level
 #define VL_ERROR                -999
 #define VL_SILENT               -2
 #define VL_BRIEF                -1

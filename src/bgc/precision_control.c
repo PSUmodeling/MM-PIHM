@@ -59,56 +59,56 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
     if (cs->litr1c < CRIT_PREC)
     {
         cs->litr1_hr_snk += cs->litr1c;
-        ns->nvol_snk     += ns->litr1n;
+        ns->nvol_snk += ns->litr1n;
         cs->litr1c = 0.0;
         ns->litr1n = 0.0;
     }
     if (cs->litr2c < CRIT_PREC)
     {
         cs->litr2_hr_snk += cs->litr2c;
-        ns->nvol_snk     += ns->litr2n;
+        ns->nvol_snk += ns->litr2n;
         cs->litr2c = 0.0;
         ns->litr2n = 0.0;
     }
     if (cs->litr3c < CRIT_PREC)
     {
         cs->litr4_hr_snk += cs->litr3c;     // NO LITR3C HR SINK
-        ns->nvol_snk     += ns->litr3n;
+        ns->nvol_snk += ns->litr3n;
         cs->litr3c = 0.0;
         ns->litr3n = 0.0;
     }
     if (cs->litr4c < CRIT_PREC)
     {
         cs->litr4_hr_snk += cs->litr4c;
-        ns->nvol_snk     += ns->litr4n;
+        ns->nvol_snk += ns->litr4n;
         cs->litr4c = 0.0;
         ns->litr4n = 0.0;
     }
     if (cs->soil1c < CRIT_PREC)
     {
         cs->soil1_hr_snk += cs->soil1c;
-        ns->nvol_snk     += ns->soil1n;
+        ns->nvol_snk += ns->soil1n;
         cs->soil1c = 0.0;
         ns->soil1n = 0.0;
     }
     if (cs->soil2c < CRIT_PREC)
     {
         cs->soil2_hr_snk += cs->soil2c;
-        ns->nvol_snk     += ns->soil2n;
+        ns->nvol_snk += ns->soil2n;
         cs->soil2c = 0.0;
         ns->soil2n = 0.0;
     }
     if (cs->soil3c < CRIT_PREC)
     {
         cs->soil3_hr_snk += cs->soil3c;
-        ns->nvol_snk     += ns->soil3n;
+        ns->nvol_snk += ns->soil3n;
         cs->soil3c = 0.0;
         ns->soil3n = 0.0;
     }
     if (cs->soil4c < CRIT_PREC)
     {
         cs->soil4_hr_snk += cs->soil4c;
-        ns->nvol_snk     += ns->soil4n;
+        ns->nvol_snk += ns->soil4n;
         cs->soil4c = 0.0;
         ns->soil4n = 0.0;
     }

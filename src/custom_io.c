@@ -1,7 +1,6 @@
 #include "custom_io.h"
 
-void _custom_exit(const char *fn, int lineno, const char *func, int debug,
-    int error)
+void _custom_exit(const char *fn, int lineno, const char *func, int debug, int error)
 {
     if (error != EXIT_SUCCESS)
     {
@@ -54,12 +53,9 @@ FILE* _custom_fopen(const char filen[], const char mode[])
     return fp;
 }
 
+// Count number of non-blank lines between current location to where token occurs
 int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
 {
-    /*
-     * Count number of non-blank lines between current location to where
-     * token occurs
-     */
     va_list         valist;
     char            optstr[MAXSTRING];
     char            token[MAXSTRING];
@@ -67,8 +63,8 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
     int             success = 0;
     int             i;
 
-    /* Access all the arguments assigned to valist */
-    /* Initialize cmdstr */
+    // Access all the arguments assigned to valist
+    // Initialize cmdstr
     strcpy(cmdstr, "\0");
     count = 0;
 
@@ -78,7 +74,7 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
         {
             sscanf(cmdstr, "%s", optstr);
 
-            /* Initialize valist for num number of arguments */
+            // Initialize valist for num number of arguments
             va_start(valist, num_arg);
             for (i = 0; i < num_arg; i++)
             {
@@ -88,7 +84,7 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
                     success = 1;
                 }
             }
-            /* Clean memory reserved for valist */
+            // Clean memory reserved for valist
             va_end(valist);
 
             if (success)
@@ -107,17 +103,14 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
     return count;
 }
 
+// Count number of occurrence of keyword from the current line to the end of file
 int CountOccurr(FILE *fp, const char *token)
 {
-    /*
-     * Count number of occurrence of keyword from the current line to the end
-     * of file
-     */
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
     int             count;
 
-    /* Initialize cmdstr */
+    // Initialize cmdstr
     strcpy(cmdstr, "\0");
     count = 0;
 
@@ -152,7 +145,7 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *filename)
     }
     else
     {
-        /* Initialize cmdstr */
+        // Initialize cmdstr
         strcpy(cmdstr, "\0");
 
         while (!feof(fp))
@@ -181,11 +174,9 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *filename)
     }
 }
 
+// Read a non-blank line into cmdstr
 void NextLine(FILE *fp, char *cmdstr, int *lno)
 {
-    /*
-     * Read a non-blank line into cmdstr
-     */
     int             j = 0;
 
     strcpy(cmdstr, "\0");
@@ -201,7 +192,7 @@ void NextLine(FILE *fp, char *cmdstr, int *lno)
         {
             if (strncasecmp("\357\273\277", cmdstr, 3) == 0)
             {
-                /* When UTF-8 BOM occurs, copy from the fourth character */
+                // When UTF-8 BOM occurs, copy from the fourth character
                 for (j = 0; j < (int)strlen(cmdstr) - 3 + 1; j++)
                 {
                     cmdstr[j] = cmdstr[j + 3];
@@ -252,8 +243,7 @@ int Readable(const char *cmdstr)
     return readable;
 }
 
-void _error(const char fn[], int lineno, const char func[], int debug,
-    const char fmt[], ...)
+void _error(const char fn[], int lineno, const char func[], int debug, const char fmt[], ...)
 {
     va_list         va;
     char            error_msg[MAXSTRING];

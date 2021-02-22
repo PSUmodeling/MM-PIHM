@@ -28,9 +28,9 @@ void Phenology(const epconst_struct *epc, const daily_struct *daily, const cstat
 void EvergreenPhenology(const epconst_struct *epc, const cstate_struct *cs, epvar_struct *epv)
 {
     epv->dormant_flag = 0;
-    epv->onset_flag   = 0;
-    epv->offset_flag  = 0;
-    epv->bg_leafc_litfall_rate  = cs->leafc * epc->leaf_turnover / 365.0;
+    epv->onset_flag = 0;
+    epv->offset_flag = 0;
+    epv->bg_leafc_litfall_rate = cs->leafc * epc->leaf_turnover / 365.0;
     epv->bg_frootc_litfall_rate = cs->frootc * epc->froot_turnover / 365.0;
 }
 
@@ -45,7 +45,7 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
 
     tsoil = daily->avg_stc[0] - TFREEZ;
 
-    epv->bg_leafc_litfall_rate  = 0.0;
+    epv->bg_leafc_litfall_rate = 0.0;
     epv->bg_frootc_litfall_rate = 0.0;
 
     // Set flag for solstice period (winter->summer = 1, summer->winter = 0)
@@ -60,12 +60,12 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         // If this is the end of the offset_period, reset phenology flags and indices
         if (epv->offset_counter == 0)
         {
-            epv->offset_flag    = 0;
+            epv->offset_flag = 0;
             epv->offset_counter = 0;
-            epv->dormant_flag   = 1;
+            epv->dormant_flag = 1;
 
             // Reset the previous timestep litterfall flux memory
-            epv->prev_leafc_to_litter  = 0.0;
+            epv->prev_leafc_to_litter = 0.0;
             epv->prev_frootc_to_litter = 0.0;
         }
     }
@@ -79,12 +79,12 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         // If this is the end of the onset period, reset phenology flags and indices
         if (epv->onset_counter == 0)
         {
-            epv->onset_flag    = 0;
+            epv->onset_flag = 0;
             epv->onset_counter = 0;
         }
     }
 
-    // Test for switching from dormant period to growth period */
+    // Test for switching from dormant period to growth period
     if (epv->dormant_flag == 1)
     {
         // Test to turn on growing degree-day sum, if off.
@@ -92,7 +92,7 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         if (epv->onset_gddflag == 0 && ws_flag == 1)
         {
             epv->onset_gddflag = 1;
-            epv->onset_gdd     = 0.0;
+            epv->onset_gdd = 0.0;
         }
 
         // Test to turn off growing degree-day sum, if on.
@@ -103,7 +103,7 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         if (epv->onset_gddflag == 1 && ws_flag == 0)
         {
             epv->onset_gddflag = 0;
-            epv->onset_gdd     = 0.0;
+            epv->onset_gdd = 0.0;
         }
 
         // If the gdd flag is set, and if the soil is above freezing then accumulate growing degree days for onset
@@ -116,10 +116,10 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         // Set onset_flag if critical growing degree-day sum is exceeded
         if (epv->onset_gdd > onset_critsum)
         {
-            epv->onset_flag    = 1;
-            epv->dormant_flag  = 0;
+            epv->onset_flag = 1;
+            epv->dormant_flag = 0;
             epv->onset_gddflag = 0;
-            epv->onset_gdd     = 0.0;
+            epv->onset_gdd = 0.0;
             epv->onset_counter = epc->transfer_days;
         }
     }
@@ -129,9 +129,9 @@ void SeasonDecidPhenology(const epconst_struct *epc, const daily_struct *daily, 
         // Only begin to test for offset daylength once past the summer sol
         if (ws_flag == 0 && epv->dayl < critdayl)
         {
-            epv->offset_flag           = 1;
-            epv->offset_counter        = epc->litfall_days;
-            epv->prev_leafc_to_litter  = 0.0;
+            epv->offset_flag = 1;
+            epv->offset_counter = epc->litfall_days;
+            epv->prev_leafc_to_litter = 0.0;
             epv->prev_frootc_to_litter = 0.0;
         }
     }
@@ -148,8 +148,8 @@ void OnsetGrowth(const epconst_struct *epc, const epvar_struct *epv, const cstat
 
         // Transfer rate is defined to be a linearly decreasing function that reaches zero on the last day of the
         // transfer period
-        cf->leafc_transfer_to_leafc   = t1 * cs->leafc_transfer;
-        nf->leafn_transfer_to_leafn   = t1 * ns->leafn_transfer;
+        cf->leafc_transfer_to_leafc = t1 * cs->leafc_transfer;
+        nf->leafn_transfer_to_leafn = t1 * ns->leafn_transfer;
         cf->frootc_transfer_to_frootc = t1 * cs->frootc_transfer;
         nf->frootn_transfer_to_frootn = t1 * ns->frootn_transfer;
         if (epc->woody)
@@ -248,7 +248,7 @@ void LivewoodTurnover(const epconst_struct *epc, const cstate_struct *cs, const 
         {
             cf->livestemc_to_deadstemc = livestemtovrc;
             nf->livestemn_to_deadstemn = livestemtovrc / epc->deadwood_cn;
-            nf->livestemn_to_retransn  = livestemtovrn - nf->livestemn_to_deadstemn;
+            nf->livestemn_to_retransn = livestemtovrn - nf->livestemn_to_deadstemn;
         }
 
         // Turnover from live coarse root wood to dead coarse root wood
@@ -261,7 +261,7 @@ void LivewoodTurnover(const epconst_struct *epc, const cstate_struct *cs, const 
         {
             cf->livecrootc_to_deadcrootc = livecroottovrc;
             nf->livecrootn_to_deadcrootn = livecroottovrc / epc->deadwood_cn;
-            nf->livecrootn_to_retransn   = livecroottovrn - nf->livecrootn_to_deadcrootn;
+            nf->livecrootn_to_retransn = livecroottovrn - nf->livecrootn_to_deadcrootn;
         }
     }
 }

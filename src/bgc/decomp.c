@@ -86,13 +86,13 @@ void Decomp(double tsoil, const epconst_struct *epc, const cstate_struct *cs, co
     rfs3s4 = RFS3S4;
 
     // Calculate the corrected rate constants from the rate scalar and their base values. All rate constants are (1/day)
-    kl1_base = KL1_BASE;        // labile litter pool
-    kl2_base = KL2_BASE;        // cellulose litter pool
-    kl4_base = KL4_BASE;        // lignin litter pool
-    ks1_base = KS1_BASE;        // fast microbial recycling pool
-    ks2_base = KS2_BASE;        // medium microbial recycling pool
-    ks3_base = KS3_BASE;        // slow microbial recycling pool
-    ks4_base = KS4_BASE;        // recalcitrant SOM (humus) pool
+    kl1_base = KL1_BASE;    // labile litter pool
+    kl2_base = KL2_BASE;    // cellulose litter pool
+    kl4_base = KL4_BASE;    // lignin litter pool
+    ks1_base = KS1_BASE;    // fast microbial recycling pool
+    ks2_base = KS2_BASE;    // medium microbial recycling pool
+    ks3_base = KS3_BASE;    // slow microbial recycling pool
+    ks4_base = KS4_BASE;    // recalcitrant SOM (humus) pool
     kfrag_base = KFRAG_BASE;    // physical fragmentation of coarse woody debris
 
     if (spinup_mode == ACC_SPINUP_MODE)

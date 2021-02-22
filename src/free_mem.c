@@ -36,9 +36,7 @@ void FreeMem(pihm_struct pihm)
 
     FreeCtrl(&pihm->ctrl);
 
-    /*
-     * Close files
-     */
+    // Close files
     if (pihm->ctrl.waterbal)
     {
         fclose(pihm->print.watbal_file);
@@ -112,7 +110,7 @@ void FreeAtttbl(atttbl_struct *atttbl)
 {
     int             i;
 
-    /* Free attribute input structure */
+    // Free attribute input structure
     for (i = 0; i < nelem; i++)
     {
         free(atttbl->bc[i]);
@@ -198,7 +196,7 @@ void FreeGeoltbl(geoltbl_struct *geoltbl)
 
 void FreeLctbl(lctbl_struct *lctbl)
 {
-    /* Free landcover input structure */
+    // Free landcover input structure
     free(lctbl->laimax);
     free(lctbl->laimin);
     free(lctbl->vegfrac);

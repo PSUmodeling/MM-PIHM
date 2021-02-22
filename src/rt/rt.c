@@ -1,14 +1,13 @@
-/*******************************************************************************
-* RT-Flux-PIHM is a finite volume based, reactive transport module that operates
-* on top of the hydrological land surface processes described by Flux-PIHM.
-* RT-Flux-PIHM tracks the transportation and reaction in a given watershed. It
-* uses operator splitting technique to couple transport and reaction.
-*****************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RT-Flux-PIHM is a finite volume based, reactive transport module that operates on top of the hydrological land     //
+// surface processes described by Flux-PIHM.                                                                          //
+// RT-Flux-PIHM tracks the transportation and reaction in a given watershed. It uses operator splitting technique to  //
+// couple transport and reaction.                                                                                     //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "pihm.h"
 
-void InitChem(const char fn[], const calib_struct *calib,
-    forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-    rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
+void InitChem(const char fn[], const calib_struct *calib, forc_struct *forc, chemtbl_struct chemtbl[],
+    kintbl_struct kintbl[], rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
 {
     int             i, j;
     int             chem_ind;
@@ -16,30 +15,22 @@ void InitChem(const char fn[], const calib_struct *calib,
 
     fp = pihm_fopen(fn, "r");
 
-    /*
-     * Look up database to find required parameters and dependencies for
-     * chemical species
-     */
+    // Look up database to find required parameters and dependencies for chemical species
     Lookup(fp, calib, chemtbl, kintbl, rttbl);
     fclose(fp);
 
-    /*
-     * Apply calibration
-     */
+    // Apply calibration
     for (i = 0; i < chmictbl->nic; i++)
     {
         int             k;
 
         for (k = 0; k < rttbl->num_stc; k++)
         {
-            chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ?
-                calib->ssa : 1.0;
+            chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ? calib->ssa : 1.0;
         }
     }
 
-    /*
-     * Assign initial conditions to different volumes
-     */
+    // Assign initial conditions to different volumes
     for (i = 0; i < nelem; i++)
     {
         int             k;
@@ -49,53 +40,43 @@ void InitChem(const char fn[], const calib_struct *calib,
 
         for (k = 0; k < rttbl->num_stc; k++)
         {
-            elem[i].restart_input[SOIL_CHMVOL].tot_conc[k] =
-                chmictbl->conc[ic_type[SOIL_CHMVOL] - 1][k];
-            elem[i].restart_input[SOIL_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
+            elem[i].restart_input[SOIL_CHMVOL].tot_conc[k] = chmictbl->conc[ic_type[SOIL_CHMVOL] - 1][k];
+            elem[i].restart_input[SOIL_CHMVOL].ssa[k] = chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
 
 #if defined(_DGW_)
-            elem[i].restart_input[GEOL_CHMVOL].tot_conc[k] =
-                chmictbl->conc[ic_type[GEOL_CHMVOL] - 1][k];
-            elem[i].restart_input[GEOL_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[GEOL_CHMVOL] - 1][k];
+            elem[i].restart_input[GEOL_CHMVOL].tot_conc[k] = chmictbl->conc[ic_type[GEOL_CHMVOL] - 1][k];
+            elem[i].restart_input[GEOL_CHMVOL].ssa[k] = chmictbl->ssa[ic_type[GEOL_CHMVOL] - 1][k];
 #endif
         }
     }
 }
 
-void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, elem_struct elem[], river_struct river[],
+    N_Vector CV_Y)
 {
     int             i;
 
-    /*
-     * Initializing element concentrations
-     */
+    // Initializing element concentrations
     pihm_printf(VL_VERBOSE, "\n Initializing concentrations... \n");
 
     for (i = 0; i < nelem; i++)
     {
         double          storage;
 
-        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin;
+        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity + elem[i].soil.depth * elem[i].soil.smcmin;
 
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[SOIL_CHMVOL],
-            elem[i].soil.smcmax, storage, &elem[i].chms);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[SOIL_CHMVOL], elem[i].soil.smcmax, storage, &elem[i].chms);
 
 #if defined(_DGW_)
-        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
-            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
+        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) * elem[i].geol.porosity +
+            elem[i].geol.depth * elem[i].geol.smcmin;
 
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[GEOL_CHMVOL],
-            elem[i].geol.smcmax, storage, &elem[i].chms_geol);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[GEOL_CHMVOL], elem[i].geol.smcmax, storage,
+            &elem[i].chms_geol);
 #endif
     }
 
-    /*
-     * Initialize river concentrations
-     */
+    // Initialize river concentrations
     for (i = 0; i < nriver; i++)
     {
         double          storage;
@@ -108,8 +89,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             if (chemtbl[k].itype == AQUEOUS)
             {
                 river[i].chms.tot_conc[k] =
-                    0.5 * elem[river[i].left - 1].chms.tot_conc[k] +
-                    0.5 * elem[river[i].right - 1].chms.tot_conc[k];
+                    0.5 * elem[river[i].left - 1].chms.tot_conc[k] + 0.5 * elem[river[i].right - 1].chms.tot_conc[k];
                 river[i].chms.prim_actv[k] = river[i].chms.tot_conc[k];
                 river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
                 river[i].chms.tot_mol[k] = river[i].chms.tot_conc[k] * storage;
@@ -164,9 +144,8 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    const rtic_struct *restart_input, double smcmax, double vol,
-    chmstate_struct *chms)
+void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, const rtic_struct *restart_input,
+    double smcmax, double vol, chmstate_struct *chms)
 {
     int             k;
 
@@ -182,11 +161,11 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         else if (chemtbl[k].itype == MINERAL)
         {
             chms->tot_conc[k] = restart_input->tot_conc[k];
-            /* Update the concentration of mineral using molar volume */
+            // Update the concentration of mineral using molar volume
             chms->tot_conc[k] *= (rttbl->rel_min == 0) ?
-                /* Absolute mineral volume fraction */
+                // Absolute mineral volume fraction
                 1000.0 / chemtbl[k].molar_vol / smcmax :
-                /* Relative mineral volume fraction */
+                // Relative mineral volume fraction
                 (1.0 - smcmax) * 1000.0 / chemtbl[k].molar_vol / smcmax;
             chms->prim_actv[k] = 1.0;
             chms->prim_conc[k] = chms->tot_conc[k];
@@ -197,10 +176,9 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         {
             chms->tot_conc[k] = restart_input->tot_conc[k];
             chms->prim_actv[k] = chms->tot_conc[k] * 0.5;
-            /* Change unit of CEC (eq g-1) into C(ion site)
-             * (eq L-1 porous space), assuming density of solid is always
-             * 2650 g L-1 */
-            chms->tot_conc[k] *= (1.0 - smcmax) * 2650.0;
+            chms->tot_conc[k] *= (1.0 - smcmax) * 2650.0;   // Change unit of CEC (eq g-1) into C(ion site)
+                                                            // (eq L-1 porous space), assuming density of solid is
+                                                            // always 2650 g L-1
             chms->prim_conc[k] = chms->tot_conc[k];
         }
         else
@@ -217,13 +195,13 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         chms->sec_conc[k] = ZERO_CONC;
     }
 
-    /* Speciation */
+    // Speciation
     if (rttbl->transpt_flag == KIN_REACTION)
     {
         _Speciation(chemtbl, rttbl, 1, chms);
     }
 
-    /* Total moles should be calculated after speciation */
+    // Total moles should be calculated after speciation
     for (k = 0; k < rttbl->num_stc; k++)
     {
         if (chemtbl[k].itype == AQUEOUS)
@@ -237,8 +215,7 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[],
-    river_struct river[])
+void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[], river_struct river[])
 {
     int             i;
 

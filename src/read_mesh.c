@@ -12,19 +12,16 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
     fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    /*
-     * Read element mesh block
-     */
+    // Read element mesh block
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMELE", 'i', fn, lno, &nelem);
 
     meshtbl->node = (int **)malloc(nelem * sizeof(int *));
     meshtbl->nabr = (int **)malloc(nelem * sizeof(int *));
 
-    /* Check header line */
+    // Check header line
     NextLine(fp, cmdstr, &lno);
-    if (!CheckHeader(cmdstr, 7, "INDEX", "NODE1", "NODE2", "NODE3", "NABR1",
-        "NABR2", "NABR3"))
+    if (!CheckHeader(cmdstr, 7, "INDEX", "NODE1", "NODE2", "NODE3", "NABR1", "NABR2", "NABR3"))
     {
         pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
@@ -44,30 +41,27 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
         }
     }
 
-    /*
-     * Read node block
-     */
+    // Read node block
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMNODE", 'i', fn, lno, &meshtbl->numnodes);
 
-    /* Check header line */
+    // Check header line
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 5, "INDEX", "X", "Y", "ZMIN", "ZMAX"))
     {
         pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
 
-    meshtbl->x    = (double *)malloc(meshtbl->numnodes * sizeof(double));
-    meshtbl->y    = (double *)malloc(meshtbl->numnodes * sizeof(double));
+    meshtbl->x = (double *)malloc(meshtbl->numnodes * sizeof(double));
+    meshtbl->y = (double *)malloc(meshtbl->numnodes * sizeof(double));
     meshtbl->zmin = (double *)malloc(meshtbl->numnodes * sizeof(double));
     meshtbl->zmax = (double *)malloc(meshtbl->numnodes * sizeof(double));
 
     for (i = 0; i < meshtbl->numnodes; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index,
-            &meshtbl->x[i], &meshtbl->y[i],
-            &meshtbl->zmin[i], &meshtbl->zmax[i]);
+        match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index, &meshtbl->x[i], &meshtbl->y[i], &meshtbl->zmin[i],
+            &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)
         {
             pihm_error(ERR_WRONG_FORMAT, fn, lno);

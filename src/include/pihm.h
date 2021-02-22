@@ -26,27 +26,16 @@
 
 #define VERSION    "1.0.0-rc2.post"
 
-/*
- * SUNDIAL Header Files
- */
-/* Prototypes for CVODE fcts., consts. */
-#include "cvode/cvode.h"
-
-/* Access to SPGMR SUNLinearSolver */
-#include "sunlinsol/sunlinsol_spgmr.h"
-
-/* Access to N_Vector */
+// SUNDIAL Header Files
+#include "cvode/cvode.h"    // Prototypes for CVODE fcts., consts.
+#include "sunlinsol/sunlinsol_spgmr.h"  // Access to SPGMR SUNLinearSolver
 #if defined(_CVODE_OMP)
-# include "nvector/nvector_openmp.h"
+# include "nvector/nvector_openmp.h"    // Access to N_Vector
 #else
 # include "nvector/nvector_serial.h"
 #endif
-
-/* Definition of macros SUNSQR and EXP */
-#include "sundials/sundials_math.h"
-
-/* Prototypes for small dense fcts. */
-#include "sundials/sundials_dense.h"
+#include "sundials/sundials_math.h"     // Definition of macros SUNSQR and EXP
+#include "sundials/sundials_dense.h"    // Prototypes for small dense fcts.
 
 #if defined(_NOAH_)
 # include "spa.h"

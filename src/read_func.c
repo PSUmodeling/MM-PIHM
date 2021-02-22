@@ -30,8 +30,7 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
         {
             for (i = 0; i < nvrbl; i++)
             {
-                match = sscanf(cmdstr + bytes_consumed, "%lf%n", &data[i],
-                    &bytes_now);
+                match = sscanf(cmdstr + bytes_consumed, "%lf%n", &data[i], &bytes_now);
                 if (match != 1)
                 {
                     success = 0;
@@ -45,8 +44,7 @@ int ReadTs(const char cmdstr[], int nvrbl, int *ftime, double *data)
     return success;
 }
 
-int ReadKeyword(const char buffer[], const char keyword[], char type,
-    const char fn[], int lno, void *value)
+int ReadKeyword(const char buffer[], const char keyword[], char type, const char fn[], int lno, void *value)
 {
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     char            optstr[MAXSTRING];
@@ -58,8 +56,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
         match = sscanf(buffer, "%s", optstr);
         if (strcasecmp(keyword, optstr) != 0)
         {
-            pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                "detected keyword \"%s\".\n", keyword, optstr);
+            pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
             success = 0;
         }
         else if (match != 1)
@@ -75,8 +72,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 match = sscanf(buffer, "%s %lf", optstr, (double *)value);
                 if (strcasecmp(keyword, optstr) != 0)
                 {
-                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                        "detected keyword \"%s\".\n", keyword, optstr);
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
                 else if (match != 2)
@@ -88,8 +84,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 match = sscanf(buffer, "%s %d", optstr, (int *)value);
                 if (strcasecmp(keyword, optstr) != 0)
                 {
-                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                        "detected keyword \"%s\".\n", keyword, optstr);
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
                 else if (match != 2)
@@ -101,8 +96,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 match = sscanf(buffer, "%s %[^\n]", optstr, (char *)value);
                 if (strcasecmp(keyword, optstr) != 0)
                 {
-                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                        "detected keyword \"%s\".\n", keyword, optstr);
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
                 else if (match != 2)
@@ -114,8 +108,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 match = sscanf(buffer, "%s %s", optstr, (char *)value);
                 if (strcasecmp(keyword, optstr) != 0)
                 {
-                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                        "detected keyword \"%s\".\n", keyword, optstr);
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
                 else if (match != 2)
@@ -127,8 +120,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
                 if (strcasecmp(keyword, optstr) != 0)
                 {
-                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-                        "detected keyword \"%s\".\n", keyword, optstr);
+                    pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
                     success = 0;
                 }
                 else if (match != 3)
@@ -146,8 +138,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
                 }
                 break;
             default:
-                pihm_printf(VL_ERROR,
-                    "Error: Keyword type \'%c\' is not defined.\n", type);
+                pihm_printf(VL_ERROR, "Error: Keyword type \'%c\' is not defined.\n", type);
                 pihm_exit(EXIT_FAILURE);
         }
     }
@@ -160,8 +151,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type,
     return success;
 }
 
-int ReadPrintCtrl(const char buffer[], const char keyword[],
-    const char fn[], int lno)
+int ReadPrintCtrl(const char buffer[], const char keyword[], const char fn[], int lno)
 {
     int             prtvrbl;
     int             match;
@@ -171,8 +161,7 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
     match = sscanf(buffer, "%s %s", optstr, ctrlstr);
     if (strcasecmp(keyword, optstr) != 0)
     {
-        pihm_printf(VL_ERROR, "Expected keyword \"%s\", "
-            "detected keyword \"%s\".\n", keyword, optstr);
+        pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
         pihm_error(ERR_WRONG_FORMAT, fn, lno);
     }
     else if (match != 2)
@@ -200,8 +189,7 @@ int ReadPrintCtrl(const char buffer[], const char keyword[],
     {
         if (sscanf(ctrlstr, "%d", &prtvrbl) != 1)
         {
-            pihm_printf(VL_ERROR, "Unknown output control option %s.\n",
-                ctrlstr);
+            pihm_printf(VL_ERROR, "Unknown output control option %s.\n", ctrlstr);
             pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
     }
@@ -220,20 +208,20 @@ int CheckHeader(const char buffer[], int nvar, ...)
     int             bytes_consumed = 0;
     int             success = 1;
 
-    /* Initialize valist for num number of arguments */
+    // Initialize valist for num number of arguments
     va_start(valist, nvar);
 
     expected[0] = '\0';
 
     for (k = 0; k < nvar; k++)
     {
-        /* Expected header from input */
+        // Expected header from input
         strcpy(token, va_arg(valist, char *));
 
         strcat(expected, token);
         strcat(expected, " ");
 
-        /* Read header from line */
+        // Read header from line
         if (sscanf(buffer + bytes_consumed, "%s%n", var, &bytes_now) != 1)
         {
             success = 0;
@@ -247,7 +235,7 @@ int CheckHeader(const char buffer[], int nvar, ...)
         bytes_consumed += bytes_now;
     }
 
-    /* Clean memory reserved for valist */
+    // Clean memory reserved for valist
     va_end(valist);
 
     if (success == 0)

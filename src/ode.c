@@ -16,9 +16,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     elem = &pihm->elem[0];
     river = &pihm->river[0];
 
-    /*
-     * Initialization of RHS of ODEs
-     */
+    // Initialization of RHS of ODEs
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -32,13 +30,13 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem[i].ws.surf  = MAX(y[SURF(i)], 0.0);
+        elem[i].ws.surf = MAX(y[SURF(i)], 0.0);
         elem[i].ws.unsat = MAX(y[UNSAT(i)], 0.0);
-        elem[i].ws.gw    = MAX(y[GW(i)], 0.0);
+        elem[i].ws.gw = MAX(y[GW(i)], 0.0);
 
 #if defined(_DGW_)
         elem[i].ws.unsat_geol = MAX(y[UNSAT_GEOL(i)], 0.0);
-        elem[i].ws.gw_geol    = MAX(y[GW_GEOL(i)], 0.0);
+        elem[i].ws.gw_geol = MAX(y[GW_GEOL(i)], 0.0);
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPEDBGC_)
@@ -93,16 +91,12 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
-    /*
-     * PIHM Hydrology fluxes
-     */
+    // PIHM Hydrology fluxes
     Hydrol(&pihm->ctrl, pihm->elem, pihm->river);
 
 #if _OBSOLETE_
 #if defined(_BGC_)
-    /*
-     * Nitrogen transport fluxes
-     */
+    // Nitrogen transport fluxes
 # if defined(_LUMPEDBGC_)
     NLeachingLumped(pihm->elem, pihm->river);
 # elif defined(_LEACHING_)
@@ -113,14 +107,11 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 #endif
 
-    /*
-     * Calculate solute concentrations
-     */
+    // Calculate solute concentrations
 #if defined(_BGC_)
     SoluteConc(pihm->elem, pihm->river);
 #elif defined(_CYCLES_)
-    SoluteConc(t + (realtype)pihm->ctrl.tout[0] -
-        (realtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
+    SoluteConc(t + (realtype)pihm->ctrl.tout[0] - (realtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
 #elif defined(_RT_)
     SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
@@ -129,13 +120,10 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_BGC_) || defined(_CYCLES_)
     SoluteTranspt(0.0, 0.0, 0.0, pihm->elem, pihm->river);
 #elif defined(_RT_)
-    SoluteTranspt(pihm->rttbl.diff_coef, pihm->rttbl.disp_coef,
-        pihm->rttbl.cementation, pihm->elem, pihm->river);
+    SoluteTranspt(pihm->rttbl.diff_coef, pihm->rttbl.disp_coef, pihm->rttbl.cementation, pihm->elem, pihm->river);
 #endif
 
-    /*
-     * Build RHS of ODEs
-     */
+    // Build RHS of ODEs
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -143,62 +131,47 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         int             j;
 
-        /*
-         * Vertical water fluxes for surface and subsurface
-         */
-        dy[SURF(i)] += elem[i].wf.pcpdrp - elem[i].wf.infil -
-            elem[i].wf.edir_surf;
-        dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.recharge -
-            elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
-        dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw -
-            elem[i].wf.ett_gw;
+        // Vertical water fluxes for surface and subsurface
+        dy[SURF(i)] += elem[i].wf.pcpdrp - elem[i].wf.infil - elem[i].wf.edir_surf;
+        dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.recharge - elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
+        dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
 
 #if defined(_DGW_)
-        /*
-         * Vertical water fluxes for deep zone
-         */
+        // Vertical water fluxes for deep zone
         dy[GW(i)] -= elem[i].wf.infil_geol;
 
         dy[UNSAT_GEOL(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
-        dy[GW_GEOL(i)]    += elem[i].wf.rechg_geol;
+        dy[GW_GEOL(i)] += elem[i].wf.rechg_geol;
 # if defined(_LUMPED_)
         dy[GW_GEOL(i)] -= elem[i].wf.dgw_runoff;
 # endif
 #endif
 
-        /*
-         * Horizontal water fluxes
-         */
+        // Horizontal water fluxes
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SURF(i)]  -= elem[i].wf.overland[j] / elem[i].topo.area;
-            dy[GW(i)]    -= elem[i].wf.subsurf[j] / elem[i].topo.area;
+            dy[SURF(i)] -= elem[i].wf.overland[j] / elem[i].topo.area;
+            dy[GW(i)] -= elem[i].wf.subsurf[j] / elem[i].topo.area;
 #if defined(_DGW_)
             dy[GW_GEOL(i)] -= elem[i].wf.dgw[j] / elem[i].topo.area;
 #endif
         }
 
         dy[UNSAT(i)] /= elem[i].soil.porosity;
-        dy[GW(i)]    /= elem[i].soil.porosity;
+        dy[GW(i)] /= elem[i].soil.porosity;
 #if defined(_DGW_)
         dy[UNSAT_GEOL(i)] /= elem[i].geol.porosity;
-        dy[GW_GEOL(i)]    /= elem[i].geol.porosity;
+        dy[GW_GEOL(i)] /= elem[i].geol.porosity;
 #endif
 
 #if _OBSOLETE_
 #if defined(_BGC_) && !defined(_LUMPEDBGC_)
 # if !defined(_LEACHING_)
-        /*
-         * BGC N transport fluxes
-         */
-        dy[SURFN(i)] +=
-            (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC -
-            elem[i].nsol.infilflux;
+        // BGC N transport fluxes
+        dy[SURFN(i)] += (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC - elem[i].nsol.infilflux;
         dy[SMINN(i)] += elem[i].nsol.infilflux + elem[i].nsol.snksrc;
 # else
-        dy[SMINN(i)] +=
-            (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC +
-            elem[i].nsol.snksrc;
+        dy[SMINN(i)] += (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC + elem[i].nsol.snksrc;
 # endif
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -217,18 +190,15 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < nsolute; k++)
         {
 # if defined(_CYCLES_)
-            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil +
-                Profile(elem[i].ps.nlayers, elem[i].solute[k].snksrc);
+            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil + Profile(elem[i].ps.nlayers, elem[i].solute[k].snksrc);
 # else
-            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil +
-                elem[i].solute[k].snksrc;
+            dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil + elem[i].solute[k].snksrc;
 # endif
 
 # if defined(_DGW_)
             dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].infil_geol;
 
-            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].infil_geol +
-                elem[i].solute[k].snksrc_geol;
+            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].infil_geol + elem[i].solute[k].snksrc_geol;
 #  if defined(_LUMPED_)
             dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgw_leach;
 #  endif
@@ -236,11 +206,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] /
-                    elem[i].topo.area;
+                dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] / elem[i].topo.area;
 # if defined(_DGW_)
-                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgwflux[j] /
-                    elem[i].topo.area;
+                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgwflux[j] / elem[i].topo.area;
 # endif
             }
         }
@@ -252,14 +220,10 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
     elem = &pihm->elem[LUMPEDBGC];
 
-    dy[LUMPEDBGC_SMINN] +=
-        (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
-        elem->nsol.snksrc;
+    dy[LUMPEDBGC_SMINN] += (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC + elem->nsol.snksrc;
 #endif
 
-    /*
-     * ODEs for river segments
-     */
+    // ODEs for river segments
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -269,9 +233,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (j = 0; j < NUM_RIVFLX; j++)
         {
-            /* Note the limitation due to
-             * d(v) / dt = a * dy / dt + y * da / dt
-             * for cs other than rectangle */
+            // Note the limitation due to d(v) / dt = a * dy / dt + y * da / dt for cs other than rectangle
             dy[RIVER(i)] -= river[i].wf.rivflow[j] / river[i].topo.area;
         }
 
@@ -291,8 +253,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             for (j = 0; j < NUM_RIVFLX; j++)
             {
-                dy[SOLUTE_RIVER(i, k)] -= river[i].solute[k].flux[j] /
-                    river[i].topo.area;
+                dy[SOLUTE_RIVER(i, k)] -= river[i].solute[k].flux[j] / river[i].topo.area;
             }
         }
 #endif
@@ -303,9 +264,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
 int NumStateVar(void)
 {
-    /*
-     * Return number of state variables
-     */
+    // Return number of state variables
     int             nsv;
 
     nsv = 3 * nelem + nriver;
@@ -334,8 +293,7 @@ int NumStateVar(void)
     return nsv;
 }
 
-void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
-    N_Vector CV_Y)
+void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls, N_Vector CV_Y)
 {
     int             cv_flag;
     static int      reset;
@@ -350,8 +308,8 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
 
     if (reset)
     {
-        /* When model spins-up and recycles forcing, use CVodeReInit to reset
-         * solver time, which does not allocates memory */
+        // When model spins-up and recycles forcing, use CVodeReInit to reset solver time, which does not allocates
+        // memory
         cv_flag = CVodeReInit(cvode_mem, 0.0, CV_Y);
         CheckCVodeFlag(cv_flag);
     }
@@ -363,13 +321,12 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
 
         *sun_ls = SUNLinSol_SPGMR(CV_Y, PREC_NONE, 0);
 
-        /* Attach the linear solver */
+        // Attach the linear solver
         CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
 
-        /* When BGC, Cycles, or RT module is turned on, both water storage and
-         * transport variables are in the CVODE vector. A vector of absolute
-         * tolerances is needed to specify different absolute tolerances for
-         * water storage variables and transport variables */
+        // When BGC, Cycles, or RT module is turned on, both water storage and transport variables are in the CVODE
+        // vector. A vector of absolute tolerances is needed to specify different absolute tolerances for water storage
+        // variables and transport variables
         abstol = N_VNew(NumStateVar());
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
@@ -377,32 +334,28 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
 #endif
 
-        cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
-            abstol);
+        cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol, abstol);
         CheckCVodeFlag(cv_flag);
 
         N_VDestroy(abstol);
 
-        /* Specifies PIHM data block and attaches it to the main cvode memory
-         * block */
+        // Specifies PIHM data block and attaches it to the main cvode memory block
         cv_flag = CVodeSetUserData(cvode_mem, pihm);
         CheckCVodeFlag(cv_flag);
 
-        /* Specifies the initial step size */
+        // Specifies the initial step size
         cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
         CheckCVodeFlag(cv_flag);
 
-        /* Indicates if the BDF stability limit detection algorithm should be
-         * used */
+        // Indicates if the BDF stability limit detection algorithm should be used
         cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
         CheckCVodeFlag(cv_flag);
 
-        /* Specifies an upper bound on the magnitude of the step size */
+        // Specifies an upper bound on the magnitude of the step size
         cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
         CheckCVodeFlag(cv_flag);
 
-        /* Specifies the maximum number of steps to be taken by the solver in
-         * its attempt to reach the next output time */
+        // Specifies the maximum number of steps to be taken by the solver in its attempt to reach the next output time
         cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
         CheckCVodeFlag(cv_flag);
     }
@@ -423,7 +376,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
     num_hydrol_var += 2 * nelem;
 #endif
 
-    /* Set absolute errors for hydrologic state variables */
+    // Set absolute errors for hydrologic state variables
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -433,7 +386,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
     }
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-    /* Set absolute errors for solute state variables */
+    // Set absolute errors for solute state variables
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
@@ -444,8 +397,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #endif
 }
 
-void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t,
-    void *cvode_mem, N_Vector CV_Y)
+void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t, void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
     realtype        tout;
@@ -460,8 +412,7 @@ void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t,
 
     tout = (realtype)(nextptr - starttime);
 
-    /* Specifies the value of the independent variable t past which the solution
-     * is not to proceed */
+    // Specifies the value of the independent variable t past which the solution is not to proceed
     cv_flag = CVodeSetStopTime(cvode_mem, tout);
     CheckCVodeFlag(cv_flag);
 
@@ -481,8 +432,7 @@ void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t,
 
     if (debug_mode)
     {
-        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (t = %d)\n",
-            pihm_time.str, *t);
+        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (t = %d)\n", pihm_time.str, *t);
         ProgressBar(progress);
     }
     else if (spinup_mode)
@@ -495,15 +445,14 @@ void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t,
     }
     else if (pihm_time.t % 3600 == 0)
     {
-        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (cputime %8.2f s)\n",
-            pihm_time.str, cputime);
+        pihm_printf(VL_NORMAL, "\033[1A\rStep = %s (cputime %8.2f s)\n", pihm_time.str, cputime);
         ProgressBar(progress);
     }
 }
 
 void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
 {
-    /* Variable CVODE max step (to reduce oscillations) */
+    // Variable CVODE max step (to reduce oscillations)
     long int        nst;
     long int        ncfn;
     long int        nni;
@@ -515,16 +464,15 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     double          nfails;
     double          niters;
 
-    /* Gets the cumulative number of internal steps taken by the solver (total
-     * so far) */
+    // Gets the cumulative number of internal steps taken by the solver (total so far)
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of nonlinear convergence failures that have occurred */
+    // Gets the number of nonlinear convergence failures that have occurred
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     CheckCVodeFlag(cv_flag);
 
-    /* Gets the number of nonlinear iterations performed */
+    // Gets the number of nonlinear iterations performed
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
@@ -532,16 +480,14 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     nfails = (double)(ncfn - ncfn0) / nsteps;
     niters = (double)(nni - nni0) / nsteps;
 
-    ctrl->maxstep /= (nfails > ctrl->nncfn || niters >= ctrl->nnimax) ?
-         ctrl->decr : 1.0;
+    ctrl->maxstep /= (nfails > ctrl->nncfn || niters >= ctrl->nnimax) ? ctrl->decr : 1.0;
 
-    ctrl->maxstep *= (nfails == 0.0 && niters <= ctrl->nnimin) ?
-        ctrl->incr : 1.0;
+    ctrl->maxstep *= (nfails == 0.0 && niters <= ctrl->nnimin) ? ctrl->incr : 1.0;
 
     ctrl->maxstep = MIN(ctrl->maxstep, ctrl->stepsize);
     ctrl->maxstep = MAX(ctrl->maxstep, ctrl->stmin);
 
-    /* Updates the upper bound on the magnitude of the step size */
+    // Updates the upper bound on the magnitude of the step size
     cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
     CheckCVodeFlag(cv_flag);
 

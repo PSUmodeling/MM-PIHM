@@ -45,12 +45,12 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib, elem_str
         elem[i].geol.k2 = calib->k2 * geoltbl->k2 / DAYINSEC;
 #endif
 
-        elem[i].geol.kinfv  = BADVAL;
-        elem[i].geol.dinf   = BADVAL;
+        elem[i].geol.kinfv = BADVAL;
+        elem[i].geol.dinf = BADVAL;
         elem[i].geol.smcwlt = BADVAL;
         elem[i].geol.smcref = BADVAL;
 #if defined(_NOAH_)
-        elem[i].geol.csoil  = BADVAL;
+        elem[i].geol.csoil = BADVAL;
         elem[i].geol.quartz = BADVAL;
         elem[i].geol.smcdry = BADVAL;
 #endif

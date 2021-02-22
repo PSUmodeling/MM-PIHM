@@ -18,9 +18,7 @@ void FirstDay(const cninit_struct *cninit, elem_struct elem[], river_struct rive
         restart = &elem[i].restart_input;
         epc = &elem[i].epc;
 
-        /*
-         * Copy from CN initialization structure
-         */
+        // Copy from CN initialization structure
         restart->cwdc = cninit->cwdc;
         restart->litr1c = cninit->litr1c;
         restart->litr2c = cninit->litr2c;

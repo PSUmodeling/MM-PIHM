@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-int FindWaterTable(int nlayers, double gw, const double soil_depth[],
-    double sat_depth[])
+int FindWaterTable(int nlayers, double gw, const double soil_depth[], double sat_depth[])
 {
     int             layer = BADVAL;
     int             kz;
@@ -83,9 +82,8 @@ int FindLayer(int nlayers, double depth, const double soil_depth[])
     return layer;
 }
 
-void DefineSoilDepths(int nsoil_std, double total_depth,
-    const double soil_depth_std[], int *nlayers, double soil_depth[],
-    double zsoil[])
+void DefineSoilDepths(int nsoil_std, double total_depth, const double soil_depth_std[], int *nlayers,
+    double soil_depth[], double zsoil[])
 {
     int             kz, k;
     double          zsoil_std[MAXLYR];
@@ -119,8 +117,7 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
                 soil_depth[kz] = total_depth - zsoil_std[kz - 1];
                 *nlayers = kz + 1;
 
-                /* The following calculations guarantee that each layer is
-                 * thicker than the layer on top */
+                // The following calculations guarantee that each layer is thicker than the layer on top
                 if (soil_depth[kz] < soil_depth[kz - 1])
                 {
                     soil_depth[kz - 1] += soil_depth[kz];
@@ -151,9 +148,8 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
         }
     }
 
-    /* Calculate depth (negative) below ground from top skin sfc to bottom of
-     * each soil layer. Note: sign of zsoil is negative (denoting below ground)
-     */
+    // Calculate depth (negative) below ground from top skin sfc to bottom of each soil layer. Note: sign of zsoil is
+    // negative (denoting below ground)
     zsoil[0] = -soil_depth[0];
     for (kz = 1; kz < *nlayers; kz++)
     {
@@ -161,9 +157,9 @@ void DefineSoilDepths(int nsoil_std, double total_depth,
     }
 }
 
+// Calculate transpiration from saturated zone
 double GwTranspFrac(int nwtbl, int nroot, double ett, const double et[])
 {
-    /* Calculate transpiration from saturated zone */
     int             kz;
     double          gw_transp = 0.0;
 
@@ -185,13 +181,10 @@ double GwTranspFrac(int nwtbl, int nroot, double ett, const double et[])
     return gw_transp;
 }
 
-void RootDist(int nlayers, int nroot, const double soil_depth[],
-    double root_dist[])
+// Calculate root distribution.
+// Present version assumes uniform distribution based on soil layer depths.
+void RootDist(int nlayers, int nroot, const double soil_depth[], double root_dist[])
 {
-    /*
-     * Calculate root distribution.
-     * Present version assumes uniform distribution based on soil layer depths.
-     */
     double          zsoil[MAXLYR];
     int             kz;
 
@@ -207,12 +200,12 @@ void RootDist(int nlayers, int nroot, const double soil_depth[],
     }
 }
 
+// Determine runoff from each layer
 void CalcLateralFlux(const phystate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
     int             kz;
 
-    /* Determine runoff from each layer */
     sattot = 0.0;
     for (kz = 0; kz < ps->nlayers; kz++)
     {

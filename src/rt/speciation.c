@@ -2,8 +2,7 @@
 
 #define TOL        1E-7
 
-void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    river_struct river[])
+void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, river_struct river[])
 {
     int             i;
 
@@ -26,8 +25,7 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    int speciation_flg, chmstate_struct *chms)
+int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, int speciation_flg, chmstate_struct *chms)
 {
     int             i, j, k;
     int             jcb_dim;
@@ -40,12 +38,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     realtype      **jcb;
     const double    TMPPRB = 1E-2;
 
-    /*
-     * If speciation flg = 1, pH is defined. Total concentration is calculated
-     * from the activity of H+. Dependency is the same but the total
-     * concentration for H+ does not need to be solved.
-     * If speciation flg = 0, all defined value is total concentration
-     */
+    // If speciation flg = 1, pH is defined. Total concentration is calculated from the activity of H+. Dependency is
+    // the same but the total concentration for H+ does not need to be solved.
+    // If speciation flg = 0, all defined value is total concentration
     for (k = 0; k < MAXSPS; k++)
     {
         residue[k]   = 0.0;
@@ -57,8 +52,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
     for (i = 0; i < rttbl->num_stc; i++)
     {
-        /* Using log10 conc as the primary unknowns. Works better because
-         * negative numbers are not a problem. */
+        // Using log10 conc as the primary unknowns. Works better because negative numbers are not a problem.
         tmpconc[i] = log10(chms->prim_conc[i]);
     }
 
@@ -92,27 +86,21 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             double          imat = 0.0;
             double          iroot;
 
-            /* Calculate the ionic strength in this block */
+            // Calculate the ionic strength in this block
             for (i = 0; i < rttbl->num_stc + rttbl->num_ssc; i++)
             {
-                imat += 0.5 * pow(10, tmpconc[i]) *
-                    chemtbl[i].charge * chemtbl[i].charge;
+                imat += 0.5 * pow(10, tmpconc[i]) * chemtbl[i].charge * chemtbl[i].charge;
             }
             iroot = sqrt(imat);
 
             for (i = 0; i < rttbl->num_stc + rttbl->num_ssc; i++)
             {
-                /* Aqueous species in the unit of mol/L, however the solids are
-                 * in the unit of mol/L porous media. Activity of solid is 1,
-                 * log10 of activity is 0. By assigning gamma[minerals] to
-                 * negative of the tmpconc[minerals], we ensured the log10 of
-                 * activity of solids are 0. gamma stores log10gamma[i] */
-                gamma[i] = (chemtbl[i].itype == MINERAL) ?
-                    -tmpconc[i] :
-                    (-rttbl->adh * iroot *
-                    chemtbl[i].charge * chemtbl[i].charge) /
-                    (1.0 + rttbl->bdh * chemtbl[i].size_fac * iroot) +
-                    rttbl->bdt * imat;
+                // Aqueous species in the unit of mol/L, however the solids are in the unit of mol/L porous media.
+                // Activity of solid is 1, log10 of activity is 0. By assigning gamma[minerals] to negative of the
+                // tmpconc[minerals], we ensured the log10 of activity of solids are 0. gamma stores log10gamma[i]
+                gamma[i] = (chemtbl[i].itype == MINERAL) ? -tmpconc[i] :
+                    (-rttbl->adh * iroot * chemtbl[i].charge * chemtbl[i].charge) /
+                    (1.0 + rttbl->bdh * chemtbl[i].size_fac * iroot) + rttbl->bdt * imat;
 
                 if (speciation_flg == 1 && strcmp(chemtbl[i].name, "'H+'") == 0)
                 {
@@ -126,16 +114,14 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             tmpconc[i + rttbl->num_stc] = 0.0;
             for (j = 0; j < rttbl->num_sdc; j++)
             {
-                tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) *
-                    rttbl->dep_mtx[i][j];
+                tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) * rttbl->dep_mtx[i][j];
             }
             tmpconc[i + rttbl->num_stc] -= keq[i] + gamma[i + rttbl->num_stc];
         }
 
         for (i = 0; i < rttbl->num_stc; i++)
         {
-            /* Update the total concentration of H+ for later stage RT at
-             * initialization */
+            // Update the total concentration of H+ for later stage RT at initialization
             tot_conc[i] = 0.0;
             for (j = 0; j < rttbl->num_stc + rttbl->num_ssc; j++)
             {
@@ -165,11 +151,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 tmpconc[i + rttbl->num_stc] = 0.0;
                 for (j = 0; j < rttbl->num_sdc; j++)
                 {
-                    tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) *
-                        rttbl->dep_mtx[i][j];
+                    tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) * rttbl->dep_mtx[i][j];
                 }
-                tmpconc[i + rttbl->num_stc] -= keq[i] +
-                    gamma[i + rttbl->num_stc];
+                tmpconc[i + rttbl->num_stc] -= keq[i] + gamma[i + rttbl->num_stc];
             }
 
             row = 0;
@@ -188,8 +172,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     tmpval += rttbl->conc_contrib[i][j] * pow(10, tmpconc[j]);
                 }
 
-                jcb[col][row] = (tmpval - chms->tot_conc[i] - residue[i]) /
-                    TMPPRB;
+                jcb[col][row] = (tmpval - chms->tot_conc[i] - residue[i]) / TMPPRB;
 
                 row++;
             }
@@ -237,8 +220,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         tmpconc[i + rttbl->num_stc] = 0.0;
         for (j = 0; j < rttbl->num_sdc; j++)
         {
-            tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) *
-                rttbl->dep_mtx[i][j];
+            tmpconc[i + rttbl->num_stc] += (tmpconc[j] + gamma[j]) * rttbl->dep_mtx[i][j];
         }
         tmpconc[i + rttbl->num_stc] -= keq[i] + gamma[i + rttbl->num_stc];
     }

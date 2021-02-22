@@ -41,8 +41,7 @@ void StartupScreen(void)
 
     if (1 == corr_mode)
     {
-        pihm_printf(VL_NORMAL,
-            "    Surface elevation correction mode turned on.\n");
+        pihm_printf(VL_NORMAL, "    Surface elevation correction mode turned on.\n");
     }
     if (1 == debug_mode)
     {
@@ -63,12 +62,10 @@ void StartupScreen(void)
 }
 
 #if defined(_LUMPED_) && defined(_RT_)
-void InitOutputFiles(const char outputdir[], int watbal, int ascii,
-    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    print_struct *print)
+void InitOutputFiles(const char outputdir[], int watbal, int ascii, const chemtbl_struct chemtbl[],
+    const rttbl_struct *rttbl, print_struct *print)
 #else
-void InitOutputFiles(const char outputdir[], int watbal, int ascii,
-    print_struct *print)
+void InitOutputFiles(const char outputdir[], int watbal, int ascii, print_struct *print)
 #endif
 {
     char            ascii_fn[MAXSTRING];
@@ -90,28 +87,24 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         strcpy(bin_mode, "wb");
     }
 
-    /* Initialize water balance file */
+    // Initialize water balance file
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
         print->watbal_file = pihm_fopen(watbal_fn, mode);
     }
 
-    /* Initialize CVODE output files */
+    // Initialize CVODE output files
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
         print->cvodeperf_file = pihm_fopen(perf_fn, mode);
-        /* Print header lines */
-        fprintf(print->cvodeperf_file,
-            "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
-            "step", "cpu_dt", "cputime", "maxstep",
-            "nsteps", "niters", "nevals", "nefails", "ncfails");
+        // Print header lines
+        fprintf(print->cvodeperf_file, "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
+            "step", "cpu_dt", "cputime", "maxstep", "nsteps", "niters", "nevals", "nefails", "ncfails");
     }
 
-    /*
-     * Initialize model variable output files
-     */
+    // Initialize model variable output files
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
@@ -130,7 +123,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
 
     for (i = 0; i < 2; i++)
     {
-        /* wflux file header */
+        // wflux file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "INFIL");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "RECHG");
@@ -175,7 +168,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* wstate file header */
+        // wstate file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "IS");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "SNEQV");
@@ -202,7 +195,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* Soil moisture content file header */
+        // Soil moisture content file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < MAXLYR; k++)
         {
@@ -219,7 +212,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* Soil water content file header */
+        // Soil water content file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < MAXLYR; k++)
         {
@@ -236,7 +229,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* Soil temperature file header */
+        // Soil temperature file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < MAXLYR; k++)
         {
@@ -253,7 +246,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* Land surface file header */
+        // Land surface file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "T1");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "SNOWH");
@@ -287,7 +280,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         n++;
 
 # if defined(_RT_)
-        /* Soil concentration file header */
+        // Soil concentration file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
@@ -308,7 +301,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
         n++;
 
 #  if defined(_DGW_)
-        /* Deep aquifer concentration file header */
+        // Deep aquifer concentration file header
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
@@ -331,7 +324,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
 # endif
     }
 
-    /* River flux file header */
+    // River flux file header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < NUM_RIVFLX; k++)
     {
@@ -348,7 +341,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     fflush(print->varctrl[n].txtfile);
     n++;
 
-    /* River state header */
+    // River state header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     fprintf(print->varctrl[n].txtfile, "\t%-9s", "STAGE");
     fprintf(print->varctrl[n].txtfile, "\n");
@@ -360,7 +353,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     n++;
 
 # if defined(_RT_)
-    /* River concentration file header */
+    // River concentration file header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
     {
@@ -380,7 +373,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     fflush(print->varctrl[n].txtfile);
     n++;
 
-    /* River leaching file header */
+    // River leaching file header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < rttbl->num_stc; k++)
     {
@@ -401,7 +394,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     n++;
 
 #  if defined(_DGW_)
-    /* River deep leaching file header */
+    // River deep leaching file header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < rttbl->num_stc; k++)
     {
@@ -421,7 +414,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii,
     fflush(print->varctrl[n].txtfile);
     n++;
 
-    /* River deep leaching file header */
+    // River deep leaching file header
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     for (k = 0; k < rttbl->num_stc; k++)
     {
@@ -491,13 +484,10 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
                     outval = (varctrl[i].counter > 0) ?
-                        varctrl[i].buffer[j] / (double)varctrl[i].counter :
-                        varctrl[i].buffer[j];
+                        varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
-                    fprintf(varctrl[i].txtfile,
-                        (roundi(outval) == BADVAL) ? "\t%-8.0lf" :
-                        ((outval == 0.0 || fabs(outval) > 1.0E-3) ?
-                        "\t%lf" : "\t%.2le"), outval);
+                    fprintf(varctrl[i].txtfile, (roundi(outval) == BADVAL) ?
+                        "\t%-8.0lf" : ((outval == 0.0 || fabs(outval) > 1.0E-3) ? "\t%lf" : "\t%.2le"), outval);
                 }
                 fprintf(varctrl[i].txtfile, "\n");
                 fflush(varctrl[i].txtfile);
@@ -508,8 +498,7 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
             for (j = 0; j < varctrl[i].nvar; j++)
             {
                 outval = (varctrl[i].counter > 0) ?
-                    varctrl[i].buffer[j] / (double)varctrl[i].counter :
-                    varctrl[i].buffer[j];
+                    varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
                 fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 
@@ -521,8 +510,8 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
     }
 }
 
-void PrintInit(const char outputdir[], int t, int starttime, int endtime,
-    int intvl, const elem_struct elem[], const river_struct river[])
+void PrintInit(const char outputdir[], int t, int starttime, int endtime, int intvl, const elem_struct elem[],
+    const river_struct river[])
 {
     pihm_t_struct   pihm_time;
 
@@ -534,8 +523,7 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime,
         char            fn[MAXSTRING];
         int             i;
 
-        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project,
-            pihm_time.strshort);
+        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.strshort);
 
         init_file = pihm_fopen(fn, "wb");
 
@@ -544,19 +532,19 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime,
 #if defined(_CYCLES_OBSOLETE_)
             fwrite(&elem[i].ws.flatResidueWater, sizeof(double), 1, init_file);
 #else
-            fwrite(&elem[i].ws.cmc,       sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
 #endif
-            fwrite(&elem[i].ws.sneqv,     sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.surf,      sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.unsat,     sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.gw,        sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.sneqv, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
 #if defined(_DGW_)
             fwrite(&elem[i].ws.unsat_geol, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.gw_geol,    sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.gw_geol, sizeof(double), 1, init_file);
 #endif
 #if defined(_NOAH_)
-            fwrite(&elem[i].es.t1,        sizeof(double), 1, init_file);
-            fwrite(&elem[i].ps.snowh,     sizeof(double), 1, init_file);
+            fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
 
             int             j;
 
@@ -585,39 +573,36 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime,
     }
 }
 
-void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
-    double maxstep, FILE *perf_file, void *cvode_mem)
+void PrintPerf(int t, int starttime, double cputime_dt, double cputime, double maxstep, FILE *perf_file,
+    void *cvode_mem)
 {
     static double   dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
     long int        nst, nfe, nni, ncfn, netf;
     int             cv_flag;
 
-    /* Get the cumulative number of internal steps taken by the solver (total
-     * so far) */
+    // Get the cumulative number of internal steps taken by the solver (total so far)
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
 
-    /* Get the number of calls to the user's right-hand side function */
+    // Get the number of calls to the user's right-hand side function
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
     CheckCVodeFlag(cv_flag);
 
-    /* Get the number of nonlinear iterations performed */
+    // Get the number of nonlinear iterations performed
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
-    /* Get the number of nonlinear convergence failures that have occurred */
+    // Get the number of nonlinear convergence failures that have occurred
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     CheckCVodeFlag(cv_flag);
 
-    /* Get the number of local error test failures that have occurred */
+    // Get the number of local error test failures that have occurred
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
     CheckCVodeFlag(cv_flag);
 
-    fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
-        t - starttime, cputime_dt, cputime, maxstep);
-    fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n",
-        nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
+    fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f", t - starttime, cputime_dt, cputime, maxstep);
+    fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n", nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
     fflush(perf_file);
 
     dt = 0.0;
@@ -631,8 +616,8 @@ void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
     dt += cputime_dt;
 }
 
-void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[],
-    const river_struct river[], FILE *watbal_file)
+void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[], const river_struct river[],
+    FILE *watbal_file)
 {
     int             i;
     double          tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
@@ -648,25 +633,20 @@ void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[],
     {
         tot_src += elem[i].wf.prcp * elem[i].topo.area * dt;
 #if defined(_NOAH_)
-        tot_src += (elem[i].wf.dew + elem[i].wf.snomlt) *
-            elem[i].topo.area * dt;
+        tot_src += (elem[i].wf.dew + elem[i].wf.snomlt) * elem[i].topo.area * dt;
 #endif
 
-        tot_snk += (elem[i].wf.edir + elem[i].wf.ett + elem[i].wf.ec) *
-            elem[i].topo.area * dt;
+        tot_snk += (elem[i].wf.edir + elem[i].wf.ett + elem[i].wf.ec) * elem[i].topo.area * dt;
 #if defined(_NOAH_)
         tot_snk += elem[i].wf.esnow * elem[i].topo.area * dt;
 #endif
 
 #if defined(_CYCLES_OBSOLETE_)
-        tot_strg += (elem[i].ws.flatResidueWater + elem[i].ws.stanResidueWater +
-            elem[i].ws.sneqv + elem[i].ws.surf +
-            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
-            elem[i].topo.area;
+        tot_strg += (elem[i].ws.flatResidueWater + elem[i].ws.stanResidueWater + elem[i].ws.sneqv + elem[i].ws.surf +
+            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) * elem[i].topo.area;
 #else
         tot_strg += (elem[i].ws.cmc + elem[i].ws.sneqv + elem[i].ws.surf +
-            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
-            elem[i].topo.area;
+            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) * elem[i].topo.area;
 #endif
     }
 
@@ -684,8 +664,7 @@ void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[],
     {
         error += tot_src - tot_snk - (tot_strg - tot_strg_prev);
 
-        fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart,
-            tot_src, tot_snk, tot_strg - tot_strg_prev,
+        fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart, tot_src, tot_snk, tot_strg - tot_strg_prev,
             tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
         fflush(watbal_file);
     }
@@ -718,13 +697,10 @@ void PrintCVodeFinalStats(void *cvode_mem)
     CheckCVodeFlag(cv_flag);
 
     pihm_printf(VL_NORMAL, "\n");
-    pihm_printf(VL_NORMAL,
-        "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
-    pihm_printf(VL_NORMAL,
-        "num of nonlin solv iters = %-6ld "
+    pihm_printf(VL_NORMAL, "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
+    pihm_printf(VL_NORMAL, "num of nonlin solv iters = %-6ld "
         "num of nonlin solv conv fails = %-6ld "
-        "num of err test fails = %-6ld\n",
-        nni, ncfn, netf);
+        "num of err test fails = %-6ld\n", nni, ncfn, netf);
 }
 
 int PrintNow(int intvl, int lapse, pihm_t_struct pihm_time)
@@ -736,12 +712,11 @@ int PrintNow(int intvl, int lapse, pihm_t_struct pihm_time)
         switch (intvl)
         {
             case YEARLY_OUTPUT:
-                print = (pihm_time.month == 1 && pihm_time.day == 1 &&
-                    pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;
+                print = (pihm_time.month == 1 && pihm_time.day == 1 && pihm_time.hour == 0 && pihm_time.minute == 0) ?
+                    1 : 0;
                 break;
             case MONTHLY_OUTPUT:
-                print = (pihm_time.day == 1 && pihm_time.hour == 0 &&
-                    pihm_time.minute == 0) ? 1 : 0;
+                print = (pihm_time.day == 1 && pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;
                 break;
             case DAILY_OUTPUT:
                 print = (pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;

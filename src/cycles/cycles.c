@@ -22,15 +22,11 @@ void Cycles(int t, elem_struct elem[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        /*
-         * Run daily cycles processes
-         */
-        DailyOper(year, doy, elem[i].mgmt.auto_n, &elem[i].weather,
-            &elem[i].mgmt, elem[i].crop, &elem[i].soil, &elem[i].ws,
-            &elem[i].wf, &elem[i].es, &elem[i].cs, &elem[i].cf, &elem[i].ns,
-            &elem[i].nf, &elem[i].ps);
+        // Run daily cycles processes
+        DailyOper(year, doy, elem[i].mgmt.auto_n, &elem[i].weather, &elem[i].mgmt, elem[i].crop, &elem[i].soil,
+            &elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].cs, &elem[i].cf, &elem[i].ns, &elem[i].nf, &elem[i].ps);
 
-        /* Calculate daily sink/source terms for NO3 and NH4 */
+        // Calculate daily sink/source terms for NO3 and NH4
         CalSnkSrc(elem[i].ps.nlayers, &elem[i].nf, elem[i].solute);
     }
 }
@@ -49,12 +45,10 @@ void CalSnkSrc(int nlayers, const nflux_struct *nf, solute_struct solute[])
     solute[NH4].snksrc[0] += nf->urine;
     for (kz = 0; kz < nlayers; kz++)
     {
-        solute[NO3].snksrc[kz] += (nf->nitrif[kz] - nf->n2o_from_nitrif[kz]) +
-            (-nf->denitrif[kz]) + (-nf->no3_uptake[kz]) + nf->no3_fert[kz] +
-            nf->no3_immobil[kz];
+        solute[NO3].snksrc[kz] += (nf->nitrif[kz] - nf->n2o_from_nitrif[kz]) + (-nf->denitrif[kz]) +
+            (-nf->no3_uptake[kz]) + nf->no3_fert[kz] + nf->no3_immobil[kz];
 
-        solute[NH4].snksrc[kz] += (-nf->nitrif[kz]) + (-nf->volatil[kz]) +
-            (-nf->nh4_uptake[kz]) + nf->nh4_fert[kz] +
+        solute[NH4].snksrc[kz] += (-nf->nitrif[kz]) + (-nf->volatil[kz]) + (-nf->nh4_uptake[kz]) + nf->nh4_fert[kz] +
             nf->nh4_immobil[kz] + nf->mineral[kz];
 
         solute[NO3].snksrc[kz] /= DAYINSEC;

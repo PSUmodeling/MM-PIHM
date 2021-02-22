@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
-    SUNLinearSolver *sun_ls)
+void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem, SUNLinearSolver *sun_ls)
 {
     int             spinyears = 0;
     int             first_spin_cycle = 1;
@@ -30,23 +29,20 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
         EndRotation(pihm->elem);
 #endif
 
-        /* Reset solver parameters */
+        // Reset solver parameters
         SetCVodeParam(pihm, cvode_mem, sun_ls, CV_Y);
 
         spinyears += metyears;
 
 #if defined(_BGC_)
-        steady = CheckSteadyState(first_spin_cycle,
-            ctrl->endtime - ctrl->starttime, spinyears, pihm->siteinfo.area,
+        steady = CheckSteadyState(first_spin_cycle, ctrl->endtime - ctrl->starttime, spinyears, pihm->siteinfo.area,
             pihm->elem);
 #else
-        steady = CheckSteadyState(first_spin_cycle, spinyears,
-            pihm->siteinfo.area, pihm->elem);
+        steady = CheckSteadyState(first_spin_cycle, spinyears, pihm->siteinfo.area, pihm->elem);
 #endif
 
         first_spin_cycle = 0;
-    } while (spinyears < ctrl->maxspinyears &&
-        ((!fixed_length && !steady) || fixed_length));
+    } while (spinyears < ctrl->maxspinyears && ((!fixed_length && !steady) || fixed_length));
 }
 
 #if defined(_BGC_)
@@ -70,11 +66,9 @@ void ResetSpinupStat(elem_struct elem[])
 #endif
 
 #if defined(_BGC_)
-int CheckSteadyState(int first_cycle, int totalt, int spinyears,
-    double total_area, const elem_struct elem[])
+int CheckSteadyState(int first_cycle, int totalt, int spinyears, double total_area, const elem_struct elem[])
 #else
-int CheckSteadyState(int first_cycle, int spinyears, double total_area,
-    const elem_struct elem[])
+int CheckSteadyState(int first_cycle, int spinyears, double total_area, const elem_struct elem[])
 #endif
 {
     int             i;
@@ -103,35 +97,30 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
     for (i = 0; i < nelem; i++)
 #endif
     {
-        totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity *
-            elem[i].topo.area / total_area;
+        totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity * elem[i].topo.area / total_area;
 
 #if defined(_DGW_)
-        totalw += (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) *
-            elem[i].geol.porosity * elem[i].topo.area / total_area;
+        totalw += (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) * elem[i].geol.porosity * elem[i].topo.area / total_area;
 
         gwgeol += elem[i].ws.gw_geol * elem[i].topo.area / total_area;
 #endif
 
 #if defined(_BGC_)
-        /* Convert soilc and totalc to average daily soilc */
-        soilc += elem[i].spinup.soilc * elem[i].topo.area /
-            (double)(totalt / DAYINSEC) / total_area;
-        totalc += elem[i].spinup.totalc * elem[i].topo.area /
-            (double)(totalt / DAYINSEC) / total_area;
+        // Convert soilc and totalc to average daily soilc
+        soilc += elem[i].spinup.soilc * elem[i].topo.area / (double)(totalt / DAYINSEC) / total_area;
+        totalc += elem[i].spinup.totalc * elem[i].topo.area / (double)(totalt / DAYINSEC) / total_area;
         t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
 #endif
 
 #if defined(_CYCLES_)
-        soc += Profile(elem[i].ps.nlayers, elem[i].cs.soc) *
-            elem[i].topo.area / total_area;
+        soc += Profile(elem[i].ps.nlayers, elem[i].cs.soc) * elem[i].topo.area / total_area;
         cdiff = (soc_prev > 0.0) ? (soc - soc_prev) / soc_prev : BADVAL;
 #endif
     }
 
     if (!first_cycle)
     {
-        /* Check if domain reaches steady state */
+        // Check if domain reaches steady state
         steady = (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE);
 #if defined(_DGW_)
         steady = (steady && (fabs(gwgeol - gwgeol_prev) < SPINUP_W_TOLERANCE));
@@ -144,19 +133,15 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 #endif
 
         pihm_printf(VL_BRIEF, "spinyears = %d ", spinyears);
-        pihm_printf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
-            totalw_prev, totalw, totalw - totalw_prev);
+        pihm_printf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n", totalw_prev, totalw, totalw - totalw_prev);
 #if defined(_DGW_)
-        pihm_printf(VL_BRIEF, "dgw_prev = %lg dgw = %lg wdif = %lg\n",
-            gwgeol_prev, gwgeol, gwgeol - gwgeol_prev);
+        pihm_printf(VL_BRIEF, "dgw_prev = %lg dgw = %lg wdif = %lg\n", gwgeol_prev, gwgeol, gwgeol - gwgeol_prev);
 #endif
 #if defined(_BGC_)
-        pihm_printf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
-            soilc_prev, soilc, t1);
+        pihm_printf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n", soilc_prev, soilc, t1);
 #endif
 #if defined(_CYCLES_)
-        pihm_printf(VL_BRIEF, "soc_prev = %lg soc = %lg cdiff = %lg\n",
-            soc_prev, soc, cdiff);
+        pihm_printf(VL_BRIEF, "soc_prev = %lg soc = %lg cdiff = %lg\n", soc_prev, soc, cdiff);
 #endif
     }
     else
@@ -177,8 +162,7 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area,
 
     if (steady)
     {
-        pihm_printf(VL_BRIEF, "Reaches steady state after %d year.\n",
-            spinyears);
+        pihm_printf(VL_BRIEF, "Reaches steady state after %d year.\n", spinyears);
     }
 
     return steady;

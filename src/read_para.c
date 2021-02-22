@@ -2,7 +2,7 @@
 
 void ReadPara(const char fn[], ctrl_struct *ctrl)
 {
-    FILE           *fp;    /* Pointer to .para file */
+    FILE           *fp;                     // Pointer to .para file
     char            cmdstr[MAXSTRING];
     int             i;
     int             lno = 0;
@@ -16,8 +16,8 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    /* Start reading para_file */
-    /* Read through parameter file to find parameters */
+    // Start reading para_file
+    // Read through parameter file to find parameters
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "SIMULATION_MODE", 'i', fn, lno, &spinup_mode);
 
@@ -40,26 +40,23 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "END", 't', fn, lno, &ctrl->endtime);
 
-    /* In spinup mode, simulation time should be full years */
+    // In spinup mode, simulation time should be full years
     start_time = PIHMTime(ctrl->starttime);
     end_time = PIHMTime(ctrl->endtime);
 
     if (end_time.t <= start_time.t)
     {
-        pihm_printf(VL_ERROR,
-            "Error: simulation end time should be after start time.\n"
+        pihm_printf(VL_ERROR, "Error: simulation end time should be after start time.\n"
             "Please check your .para input file.\n");
         pihm_exit(EXIT_FAILURE);
     }
     else if (spinup_mode)
     {
-        if (start_time.month != end_time.month ||
-            start_time.day != end_time.day ||
-            start_time.hour != end_time.hour ||
+        if (start_time.month != end_time.month || start_time.day != end_time.day || start_time.hour != end_time.hour ||
             start_time.minute != end_time.minute)
         {
-            pihm_printf(VL_ERROR, "Error: In spinup mode, simulation period "
-                "should be full years. Please check your\n.para input file.\n");
+            pihm_printf(VL_ERROR, "Error: In spinup mode, simulation period should be full years. "
+                "Please check your\n.para input file.\n");
             pihm_exit(EXIT_FAILURE);
         }
     }
@@ -122,8 +119,7 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     ctrl->prtvrbl[INFIL_CTRL] = ReadPrintCtrl(cmdstr, "INFIL", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrintCtrl(cmdstr, "RECHARGE", fn,
-        lno);
+    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrintCtrl(cmdstr, "RECHARGE", fn, lno);
 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[EC_CTRL] = ReadPrintCtrl(cmdstr, "EC", fn, lno);
@@ -166,9 +162,8 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
 #if defined(_CYCLES_)
     if (ctrl->etstep != DAYINSEC)
     {
-        pihm_printf(VL_ERROR, "Warning: When coupled to Cycles, daily land "
-            "surface step is required. Thus land\nsurface model step is "
-            "changed to daily (86400 seconds).\n\n");
+        pihm_printf(VL_ERROR, "Warning: When coupled to Cycles, daily land surface step is required. Thus land\n"
+            "surface model step is changed to daily (86400 seconds).\n\n");
         ctrl->etstep = DAYINSEC;
     }
 #endif
@@ -176,8 +171,7 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
         pihm_printf(VL_ERROR,
-            "Error: Land surface model (ET) step size "
-            "should be an integral multiple of model step size.\n");
+            "Error: Land surface model (ET) step size should be an integral multiple of model step size.\n");
         pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
         pihm_exit(EXIT_FAILURE);
     }

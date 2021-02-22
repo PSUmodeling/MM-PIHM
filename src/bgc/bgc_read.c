@@ -150,8 +150,7 @@ void ReadEpc(epctbl_struct *epctbl)
     epctbl->daily_fire_turnover = (double *)malloc(NLCTYPE * sizeof(double));
     epctbl->alloc_frootc_leafc = (double *)malloc(NLCTYPE * sizeof(double));
     epctbl->alloc_newstemc_newleafc = (double *)malloc(NLCTYPE * sizeof(double));
-    epctbl->alloc_newlivewoodc_newwoodc =
-        (double *)malloc(NLCTYPE * sizeof(double));
+    epctbl->alloc_newlivewoodc_newwoodc = (double *)malloc(NLCTYPE * sizeof(double));
     epctbl->alloc_crootc_stemc = (double *)malloc(NLCTYPE * sizeof(double));
     epctbl->alloc_prop_curgrowth = (double *)malloc(NLCTYPE * sizeof(double));
     epctbl->avg_proj_sla = (double *)malloc(NLCTYPE * sizeof(double));
@@ -226,7 +225,7 @@ void ReadEpc(epctbl_struct *epctbl)
 
             // Skip header file
             fgets(cmdstr, MAXSTRING, fp);
-            // Read epc */
+            // Read epc
             // Woody/non-woody flag
             fgets(cmdstr, MAXSTRING, fp);
             sscanf(cmdstr, "%d", &epctbl->woody[i]);

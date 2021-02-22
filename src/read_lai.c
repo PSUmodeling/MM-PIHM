@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadLai(const char fn[], const atttbl_struct *atttbl,
-    forc_struct *forc)
+void ReadLai(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
@@ -26,7 +25,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
         fp = pihm_fopen(fn, "r");
         pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-        /* Start reading lai_file */
+        // Start reading lai_file
         FindLine(fp, "BOF", &lno, fn);
 
         forc->nlai = CountOccurr(fp, "LAI_TS");
@@ -34,8 +33,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
         FindLine(fp, "BOF", &lno, fn);
         if (forc->nlai > 0)
         {
-            forc->lai =
-                (tsdata_struct *)malloc(forc->nlai * sizeof(tsdata_struct));
+            forc->lai = (tsdata_struct *)malloc(forc->nlai * sizeof(tsdata_struct));
 
             NextLine(fp, cmdstr, &lno);
             for (i = 0; i < forc->nlai; i++)
@@ -46,7 +44,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
                 {
                     pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
-                /* Check header lines */
+                // Check header lines
                 NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME", "LAI"))
                 {
@@ -55,24 +53,21 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl,
                 forc->lai[i].length = CountLine(fp, cmdstr, 1, "LAI_TS");
             }
 
-            /* Rewind and read */
+            // Rewind and read
             FindLine(fp, "BOF", &lno, fn);
             for (i = 0; i < forc->nlai; i++)
             {
-                /* Skip header lines */
+                // Skip header lines
                 NextLine(fp, cmdstr, &lno);
                 NextLine(fp, cmdstr, &lno);
 
-                forc->lai[i].ftime =
-                    (int *)malloc(forc->lai[i].length * sizeof(int));
-                forc->lai[i].data =
-                    (double **)malloc(forc->lai[i].length * sizeof(double *));
+                forc->lai[i].ftime = (int *)malloc(forc->lai[i].length * sizeof(int));
+                forc->lai[i].data = (double **)malloc(forc->lai[i].length * sizeof(double *));
                 for (j = 0; j < forc->lai[i].length; j++)
                 {
                     forc->lai[i].data[j] = (double *)malloc(sizeof(double));
                     NextLine(fp, cmdstr, &lno);
-                    if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j],
-                        &forc->lai[i].data[j][0]))
+                    if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j], &forc->lai[i].data[j][0]))
                     {
                         pihm_error(ERR_WRONG_FORMAT, fn, lno);
                     }

@@ -1,11 +1,10 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl,
-    const calib_struct *calib, elem_struct elem[])
-#else
-void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
+void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl, const calib_struct *calib,
     elem_struct elem[])
+#else
+void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib, elem_struct elem[])
 #endif
 {
     int             i;
@@ -23,8 +22,7 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
 
         if (elem[i].attrib.soil > soiltbl->number)
         {
-            pihm_printf(VL_ERROR,
-                "Error: Soil type %d for Element %d is not in the soil file.",
+            pihm_printf(VL_ERROR, "Error: Soil type %d for Element %d is not in the soil file.",
                 elem[i].attrib.soil, i + 1);
             pihm_exit(EXIT_FAILURE);
         }
@@ -44,15 +42,14 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            pihm_printf(VL_ERROR,
-                "Error: Porosity value out of bounds for Element %d", i + 1);
+            pihm_printf(VL_ERROR, "Error: Porosity value out of bounds for Element %d", i + 1);
             pihm_exit(EXIT_FAILURE);
         }
         elem[i].soil.alpha = calib->alpha * soiltbl->alpha[soil_ind];
         elem[i].soil.beta = calib->beta * soiltbl->beta[soil_ind];
 
-        /* Calculate field capacity and wilting point following Chan and
-         * Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
+        // Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with
+        // van Genuchten
         elem[i].soil.smcwlt = calib->porosity * soiltbl->smcwlt[soil_ind];
 #if defined(_NOAH_)
         elem[i].soil.smcwlt *= calib->smcwlt;
@@ -68,10 +65,8 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib,
         elem[i].soil.areafh = calib->areafh * soiltbl->areafh[soil_ind];
         elem[i].soil.areafv = calib->areafv * soiltbl->areafv[soil_ind];
 
-        elem[i].soil.kmacv = calib->kmacv * soiltbl->kmacv_ro *
-            soiltbl->kinfv[soil_ind];
-        elem[i].soil.kmach = calib->kmach * soiltbl->kmach_ro *
-            soiltbl->ksath[soil_ind];
+        elem[i].soil.kmacv = calib->kmacv * soiltbl->kmacv_ro * soiltbl->kinfv[soil_ind];
+        elem[i].soil.kmach = calib->kmach * soiltbl->kmach_ro * soiltbl->ksath[soil_ind];
 #if defined(_NOAH_)
         elem[i].soil.csoil = noahtbl->csoil;
         elem[i].soil.quartz = soiltbl->qtz[soil_ind];

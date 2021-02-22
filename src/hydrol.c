@@ -9,14 +9,14 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        /* Calculate actual surface water depth */
+        // Calculate actual surface water depth
         elem[i].ws.surfh = SurfH(elem[i].ws.surf);
     }
 
-    /* Determine which layers does ET extract water from */
+    // Determine which layers does ET extract water from
     EtUptake(elem);
 
-    /* Water flow */
+    // Water flow
     LateralFlow(river, elem);
 
     VerticalFlow((double)ctrl->stepsize, elem);
@@ -33,7 +33,7 @@ void EtUptake(elem_struct elem[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        /* Source of direct evaporation */
+        // Source of direct evaporation
 #if defined(_NOAH_)
         if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
@@ -68,10 +68,9 @@ void EtUptake(elem_struct elem[])
         }
 #endif
 
-        /* Source of transpiration */
+        // Source of transpiration
 #if defined(_NOAH_)
-        elem[i].ps.gwet = GwTranspFrac(elem[i].ps.nwtbl, elem[i].ps.nroot,
-            elem[i].wf.ett, elem[i].wf.et);
+        elem[i].ps.gwet = GwTranspFrac(elem[i].ps.nwtbl, elem[i].ps.nroot, elem[i].wf.ett, elem[i].wf.et);
         elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
         elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;
 #else
@@ -91,15 +90,12 @@ void EtUptake(elem_struct elem[])
 
 double SurfH(double surf_eqv)
 {
-    /*
-     * Following Panday and Huyakorn (2004) AWR:
-     * Use a parabolic curve to express the equivalent surface water depth
-     * (surf_eqv) in terms of actual flow depth (surfh) when the actual flow
-     * depth is below depression storage; assume that
-     * d(surf_eqv) / d(surfh) = 1.0 when surfh = DEPRSTG. Thus
-     *   surf_eqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
-     *   surfh = sqrt(2 * DEPRSTG * surf_eqv)
-     */
+    // Following Panday and Huyakorn (2004) AWR:
+    // Use a parabolic curve to express the equivalent surface water depth (surf_eqv) in terms of actual flow depth
+    // (surfh) when the actual flow depth is below depression storage; assume that
+    // d(surf_eqv) / d(surfh) = 1.0 when surfh = DEPRSTG. Thus
+    //   surf_eqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
+    //   surfh = sqrt(2 * DEPRSTG * surf_eqv)
     double          surfh;
 
     if (DEPRSTG == 0.0)

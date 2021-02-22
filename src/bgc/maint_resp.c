@@ -35,13 +35,13 @@ void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstat
     {
         t1 = ns->leafn * MRPERN;
 
-        /* Leaf, day */
+        // Leaf, day
         exponent = (tday - 20.0) / 10.0;
         cf->leaf_day_mr = t1 * pow(Q10, exponent) * epv->dayl / 86400.0;
 
         // For day respiration, also determine rates of maintenance respiration per unit of projected leaf area in the
         // sunlit and shaded portions of the canopy, for use in the photosynthesis routine
-        //
+
         // First, calculate the mass of N per unit of projected leaf area in each canopy fraction (kg N/m2 projected
         // area)
         n_area_sun = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
@@ -60,7 +60,7 @@ void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstat
         cf->leaf_night_mr = t1 * pow(Q10, exponent) * (86400.0 - epv->dayl) /
             86400.0;
     }
-    else                                    // No leaves on
+    else    // No leaves on
     {
         cf->leaf_day_mr = 0.0;
         epv->dlmr_area_sun = 0.0;
@@ -76,7 +76,7 @@ void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstat
         t1 = pow(Q10, exponent);
         cf->froot_mr = ns->frootn * MRPERN * t1;
     }
-    else                                    // No fine roots on
+    else    // No fine roots on
     {
         cf->froot_mr = 0.0;
     }

@@ -169,9 +169,7 @@ void ReadCalib(const char fn[], calib_struct *calib)
     ReadKeyword(cmdstr, "Xsorption", 'd', fn, lno, &calib->Xsorption);
 #endif
 
-    /*
-     * Scenarios
-     */
+    // Scenarios
     FindLine(fp, "SCENARIO", &lno, fn);
 
     NextLine(fp, cmdstr, &lno);

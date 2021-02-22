@@ -34,17 +34,16 @@ void DailyBgc(int t, pihm_struct pihm)
         CheckNitrogenBalance(&elem[i].ns, &elem[i].epv.old_n_balance);
     }
 
-    //
     // BGC module for the current day
-    //
+
     // Get co2 and ndep
-    if (spinup_mode)                        // Spinup mode
+    if (spinup_mode)    // Spinup mode
     {
         co2lvl = co2->co2ppm;
         ndep = ndepctrl->ndep / 365.0;
         nfix = ndepctrl->nfix / 365.0;
     }
-    else                                    // Model mode
+    else    // Model mode
     {
         // Atmospheric CO2 handling
         if (!(co2->varco2))

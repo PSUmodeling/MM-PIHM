@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadLsm(const char fn[], ctrl_struct *ctrl,
-    siteinfo_struct *siteinfo, noahtbl_struct *noahtbl)
+void ReadLsm(const char fn[], ctrl_struct *ctrl, siteinfo_struct *siteinfo, noahtbl_struct *noahtbl)
 {
     int             kz;
     FILE           *fp;
@@ -11,15 +10,11 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl,
     char            buffer[MAXSTRING];
     int             lno = 0;
 
-    /*
-     * Open *.lsm file
-     */
+    // Open *.lsm file
     fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    /*
-     * Start reading lsm_file
-     */
+    // Start reading lsm_file
     FindLine(fp, "BOF", &lno, fn);
 
     NextLine(fp, cmdstr, &lno);
@@ -32,9 +27,7 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl,
     ReadKeyword(cmdstr, "NSOIL", 'i', fn, lno, &ctrl->nlayers);
     if (ctrl->nlayers > MAXLYR - 1)
     {
-        pihm_printf(VL_ERROR,
-            "The number of soil layers should not be larger than %d.\n",
-            MAXLYR - 1);
+        pihm_printf(VL_ERROR, "The number of soil layers should not be larger than %d.\n", MAXLYR - 1);
         pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
         pihm_exit(EXIT_FAILURE);
     }
@@ -44,8 +37,7 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl,
 
     for (kz = 0; kz < ctrl->nlayers; kz++)
     {
-        if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[kz],
-            &bytes_now) != 1)
+        if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[kz], &bytes_now) != 1)
         {
             pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
@@ -90,7 +82,7 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl,
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "LVCOEF_DATA", 'd', fn, lno, &noahtbl->lvcoef);
 
-    /* Output control */
+    // Output control
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[T1_CTRL] = ReadPrintCtrl(cmdstr, "T1", fn, lno);
 
@@ -156,9 +148,8 @@ void ReadRad(const char fn[], forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        pihm_printf(VL_ERROR, "The number of radiation forcing time series "
-            "should be the same as the number of\nmeteorological forcing time "
-            "series.\nError in %s.\n", fn);
+        pihm_printf(VL_ERROR, "The number of radiation forcing time series should be the same as the number of\n"
+            "meteorological forcing time series.\nError in %s.\n", fn);
         pihm_exit(EXIT_FAILURE);
     }
 
@@ -176,7 +167,7 @@ void ReadRad(const char fn[], forc_struct *forc)
             pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
 
-        /* Check header lines */
+        // Check header lines
         NextLine(fp, cmdstr, &lno);
         if (!CheckHeader(cmdstr, 3, "TIME", "SDIR", "SDIF"))
         {
@@ -185,23 +176,21 @@ void ReadRad(const char fn[], forc_struct *forc)
         forc->rad[i].length = CountLine(fp, cmdstr, 1, "RAD_TS");
     }
 
-    /* Rewind and read */
+    // Rewind and read
     FindLine(fp, "BOF", &lno, fn);
     for (i = 0; i < forc->nrad; i++)
     {
-        /* Skip header lines */
+        // Skip header lines
         NextLine(fp, cmdstr, &lno);
         NextLine(fp, cmdstr, &lno);
 
         forc->rad[i].ftime = (int *)malloc(forc->rad[i].length * sizeof(int));
-        forc->rad[i].data =
-            (double **)malloc(forc->rad[i].length * sizeof(double *));
+        forc->rad[i].data = (double **)malloc(forc->rad[i].length * sizeof(double *));
         for (j = 0; j < forc->rad[i].length; j++)
         {
             forc->rad[i].data[j] = (double *)malloc(2 * sizeof(double));
             NextLine(fp, cmdstr, &lno);
-            if (!ReadTs(cmdstr, 2, &forc->rad[i].ftime[j],
-                &forc->rad[i].data[j][0]))
+            if (!ReadTs(cmdstr, 2, &forc->rad[i].ftime[j], &forc->rad[i].data[j][0]))
             {
                 pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }

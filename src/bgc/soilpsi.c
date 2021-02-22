@@ -1,14 +1,14 @@
 #include "pihm.h"
 
+// Given a list of site constants and the soil water content,
+// this function returns the soil water potential (MPa)
+// Inputs:
+// vwc                (m3/m3) water mass per unit area
+// psi_s              (MPa)   soil matric potential
+//
+// Uses the van Genuchten relation
 void SoilPsi(const soil_struct *soil, double vwc, double *psi)
 {
-    // Given a list of site constants and the soil water content,
-    // this function returns the soil water potential (MPa)
-    // Inputs:
-    // vwc                (m3/m3) water mass per unit area
-    // psi_s              (MPa)   soil matric potential
-    //
-    // Uses the van Genuchten relation
     double          theta;
 
     theta = (vwc - soil->smcmin) / (soil->smcmax - soil->smcmin);

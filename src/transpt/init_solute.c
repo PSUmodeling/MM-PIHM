@@ -13,10 +13,10 @@ void InitSolute(elem_struct elem[])
 
         for (k = 0; k < nsolute; k++)
         {
-            elem[i].solute[k].conc_surf      = 0.0;
-            elem[i].solute[k].conc           = 0.0;
+            elem[i].solute[k].conc_surf = 0.0;
+            elem[i].solute[k].conc = 0.0;
 
-            elem[i].solute[k].infil          = 0.0;
+            elem[i].solute[k].infil = 0.0;
             for (j = 0; j < NUM_EDGE; j++)
             {
                 elem[i].solute[k].subflux[j] = 0.0;
@@ -24,22 +24,22 @@ void InitSolute(elem_struct elem[])
 #if defined(_CYCLES_)
             for (j = 0; j < MAXLYR; j++)
             {
-                elem[i].solute[k].snksrc[j]  = 0.0;
+                elem[i].solute[k].snksrc[j] = 0.0;
             }
 #else
-            elem[i].solute[k].snksrc         = 0.0;
+            elem[i].solute[k].snksrc = 0.0;
 #endif
 
 #if defined(_DGW_)
-            elem[i].solute[k].conc_geol      = 0.0;
-            elem[i].solute[k].infil_geol      = 0.0;
+            elem[i].solute[k].conc_geol = 0.0;
+            elem[i].solute[k].infil_geol = 0.0;
             for (j = 0; j < NUM_EDGE; j++)
             {
                 elem[i].solute[k].dgwflux[j] = 0.0;
             }
-            elem[i].solute[k].snksrc_geol    = 0.0;
+            elem[i].solute[k].snksrc_geol = 0.0;
 # if defined(_LUMPED_)
-            elem[i].solute[k].dgw_leach  = 0.0;
+            elem[i].solute[k].dgw_leach = 0.0;
 # endif
 #endif
         }

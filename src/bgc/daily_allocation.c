@@ -121,7 +121,7 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
     }
     else
     {
-        // N availability can not satisfy the sum of immobiliation and plant growth demands, so these two demands
+        // N availability can not satisfy the sum of immobilization and plant growth demands, so these two demands
         // compete for available soil mineral N
         nlimit = 1;
         actual_immob = (sum_ndemand) ? ns->sminn * (nt->potential_immob / sum_ndemand) : actual_immob;

@@ -1,15 +1,13 @@
 #include "pihm.h"
 
+// Daily update of the carbon state variables
+// C state variables are updated below in the order of the relevant fluxes in the daily model loop
+// NOTE: Mortality fluxes are all accounted for in a separate routine, which is to be called after this routine.
+// This is a special case where the updating of state variables is order-sensitive, since otherwise the
+// complications of possibly having mortality fluxes drive the pools negative would create big, unnecessary
+// headaches.
 void DailyCarbonStateUpdate(int alloc, int woody, int evergreen, cstate_struct *cs, cflux_struct *cf)
 {
-    // Daily update of the carbon state variables
-
-    // C state variables are updated below in the order of the relevant fluxes in the daily model loop
-
-    // NOTE: Mortality fluxes are all accounted for in a separate routine, which is to be called after this routine.
-    // This is a special case where the updating of state variables is order-sensitive, since otherwise the
-    // complications of possibly having mortality fluxes drive the pools negative would create big, unnecessary
-    // headaches.
 
     // Phenology fluxes
     // Leaf and fine root transfer growth
@@ -250,16 +248,14 @@ void DailyCarbonStateUpdate(int alloc, int woody, int evergreen, cstate_struct *
     }    // End if allocation day
 }
 
+// N state variables are updated below in the order of the relevant fluxes in the daily model loop
+// NOTE: Mortality fluxes are all accounted for in a separate routine, which is to be called after this routine.
+// This is a special case where the updating of state variables is order-sensitive, since otherwise the
+// complications of possibly having mortality fluxes drive the pools negative would create big, unnecessary
+// headaches.
 void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen, nstate_struct *ns, nflux_struct *nf,
     solute_struct *solute)
 {
-    // N state variables are updated below in the order of the relevant fluxes in the daily model loop
-
-    // NOTE: Mortality fluxes are all accounted for in a separate routine, which is to be called after this routine.
-    // This is a special case where the updating of state variables is order-sensitive, since otherwise the
-    // complications of possibly having mortality fluxes drive the pools negative would create big, unnecessary
-    // headaches.
-
     solute->snksrc = 0.0;
 
     // Phenology fluxes
@@ -289,7 +285,7 @@ void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen, nstate_struct
     ns->leafn -= nf->leafn_to_litr3n;
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    ns->retransn += nf->leafn_to_retransn;      // N retranslocation
+    ns->retransn += nf->leafn_to_retransn;  // N retranslocation
     ns->leafn -= nf->leafn_to_retransn;
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;
@@ -302,11 +298,11 @@ void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen, nstate_struct
     // Live wood turnover to dead wood
     ns->deadstemn += nf->livestemn_to_deadstemn;
     ns->livestemn -= nf->livestemn_to_deadstemn;
-    ns->retransn += nf->livestemn_to_retransn;      // N retranslocation
+    ns->retransn += nf->livestemn_to_retransn;  // N retranslocation
     ns->livestemn -= nf->livestemn_to_retransn;
     ns->deadcrootn += nf->livecrootn_to_deadcrootn;
     ns->livecrootn -= nf->livecrootn_to_deadcrootn;
-    ns->retransn += nf->livecrootn_to_retransn;     // N retranslocation
+    ns->retransn += nf->livecrootn_to_retransn; // N retranslocation
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     // Nitrogen deposition

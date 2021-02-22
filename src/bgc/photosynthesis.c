@@ -99,7 +99,7 @@ void Photosynthesis(psn_struct *psn)
     static double   Kc25 = 404.0;    // (ubar) MM const carboxylase, 25 deg C
     static double   q10Kc = 2.1;     // (DIM) Q_10 for Kc
     static double   Ko25 = 248.0;    // (mbar) MM const oxygenase, 25 deg C
-    static double   q10Ko = 1.2;     // (DIM) Q_10 for Ko */
+    static double   q10Ko = 1.2;     // (DIM) Q_10 for Ko
     static double   act25 = 3.6;     // (umol/mgRubisco/min) Rubisco activity
     static double   q10act = 2.4;    // (DIM) Q_10 for Rubisco activity
     static double   pabs = 0.85;     // (DIM) fPAR effectively absorbed by PSII
@@ -130,7 +130,7 @@ void Photosynthesis(psn_struct *psn)
     {
         ppe = 2.6;
     }
-    else        // C4
+    else    // C4
     {
         ppe = 3.5;
         Ca *= 10.0;
@@ -142,7 +142,7 @@ void Photosynthesis(psn_struct *psn)
 
     // Correct kinetic constants for temperature, and do unit conversions
     Ko = Ko25 * pow(q10Ko, (t - 25.0) / 10.0);
-    psn->Ko = Ko = Ko * 100.0;      // mbar --> Pa
+    psn->Ko = Ko = Ko * 100.0;  // mbar --> Pa
     if (t > 15.0)
     {
         Kc = Kc25 * pow(q10Kc, (t - 25.0) / 10.0);
@@ -153,8 +153,8 @@ void Photosynthesis(psn_struct *psn)
         Kc = Kc25 * pow(1.8 * q10Kc, (t - 15.0) / 10.0) / q10Kc;
         act = act25 * pow(1.8 * q10act, (t - 15.0) / 10.0) / q10act;
     }
-    psn->Kc = Kc = Kc * 0.10;    // ubar --> Pa
-    act = act * 1E6 / 60.0;      // umol/mg/min --> umol/kg/s
+    psn->Kc = Kc = Kc * 0.10;   // ubar --> Pa
+    act = act * 1E6 / 60.0;     // umol/mg/min --> umol/kg/s
 
     // Calculate gamma (Pa), assumes Vomax/Vcmax = 0.21
     psn->gamma = gamma = 0.5 * 0.21 * Kc * psn->O2 / Ko;
@@ -165,7 +165,7 @@ void Photosynthesis(psn_struct *psn)
     // -------- X -------  X ------- X ---------   =   --------
     //  m2         kg Nleaf   kg NRub   kg RUB * s       m2 * s
     //
-    // (lnc)  X  (flnr)  X  (fnr)  X   (act)     =    (Vmax) */
+    // (lnc)  X  (flnr)  X  (fnr)  X   (act)     =    (Vmax)
     psn->Vmax = Vmax = psn->lnc * psn->flnr * fnr * act;
 
     // Calculate Jmax = f(Vmax), reference:

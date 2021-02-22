@@ -1,16 +1,14 @@
 #include "pihm.h"
 
 #if defined(_CYCLES_)
-void MapOutput(const char outputdir[], const int prtvrbl[],
-    const crop_struct crop[], const elem_struct elem[],
+void MapOutput(const char outputdir[], const int prtvrbl[], const crop_struct crop[], const elem_struct elem[],
     const river_struct river[], print_struct *print)
 #elif defined(_RT_)
-void MapOutput(const char outputdir[], const int prtvrbl[],
-    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void MapOutput(const char outputdir[], const int prtvrbl[], const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     const elem_struct elem[], const river_struct river[], print_struct *print)
 #else
-void MapOutput(const char outputdir[], const int prtvrbl[],
-    const elem_struct elem[], const river_struct river[], print_struct *print)
+void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct elem[], const river_struct river[],
+    print_struct *print)
 #endif
 #if !defined(_LUMPED_)
 {
@@ -29,8 +27,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
             switch (i)
             {
                 case SURF_CTRL:
-                    InitPrintCtrl(outputdir, "surf", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "surf", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.surf;
@@ -38,8 +35,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case UNSAT_CTRL:
-                    InitPrintCtrl(outputdir, "unsat", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "unsat", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.unsat;
@@ -47,8 +43,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GW_CTRL:
-                    InitPrintCtrl(outputdir, "gw", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "gw", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.gw;
@@ -56,8 +51,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case STAGE_CTRL:
-                    InitPrintCtrl(outputdir, "river.stage", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.stage", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].ws.stage;
@@ -65,8 +59,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SNOW_CTRL:
-                    InitPrintCtrl(outputdir, "snow", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "snow", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.sneqv;
@@ -75,24 +68,21 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     break;
                 case CMC_CTRL:
 #if defined(_CYCLES_OBSOLETE_)
-                    InitPrintCtrl(outputdir, "stanresw", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "stanresw", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.stanResidueWater;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "flatresw", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "flatresw", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.flatResidueWater;
                     }
                     n++;
 #else
-                    InitPrintCtrl(outputdir, "is", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "is", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.cmc;
@@ -101,8 +91,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 #endif
                     break;
                 case INFIL_CTRL:
-                    InitPrintCtrl(outputdir, "infil", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "infil", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.eqv_infil;
@@ -110,8 +99,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RECHARGE_CTRL:
-                    InitPrintCtrl(outputdir, "recharge", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "recharge", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.recharge;
@@ -120,11 +108,9 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     break;
                 case EC_CTRL:
 #if defined(_CYCLES_)
-                    InitPrintCtrl(outputdir, "eres", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "eres", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
 #else
-                    InitPrintCtrl(outputdir, "ec", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "ec", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
 #endif
                     for (j = 0; j < nelem; j++)
                     {
@@ -133,8 +119,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case ETT_CTRL:
-                    InitPrintCtrl(outputdir, "ett", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "ett", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.ett;
@@ -142,8 +127,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case EDIR_CTRL:
-                    InitPrintCtrl(outputdir, "edir", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "edir", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.edir;
@@ -151,8 +135,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX0_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx0", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx0", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[0];
@@ -160,8 +143,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX1_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx1", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx1", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[1];
@@ -169,8 +151,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX2_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx2", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx2", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[2];
@@ -178,8 +159,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX3_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx3", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx3", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[3];
@@ -187,8 +167,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX4_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx4", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx4", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[4];
@@ -196,8 +175,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case RIVFLX5_CTRL:
-                    InitPrintCtrl(outputdir, "river.flx5", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.flx5", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[5];
@@ -208,8 +186,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "subflx%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].wf.subsurf[k];
@@ -221,8 +198,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "surfflx%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].wf.overland[k];
@@ -232,8 +208,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     break;
 #if defined(_NOAH_)
                 case T1_CTRL:
-                    InitPrintCtrl(outputdir, "t1", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "t1", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].es.t1;
@@ -244,8 +219,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "stc%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            LS_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].es.stc[k];
@@ -257,8 +231,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "smc%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].ws.smc[k];
@@ -270,8 +243,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "swc%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].ws.swc[k];
@@ -280,16 +252,14 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     }
                     break;
                 case SNOWH_CTRL:
-                    InitPrintCtrl(outputdir, "snowh", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "snowh", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.snowh;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "iceh", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "iceh", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.iceh;
@@ -297,8 +267,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case ALBEDO_CTRL:
-                    InitPrintCtrl(outputdir, "albedo", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "albedo", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.albedo;
@@ -306,8 +275,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LE_CTRL:
-                    InitPrintCtrl(outputdir, "le", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "le", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.eta;
@@ -315,8 +283,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SH_CTRL:
-                    InitPrintCtrl(outputdir, "sh", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "sh", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.sheat;
@@ -324,8 +291,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case G_CTRL:
-                    InitPrintCtrl(outputdir, "g", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "g", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.ssoil;
@@ -333,8 +299,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case ETP_CTRL:
-                    InitPrintCtrl(outputdir, "etp", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "etp", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.etp;
@@ -342,8 +307,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case ESNOW_CTRL:
-                    InitPrintCtrl(outputdir, "esnow", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "esnow", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.esnow;
@@ -351,8 +315,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case ROOTW_CTRL:
-                    InitPrintCtrl(outputdir, "rootw", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "rootw", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.soilw;
@@ -360,8 +323,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SOILM_CTRL:
-                    InitPrintCtrl(outputdir, "soilm", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "soilm", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.soilm;
@@ -369,8 +331,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SOLAR_CTRL:
-                    InitPrintCtrl(outputdir, "solar", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "solar", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ef.soldn;
@@ -378,8 +339,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case CH_CTRL:
-                    InitPrintCtrl(outputdir, "ch", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "ch", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.ch;
@@ -390,114 +350,88 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 #if defined(_BGC_)
 # if defined(_LUMPEDBGC_)
                 case LAI_CTRL:
-                    InitPrintCtrl(outputdir, "lai", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "lai", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].ps.proj_lai;
                     n++;
                     break;
                 case NPP_CTRL:
-                    InitPrintCtrl(outputdir, "npp", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_npp;
+                    InitPrintCtrl(outputdir, "npp", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_npp;
                     n++;
                     break;
                 case NEP_CTRL:
-                    InitPrintCtrl(outputdir, "nep", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_nep;
+                    InitPrintCtrl(outputdir, "nep", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nep;
                     n++;
                     break;
                 case NEE_CTRL:
-                    InitPrintCtrl(outputdir, "nee", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_nee;
+                    InitPrintCtrl(outputdir, "nee", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nee;
                     n++;
                     break;
                 case GPP_CTRL:
-                    InitPrintCtrl(outputdir, "gpp", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_gpp;
+                    InitPrintCtrl(outputdir, "gpp", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gpp;
                     n++;
                     break;
                 case MR_CTRL:
-                    InitPrintCtrl(outputdir, "mr", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_mr;
+                    InitPrintCtrl(outputdir, "mr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_mr;
                     n++;
                     break;
                 case GR_CTRL:
-                    InitPrintCtrl(outputdir, "gr", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_gr;
+                    InitPrintCtrl(outputdir, "gr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gr;
                     n++;
                     break;
                 case HR_CTRL:
-                    InitPrintCtrl(outputdir, "hr", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_hr;
+                    InitPrintCtrl(outputdir, "hr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_hr;
                     n++;
                     break;
                 case FIRE_CTRL:
-                    InitPrintCtrl(outputdir, "fire", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_fire;
+                    InitPrintCtrl(outputdir, "fire", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_fire;
                     n++;
                     break;
                 case LITFALLC_CTRL:
-                    InitPrintCtrl(outputdir, "litfallc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] =
-                        &elem[LUMPEDBGC].summary.daily_litfallc;
+                    InitPrintCtrl(outputdir, "litfallc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_litfallc;
                     n++;
                     break;
                 case VEGC_CTRL:
-                    InitPrintCtrl(outputdir, "vegc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "vegc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.vegc;
                     n++;
                     break;
                 case AGC_CTRL:
-                    InitPrintCtrl(outputdir, "agc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "agc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.agc;
                     n++;
                     break;
                 case LITRC_CTRL:
-                    InitPrintCtrl(outputdir, "litrc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "litrc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.litrc;
                     n++;
                     break;
                 case SOILC_CTRL:
-                    InitPrintCtrl(outputdir, "soilc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "soilc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.soilc;
                     n++;
                     break;
                 case TOTALC_CTRL:
-                    InitPrintCtrl(outputdir, "totalc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "totalc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.totalc;
                     n++;
                     break;
                 case SMINN_CTRL:
-                    InitPrintCtrl(outputdir, "sminn", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "sminn", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
                     print->varctrl[n].var[0] = &elem[LUMPEDBGC].ns.sminn;
                     n++;
                     break;
 # else
                 case LAI_CTRL:
-                    InitPrintCtrl(outputdir, "lai", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "lai", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.proj_lai;
@@ -505,8 +439,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case NPP_CTRL:
-                    InitPrintCtrl(outputdir, "npp", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "npp", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_npp;
@@ -514,8 +447,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case NEP_CTRL:
-                    InitPrintCtrl(outputdir, "nep", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "nep", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_nep;
@@ -523,8 +455,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case NEE_CTRL:
-                    InitPrintCtrl(outputdir, "nee", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "nee", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_nee;
@@ -532,8 +463,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GPP_CTRL:
-                    InitPrintCtrl(outputdir, "gpp", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "gpp", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_gpp;
@@ -541,8 +471,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case MR_CTRL:
-                    InitPrintCtrl(outputdir, "mr", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "mr", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_mr;
@@ -550,8 +479,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GR_CTRL:
-                    InitPrintCtrl(outputdir, "gr", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "gr", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_gr;
@@ -559,8 +487,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case HR_CTRL:
-                    InitPrintCtrl(outputdir, "hr", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "hr", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_hr;
@@ -568,8 +495,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case FIRE_CTRL:
-                    InitPrintCtrl(outputdir, "fire", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "fire", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.daily_fire;
@@ -577,18 +503,15 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LITFALLC_CTRL:
-                    InitPrintCtrl(outputdir, "litfallc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "litfallc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] =
-                            &elem[j].summary.daily_litfallc;
+                        print->varctrl[n].var[j] = &elem[j].summary.daily_litfallc;
                     }
                     n++;
                     break;
                 case VEGC_CTRL:
-                    InitPrintCtrl(outputdir, "vegc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "vegc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.vegc;
@@ -596,8 +519,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case AGC_CTRL:
-                    InitPrintCtrl(outputdir, "agc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "agc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.agc;
@@ -605,8 +527,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LITRC_CTRL:
-                    InitPrintCtrl(outputdir, "litrc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "litrc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.litrc;
@@ -614,8 +535,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SOILC_CTRL:
-                    InitPrintCtrl(outputdir, "soilc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "soilc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.soilc;
@@ -623,8 +543,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case TOTALC_CTRL:
-                    InitPrintCtrl(outputdir, "totalc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "totalc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].summary.totalc;
@@ -632,8 +551,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case SMINN_CTRL:
-                    InitPrintCtrl(outputdir, "sminn", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "sminn", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ns.sminn;
@@ -652,22 +570,18 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "grain_yield.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].grain_yield;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].grain_yield;
                         }
                         n++;
 
                         sprintf(ext, "forage_yield.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].forage_yield;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].forage_yield;
                         }
                         n++;
                     }
@@ -681,22 +595,18 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "shoot.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].shoot;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].shoot;
                         }
                         n++;
 
                         sprintf(ext, "root.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].root;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].root;
                         }
                         n++;
                     }
@@ -710,12 +620,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "radintcp.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].rad_intcp;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].rad_intcp;
                         }
                         n++;
                     }
@@ -729,12 +637,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "wstress.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].water_stress;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].water_stress;
                         }
                         n++;
                     }
@@ -748,12 +654,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "nstress.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].n_stress;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].n_stress;
                         }
                         n++;
                     }
@@ -767,12 +671,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "transp.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].transp;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].transp;
                         }
                         n++;
                     }
@@ -786,27 +688,23 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                         }
 
                         sprintf(ext, "pottransp.%s", crop[k].epc.name);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].crop[k].transp_pot;
+                            print->varctrl[n].var[j] = &elem[j].crop[k].transp_pot;
                         }
                         n++;
                     }
                     break;
                 case N_PROFILE_CTRL:
-                    InitPrintCtrl(outputdir, "NO3", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "NO3", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.no3;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "NH4", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "NH4", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.nh4;
@@ -814,16 +712,14 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case N_RIVER_CTRL:
-                    InitPrintCtrl(outputdir, "river.NO3", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.NO3", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].ns.no3;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "river.NH4", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.NH4", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].ns.nh4;
@@ -831,8 +727,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case DENITRIF_CTRL:
-                    InitPrintCtrl(outputdir, "denitrif", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "denitrif", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.denitrif;
@@ -840,8 +735,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case NITRIF_CTRL:
-                    InitPrintCtrl(outputdir, "nitrif", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "nitrif", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.nitrif;
@@ -849,8 +743,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case IMMOBIL_CTRL:
-                    InitPrintCtrl(outputdir, "immobil", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "immobil", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.immobil;
@@ -858,8 +751,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case MINERAL_CTRL:
-                    InitPrintCtrl(outputdir, "mineral", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "mineral", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.mineral;
@@ -867,8 +759,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case VOLATIL_CTRL:
-                    InitPrintCtrl(outputdir, "volatil", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "volatil", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.volatil;
@@ -876,43 +767,36 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LEACHING_CTRL:
-                    InitPrintCtrl(outputdir, "NO3leaching", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "NO3leaching", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].nf.no3_leach;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "NH4leaching", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "NH4leaching", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].nf.nh4_leach;
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "river.NO3leaching", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.NO3leaching", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
-                        print->varctrl[n].var[j] =
-                            &river[j].solute[NO3].flux[DOWNSTREAM];
+                        print->varctrl[n].var[j] = &river[j].solute[NO3].flux[DOWNSTREAM];
                     }
                     n++;
 
-                    InitPrintCtrl(outputdir, "river.NH4leaching", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "river.NH4leaching", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
-                        print->varctrl[n].var[j] =
-                            &river[j].solute[NH4].flux[DOWNSTREAM];
+                        print->varctrl[n].var[j] = &river[j].solute[NH4].flux[DOWNSTREAM];
                     }
                     n++;
                     break;
                 case SOC_CTRL:
-                    InitPrintCtrl(outputdir, "soc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "soc", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.soc;
@@ -920,8 +804,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case N2O_CTRL:
-                    InitPrintCtrl(outputdir, "n2o", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "n2o", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.n2o_emis;
@@ -929,8 +812,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case N_HARVEST_CTRL:
-                    InitPrintCtrl(outputdir, "n_harvest", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "n_harvest", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].nf.harvest;
@@ -938,8 +820,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case N_INPUT_CTRL:
-                    InitPrintCtrl(outputdir, "n_input", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "n_input", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.n_input;
@@ -947,8 +828,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case LAI_CTRL:
-                    InitPrintCtrl(outputdir, "lai", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "lai", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.proj_lai;
@@ -958,8 +838,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 #endif
 #if defined(_DGW_)
                 case GEOLUNSAT_CTRL:
-                    InitPrintCtrl(outputdir, "deep.unsat", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "deep.unsat", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.unsat_geol;
@@ -967,8 +846,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GEOLGW_CTRL:
-                    InitPrintCtrl(outputdir, "deep.gw", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "deep.gw", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.gw_geol;
@@ -976,8 +854,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GEOLINFIL_CTRL:
-                    InitPrintCtrl(outputdir, "deep.infil", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "deep.infil", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.infil_geol;
@@ -985,8 +862,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     n++;
                     break;
                 case GEOLRECHG_CTRL:
-                    InitPrintCtrl(outputdir, "deep.recharge", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "deep.recharge", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].wf.rechg_geol;
@@ -997,8 +873,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "deep.flow%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].wf.dgw[k];
@@ -1009,94 +884,80 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 #endif
 #if defined(_RT_)
                 case CHEM_CTRL:
-                    /* Primary species */
+                    // Primary species
                     for (k = 0; k < rttbl->num_stc; k++)
                     {
                         char            chemn[MAXSTRING];
                         Unwrap(chemtbl[k].name, chemn);
 
-                        /* Unsaturated zone concentration */
+                        // Unsaturated zone concentration
                         sprintf(ext, "conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms.prim_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.prim_conc[k];
                         }
                         n++;
 # if defined(_DGW_)
-                        /* Deep zone concentration */
+                        // Deep zone concentration
                         sprintf(ext, "deep.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_geol.prim_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms_geol.prim_conc[k];
                         }
                         n++;
 # endif
 
-                        /* River concentration */
+                        // River concentration
                         sprintf(ext, "river.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nriver, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &river[j].chms.prim_conc[k];
+                            print->varctrl[n].var[j] = &river[j].chms.prim_conc[k];
                         }
                         n++;
 
-                        /* River fluxes */
+                        // River fluxes
                         sprintf(ext, "river.chflx.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nriver, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &river[j].solute[k].flux[DOWNSTREAM];
+                            print->varctrl[n].var[j] = &river[j].solute[k].flux[DOWNSTREAM];
                         }
                         n++;
                     }
 
-                    /* Secondary species */
+                    // Secondary species
                     for (k = 0; k < rttbl->num_ssc; k++)
                     {
                         char            chemn[MAXSTRING];
                         Unwrap(chemtbl[k + rttbl->num_stc].name, chemn);
 
                         sprintf(ext, "conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms.sec_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.sec_conc[k];
                         }
                         n++;
 
 # if defined(_DGW_)
                         sprintf(ext, "deep.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_geol.sec_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms_geol.sec_conc[k];
                         }
                         n++;
 # endif
 
-                        /* River concentration */
+                        // River concentration
                         sprintf(ext, "river.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nriver, &print->varctrl[n]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &river[j].chms.sec_conc[k];
+                            print->varctrl[n].var[j] = &river[j].chms.sec_conc[k];
                         }
                         n++;
                     }
@@ -1110,8 +971,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
     if (n > MAXPRINT)
     {
-        pihm_printf(VL_ERROR, "Error: Too many output files. "
-            "The maximum number of output files is %d.\n", MAXPRINT);
+        pihm_printf(VL_ERROR, "Error: Too many output files. The maximum number of output files is %d.\n", MAXPRINT);
         pihm_exit(EXIT_FAILURE);
     }
 
@@ -1131,11 +991,9 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
     {
         sprintf(ext, "elem%d.wflux", i + 1);
 # if defined(_DGW_)
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 16,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 16, &print->varctrl[n]);
 # else
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 11,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 11, &print->varctrl[n]);
 # endif
         print->varctrl[n].var[0] = &elem[i].wf.infil;
         print->varctrl[n].var[1] = &elem[i].wf.recharge;
@@ -1159,11 +1017,9 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
         sprintf(ext, "elem%d.wstate", i + 1);
 # if defined(_DGW_)
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 7,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 7, &print->varctrl[n]);
 # else
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 5,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 5, &print->varctrl[n]);
 # endif
         print->varctrl[n].var[0] = &elem[i].ws.cmc;
         print->varctrl[n].var[1] = &elem[i].ws.sneqv;
@@ -1178,8 +1034,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
 # if defined(_NOAH_)
         sprintf(ext, "elem%d.smc", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR, &print->varctrl[n]);
         for (k = 0; k < MAXLYR; k++)
         {
             print->varctrl[n].var[k] = &elem[i].ws.smc[k];
@@ -1187,8 +1042,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         n++;
 
         sprintf(ext, "elem%d.swc", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR, &print->varctrl[n]);
         for (k = 0; k < MAXLYR; k++)
         {
             print->varctrl[n].var[k] = &elem[i].ws.swc[k];
@@ -1196,8 +1050,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         n++;
 
         sprintf(ext, "elem%d.stc", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR, &print->varctrl[n]);
         for (k = 0; k < MAXLYR; k++)
         {
             print->varctrl[n].var[k] = &elem[i].es.stc[k];
@@ -1205,8 +1058,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
         n++;
 
         sprintf(ext, "elem%d.ls", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, LS_STEP, 12,
-            &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, LS_STEP, 12, &print->varctrl[n]);
         print->varctrl[n].var[0] = &elem[i].es.t1;
         print->varctrl[n].var[1] = &elem[i].ps.snowh;
         print->varctrl[n].var[2] = &elem[i].ps.albedo;
@@ -1224,53 +1076,46 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
 # if defined(_RT_)
         sprintf(ext, "elem%d.conc", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
         for (k = 0; k < rttbl->num_stc; k++)
         {
             print->varctrl[n].var[k] = &elem[i].chms.prim_conc[k];
         }
         for (k = 0; k < rttbl->num_ssc; k++)
         {
-            print->varctrl[n].var[rttbl->num_stc + k] =
-                &elem[i].chms.sec_conc[k];
+            print->varctrl[n].var[rttbl->num_stc + k] = &elem[i].chms.sec_conc[k];
         }
         n++;
 
 #  if defined(_DGW_)
         sprintf(ext, "elem%d.deep.conc", i + 1);
-        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
+        InitPrintCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
         for (k = 0; k < rttbl->num_stc; k++)
         {
             print->varctrl[n].var[k] = &elem[i].chms_geol.prim_conc[k];
         }
         for (k = 0; k < rttbl->num_ssc; k++)
         {
-            print->varctrl[n].var[rttbl->num_stc + k] =
-                &elem[i].chms_geol.sec_conc[k];
+            print->varctrl[n].var[rttbl->num_stc + k] = &elem[i].chms_geol.sec_conc[k];
         }
         n++;
 #  endif
 # endif
     }
 
-    InitPrintCtrl(outputdir, "river.wflux", DAILY_OUTPUT, HYDROL_STEP,
-        NUM_RIVFLX, &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "river.wflux", DAILY_OUTPUT, HYDROL_STEP, NUM_RIVFLX, &print->varctrl[n]);
     for (k = 0; k < NUM_RIVFLX; k++)
     {
         print->varctrl[n].var[k] = &river[0].wf.rivflow[k];
     }
     n++;
 
-    InitPrintCtrl(outputdir, "river.wstate", DAILY_OUTPUT, HYDROL_STEP, 1,
-        &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "river.wstate", DAILY_OUTPUT, HYDROL_STEP, 1, &print->varctrl[n]);
     print->varctrl[n].var[0] = &river[0].ws.stage;
     n++;
 
 # if defined(_RT_)
-    InitPrintCtrl(outputdir, "river.conc", DAILY_OUTPUT, RT_STEP,
-        rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "river.conc", DAILY_OUTPUT, RT_STEP, rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].chms.prim_conc[k];
@@ -1281,8 +1126,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
     }
     n++;
 
-    InitPrintCtrl(outputdir, "leach", DAILY_OUTPUT, RT_STEP, rttbl->num_stc,
-        &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "leach", DAILY_OUTPUT, RT_STEP, rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[DOWNSTREAM];
@@ -1290,16 +1134,14 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
     n++;
 
 #  if defined(_DGW_)
-    InitPrintCtrl(outputdir, "left_leach", DAILY_OUTPUT, RT_STEP,
-        rttbl->num_stc, &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "left_leach", DAILY_OUTPUT, RT_STEP, rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[DGW_LEFT];
     }
     n++;
 
-    InitPrintCtrl(outputdir, "right_leach", DAILY_OUTPUT, RT_STEP,
-        rttbl->num_stc, &print->varctrl[n]);
+    InitPrintCtrl(outputdir, "right_leach", DAILY_OUTPUT, RT_STEP, rttbl->num_stc, &print->varctrl[n]);
     for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[DGW_RIGHT];
@@ -1310,8 +1152,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 
     if (n > MAXPRINT)
     {
-        pihm_printf(VL_ERROR, "Error: Too many output files. "
-            "The maximum number of output files is %d.\n", MAXPRINT);
+        pihm_printf(VL_ERROR, "Error: Too many output files. The maximum number of output files is %d.\n", MAXPRINT);
         pihm_exit(EXIT_FAILURE);
     }
 
@@ -1319,18 +1160,18 @@ void MapOutput(const char outputdir[], const int prtvrbl[],
 }
 #endif
 
-void InitPrintCtrl(const char outputdir[], const char ext[], int intvl,
-    int upd_intvl, int nvar, varctrl_struct *varctrl)
+void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_intvl, int nvar,
+    varctrl_struct *varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
 
-    /* When spinning-up, print interval is set to monthly */
-    varctrl->intvl     = (spinup_mode) ? MONTHLY_OUTPUT: intvl;
+    // When spinning-up, print interval is set to monthly
+    varctrl->intvl = (spinup_mode) ? MONTHLY_OUTPUT: intvl;
     varctrl->upd_intvl = upd_intvl;
-    varctrl->nvar      = nvar;
-    varctrl->var       = (const double **)malloc(nvar * sizeof(double *));
-    varctrl->buffer    = (double *)calloc(nvar, sizeof(double));
-    varctrl->counter   = 0;
+    varctrl->nvar = nvar;
+    varctrl->var = (const double **)malloc(nvar * sizeof(double *));
+    varctrl->buffer = (double *)calloc(nvar, sizeof(double));
+    varctrl->counter = 0;
 }
 
 #if defined(_RT_)

@@ -25,39 +25,39 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
         switch (option)
         {
             case 'o':
-                /* Specify output directory */
+                // Specify output directory
                 sprintf(outputdir, "output/%s/", options.optarg);
                 break;
             case 'c':
-                /* Surface elevation correction mode */
+                // Surface elevation correction mode
                 corr_mode = 1;
                 break;
             case 'd':
-                /* Debug mode */
+                // Debug mode
                 debug_mode = 1;
                 break;
             case 'f':
-                /* Fixed length spin-up */
+                // Fixed length spin-up
                 fixed_length = 1;
                 break;
             case 'v':
-                /* Verbose mode */
+                // Verbose mode
                 verbose_mode = VL_VERBOSE;
                 break;
             case 'b':
-                /* Brief mode */
+                // Brief mode
                 verbose_mode = VL_BRIEF;
                 break;
             case 's':
-                /* Silent mode */
+                // Silent mode
                 verbose_mode = VL_SILENT;
                 break;
             case 'a':
-                /* Append mode */
+                // Append mode
                 append_mode = 1;
                 break;
             case 'V':
-                /* Print version number */
+                // Print version number
                 printf("MM-PIHM Version %s\n", VERSION);
 #if defined(_LUMPED_)
                 printf("Lumped variant\n");
@@ -71,8 +71,7 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
                 pihm_exit(EXIT_SUCCESS);
                 break;
             case '?':
-                pihm_printf(VL_ERROR,
-                    "Option not recognizable %s\n", options.errmsg);
+                pihm_printf(VL_ERROR, "Option not recognizable %s\n", options.errmsg);
                 pihm_exit(EXIT_FAILURE);
                 break;
             default:
@@ -97,7 +96,7 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
     }
     else
     {
-        /* Parse remaining arguments */
+        // Parse remaining arguments
         strcpy(project, optparse_arg(&options));
     }
 }
@@ -129,7 +128,7 @@ void CreateOutputDir(char outputdir[])
 
     if (outputdir[0] == '\0')
     {
-        /* Create default output directory name based on project and time */
+        // Create default output directory name based on project and time
         time(&rawtime);
         timestamp = localtime(&rawtime);
         strftime(str, 11, "%y%m%d%H%M", timestamp);
@@ -140,15 +139,12 @@ void CreateOutputDir(char outputdir[])
     {
         if (errno != EEXIST)
         {
-            pihm_printf(VL_ERROR, "Error creating output directory %s\n",
-                outputdir);
+            pihm_printf(VL_ERROR, "Error creating output directory %s\n", outputdir);
             pihm_exit(EXIT_FAILURE);
         }
         else
         {
-            pihm_printf(VL_BRIEF,
-                "Output directory %s already exists. Overwriting.\n",
-                outputdir);
+            pihm_printf(VL_BRIEF, "Output directory %s already exists. Overwriting.\n", outputdir);
         }
     }
     else
@@ -159,8 +155,7 @@ void CreateOutputDir(char outputdir[])
     sprintf(icdir, "%srestart/", outputdir);
     if (pihm_mkdir(icdir) != 0 && errno != EEXIST)
     {
-        pihm_printf(VL_ERROR,
-            "Error creating restart directory %s\n", outputdir);
+        pihm_printf(VL_ERROR, "Error creating restart directory %s\n", outputdir);
         pihm_exit(EXIT_FAILURE);
     }
 }
@@ -169,23 +164,20 @@ void BackupInput(const char outputdir[], const filename_struct *filename)
 {
     char            system_cmd[MAXSTRING];
 
-    /* Save input files into output directory */
+    // Save input files into output directory
     if (pihm_access(filename->para, F_OK) != -1)
     {
-        sprintf(system_cmd, "cp %s ./%s/%s.para.bak",
-            filename->para, outputdir, project);
+        sprintf(system_cmd, "cp %s ./%s/%s.para.bak", filename->para, outputdir, project);
         system(system_cmd);
     }
     if (pihm_access(filename->calib, F_OK) != -1)
     {
-        sprintf(system_cmd, "cp %s ./%s/%s.calib.bak",
-            filename->calib, outputdir, project);
+        sprintf(system_cmd, "cp %s ./%s/%s.calib.bak", filename->calib, outputdir, project);
         system(system_cmd);
     }
     if (pihm_access(filename->ic, F_OK) != -1)
     {
-        sprintf(system_cmd, "cp %s ./%s/%s.ic.bak",
-            filename->ic, outputdir, project);
+        sprintf(system_cmd, "cp %s ./%s/%s.ic.bak", filename->ic, outputdir, project);
         system(system_cmd);
     }
 }
@@ -194,8 +186,7 @@ void CheckCVodeFlag(int cv_flag)
 {
     if (cv_flag < 0)
     {
-        pihm_printf(VL_ERROR, "CVODE error %s\n",
-            CVodeGetReturnFlagName(cv_flag));
+        pihm_printf(VL_ERROR, "CVODE error %s\n", CVodeGetReturnFlagName(cv_flag));
         pihm_exit(EXIT_FAILURE);
     }
 }

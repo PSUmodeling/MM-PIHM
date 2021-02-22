@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-/* Global variables */
+// Global variables
 int             verbose_mode;
 int             debug_mode;
 int             append_mode;
@@ -11,7 +11,7 @@ char            project[MAXSTRING];
 int             nelem;
 int             nriver;
 #if defined(_OPENMP)
-int             nthreads = 1;               /* Default value */
+int             nthreads = 1;               // Default value
 #endif
 #if defined(_BGC_)
 int             nsolute = 1;
@@ -37,32 +37,32 @@ int main(int argc, char *argv[])
 #else
     clock_t         start;
 #endif
-    double          cputime, cputime_dt;    /* Time cpu duration */
+    double          cputime, cputime_dt;    // Time cpu duration
 
 #if defined(unix) || defined(__unix__) || defined(__unix)
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
 
 #if defined(_OPENMP)
-    /* Set the number of threads to use */
+    // Set the number of threads to use
     nthreads = omp_get_max_threads();
 #endif
 
     memset(outputdir, 0, MAXSTRING);
 
-    /* Read command line arguments */
+    // Read command line arguments
     ParseCmdLineParam(argc, argv, outputdir);
 
-    /* Print AscII art */
+    // Print AscII art
     StartupScreen();
 
-    /* Allocate memory for model data structure */
+    // Allocate memory for model data structure
     pihm = (pihm_struct)malloc(sizeof(*pihm));
 
-    /* Read PIHM input files */
+    // Read PIHM input files
     ReadAlloc(pihm);
 
-    /* Initialize CVODE state variables */
+    // Initialize CVODE state variables
     CV_Y = N_VNew(NumStateVar());
     if (CV_Y == NULL)
     {
@@ -70,25 +70,22 @@ int main(int argc, char *argv[])
         pihm_exit(EXIT_FAILURE);
     }
 
-    /* Initialize PIHM structure */
+    // Initialize PIHM structure
     Initialize(pihm, CV_Y, &cvode_mem);
 
-    /* Create output directory */
+    // Create output directory
     CreateOutputDir(outputdir);
 
-    /* Create output structures */
+    // Create output structures
 #if defined(_CYCLES_)
-    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem,
-        pihm->river, &pihm->print);
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river, &pihm->print);
 #elif defined(_RT_)
-    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl,
-        pihm->elem, pihm->river, &pihm->print);
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, &pihm->print);
 #else
-    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->elem, pihm->river,
-        &pihm->print);
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->elem, pihm->river, &pihm->print);
 #endif
 
-    /* Backup input files */
+    // Backup input files
 #if !defined(_MSC_VER)
     if (!append_mode)
     {
@@ -97,25 +94,21 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(_LUMPED_) && defined(_RT_)
-    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
-        pihm->chemtbl, &pihm->rttbl, &pihm->print);
+    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii, pihm->chemtbl, &pihm->rttbl, &pihm->print);
 #else
-    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
-        &pihm->print);
+    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii, &pihm->print);
 #endif
 
     pihm_printf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
-    /* Set solver parameters */
+    // Set solver parameters
     SetCVodeParam(pihm, cvode_mem, &sun_ls, CV_Y);
 
 #if defined(_BGC_)
     first_balance = 1;
 #endif
 
-    /*
-     * Run PIHM
-     */
+    // Run PIHM
 #if defined(_OPENMP)
     start_omp = omp_get_wtime();
 #else
@@ -128,9 +121,9 @@ int main(int argc, char *argv[])
     {
         Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
 
-        /* In spin-up mode, initial conditions are always printed */
-        PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime,
-            ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
+        // In spin-up mode, initial conditions are always printed
+        PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL], pihm->elem,
+            pihm->river);
 
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
@@ -154,26 +147,24 @@ int main(int argc, char *argv[])
             RunTime(start, &cputime, &cputime_dt);
 #endif
 
-            /* Run PIHM time step */
+            // Run PIHM time step
             PIHM(cputime, pihm, cvode_mem, CV_Y);
 
-            /* Adjust CVODE max step to reduce oscillation */
+            // Adjust CVODE max step to reduce oscillation
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
 
-            /* Print CVODE performance and statistics */
+            // Print CVODE performance and statistics
             if (debug_mode)
             {
-                PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
-                    cputime_dt, cputime, ctrl->maxstep,
+                PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime, cputime_dt, cputime, ctrl->maxstep,
                     pihm->print.cvodeperf_file, cvode_mem);
             }
 
-            /* Write init files */
+            // Write init files
             if (ctrl->write_ic)
             {
-                PrintInit(outputdir, ctrl->tout[ctrl->cstep + 1],
-                    ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL],
-                    pihm->elem, pihm->river);
+                PrintInit(outputdir, ctrl->tout[ctrl->cstep + 1], ctrl->starttime, ctrl->endtime,
+                    ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
             }
 
         }
@@ -205,10 +196,10 @@ int main(int argc, char *argv[])
         PrintCVodeFinalStats(cvode_mem);
     }
 
-    /* Free memory */
+    // Free memory
     N_VDestroy(CV_Y);
 
-    /* Free integrator memory */
+    // Free integrator memory
     CVodeFree(&cvode_mem);
     SUNLinSolFree(sun_ls);
     FreeMem(pihm);

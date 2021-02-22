@@ -1,16 +1,14 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void InitForcing(const rttbl_struct *rttbl, const calib_struct *calib,
-    forc_struct *forc, elem_struct elem[])
+void InitForcing(const rttbl_struct *rttbl, const calib_struct *calib, forc_struct *forc, elem_struct elem[])
 #else
-void InitForcing(const calib_struct *calib, forc_struct *forc,
-    elem_struct elem[])
+void InitForcing(const calib_struct *calib, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, j;
 
-    /* Apply climate scenarios */
+    // Apply climate scenarios
     for (i = 0; i < forc->nmeteo; i++)
     {
 #if defined(_OPENMP)
@@ -28,8 +26,7 @@ void InitForcing(const calib_struct *calib, forc_struct *forc,
         for (i = 0; i < forc->nbc; i++)
         {
 #if defined(_RT_)
-            forc->bc[i].value =
-                (double *)malloc((rttbl->num_stc + 1) * sizeof(double));
+            forc->bc[i].value = (double *)malloc((rttbl->num_stc + 1) * sizeof(double));
 #else
             forc->bc[i].value = (double *)malloc(sizeof(double));
 #endif
@@ -39,8 +36,7 @@ void InitForcing(const calib_struct *calib, forc_struct *forc,
     {
         for (i = 0; i < forc->nmeteo; i++)
         {
-            forc->meteo[i].value =
-                (double *)malloc(NUM_METEO_VAR * sizeof(double));
+            forc->meteo[i].value = (double *)malloc(NUM_METEO_VAR * sizeof(double));
         }
     }
     if (forc->nlai > 0)
@@ -91,7 +87,6 @@ void InitForcing(const calib_struct *calib, forc_struct *forc,
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem[i].ps.zlvl_wind =
-            forc->meteo[elem[i].attrib.meteo - 1].zlvl_wind;
+        elem[i].ps.zlvl_wind = forc->meteo[elem[i].attrib.meteo - 1].zlvl_wind;
     }
 }
