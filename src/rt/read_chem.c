@@ -194,6 +194,12 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[], chemtbl_struct chemtbl
     FindLine(chem_fp, "BOF", &lno, chem_fn);
     FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_fn);
 
+    // Initialize numbers of species for counting
+    rttbl->num_spc = 0;
+    rttbl->num_ads = 0;
+    rttbl->num_cex = 0;
+    rttbl->num_min = 0;
+
     for (i = 0; i < rttbl->num_stc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
