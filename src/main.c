@@ -48,6 +48,19 @@ int main(int argc, char *argv[])
     nthreads = omp_get_max_threads();
 #endif
 
+#if defined(_DEBUG_)
+    // When in debug mode, print PID and host name to a text file for gdb to attach to
+    char            hostname[MAXSTRING];
+    FILE           *fp;
+
+    gethostname(hostname, MAXSTRING);
+    fp = fopen("debug.txt", "w");
+    fprintf(fp, "pid %d at %s\n", getpid(), hostname);
+    fflush(fp);
+    fclose(fp);
+#endif
+
+
     memset(outputdir, 0, MAXSTRING);
 
     // Read command line arguments
