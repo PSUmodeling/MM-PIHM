@@ -461,6 +461,7 @@ typedef struct tillage_struct
 {
     int             year;                   // year in rotation
     int             doy;                    // day of year
+    int             type;                   // type of tillage (tillage, grain/forage harvest, or kill)
     char            tool[MAXSTRING];        // name of tillage tool
     double          depth;                  // tillage mixing depth (m)
     double          sdr;                    // soil disturb ratio (-)

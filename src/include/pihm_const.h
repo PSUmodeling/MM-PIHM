@@ -416,6 +416,11 @@ enum output_var{
 #define FIXIRR_OP               2
 #define FIXFERT_OP              3
 
+#define TILLAGE                 0
+#define GRAIN_HARVEST           1
+#define FORAGE_HARVEST          2
+#define KILL_CROP               3
+
 #define ALL_CROPS               -1
 
 #define FC_BOUND                -1
