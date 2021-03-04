@@ -341,40 +341,6 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[], chemtbl_struct chemtbl
     fclose(db_fp);
 }
 
-int ParseLocation(const char str[], const char filen[], int lno)
-{
-    char            type_str[MAXSTRING];
-    int             loc;
-
-    if (strstr(str, ":") == 0)
-    {
-        pihm_printf(VL_ERROR, "Error: location format error in %s near Line %d.\n"
-            "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", where XX is the index of grid.\n", filen, lno);
-        pihm_exit(EXIT_FAILURE);
-    }
-    sscanf(str, "%[^:]:%d", type_str, &loc);
-    if (strcasecmp(type_str, "UNSAT") == 0)
-    {
-        // Do nothing
-    }
-    else if (strcasecmp(type_str, "GW") == 0)
-    {
-        loc += nelem;
-    }
-    else if (strcasecmp(type_str, "RIVER") == 0)
-    {
-        loc *= -1;
-    }
-    else
-    {
-        pihm_printf(VL_ERROR, "Error: location format error in %s near Line %d.\n"
-            "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", where XX is the index of grid.\n", filen, lno);
-        pihm_exit(EXIT_FAILURE);
-    }
-
-    return loc;
-}
-
 // This subroutine is used to find out what the input species is.
 //   0) not found within database
 //   1) aqueous

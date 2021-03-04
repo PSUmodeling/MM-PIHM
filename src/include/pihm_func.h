@@ -633,13 +633,13 @@ void            NRT(double, double, double [], const soil_struct *, const wstate
 void            InitChem(const char [], const calib_struct *, forc_struct *forc, chemtbl_struct [], kintbl_struct [],
     rttbl_struct *, chmictbl_struct *, elem_struct []);
 void            Reaction(double, const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, elem_struct []);
-int             _React(double, const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, double, double,
+int             SolveReact(double, const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, double, double,
     chmstate_struct *);
 void            ReactControl(const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, double, double,
     double, chmstate_struct *, double []);
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [], kintbl_struct [], rttbl_struct *);
-void            Speciation(const chemtbl_struct [], const rttbl_struct *, river_struct []);
-int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int, chmstate_struct *);
+void            RiverSpeciation(const chemtbl_struct [], const rttbl_struct *, river_struct []);
+void            Speciation(const chemtbl_struct [], const rttbl_struct *, int, chmstate_struct *);
 int             SpeciesType(FILE *, const char []);
 void            Unwrap(const char [], char []);
 double          EqvUnsatH(double, double, double, double, double);
@@ -650,9 +650,8 @@ void            ReadChem(const char[], const char[], chemtbl_struct [], kintbl_s
     ctrl_struct *);
 void            ReadPrep(const char[], const chemtbl_struct [], const rttbl_struct *, forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int, atttbl_struct *, chmictbl_struct *);
-int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(int, const  rttbl_struct *, forc_struct *, elem_struct []);
-void            wrap(char *);
+void            Wrap(char *);
 void            SoluteConc(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct []);
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
 void            InitRTVar(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct [], N_Vector);
@@ -670,7 +669,7 @@ double          SoilTempFactor(double, double);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *, const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
 void            ReadRtIc(const char *, elem_struct []);
-void            UpdatePConc(const rttbl_struct *, elem_struct [], river_struct []);
+void            UpdatePrimConc(const rttbl_struct *, elem_struct [], river_struct []);
 void            WriteRtIc(const char *, const chemtbl_struct [], const rttbl_struct *, elem_struct []);
 #endif
 

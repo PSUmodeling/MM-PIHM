@@ -81,12 +81,12 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
         {
             // Speciation
-            Speciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
+            RiverSpeciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
         }
     }
     else
     {
-        UpdatePConc(&pihm->rttbl, pihm->elem, pihm->river);
+        UpdatePrimConc(&pihm->rttbl, pihm->elem, pihm->river);
     }
 
     UpdatePrintVar(pihm->print.nprint, RT_STEP, pihm->print.varctrl);

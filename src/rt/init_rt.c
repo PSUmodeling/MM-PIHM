@@ -1,9 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// RT-Flux-PIHM is a finite volume based, reactive transport module that operates on top of the hydrological land     //
-// surface processes described by Flux-PIHM.                                                                          //
-// RT-Flux-PIHM tracks the transportation and reaction in a given watershed. It uses operator splitting technique to  //
-// couple transport and reaction.                                                                                     //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "pihm.h"
 
 void InitChem(const char fn[], const calib_struct *calib, forc_struct *forc, chemtbl_struct chemtbl[],
@@ -163,10 +157,8 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, const 
             chms->tot_conc[k] = restart_input->tot_conc[k];
             // Update the concentration of mineral using molar volume
             chms->tot_conc[k] *= (rttbl->rel_min == 0) ?
-                // Absolute mineral volume fraction
-                1000.0 / chemtbl[k].molar_vol / smcmax :
-                // Relative mineral volume fraction
-                (1.0 - smcmax) * 1000.0 / chemtbl[k].molar_vol / smcmax;
+                1000.0 / chemtbl[k].molar_vol / smcmax :    // Absolute mineral volume fraction
+                (1.0 - smcmax) * 1000.0 / chemtbl[k].molar_vol / smcmax;    // Relative mineral volume fraction
             chms->prim_actv[k] = 1.0;
             chms->prim_conc[k] = chms->tot_conc[k];
             chms->ssa[k] = restart_input->ssa[k];
@@ -198,7 +190,7 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, const 
     // Speciation
     if (rttbl->transpt_flag == KIN_REACTION)
     {
-        _Speciation(chemtbl, rttbl, 1, chms);
+        Speciation(chemtbl, rttbl, 1, chms);
     }
 
     // Total moles should be calculated after speciation
@@ -211,41 +203,6 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, const 
         else
         {
             chms->tot_mol[k] = 0.0;
-        }
-    }
-}
-
-void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[], river_struct river[])
-{
-    int             i;
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        int             k;
-
-        for (k = 0; k < rttbl->num_spc; k++)
-        {
-            elem[i].chms.prim_conc[k] = elem[i].chms.tot_conc[k];
-
-#if defined(_DGW_)
-            elem[i].chms_geol.prim_conc[k] = elem[i].chms_geol.tot_conc[k];
-#endif
-        }
-    }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < nriver; i++)
-    {
-        int             k;
-
-        for (k = 0; k < rttbl->num_spc; k++)
-        {
-            river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
         }
     }
 }

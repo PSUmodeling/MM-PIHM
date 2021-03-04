@@ -83,3 +83,38 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, elem_
         }
     }
 }
+
+void UpdatePrimConc(const rttbl_struct *rttbl, elem_struct elem[], river_struct river[])
+{
+    int             i;
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             k;
+
+        for (k = 0; k < rttbl->num_spc; k++)
+        {
+            elem[i].chms.prim_conc[k] = elem[i].chms.tot_conc[k];
+
+#if defined(_DGW_)
+            elem[i].chms_geol.prim_conc[k] = elem[i].chms_geol.tot_conc[k];
+#endif
+        }
+    }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        int             k;
+
+        for (k = 0; k < rttbl->num_spc; k++)
+        {
+            river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
+        }
+    }
+}

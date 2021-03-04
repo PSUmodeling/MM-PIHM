@@ -180,15 +180,15 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
-	rt/flux_trans.c\
+	rt/init_rt.c\
 	rt/lookup.c\
 	rt/react.c\
 	rt/read_chem.c\
 	rt/read_cini.c\
 	rt/read_prep.c\
 	rt/restart_io.c\
-	rt/rt.c\
 	rt/rt_util.c\
+	rt/solute_conc.c\
 	rt/speciation.c\
 	transpt/init_solute.c\
 	transpt/solute_transpt.c

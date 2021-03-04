@@ -2,7 +2,7 @@
 
 #define TOL        1E-7
 
-void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, river_struct river[])
+void RiverSpeciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, river_struct river[])
 {
     int             i;
 
@@ -20,12 +20,12 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, river
 
         if (river[i].ws.stage > DEPTHR)
         {
-            _Speciation(chemtbl, rttbl, 0, &river[i].chms);
+            Speciation(chemtbl, rttbl, 0, &river[i].chms);
         }
     }
 }
 
-int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, int speciation_flg, chmstate_struct *chms)
+void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, int speciation_flg, chmstate_struct *chms)
 {
     int             i, j, k;
     int             jcb_dim;
@@ -43,11 +43,11 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, int s
     // If speciation flg = 0, all defined value is total concentration
     for (k = 0; k < MAXSPS; k++)
     {
-        residue[k]   = 0.0;
-        tmpconc[k]   = 0.0;
-        tot_conc[k]  = 0.0;
-        gamma[k]     = 0.0;
-        keq[k]       = 0.0;
+        residue[k] = 0.0;
+        tmpconc[k] = 0.0;
+        tot_conc[k] = 0.0;
+        gamma[k] = 0.0;
+        keq[k] = 0.0;
     }
 
     for (i = 0; i < rttbl->num_stc; i++)
@@ -260,6 +260,4 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, int s
     }
 
     destroyMat(jcb);
-
-    return 0;
 }

@@ -78,7 +78,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[], const kintbl_stru
     }
 }
 
-int _React(double stepsize, const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], const rttbl_struct *rttbl,
+int SolveReact(double stepsize, const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], const rttbl_struct *rttbl,
     double satn, double ftemp, chmstate_struct *chms)
 {
     int             i, j, k;
@@ -511,7 +511,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[], 
 
     while (1.0 - step_counter / stepsize > 1.0E-10 && substep > 30.0)
     {
-        flag = _React(substep, chemtbl, kintbl, rttbl, satn, ftemp, chms);
+        flag = SolveReact(substep, chemtbl, kintbl, rttbl, satn, ftemp, chms);
 
         if (flag == 0)
         {

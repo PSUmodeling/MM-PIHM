@@ -17,3 +17,18 @@ int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[],
 
     return ind;
 }
+
+int MatchWrappedKey(const char cmdstr[], const char key[])
+{
+    char            optstr[MAXSTRING];
+
+    if (sscanf(cmdstr, "'%[^']'", optstr) != 1)
+    {
+        return 1;
+    }
+    else
+    {
+        Wrap(optstr);
+        return (strcmp(optstr, key) == 0) ? 0 : 1;
+    }
+}

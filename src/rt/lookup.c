@@ -91,7 +91,7 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[], kintb
         {
             strcpy(chemtbl[i].name, "H+");
         }
-        wrap(chemtbl[i].name);
+        Wrap(chemtbl[i].name);
 
         chemtbl[i].charge = 0.0;
         chemtbl[i].size_fac = 1.0;
@@ -299,27 +299,12 @@ void Lookup(FILE *fp, const calib_struct *calib, chemtbl_struct chemtbl[], kintb
     }
 }
 
-void wrap(char *str)
+void Wrap(char *str)
 {
     char            word[MAXSTRING];
 
     sprintf(word, "'%s'", str);
     strcpy(str, word);
-}
-
-int MatchWrappedKey(const char cmdstr[], const char key[])
-{
-    char            optstr[MAXSTRING];
-
-    if (sscanf(cmdstr, "'%[^']'", optstr) != 1)
-    {
-        return 1;
-    }
-    else
-    {
-        wrap(optstr);
-        return (strcmp(optstr, key) == 0) ? 0 : 1;
-    }
 }
 
 void ReadTempPoints(const char cmdstr[], double tmp, int *total_points, int *keq_position)
@@ -413,7 +398,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position, chemtbl_s
 
     sscanf(cmdstr + bytes_consumed, "'%[^']' %d%n", chemn, &ndep, &bytes_now);
     bytes_consumed += bytes_now;
-    wrap(chemn);
+    Wrap(chemn);
 
     for (i = 0; i < rttbl->num_ssc; i++)
     {
@@ -429,7 +414,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position, chemtbl_s
             {
                 sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn, &bytes_now);
                 bytes_consumed += bytes_now;
-                wrap(chemn);
+                Wrap(chemn);
 
                 for (k = 0; k < rttbl->num_sdc; k++)
                 {
@@ -479,7 +464,7 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position, double pot
 
     sscanf(cmdstr + bytes_consumed, "'%[^']' %lf %d%n", chemn, &mvol, &ndep, &bytes_now);
     bytes_consumed += bytes_now;
-    wrap(chemn);
+    Wrap(chemn);
 
     for (i = 0; i < rttbl->num_min; i++)
     {
@@ -497,7 +482,7 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position, double pot
             {
                 sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn, &bytes_now);
                 bytes_consumed += bytes_now;
-                wrap(chemn);
+                Wrap(chemn);
 
                 for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
                 {
@@ -565,7 +550,7 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position, chemtbl_
     }
 
     bytes_consumed += bytes_now;
-    wrap(chemn);
+    Wrap(chemn);
 
     for (i = 0; i < rttbl->num_ssc; i++)
     {
@@ -580,7 +565,7 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position, chemtbl_
             {
                 sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn, &bytes_now);
                 bytes_consumed += bytes_now;
-                wrap(chemn);
+                Wrap(chemn);
 
                 for (k = 0; k < rttbl->num_sdc; k++)
                 {
@@ -625,7 +610,7 @@ void ReadCationEchg(const char cmdstr[], double calval, chemtbl_struct chemtbl[]
         return;
     }
     bytes_consumed += bytes_now;
-    wrap(chemn);
+    Wrap(chemn);
 
     for (i = 0; i < rttbl->num_ssc; i++)
     {
@@ -640,7 +625,7 @@ void ReadCationEchg(const char cmdstr[], double calval, chemtbl_struct chemtbl[]
             {
                 sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn, &bytes_now);
                 bytes_consumed += bytes_now;
-                wrap(chemn);
+                Wrap(chemn);
 
                 for (k = 0; k < rttbl->num_sdc; k++)
                 {
@@ -671,7 +656,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno, char cmdstr[], c
     char            label[MAXSTRING];
 
     sscanf(cmdstr, "%s", chemn);
-    wrap(chemn);
+    Wrap(chemn);
 
     if (strcmp(chemtbl[kintbl->position].name, chemn) == 0)
     {
@@ -762,7 +747,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno, char cmdstr[], c
                     // Assume that all mineral kinetics only depend on one species
                     if (sscanf(cmdstr + bytes_consumed, "%s %lf", chemn, &temp) == 2)
                     {
-                        wrap(chemn);
+                        Wrap(chemn);
                         kintbl->dep_index[0] = FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->dep_index[0] < 0)
                         {
@@ -782,7 +767,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno, char cmdstr[], c
                 {
                     // Biomass term
                     sscanf(cmdstr, "%*s : %s", chemn);
-                    wrap(chemn);
+                    Wrap(chemn);
                     pihm_printf(VL_VERBOSE, " Biomass species: %s \n", chemn);
                     kintbl->biomass_index = FindChem(chemn, chemtbl, num_stc);
                     pihm_printf(VL_VERBOSE, " Biomass species position: %d \n",
@@ -795,7 +780,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno, char cmdstr[], c
                     {
                         bytes_consumed += bytes_now;
 
-                        wrap(chemn);
+                        Wrap(chemn);
                         kintbl->monod_index[kintbl->nmonod] = FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->monod_index[kintbl->nmonod] < 0)
                         {
@@ -814,7 +799,7 @@ void ReadMinKin(FILE *fp, int num_stc, double calval, int *lno, char cmdstr[], c
                     {
                         bytes_consumed += bytes_now;
 
-                        wrap(chemn);
+                        Wrap(chemn);
                         kintbl->inhib_index[kintbl->ninhib] = FindChem(chemn, chemtbl, num_stc);
                         if (kintbl->inhib_index[kintbl->ninhib] < 0)
                         {

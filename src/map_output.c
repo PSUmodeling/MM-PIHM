@@ -1190,4 +1190,5 @@ void Unwrap(const char wrapped_str[], char str[])
 
     str[j] = '\0';
 }
+
 #endif
