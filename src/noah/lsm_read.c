@@ -173,7 +173,7 @@ void ReadRad(const char fn[], forc_struct *forc)
         {
             pihm_error(ERR_WRONG_FORMAT, fn, lno);
         }
-        forc->rad[i].length = CountLine(fp, cmdstr, 1, "RAD_TS");
+        forc->rad[i].length = CountLines(fp, cmdstr, 1, "RAD_TS");
     }
 
     // Rewind and read

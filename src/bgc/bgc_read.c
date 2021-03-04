@@ -501,7 +501,7 @@ void ReadAnnualFile(const char fn[], tsdata_struct *ts)
     fp = pihm_fopen(fn, "r");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-    ts->length = CountLine(fp, cmdstr, 1, "EOF");
+    ts->length = CountLines(fp, cmdstr, 1, "EOF");
     ts->ftime = (int *)malloc(ts->length * sizeof(int));
     ts->data = (double **)malloc(ts->length * sizeof(double *));
 

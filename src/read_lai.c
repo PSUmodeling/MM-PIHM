@@ -50,7 +50,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                 {
                     pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
-                forc->lai[i].length = CountLine(fp, cmdstr, 1, "LAI_TS");
+                forc->lai[i].length = CountLines(fp, cmdstr, 1, "LAI_TS");
             }
 
             // Rewind and read

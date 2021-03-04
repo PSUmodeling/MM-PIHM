@@ -183,9 +183,9 @@ void ReadChem(const char chem_fn[], const char cdbs_fn[], chemtbl_struct chemtbl
 
     // Count numbers of species and reactions
     FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_fn);
-    rttbl->num_stc = CountLine(chem_fp, cmdstr, 1, "SECONDARY_SPECIES");
-    rttbl->num_ssc = CountLine(chem_fp, cmdstr, 1, "MINERAL_KINETICS");
-    rttbl->num_mkr = CountLine(chem_fp, cmdstr, 1, "PRECIPITATION_CONC");
+    rttbl->num_stc = CountLines(chem_fp, cmdstr, 1, "SECONDARY_SPECIES");
+    rttbl->num_ssc = CountLines(chem_fp, cmdstr, 1, "MINERAL_KINETICS");
+    rttbl->num_mkr = CountLines(chem_fp, cmdstr, 1, "PRECIPITATION_CONC");
     rttbl->num_akr = 0;     // Not implemented yet
 
     // Primary species block

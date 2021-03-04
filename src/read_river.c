@@ -140,7 +140,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
                 pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
 
-            forc->riverbc[i].length = CountLine(fp, cmdstr, 2, "RIV_TS", "RES");
+            forc->riverbc[i].length = CountLines(fp, cmdstr, 2, "RIV_TS", "RES");
         }
 
         FindLine(fp, "BOF", &lno, fn);

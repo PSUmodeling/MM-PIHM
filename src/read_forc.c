@@ -37,7 +37,7 @@ void ReadMeteo(const char fn[], forc_struct *forc)
             {
                 pihm_error(ERR_WRONG_FORMAT, fn, lno);
             }
-            forc->meteo[i].length = CountLine(fp, cmdstr, 1, "METEO_TS");
+            forc->meteo[i].length = CountLines(fp, cmdstr, 1, "METEO_TS");
         }
 
         // Rewind and read

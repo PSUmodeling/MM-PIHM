@@ -125,7 +125,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                     pihm_error(ERR_WRONG_FORMAT, fn, lno);
                 }
 #endif
-                forc->bc[i].length = CountLine(fp, cmdstr, 1, "BC_TS");
+                forc->bc[i].length = CountLines(fp, cmdstr, 1, "BC_TS");
             }
 
             // Rewind and read

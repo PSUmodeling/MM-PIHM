@@ -39,7 +39,7 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[], const rttbl_struc
             }
             // Skip header lines
             NextLine(fp, cmdstr, &lno);
-            forc->prcpc[i].length = CountLine(fp, cmdstr, 1, "PRCP_CONC_TS");
+            forc->prcpc[i].length = CountLines(fp, cmdstr, 1, "PRCP_CONC_TS");
         }
 
         // Rewind and read
