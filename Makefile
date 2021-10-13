@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------
 # MM-PIHM Makefile
-# -----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 # Valid make options for MM-PIHM
 PARAMS := WARNING DEBUG OMP DGW LUMPED CVODE_OMP AVGN
@@ -255,7 +255,7 @@ endif
 #-------------------
 CYCLES_PATH = ../Cycles_dev/src
 RQD_CYCLES_VERS = 0.12.4-alpha
-ifeq ($(MAKECMDGOALS),cycles-3d)
+ifeq ($(MAKECMDGOALS),cycles-l)
   SFLAGS += -D_NOAH_ -D_CYCLES_
   MODULE_SRCS_= \
 	noah/lsm_func.c\
@@ -296,7 +296,7 @@ ifeq ($(MAKECMDGOALS),cycles-3d)
 	zero_fluxes.c
 
   MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = cycles-3d
+  EXECUTABLE = cycles-l
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
 
@@ -384,8 +384,8 @@ flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-cycles-3d:	        ## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-cycles-3d: check_latest_vers check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
+cycles-l:	      	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+cycles-l: check_latest_vers check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -415,4 +415,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc cycles-3d
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc cycles-l
