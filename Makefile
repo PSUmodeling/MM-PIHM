@@ -258,7 +258,7 @@ ifeq ($(MAKECMDGOALS),cycles-l)
 	endif
 	CYCLESTEST := $(shell printf '%s\n' $(CYCLES_VERS) $(CYCLES_VERS_RQD) | sort -V | head -n 1)
 
-	SFLAGS += -D_NOAH_ -D_CYCLES_
+	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\"
 	MODULE_SRCS_= \
 		noah/lsm_func.c\
 		noah/lsm_init.c\
