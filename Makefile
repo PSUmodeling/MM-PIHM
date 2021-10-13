@@ -256,6 +256,12 @@ endif
 CYCLES_PATH = ../Cycles_dev/src
 RQD_CYCLES_VERS = 0.12.4-alpha
 ifeq ($(MAKECMDGOALS),cycles-l)
+  CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')
+  ifeq ($(CYCLES_VERS),)
+    CYCLES_VERS := 0.0.0
+  endif
+  CYCLESTEST := $(shell printf '%s\n' $(CYCLES_VERS) $(RQD_CYCLES_VERS) | sort -V | head -n 1)
+
   SFLAGS += -D_NOAH_ -D_CYCLES_
   MODULE_SRCS_= \
 	noah/lsm_func.c\
@@ -402,7 +408,11 @@ test: clean
 	@echo "# Results can be visualized by running \"./util/plot.py\"."
 
 check_cycles_vers:
-	@/bin/sh util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
+ifneq ($(CYCLESTEST),$(RQD_CYCLES_VERS))
+	@echo "Cycles requires Cycles $(RQD_CYCLES_VERS) or above."
+	@echo "Current Cycles version is $(CYCLES_VERS)."
+	@exit 1
+endif
 
 check_latest_vers:
 	@/bin/sh util/check_latest_vers.sh
