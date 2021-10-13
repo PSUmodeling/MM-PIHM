@@ -17,43 +17,39 @@ CC = gcc
 CFLAGS = -g -O0
 
 ifeq ($(WARNING), on)
-  CFLAGS += -Wall -Wextra
+	CFLAGS += -Wall -Wextra
 endif
 
 ifeq ($(DEBUG), off)
-  CFLAGS += -O2
+	CFLAGS += -O2
 endif
 
 omptest := $(shell echo |cpp -fopenmp -dM 2>/dev/null |grep -i open |awk '{print $$2}')
 
-ifneq ($(omptest), _OPENMP)
-  OMP=off
+ifeq ($(omptest), _OPENMP)
+	CFLAGS += -fopenmp
 endif
 
-ifneq ($(OMP), off)
-  CFLAGS += -fopenmp
+CMAKE_VERS := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
+ifeq ($(CMAKE_VERS),)
+	CMAKE_VERS := 0.0.0
 endif
+CMAKE_VERS_RQD = 3.1.3
+CMAKETEST := $(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 1)
 
-CMAKE_VER_NUM := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
-ifeq ($(CMAKE_VER_NUM),)
-  CMAKE_VER_NUM := 0.0.0
-endif
-CMAKE_REQ_VER = 3.1.3
-CMAKETEST := $(shell printf '%s\n' $(CMAKE_VER_NUM) $(CMAKE_REQ_VER) | sort -V | head -n 1)
-
-ifeq ($(CMAKETEST),$(CMAKE_REQ_VER))
-  CMAKE_EXIST = 1
-  CMAKE=cmake
+ifeq ($(CMAKETEST),$(CMAKE_VERS_RQD))
+	CMAKE_EXIST = 1
+	CMAKE=cmake
 else
-  CMAKE_EXIST = 0
-  OS := $(shell uname)
-  ifeq ($(OS),Darwin)
-    CMAKE_VERS = cmake-3.7.2-Darwin-x86_64
-    CMAKE = $(PWD)/$(CMAKE_VERS)/CMake.app/Contents/bin/cmake
-  else
-    CMAKE_VERS = cmake-3.7.2-Linux-x86_64
-    CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
-  endif
+	CMAKE_EXIST = 0
+	OS := $(shell uname)
+	ifeq ($(OS),Darwin)
+		CMAKE_VERS_INSTALL = cmake-3.7.2-Darwin-x86_64
+		CMAKE = $(PWD)/$(CMAKE_VERS_INSTALL)/CMake.app/Contents/bin/cmake
+	else
+		CMAKE_VERS_INSTALL = cmake-3.7.2-Linux-x86_64
+		CMAKE = $(PWD)/$(CMAKE_VERS_INSTALL)/bin/cmake
+	endif
 endif
 
 CVODE_PATH = ./cvode/instdir
@@ -67,27 +63,27 @@ INCLUDES = \
 
 LFLAGS = -lsundials_cvode -L$(CVODE_LIB)
 ifeq ($(CVODE_OMP), on)
-  LFLAGS += -lsundials_nvecopenmp
+	LFLAGS += -lsundials_nvecopenmp
 else
-  LFLAGS += -lsundials_nvecserial
+	LFLAGS += -lsundials_nvecserial
 endif
 
 SFLAGS = -D_PIHM_
 
 ifeq ($(DGW), on)
-  SFLAGS += -D_DGW_
+	SFLAGS += -D_DGW_
 endif
 
 ifeq ($(LUMPED), on)
-  SFLAGS += -D_LUMPED_
+	SFLAGS += -D_LUMPED_
 endif
 
 ifeq ($(CVODE_OMP), on)
-  SFLAGS += -D_CVODE_OMP
+	SFLAGS += -D_CVODE_OMP
 endif
 
 ifeq ($(DEBUG), on)
-  SFLAGS += -D_DEBUG_
+	SFLAGS += -D_DEBUG_
 endif
 
 ifeq ($(AVGN), on)
@@ -153,164 +149,164 @@ MSG = "...  Compiling PIHM  ..."
 # Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
-  SFLAGS += -D_NOAH_
-  MODULE_SRCS_ = \
-	noah/lsm_init.c\
-	noah/lsm_func.c\
-	noah/lsm_read.c\
-	noah/noah.c\
-	noah/noah_glacial_only.c\
-	noah/topo_radn.c\
-	spa/spa.c
-  MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = flux-pihm
-  MSG = "... Compiling Flux-PIHM ..."
+	SFLAGS += -D_NOAH_
+	MODULE_SRCS_ = \
+		noah/lsm_init.c\
+		noah/lsm_func.c\
+		noah/lsm_read.c\
+		noah/noah.c\
+		noah/noah_glacial_only.c\
+		noah/topo_radn.c\
+		spa/spa.c
+	MODULE_HEADERS_ = include/spa.h
+	EXECUTABLE = flux-pihm
+	MSG = "... Compiling Flux-PIHM ..."
 endif
 
 #-------------------
 # RT-Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-  SFLAGS += -D_RT_ -D_NOAH_
-  MODULE_SRCS_=\
-	noah/lsm_init.c\
-	noah/lsm_func.c\
-	noah/lsm_read.c\
-	noah/noah.c\
-	noah/noah_glacial_only.c\
-	noah/topo_radn.c\
-	spa/spa.c\
-	rt/init_rt.c\
-	rt/lookup.c\
-	rt/react.c\
-	rt/read_chem.c\
-	rt/read_cini.c\
-	rt/read_prep.c\
-	rt/restart_io.c\
-	rt/rt_util.c\
-	rt/solute_conc.c\
-	rt/speciation.c\
-	transpt/init_solute.c\
-	transpt/solute_transpt.c
-  MODULE_HEADERS_ =\
-	include/spa.h
-  EXECUTABLE = rt-flux-pihm
-  MSG = "... Compiling RT-Flux-PIHM ..."
+	SFLAGS += -D_RT_ -D_NOAH_
+	MODULE_SRCS_=\
+		noah/lsm_init.c\
+		noah/lsm_func.c\
+		noah/lsm_read.c\
+		noah/noah.c\
+		noah/noah_glacial_only.c\
+		noah/topo_radn.c\
+		spa/spa.c\
+		rt/init_rt.c\
+		rt/lookup.c\
+		rt/react.c\
+		rt/read_chem.c\
+		rt/read_cini.c\
+		rt/read_prep.c\
+		rt/restart_io.c\
+		rt/rt_util.c\
+		rt/solute_conc.c\
+		rt/speciation.c\
+		transpt/init_solute.c\
+		transpt/solute_transpt.c
+	MODULE_HEADERS_ =\
+		include/spa.h
+	EXECUTABLE = rt-flux-pihm
+	MSG = "... Compiling RT-Flux-PIHM ..."
 endif
 
 #-------------------
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
-ifeq ($(LUMPEDBGC), on)
-  SFLAGS += -D_LUMPEDBGC_
-endif
-ifeq ($(LEACHING), on)
-  SFLAGS += -D_LEACHING_
-endif
-  MODULE_SRCS_= \
-	bgc/bgc_init.c\
-	bgc/bgc_read.c\
-	bgc/bgc.c\
-	bgc/canopy_cond.c\
-	bgc/check_balance.c\
-	bgc/daily_allocation.c\
-	bgc/decomp.c\
-	bgc/firstday.c\
-	bgc/get_co2.c\
-	bgc/get_ndep.c\
-	bgc/growth_resp.c\
-	bgc/maint_resp.c\
-	bgc/make_zero_flux_struct.c\
-	bgc/mortality.c\
-	bgc/n_conc.c\
-	bgc/phenology.c\
-	bgc/photosynthesis.c\
-	bgc/precision_control.c\
-	bgc/presim_state_init.c\
-	bgc/radtrans.c\
-	bgc/restart_io.c\
-	bgc/soilpsi.c\
-	bgc/state_update.c\
-	bgc/summary.c\
-	bgc/zero_srcsnk.c\
-	noah/daily.c\
-	noah/lsm_func.c\
-	noah/lsm_init.c\
-	noah/lsm_read.c\
-	noah/noah.c\
-	noah/noah_glacial_only.c\
-	noah/topo_radn.c\
-	spa/spa.c\
-	transpt/init_solute.c\
-	transpt/solute_transpt.c
-  MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = flux-pihm-bgc
-  MSG = "... Compiling Flux-PIHM-BGC ..."
+	SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
+	ifeq ($(LUMPEDBGC), on)
+		SFLAGS += -D_LUMPEDBGC_
+	endif
+	ifeq ($(LEACHING), on)
+		SFLAGS += -D_LEACHING_
+	endif
+	MODULE_SRCS_= \
+		bgc/bgc_init.c\
+		bgc/bgc_read.c\
+		bgc/bgc.c\
+		bgc/canopy_cond.c\
+		bgc/check_balance.c\
+		bgc/daily_allocation.c\
+		bgc/decomp.c\
+		bgc/firstday.c\
+		bgc/get_co2.c\
+		bgc/get_ndep.c\
+		bgc/growth_resp.c\
+		bgc/maint_resp.c\
+		bgc/make_zero_flux_struct.c\
+		bgc/mortality.c\
+		bgc/n_conc.c\
+		bgc/phenology.c\
+		bgc/photosynthesis.c\
+		bgc/precision_control.c\
+		bgc/presim_state_init.c\
+		bgc/radtrans.c\
+		bgc/restart_io.c\
+		bgc/soilpsi.c\
+		bgc/state_update.c\
+		bgc/summary.c\
+		bgc/zero_srcsnk.c\
+		noah/daily.c\
+		noah/lsm_func.c\
+		noah/lsm_init.c\
+		noah/lsm_read.c\
+		noah/noah.c\
+		noah/noah_glacial_only.c\
+		noah/topo_radn.c\
+		spa/spa.c\
+		transpt/init_solute.c\
+		transpt/solute_transpt.c
+	MODULE_HEADERS_ = include/spa.h
+	EXECUTABLE = flux-pihm-bgc
+	MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
 
 #-------------------
-# Flux-PIHM-Cycles
+# Cycles-L
 #-------------------
 CYCLES_PATH = ../Cycles_dev/src
-RQD_CYCLES_VERS = 0.12.10-alpha
+CYCLES_VERS_RQD = 0.12.10-alpha
 ifeq ($(MAKECMDGOALS),cycles-l)
-  CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')
-  ifeq ($(CYCLES_VERS),)
-    CYCLES_VERS := 0.0.0
-  endif
-  CYCLESTEST := $(shell printf '%s\n' $(CYCLES_VERS) $(RQD_CYCLES_VERS) | sort -V | head -n 1)
+	CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')
+	ifeq ($(CYCLES_VERS),)
+		CYCLES_VERS := 0.0.0
+	endif
+	CYCLESTEST := $(shell printf '%s\n' $(CYCLES_VERS) $(CYCLES_VERS_RQD) | sort -V | head -n 1)
 
-  SFLAGS += -D_NOAH_ -D_CYCLES_
-  MODULE_SRCS_= \
-	noah/lsm_func.c\
-	noah/lsm_init.c\
-	noah/lsm_read.c\
-	noah/noah.c\
-	noah/noah_glacial_only.c\
-	noah/topo_radn.c\
-	spa/spa.c\
-	cycles/cycles.c\
-	cycles/init_cycles.c\
-	cycles/n_conc.c\
-	cycles/read_cycles.c\
-	transpt/init_solute.c\
-	transpt/solute_transpt.c
-  CYCLES_SRCS_ =\
-	crop.c\
-	crop_harvest.c\
-	crop_process.c\
-	crop_thermal_time.c\
-	crop_transpiration.c\
-	daily_operation.c\
-	fertilization.c\
-	field_operation.c\
-	initialize.c\
-	irrigation.c\
-	misc_func.c\
-	read_crop.c\
-	read_operation.c\
-	residue.c\
-	soil.c\
-	soil_carbon.c\
-	soil_evaporation.c\
-	soil_nitrogen.c\
-	soil_solute.c\
-	tillage.c\
-	weather.c\
-	zero_fluxes.c
+	SFLAGS += -D_NOAH_ -D_CYCLES_
+	MODULE_SRCS_= \
+		noah/lsm_func.c\
+		noah/lsm_init.c\
+		noah/lsm_read.c\
+		noah/noah.c\
+		noah/noah_glacial_only.c\
+		noah/topo_radn.c\
+		spa/spa.c\
+		cycles/cycles.c\
+		cycles/init_cycles.c\
+		cycles/n_conc.c\
+		cycles/read_cycles.c\
+		transpt/init_solute.c\
+		transpt/solute_transpt.c
+	CYCLES_SRCS_ =\
+		crop.c\
+		crop_harvest.c\
+		crop_process.c\
+		crop_thermal_time.c\
+		crop_transpiration.c\
+		daily_operation.c\
+		fertilization.c\
+		field_operation.c\
+		initialize.c\
+		irrigation.c\
+		misc_func.c\
+		read_crop.c\
+		read_operation.c\
+		residue.c\
+		soil.c\
+		soil_carbon.c\
+		soil_evaporation.c\
+		soil_nitrogen.c\
+		soil_solute.c\
+		tillage.c\
+		weather.c\
+		zero_fluxes.c
 
-  MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = cycles-l
-  MSG = "... Compiling Flux-PIHM-Cycles ..."
+	MODULE_HEADERS_ = include/spa.h
+	EXECUTABLE = cycles-l
+	MSG = "... Compiling Cycles-L ..."
 endif
 
 ifeq ($(DGW), on)
-  MODULE_SRCS_ +=\
-	dgw/init_geol.c\
-	dgw/read_bedrock.c\
-	dgw/read_geol.c
+	MODULE_SRCS_ +=\
+		dgw/init_geol.c\
+		dgw/read_bedrock.c\
+		dgw/read_geol.c
 endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
@@ -342,12 +338,12 @@ all:	cvode pihm
 
 cmake:
 ifneq ($(CMAKE_EXIST),1)
-	@echo "CVODE installation requires CMake v$(CMAKE_REQ_VER) or above."
-	@echo "Download CMake $(CMAKE_VERS) from cmake.org"
-	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS).tar.gz -o $(CMAKE_VERS).tar.gz &> /dev/null
+	@echo "CVODE installation requires CMake v$(CMAKE_VERS_RQD) or above."
+	@echo "Download CMake $(CMAKE_VERS_INSTALL) from cmake.org"
+	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS_INSTALL).tar.gz -o $(CMAKE_VERS_INSTALL).tar.gz &> /dev/null
 	@echo
-	@echo "Extract $(CMAKE_VERS).tar.gz"
-	@tar xzf $(CMAKE_VERS).tar.gz
+	@echo "Extract $(CMAKE_VERS_INSTALL).tar.gz"
+	@tar xzf $(CMAKE_VERS_INSTALL).tar.gz
 endif
 
 cvode:			## Install cvode library
@@ -359,7 +355,7 @@ cvode:	cmake
 	@echo "CVODE library installed."
 ifneq ($(CMAKE_EXIST),1)
 	@echo "Remove CMake files"
-	@$(RM) -r $(CMAKE_VERS).tar.gz $(CMAKE_VERS)
+	@$(RM) -r $(CMAKE_VERS_INSTALL).tar.gz $(CMAKE_VERS_INSTALL)
 endif
 
 pihm:			## Compile PIHM
@@ -390,7 +386,7 @@ flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-cycles-l:	      	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+cycles-l:	      	## Compile Cycles-L (Flux-PIHM with agroecosystem module, adapted from Cycles)
 cycles-l: check_latest_vers check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
@@ -408,8 +404,8 @@ test: clean
 	@echo "# Results can be visualized by running \"./util/plot.py\"."
 
 check_cycles_vers:
-ifneq ($(CYCLESTEST),$(RQD_CYCLES_VERS))
-	@echo "Cycles requires Cycles $(RQD_CYCLES_VERS) or above."
+ifneq ($(CYCLESTEST),$(CYCLES_VERS_RQD))
+	@echo "Cycles requires Cycles $(CYCLES_VERS_RQD) or above."
 	@echo "Current Cycles version is $(CYCLES_VERS)."
 	@exit 1
 endif
@@ -419,7 +415,6 @@ check_latest_vers:
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
-
 
 clean:			## Clean executables and objects
 	@echo
