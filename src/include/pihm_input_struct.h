@@ -342,8 +342,8 @@ typedef struct crop_epc_struct
                                             // grain harvest (-)
     int             kill_after_harvest;     // kill after harvest flag
     int             clip_density;           // destiny of biomass cut by clipping events (-)
-    double          tranp_tmp_min;          // air temperature below which transpiration ceases (degree C)
-    double          tranp_tmp_thld;         // threshold air temperature for transpiration calculation (degree C)
+    double          transp_tmp_min;         // air temperature below which transpiration ceases (degree C)
+    double          transp_tmp_thld;        // threshold air temperature for transpiration calculation (degree C)
     double          cold_damage_tmp_min;    // minimum temperature in cold damage factor (degree C)
     double          cold_damage_tmp_thld;   // threshold temperature in cold damage factor (degree C)
     double          tmp_base;               // base temperature for phenological development (degree C)
@@ -365,7 +365,7 @@ typedef struct crop_epc_struct
     int             c3;                     // C3/C4 flag (-)
     double          lwp_stress_onset;       // leaf water potential for onset of stress (J kg-1)
     double          lwp_wilting_point;      // leaf water potential at wilting point (J kg-1)
-    double          tranp_max;              // maximum transpiration rate (mm day-1)
+    double          transp_max;             // maximum transpiration rate (mm day-1)
 } crop_epc_struct;
 
 typedef struct realized_crop_struct
