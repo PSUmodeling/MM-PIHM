@@ -254,7 +254,7 @@ endif
 # Flux-PIHM-Cycles
 #-------------------
 CYCLES_PATH = ../Cycles_dev/src
-RQD_CYCLES_VERS = 0.12.4-alpha
+RQD_CYCLES_VERS = 0.12.10-alpha
 ifeq ($(MAKECMDGOALS),cycles-l)
   CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')
   ifeq ($(CYCLES_VERS),)
