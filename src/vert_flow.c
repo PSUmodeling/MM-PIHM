@@ -279,12 +279,7 @@ double GeolInfil(const topo_struct *topo, const soil_struct *soil, const soil_st
 
     if (ws->gw_geol >= geol->depth)
     {
-# if defined(_LUMPED_)
-        // In lumped model, oversaturated deep groundwater should enter stream instead of shallow groundwater
-        infil = 0.0;
-# else
         infil = -soil->ksatv;
-# endif
     }
     else
     {
@@ -334,11 +329,7 @@ double GeolRecharge(const soil_struct *geol, const wstate_struct *ws, const wflu
 
     if (ws->gw_geol >= geol->depth)
     {
-# if defined(_LUMPED_)
-        recharge = 0.0;
-# else
         recharge = wf->infil_geol;
-# endif
     }
     else
     {

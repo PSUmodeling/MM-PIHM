@@ -142,9 +142,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[UNSAT_GEOL(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
         dy[GW_GEOL(i)] += elem[i].wf.rechg_geol;
-# if defined(_LUMPED_)
-        dy[GW_GEOL(i)] -= elem[i].wf.dgw_runoff;
-# endif
 #endif
 
         // Horizontal water fluxes
@@ -199,9 +196,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].infil_geol;
 
             dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].infil_geol + elem[i].solute[k].snksrc_geol;
-#  if defined(_LUMPED_)
-            dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgw_leach;
-#  endif
 # endif
 
             for (j = 0; j < NUM_EDGE; j++)

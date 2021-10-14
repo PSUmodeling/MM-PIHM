@@ -664,9 +664,6 @@ void InitWFlux(wflux_struct *wf)
     {
         wf->dgw[j] = 0.0;
     }
-# if defined(_LUMPED_)
-    wf->dgw_runoff = 0.0;
-# endif
 #endif
 
 #if defined(_NOAH_)

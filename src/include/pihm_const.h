@@ -138,11 +138,7 @@
 #define CLAY                    11
 
 // Number of river fluxes of a river segment
-#if defined(_DGW_) && defined(_LUMPED_)
-# define NUM_RIVFLX             8
-#else
 # define NUM_RIVFLX             6
-#endif
 
 // River fluxes
 #define UPSTREAM                0
@@ -151,10 +147,6 @@
 #define SURF_RIGHT              3
 #define AQUIFER_LEFT            4
 #define AQUIFER_RIGHT           5
-#if defined(_DGW_) && defined(_LUMPED_)
-# define DGW_LEFT               6
-# define DGW_RIGHT              7
-#endif
 
 // River boundary condition types
 #define OUTLET_DIRICHLET        -1

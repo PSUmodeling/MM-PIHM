@@ -41,10 +41,6 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib, elem_str
         elem[i].geol.kmacv = calib->geol_kmacv * geoltbl->kmacv_ro * geoltbl->ksatv[geol_ind];
         elem[i].geol.kmach = calib->geol_kmach * geoltbl->kmach_ro * geoltbl->ksath[geol_ind];
 
-#if defined(_LUMPED_)
-        elem[i].geol.k2 = calib->k2 * geoltbl->k2 / DAYINSEC;
-#endif
-
         elem[i].geol.kinfv = BADVAL;
         elem[i].geol.dinf = BADVAL;
         elem[i].geol.smcwlt = BADVAL;

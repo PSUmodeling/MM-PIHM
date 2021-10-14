@@ -139,11 +139,6 @@ void ReadCalib(const char fn[], calib_struct *calib)
 
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "MACHF", 'd', fn, lno, &calib->geol_areafh);
-
-# if defined(_LUMPED_)
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "K2", 'd', fn, lno, &calib->k2);
-# endif
 #endif
 
 #if defined(_BGC_)

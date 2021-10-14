@@ -106,11 +106,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#if defined(_LUMPED_) && defined(_RT_)
-    InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii, pihm->chemtbl, &pihm->rttbl, &pihm->print);
-#else
     InitOutputFiles(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii, &pihm->print);
-#endif
 
     pihm_printf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 

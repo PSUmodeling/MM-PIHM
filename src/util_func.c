@@ -59,9 +59,6 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
             case 'V':
                 // Print version number
                 printf("MM-PIHM Version %s\n", VERSION);
-#if defined(_LUMPED_)
-                printf("Lumped variant\n");
-#endif
 #if defined(_DGW_)
                 printf("Compiled with deep groundwater module\n");
 #endif

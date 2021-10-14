@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------
 
 # Valid make options for MM-PIHM
-PARAMS := WARNING DEBUG OMP DGW LUMPED CVODE_OMP AVGN
+PARAMS := WARNING DEBUG OMP DGW CVODE_OMP AVGN
 
 # Get all make options
 CMDVARS := $(strip $(foreach V,$(.VARIABLES),$(if $(findstring command,$(origin $V)),$V)))
@@ -72,10 +72,6 @@ SFLAGS = -D_PIHM_
 
 ifeq ($(DGW), on)
 	SFLAGS += -D_DGW_
-endif
-
-ifeq ($(LUMPED), on)
-	SFLAGS += -D_LUMPED_
 endif
 
 ifeq ($(CVODE_OMP), on)

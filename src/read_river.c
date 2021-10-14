@@ -20,14 +20,6 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMRIV", 'i', fn, lno, &nriver);
 
-#if defined(_LUMPED_)
-    if (nriver != 1)
-    {
-        pihm_printf(VL_ERROR, "Error: Number of river segments should be 1 in lumped mode.\n");
-        pihm_exit(EXIT_FAILURE);
-    }
-#endif
-
     // Allocate
     rivtbl->from = (int *)malloc(nriver * sizeof(int));
     rivtbl->to = (int *)malloc(nriver * sizeof(int));

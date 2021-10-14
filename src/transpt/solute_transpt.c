@@ -27,9 +27,6 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
         {
             // Initialize chemical fluxes
             elem[i].solute[k].infil_geol = 0.0;
-#if defined(_LUMPED_)
-            elem[i].solute[k].dgw_leach = 0.0;
-#endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -109,11 +106,6 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
             elem[i].solute[k].infil_geol = elem[i].wf.infil_geol * ((elem[i].wf.infil_geol > 0.0) ?
                 elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
-# if defined(_LUMPED_)
-            // Deep zone leaching to river. Note that deep zone runoff is always non-negative
-            elem[i].solute[k].dgw_leach = elem[i].wf.dgw_runoff * elem[i].solute[k].conc_geol;
-# endif
-
             // Element to element
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -167,20 +159,12 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
             // Left and right banks
         if (river[i].left > 0)
         {
-#if defined(_DGW_) && defined(_LUMPED_)
-            RiverElemSoluteFlow(SURF_LEFT, AQUIFER_LEFT, DGW_LEFT, &elem[river[i].left - 1], &river[i]);
-#else
             RiverElemSoluteFlow(SURF_LEFT, AQUIFER_LEFT, &elem[river[i].left - 1], &river[i]);
-#endif
         }
 
         if (river[i].right > 0)
         {
-#if defined(_DGW_) && defined(_LUMPED_)
-            RiverElemSoluteFlow(SURF_RIGHT, AQUIFER_RIGHT, DGW_RIGHT, &elem[river[i].right - 1], &river[i]);
-#else
             RiverElemSoluteFlow(SURF_RIGHT, AQUIFER_RIGHT, &elem[river[i].right - 1], &river[i]);
-#endif
         }
     }
 
@@ -199,12 +183,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
     }
 }
 
-#if defined(_DGW_) && defined(_LUMPED_)
-void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl, int dgw_to_chanl, elem_struct *bank,
-    river_struct *river)
-#else
 void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl, elem_struct *bank, river_struct *river)
-#endif
 {
     int             j, k;
 
@@ -215,10 +194,6 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl, elem_struct *ban
 
         river->solute[k].flux[aquif_to_chanl] = river->wf.rivflow[aquif_to_chanl] *
             ((river->wf.rivflow[aquif_to_chanl] > 0.0) ? river->solute[k].conc : bank->solute[k].conc);
-
-#if defined(_DGW_) && defined(_LUMPED_)
-        river->solute[k].flux[dgw_to_chanl] = river->wf.rivflow[dgw_to_chanl] * bank->solute[k].conc_geol;
-#endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {

@@ -72,9 +72,6 @@ typedef struct soil_struct
     double          b[MAXLYR];
     double          air_entry_pot[MAXLYR];
 #endif
-#if defined(_DGW_) && defined(_LUMPED_)
-    double          k2;                     // linear recession coefficient (s-1)
-#endif
 #if defined(_NOAH_)
     double          csoil;                  // soil heat capacity (J m-3 K-1)
     double          quartz;                 // soil quartz content (-)
@@ -319,9 +316,6 @@ typedef struct wflux_struct
     double          infil_geol;             // deep zone infiltration (m s-1)
     double          rechg_geol;             // deep zone recharge (m s-1)
     double          dgw[NUM_EDGE];          // lateral deep groundwater flow (m3 s-1)
-# if defined(_LUMPED_)
-    double          dgw_runoff;             // runoff from deep zone to river (only applies to lumped variant) (m3 s-1)
-# endif
 #endif
 #if defined(_NOAH_)
     double          et[MAXLYR];             // plant transpiration from each soil layer (m s-1)
@@ -398,10 +392,6 @@ typedef struct solute_struct
     double          infil_geol;             // solute flux from deep zone infiltration (mass/amount of subs m-2 s-1)
     double          dgwflux[NUM_EDGE];      // lateral solute flux in deep zone (mass/amount of subs s-1)
     double          snksrc_geol;            // deep zone sink/source term (mass/amount of subs m-2 s-1)
-#  if defined(_LUMPED_)
-    double          dgw_leach;              // solute flux from deep zone to river (only applies to lumped variant)
-                                            // (mass/amount of subs m-2 s-1)
-#  endif
 # endif
 } solute_struct;
 #endif

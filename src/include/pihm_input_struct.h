@@ -174,9 +174,6 @@ typedef struct geoltbl_struct
                                             // saturated infiltration hydraulic conductivity (-)
     double          kmach_ro;               // ratio between horizontal macropore hydraulic conductivity and horizontal
                                             // saturated hydraulic conductivity (-)
-#if defined(_LUMPED_)
-    double          k2;                     // recession coefficient (day-1)
-#endif
 } geoltbl_struct;
 
 // Land cover parameters

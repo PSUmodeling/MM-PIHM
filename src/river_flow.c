@@ -82,14 +82,6 @@ void RiverToElem(river_struct *river_ptr, elem_struct *left, elem_struct *right)
         river_ptr->wf.rivflow[AQUIFER_RIGHT] =
             ChannelFlowElemToRiver(effk_right, river_ptr->topo.dist_right, river_ptr, right);
     }
-
-#if defined(_DGW_) && defined(_LUMPED_)
-    left->wf.dgw_runoff = left->geol.k2 * MAX(left->ws.gw_geol, 0.0) * left->geol.porosity;
-    river_ptr->wf.rivflow[DGW_LEFT] = -left->wf.dgw_runoff * left->topo.area;
-
-    right->wf.dgw_runoff = right->geol.k2 * MAX(right->ws.gw_geol, 0.0) * right->geol.porosity;
-    river_ptr->wf.rivflow[DGW_RIGHT] = -right->wf.dgw_runoff * right->topo.area;
-#endif
 }
 
 double OvlFlowElemToRiver(const river_struct *river_ptr, elem_struct *bank)

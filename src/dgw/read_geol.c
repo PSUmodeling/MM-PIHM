@@ -53,10 +53,5 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "KMACH_RO", 'd', fn, lno, &geoltbl->kmach_ro);
 
-#if defined(_LUMPED_)
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "K2", 'd', fn, lno, &geoltbl->k2);
-#endif
-
     fclose (fp);
 }

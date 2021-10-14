@@ -152,11 +152,7 @@ void            InitForcing(const calib_struct *, forc_struct *, elem_struct [])
 void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(const lctbl_struct *, const calib_struct *, elem_struct []);
 void            InitMesh(const meshtbl_struct *, elem_struct []);
-#if defined(_LUMPED_) && defined(_RT_)
-void            InitOutputFiles(const char [], int, int, const chemtbl_struct [], const rttbl_struct *, print_struct *);
-#else
 void            InitOutputFiles(const char [], int, int, print_struct *);
-#endif
 void            InitPrintCtrl(const char [], const char [], int, int, int, varctrl_struct *);
 void            InitRiver(const meshtbl_struct *, const rivtbl_struct *, const shptbl_struct *, const matltbl_struct *,
     const calib_struct *, elem_struct [], river_struct []);
@@ -399,11 +395,7 @@ void            SetAbsTolArray(double, N_Vector);
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 double          AdvDiffDisp(double, double, double, double, double, double, double, double, double);
 void            InitSolute(elem_struct []);
-# if defined(_DGW_) && defined(_LUMPED_)
-void            RiverElemSoluteFlow(int, int, int, elem_struct *, river_struct *);
-# else
 void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
-# endif
 void            SoluteTranspt(double, double, double, elem_struct [], river_struct []);
 #endif
 
