@@ -43,7 +43,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], N_Vect
 
         elem[i].ws0 = elem[i].ws;
 
-#if defined(_BGC_) && !defined(_LUMPEDBGC_)
+#if defined(_BGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 
         elem[i].ns.nleached_snk += elem[i].nt.sminn0 - elem[i].ns.sminn + elem[i].solute[0].snksrc * stepsize;
@@ -95,16 +95,6 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], N_Vect
 #endif
 
     }
-
-#if defined(_BGC_) && defined(_LUMPEDBGC_)
-    elem[LUMPEDBGC].ns.sminn = MAX(y[LUMPEDBGC_SMINN], 0.0);
-
-    elem[LUMPEDBGC].ns.nleached_snk += (elem[LUMPEDBGC].nt.sminn0 - elem[LUMPEDBGC].ns.sminn) +
-        elem[LUMPEDBGC].nf.ndep_to_sminn / DAYINSEC * stepsize +
-        elem[LUMPEDBGC].nf.nfix_to_sminn / DAYINSEC * stepsize + elem[LUMPEDBGC].nsol.snksrc * stepsize;
-
-    elem[LUMPEDBGC].nt.sminn0 = elem[LUMPEDBGC].ns.sminn;
-#endif
 
 #if defined(_OPENMP)
 # pragma omp parallel for

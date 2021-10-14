@@ -335,11 +335,7 @@ void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
 # endif
     for (i = 0; i < nelem; i++)
     {
-# if defined(_LUMPEDBGC_)
-        elem[i].ps.proj_lai = elem[LUMPEDBGC].cs.leafc * elem[LUMPEDBGC].epc.avg_proj_sla;
-# else
         elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
-# endif
     }
 #else
     // Use LAI forcing

@@ -7,11 +7,7 @@ void InitLc(const lctbl_struct *lctbl, const calib_struct *calib, elem_struct el
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-#if defined(_LUMPEDBGC_)
-    for (i = 0; i < nelem + 1; i++)
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         _InitLc(lctbl, calib, &elem[i]);
     }

@@ -195,12 +195,6 @@ endif
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
-	ifeq ($(LUMPEDBGC), on)
-		SFLAGS += -D_LUMPEDBGC_
-	endif
-	ifeq ($(LEACHING), on)
-		SFLAGS += -D_LEACHING_
-	endif
 	MODULE_SRCS_= \
 		bgc/bgc_init.c\
 		bgc/bgc_read.c\

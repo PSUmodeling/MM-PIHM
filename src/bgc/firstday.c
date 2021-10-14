@@ -4,11 +4,7 @@ void FirstDay(const cninit_struct *cninit, elem_struct elem[], river_struct rive
 {
     int             i;
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         bgcic_struct   *restart;
         epconst_struct *epc;
@@ -131,10 +127,8 @@ void FirstDay(const cninit_struct *cninit, elem_struct elem[], river_struct rive
         restart->prev_frootc_to_litter = 0.0;
     }
 
-#if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         river[i].restart_input.streamn = 0.0;
     }
-#endif
 }

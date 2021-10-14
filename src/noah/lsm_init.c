@@ -12,11 +12,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct 
 
     iceh = (double *)malloc(nelem * sizeof(double));
 
-#if defined(_LUMPEDBGC_)
-    for (i = 0; i < nelem + 1; i++)
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         if (elem[i].lc.glacier == 1)
         {
@@ -40,11 +36,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct 
         }
     }
 
-#if defined(_LUMPEDBGC_)
-    for (i = 0; i < nelem + 1; i++)
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         // Set-up soil layer depths
         DefineSoilDepths(ctrl->nlayers, elem[i].soil.depth, ctrl->soil_depth, &elem[i].ps.nlayers,

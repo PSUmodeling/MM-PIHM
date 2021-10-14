@@ -50,14 +50,10 @@ void ResetSpinupStat(elem_struct elem[])
 {
     int             i;
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
-#endif
     {
         elem[i].spinup.soilc = 0.0;
         elem[i].spinup.totalc = 0.0;
@@ -91,11 +87,7 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area, const el
     static double   gwgeol_prev = 0.0;
 #endif
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity * elem[i].topo.area / total_area;
 
@@ -190,4 +182,3 @@ void EndRotation(elem_struct elem[])
     }
 }
 #endif
-

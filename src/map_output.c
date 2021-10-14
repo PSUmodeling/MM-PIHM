@@ -347,88 +347,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     break;
 #endif
 #if defined(_BGC_)
-# if defined(_LUMPEDBGC_)
-                case LAI_CTRL:
-                    InitPrintCtrl(outputdir, "lai", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].ps.proj_lai;
-                    n++;
-                    break;
-                case NPP_CTRL:
-                    InitPrintCtrl(outputdir, "npp", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_npp;
-                    n++;
-                    break;
-                case NEP_CTRL:
-                    InitPrintCtrl(outputdir, "nep", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nep;
-                    n++;
-                    break;
-                case NEE_CTRL:
-                    InitPrintCtrl(outputdir, "nee", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_nee;
-                    n++;
-                    break;
-                case GPP_CTRL:
-                    InitPrintCtrl(outputdir, "gpp", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gpp;
-                    n++;
-                    break;
-                case MR_CTRL:
-                    InitPrintCtrl(outputdir, "mr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_mr;
-                    n++;
-                    break;
-                case GR_CTRL:
-                    InitPrintCtrl(outputdir, "gr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_gr;
-                    n++;
-                    break;
-                case HR_CTRL:
-                    InitPrintCtrl(outputdir, "hr", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_hr;
-                    n++;
-                    break;
-                case FIRE_CTRL:
-                    InitPrintCtrl(outputdir, "fire", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_fire;
-                    n++;
-                    break;
-                case LITFALLC_CTRL:
-                    InitPrintCtrl(outputdir, "litfallc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.daily_litfallc;
-                    n++;
-                    break;
-                case VEGC_CTRL:
-                    InitPrintCtrl(outputdir, "vegc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.vegc;
-                    n++;
-                    break;
-                case AGC_CTRL:
-                    InitPrintCtrl(outputdir, "agc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.agc;
-                    n++;
-                    break;
-                case LITRC_CTRL:
-                    InitPrintCtrl(outputdir, "litrc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.litrc;
-                    n++;
-                    break;
-                case SOILC_CTRL:
-                    InitPrintCtrl(outputdir, "soilc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.soilc;
-                    n++;
-                    break;
-                case TOTALC_CTRL:
-                    InitPrintCtrl(outputdir, "totalc", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].summary.totalc;
-                    n++;
-                    break;
-                case SMINN_CTRL:
-                    InitPrintCtrl(outputdir, "sminn", prtvrbl[i], CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPEDBGC].ns.sminn;
-                    n++;
-                    break;
-# else
                 case LAI_CTRL:
                     InitPrintCtrl(outputdir, "lai", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -557,7 +475,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     }
                     n++;
                     break;
-# endif
 #endif
 #if defined(_CYCLES_)
                 case YIELD_CTRL:

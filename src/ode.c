@@ -39,7 +39,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.gw_geol = MAX(y[GW_GEOL(i)], 0.0);
 #endif
 
-#if defined(_BGC_) && !defined(_LUMPEDBGC_)
+#if defined(_BGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
 
@@ -61,10 +61,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
-#if defined(_BGC_) && defined(_LUMPEDBGC_)
-    elem[LUMPEDBGC].ns.sminn = MAX(y[LUMPEDBGC_SMINN], 0.0);
-#endif
-
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -72,7 +68,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         river[i].ws.stage = MAX(y[RIVER(i)], 0.0);
 
-#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
+#if defined(_BGC_)
         river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif
 
@@ -208,14 +204,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 #endif
     }
-
-#if defined(_BGC_) && defined(_LUMPEDBGC_)
-    elem_struct    *elem;
-
-    elem = &pihm->elem[LUMPEDBGC];
-
-    dy[LUMPEDBGC_SMINN] += (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC + elem->nsol.snksrc;
-#endif
 
     // ODEs for river segments
 #if defined(_OPENMP)

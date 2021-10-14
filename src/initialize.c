@@ -6,16 +6,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
     int             bc;
-#if defined(_LUMPEDBGC_)
-    int             soil_counter[MAX_TYPE];
-    int             lc_counter[MAX_TYPE];
-
-    for (i = 0; i < MAX_TYPE; i++)
-    {
-        soil_counter[i] = 0;
-        lc_counter[i] = 0;
-    }
-#endif
 
     pihm_printf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
@@ -28,11 +18,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     // Initialize PIHM structure
-#if defined(_LUMPEDBGC_)
-    pihm->elem = (elem_struct *)malloc((nelem + 1) * sizeof(elem_struct));
-#else
     pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
-#endif
     pihm->river = (river_struct *)malloc(nriver * sizeof(river_struct));
 
     for (i = 0; i < nelem; i++)
@@ -42,11 +28,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.geol = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc = pihm->atttbl.lc[i];
-
-#if defined(_LUMPEDBGC_)
-        soil_counter[pihm->elem[i].attrib.soil]++;
-        lc_counter[pihm->elem[i].attrib.lc]++;
-#endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -91,19 +72,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
     }
 
-#if defined(_LUMPEDBGC_)
-    // Use the soil type (land cover type) that covers the most number of model grids for the lumped grid
-    pihm->elem[LUMPEDBGC].attrib.soil = 0;
-    pihm->elem[LUMPEDBGC].attrib.lc = 0;
-    for (i = 0; i < MAX_TYPE; i++)
-    {
-        pihm->elem[LUMPEDBGC].attrib.soil = (soil_counter[i] > soil_counter[pihm->elem[LUMPEDBGC].attrib.soil]) ?
-            i : pihm->elem[LUMPEDBGC].attrib.soil;
-        pihm->elem[LUMPEDBGC].attrib.lc = (lc_counter[i] > lc_counter[pihm->elem[LUMPEDBGC].attrib.lc]) ?
-            i : pihm->elem[LUMPEDBGC].attrib.lc;
-    }
-#endif
-
     for (i = 0; i < nriver; i++)
     {
         bc = pihm->rivtbl.bc[i];
@@ -130,11 +98,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
     pihm->siteinfo.zmin = AvgZmin(pihm->elem);
     pihm->siteinfo.area = TotalArea(pihm->elem);
-#if defined(_LUMPEDBGC_)
-    pihm->elem[LUMPEDBGC].topo.zmax = pihm->siteinfo.zmax;
-    pihm->elem[LUMPEDBGC].topo.zmin = pihm->siteinfo.zmin;
-    pihm->elem[LUMPEDBGC].topo.area = pihm->siteinfo.area;
-#endif
 
     // Initialize element soil properties
 #if defined(_NOAH_)

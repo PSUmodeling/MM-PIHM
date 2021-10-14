@@ -21,10 +21,6 @@
 
 #define F_OK                    0
 
-#if defined(_LUMPEDBGC_)
-# define LUMPEDBGC    nelem
-#endif
-
 // Simulation mode
 #define NORMAL_MODE             0
 #define SPINUP_MODE             1

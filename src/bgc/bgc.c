@@ -21,14 +21,10 @@ void DailyBgc(int t, pihm_struct pihm)
     forc = &pihm->forc;
     siteinfo = &pihm->siteinfo;
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
-#endif
     {
         // First test for nitrogen balance from previous day
         CheckNitrogenBalance(&elem[i].ns, &elem[i].epv.old_n_balance);
@@ -84,11 +80,8 @@ void DailyBgc(int t, pihm_struct pihm)
     prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 24.0 * 3600.0) : prev_dayl;
 
     // Calculate average soil water content for all model grids
-#if defined(_LUMPEDBGC_)
-    vwc = (double *)malloc((nelem + 1) * sizeof(double));
-#else
     vwc = (double *)malloc(nelem * sizeof(double));
-#endif
+
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -108,23 +101,10 @@ void DailyBgc(int t, pihm_struct pihm)
         vwc[i] /= elem[i].soil.depth;
     }
 
-#if defined(_LUMPEDBGC_)
-    vwc[LUMPEDBGC] = 0.0;
-    for (i = 0; i < nelem; i++)
-    {
-        vwc[LUMPEDBGC] += vwc[i] * elem[i].topo.area;
-    }
-    vwc[LUMPEDBGC] /= elem[LUMPEDBGC].topo.area;
-#endif
-
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
-#endif
     {
         daily_struct   *daily;
         epconst_struct *epc;

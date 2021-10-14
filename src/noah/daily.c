@@ -70,55 +70,6 @@ void DailyVar(int t, int start_time, elem_struct elem[])
             elem[i].daily.avg_soldn /= (double)elem[i].daily.daylight_counter;
             elem[i].daily.tnight /= (double)(elem[i].daily.counter - elem[i].daily.daylight_counter);
         }
-
-#if defined(_LUMPEDBGC_)
-        int             kz;
-
-        elem[LUMPEDBGC].daily.tmax = 0.0;
-        elem[LUMPEDBGC].daily.tmin = 0.0;
-        for (i = 0; i < nelem; i++)
-        {
-            elem[LUMPEDBGC].daily.tmax += elem[i].daily.tmax * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.tmin += elem[i].daily.tmin * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_sfctmp += elem[i].daily.avg_sfctmp * elem[i].topo.area;
-            // When running lumped model, only average root zone to avoid uneven layers
-            for (kz = 0; kz < elem[i].ps.nlayers; kz++)
-            {
-                elem[LUMPEDBGC].daily.avg_stc[kz] += elem[i].daily.avg_stc[kz] * elem[i].topo.area;
-                elem[LUMPEDBGC].daily.avg_sh2o[kz] += elem[i].daily.avg_sh2o[kz] * elem[i].topo.area;
-                elem[LUMPEDBGC].daily.avg_smc[kz] += elem[i].daily.avg_smc[kz] * elem[i].topo.area;
-            }
-
-            elem[LUMPEDBGC].daily.tday += elem[i].daily.tday * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_q2d += elem[i].daily.avg_q2d * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_ch += elem[i].daily.avg_ch * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_rc += elem[i].daily.avg_rc * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_sfcprs += elem[i].daily.avg_sfcprs * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_albedo += elem[i].daily.avg_albedo * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.avg_soldn += elem[i].daily.avg_soldn * elem[i].topo.area;
-            elem[LUMPEDBGC].daily.tnight += elem[i].daily.tnight * elem[i].topo.area;
-        }
-
-        elem[LUMPEDBGC].daily.tmax /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.tmin /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_sfctmp /= elem[LUMPEDBGC].topo.area;
-        // When running lumped model, only average root zone to avoid uneven layers
-        for (kz = 0; kz < elem[LUMPEDBGC].ps.nlayers; kz++)
-        {
-            elem[LUMPEDBGC].daily.avg_stc[kz] /= elem[LUMPEDBGC].topo.area;
-            elem[LUMPEDBGC].daily.avg_sh2o[kz] /= elem[LUMPEDBGC].topo.area;
-            elem[LUMPEDBGC].daily.avg_smc[kz] /= elem[LUMPEDBGC].topo.area;
-        }
-
-        elem[LUMPEDBGC].daily.tday /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_q2d /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_ch /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_rc /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_sfcprs /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_albedo /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.avg_soldn /= elem[LUMPEDBGC].topo.area;
-        elem[LUMPEDBGC].daily.tnight /= elem[LUMPEDBGC].topo.area;
-#endif
     }
 }
 
@@ -129,11 +80,7 @@ void InitDailyStruct(elem_struct elem[])
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-#if defined(_LUMPEDBGC_)
-    for (i = 0; i < nelem + 1; i++)
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         int             kz;
 

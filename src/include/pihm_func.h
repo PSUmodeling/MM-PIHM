@@ -430,15 +430,6 @@ void            MaintResp(const epconst_struct *, const daily_struct *, const cs
     epvar_struct *, cflux_struct *);
 void            MakeZeroFluxStruct(cflux_struct *, nflux_struct *);
 void            Mortality(const epconst_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *);
-# if defined(_LEACHING_)
-void            NLeaching(elem_struct *);
-# elif defined(_LUMPEDBGC_)
-void            NLeachingLumped(elem_struct *, river_struct *);
-# else
-#  if OBSOLETE
-void            NTransport(elem_struct *, river_struct *);
-#  endif
-# endif
 void            OffsetLitterfall(const epconst_struct *, epvar_struct *, const cstate_struct *, cflux_struct *,
     nflux_struct *);
 void            OnsetGrowth(const epconst_struct *, const epvar_struct *, const cstate_struct *, const nstate_struct *,

@@ -12,11 +12,7 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib, elem_str
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-#if defined(_LUMPEDBGC_)
-    for (i = 0; i < nelem + 1; i++)
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         int             soil_ind;
 

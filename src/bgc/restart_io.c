@@ -170,11 +170,7 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
     fp = pihm_fopen(fn, "rb");
     pihm_printf(VL_VERBOSE, " Reading %s\n", fn);
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, fp);
 
@@ -193,12 +189,10 @@ void ReadBgcIc(const char fn[], elem_struct elem[], river_struct river[])
         }
     }
 
-#if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1, fp);
     }
-#endif
 
     fclose(fp);
 }
@@ -215,11 +209,7 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
     fp = pihm_fopen(fn, "wb");
     pihm_printf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
-#if defined(_LUMPEDBGC_)
-    i = LUMPEDBGC;
-#else
     for (i = 0; i < nelem; i++)
-#endif
     {
         RestartOutput(&elem[i].epv, &elem[i].cs, &elem[i].ns, &elem[i].restart_output);
 
@@ -240,14 +230,12 @@ void WriteBgcIc(const char outputdir[], elem_struct elem[],
         fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1, fp);
     }
 
-#if !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
 
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1, fp);
     }
-#endif
 
     fclose(fp);
 }
