@@ -104,6 +104,9 @@ def read_output(simulation, outputdir, ext):
     elif ext == 'recharge':
         varname = 'Recharge'
         unit = 'm s$^{-1}$'
+    elif ext == 'eres':
+        varname = 'Residue evaporation'
+        unit = 'm s$^{-1}$'
     elif ext == 'ec':
         varname = 'Canopy evaporation'
         unit = 'm s$^{-1}$'
@@ -251,21 +254,51 @@ def read_output(simulation, outputdir, ext):
     elif ext == 'NH4':
         varname = 'Soil profile NH$_4$'
         unit = 'Mg ha$^{-1}$'
-    elif ext == 'river_NO3':
+    elif ext == 'river.NO3':
         varname = 'River NO$_3$'
         unit = 'Mg ha$^{-1}$'
-    elif ext == 'river_NH4':
+    elif ext == 'river.NH4':
         varname = 'River NH$_4$'
         unit = 'Mg ha$^{-1}$'
     elif ext == 'denitrif':
         varname = 'Denitrification'
-        unit = 'Mg ha$^{-1}$'
-    elif ext == 'NO3_leaching':
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'nitrif':
+        varname = 'Nitrification'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'immobil':
+        varname = 'N immobilization'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'mineral':
+        varname = 'N mineralization'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'volatil':
+        varname = 'N volatilization'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'NO3leaching':
         varname = 'NO$_3$ leaching'
         unit = '0.1 kg s$^{-1}$'
-    elif ext == 'NH4_leaching':
+    elif ext == 'NH4leaching':
         varname = 'NH$_4$ leaching'
         unit = '0.1 kg s$^{-1}$'
+    elif ext == 'river.NO3leaching':
+        varname = 'River NO$_3$ flux'
+        unit = '0.1 kg s$^{-1}$'
+    elif ext == 'river.NH4leaching':
+        varname = 'River NH$_4$ flux'
+        unit = '0.1 kg s$^{-1}$'
+    elif ext == 'soc':
+        varname = 'Soil organic carbon'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'n2o':
+        varname = 'N2O emission'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'n_harvest':
+        varname = 'N in harvest'
+        unit = 'Mg ha$^{-1} day^{-1}$'
+    elif ext == 'n_input':
+        varname = 'N input'
+        unit = 'Mg ha$^{-1} day^{-1}$'
     elif ext == 'deep.unsat':
         varname = 'Deep zone unsaturated storage'
         unit = 'm'
