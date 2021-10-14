@@ -213,16 +213,6 @@ int NumStateVar(void)
     nsv += nsolute * (nelem + nriver);
 #endif
 
-#if TEMP_DISABLED
-#if defined(_BGC_)
-# if defined(_LUMPEDBGC_)
-    nsv += 1;
-# else
-    nsv += 2 * nelem + 2 * nriver;
-# endif
-#endif
-#endif
-
 #if defined(_DGW_)
     nsv += 2 * nelem;
 # if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
