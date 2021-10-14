@@ -66,28 +66,12 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case CMC_CTRL:
-#if defined(_CYCLES_OBSOLETE_)
-                    InitPrintCtrl(outputdir, "stanresw", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ws.stanResidueWater;
-                    }
-                    n++;
-
-                    InitPrintCtrl(outputdir, "flatresw", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ws.flatResidueWater;
-                    }
-                    n++;
-#else
                     InitPrintCtrl(outputdir, "is", prtvrbl[i], LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ws.cmc;
                     }
                     n++;
-#endif
                     break;
                 case INFIL_CTRL:
                     InitPrintCtrl(outputdir, "infil", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);

@@ -90,19 +90,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     // PIHM Hydrology fluxes
     Hydrol(&pihm->ctrl, pihm->elem, pihm->river);
 
-#if _OBSOLETE_
-#if defined(_BGC_)
-    // Nitrogen transport fluxes
-# if defined(_LUMPEDBGC_)
-    NLeachingLumped(pihm->elem, pihm->river);
-# elif defined(_LEACHING_)
-    NLeaching(pihm->elem);
-# else
-    NTransport(pihm->elem, pihm->river);
-# endif
-#endif
-#endif
-
     // Calculate solute concentrations
 #if defined(_BGC_)
     SoluteConc(pihm->elem, pihm->river);
@@ -157,26 +144,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[GW_GEOL(i)] /= elem[i].geol.porosity;
 #endif
 
-#if _OBSOLETE_
-#if defined(_BGC_) && !defined(_LUMPEDBGC_)
-# if !defined(_LEACHING_)
-        // BGC N transport fluxes
-        dy[SURFN(i)] += (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC - elem[i].nsol.infilflux;
-        dy[SMINN(i)] += elem[i].nsol.infilflux + elem[i].nsol.snksrc;
-# else
-        dy[SMINN(i)] += (elem[i].nf.ndep_to_sminn + elem[i].nf.nfix_to_sminn) / DAYINSEC + elem[i].nsol.snksrc;
-# endif
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-# if !defined(_LEACHING_)
-            dy[SURFN(i)] -= elem[i].nsol.ovlflux[j] / elem[i].topo.area;
-# endif
-            dy[SMINN(i)] -= elem[i].nsol.subflux[j] / elem[i].topo.area;
-        }
-#endif
-#endif
-
 #if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
         int             k;
 
@@ -218,15 +185,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             // Note the limitation due to d(v) / dt = a * dy / dt + y * da / dt for cs other than rectangle
             dy[RIVER(i)] -= river[i].wf.rivflow[j] / river[i].topo.area;
         }
-
-#if _OBSOLETE_
-#if defined(_BGC_) && !defined(_LUMPEDBGC_) && !defined(_LEACHING_)
-        for (j = 0; j <= 6; j++)
-        {
-            dy[STREAMN(i)] -= river[i].nsol.flux[j] / river[i].topo.area;
-        }
-#endif
-#endif
 
 #if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
         int             k;

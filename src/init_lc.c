@@ -27,13 +27,11 @@ void _InitLc(const lctbl_struct *lctbl, const calib_struct *calib, elem_struct *
     lc_ind = elem_ptr->attrib.lc - 1;
 
     elem_ptr->ps.rzd = calib->rzd * lctbl->rzd[lc_ind];
-#if !defined(_CYCLES_OBSOLETE_)
     elem_ptr->epc.rsmin = lctbl->rsmin[lc_ind];
     elem_ptr->epc.rgl = lctbl->rgl[lc_ind];
     elem_ptr->epc.hs = lctbl->hs[lc_ind];
     elem_ptr->epc.rsmax = lctbl->rsmax;
     elem_ptr->epc.topt = lctbl->topt;
-#endif
     elem_ptr->lc.shdfac = calib->vegfrac * lctbl->vegfrac[lc_ind];
     elem_ptr->lc.laimin = lctbl->laimin[lc_ind];
     elem_ptr->lc.laimax = lctbl->laimax[lc_ind];
@@ -59,11 +57,9 @@ void _InitLc(const lctbl_struct *lctbl, const calib_struct *calib, elem_struct *
 #endif
 
 #if defined(_NOAH_)
-# if !defined(_CYCLES_OBSOLETE_)
     elem_ptr->epc.rgl *= calib->rgl;
     elem_ptr->epc.hs *= calib->hs;
     elem_ptr->epc.rsmin *= calib->rsmin;
-# endif
     elem_ptr->lc.cmcfactr *= calib->cmcmax;
     elem_ptr->lc.cfactr *= calib->cfactr;
 #endif
