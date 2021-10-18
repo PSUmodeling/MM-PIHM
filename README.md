@@ -4,21 +4,20 @@ MM-PIHM [![Build Status](https://travis-ci.org/PSUmodeling/MM-PIHM.svg?branch=ma
 The Multi-Modular Penn State Integrated Hydrologic Model (MM-PIHM) is a physically based watershed model with multiple optional modules.
 MM-PIHM is the **sweetest** PIHM, ever!
 
-The current release contains the source code for PIHM, Flux-PIHM, Flux-PIHM-BGC, and RT-Flux-PIHM.
+The current release contains the source code for PIHM, Flux-PIHM, Flux-PIHM-BGC, and bioRT-Flux-PIHM.
 
 PIHM is a spatially-distributed, physically based hydrologic model.
-Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for
-the simulation of land surface processes.
+Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for the simulation of land surface processes.
 Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
-RT-Flux-PIHM couples Flux-PIHM with a multicomponent subsurface reactive transport module.
-A deep groundwater module can be turned on for PIHM, Flux-PIHM, and RT-Flux-PIHM.
+BioRT-Flux-PIHM couples Flux-PIHM with a multi-component subsurface reactive transport module.
+A deep groundwater module (DGW) can be turned on for PIHM, Flux-PIHM, and RT-Flux-PIHM.
 
 MM-PIHM is open source software licensed under the MIT License.
 All bug reports and feature requests should be submitted using the [Issues](https://github.com/PSUmodeling/MM-PIHM/issues) page.
 
 ## Usage
 
-The following guide applies to UNIX (include Mac OS) systems.
+The following guide applies to UNIX (including Mac OS) systems.
 For instructions on how to install MM-PIHM on Windows, please refer to this [guide](https://gist.github.com/shiyuning/867d5af0a3a6345b50ec1b193a71e4be).
 
 ### Installing CVODE
@@ -162,11 +161,20 @@ All model output variables will be stored in the `output/dir_name` directory whe
 If `-o` parameter is not used, model output will be stored in a directory named after the project and the system time when the simulation is executed.
 
 Example input files are provided with each release.
-For a description of input files, please refer to the *User's Guide*
- that can be downloaded from the [release page](https://github.com/PSUmodeling/MM-PIHM/releases).
+For a description of input files, please refer to the *User's Guide* that can be downloaded from the [release page](https://github.com/PSUmodeling/MM-PIHM/releases).
+
+#### Output visualization
+
+A [`PIHM-utils` Python package](https://pypi.org/project/PIHM-utils/) is available to read MM-PIHM input and output files for model output visualization.
+
+An example Python script to visualize model output (`plot.py`) is provided in the `util` folder.
+To plot, use:
+
+```shell
+$ python3 ./util/plot.py -s SIMULATION -o OUTPUT_DIR -v VAR
+```
 
 ### Penn State Users
 
 The Penn State ICS ACI system support both batch job submissions and interactive jobs.
 The clusters for batch job submissions, ACI-B, usually support twelve processors per node for OMP jobs.
-The cluster for interactive jobs, ACI-I, supports twenty processors per node for OMP jobs, but is limited to short jobs only.
