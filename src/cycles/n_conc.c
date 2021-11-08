@@ -70,26 +70,16 @@ void LateralNFlow(double kd, const soil_struct *soil, const wstate_struct *ws, c
     const double solute0[], double profile0, double profile, double solute[])
 {
     int             kz;
-    double          total_weight = 0.0;
+    double          total_weight;
     double          weight[MAXLYR];
+
+    // Calculate weights of concentrations for each layer
+    ConcWeight(soil, ws, ps, weight);
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {
-#if defined(_AVGN_)
-        double          satn;
-
-        satn = (ws->swc[kz] - soil->smcmin) / (soil->smcmax - soil->smcmin);
-        satn = MIN(satn, 1.0);
-        satn = MAX(satn, SATMIN);
-
-        weight[kz] = ps->soil_depth[kz] * ws->smc[kz] *
-            LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz], solute[kz]) * KrFunc(soil->beta, satn) /
-            (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
-#else
-        weight[kz] = (ps->satdpth[kz] > 0.0 && solute[kz] > 0.0) ?
-            LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz], solute[kz]) * ps->satdpth[kz] *
-            ws->smc[kz] * RHOH2O : 0.0;
-#endif
+        // Calculate weights of mass
+        weight[kz] *= LinearEqmConc(kd, soil->bd[kz], ps->soil_depth[kz], ws->smc[kz], solute[kz]);
     }
 
     total_weight = Profile(ps->nlayers, weight);
@@ -131,25 +121,9 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil, co
     int             k;
     double          weight[MAXLYR];
     double          avg_conc = 0.0;
-    double          total_weight = 0.0;
 
-    for (k = 0; k < ps->nlayers; k++)
-    {
-#if defined(_AVGN_)
-        double          satn;
-
-        satn = (ws->swc[k] - soil->smcmin) / (soil->smcmax - soil->smcmin);
-        satn = MIN(satn, 1.0);
-        satn = MAX(satn, SATMIN);
-
-        weight[k] = ps->soil_depth[k] * ws->smc[k] * KrFunc(soil->beta, satn) /
-            (soil->depth + ps->zsoil[k] + 0.5 * ps->soil_depth[k]);
-#else
-        weight[k] = ps->satdpth[k];
-#endif
-    }
-
-    total_weight = Profile(ps->nlayers, weight);
+    // Calculate weights of concentrations for each layer
+    ConcWeight(soil, ws, ps, weight);
 
     for (k = 0; k < ps->nlayers; k++)
     {
@@ -158,7 +132,7 @@ double MobileNConc(double kd, const double solute[], const soil_struct *soil, co
         conc = (solute[k] > 0.0) ?
             LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->smc[k], solute[k]) * RHOH2O : 0.0;
 
-        avg_conc += weight[k] / total_weight * conc;
+        avg_conc += weight[k] * conc;
     }
 
     return avg_conc;
@@ -219,3 +193,44 @@ void NRT(double kd, double dt, double wflux[], const soil_struct *soil, const ws
     }
 }
 #endif
+
+void ConcWeight(const soil_struct *soil, const wstate_struct *ws, const phystate_struct *ps, double weight[])
+{
+    int             kz;
+    double          total_weight;
+
+    for (kz = 0; kz < ps->nlayers; kz++)
+    {
+#if defined(_AVGN_)
+        double          satn;
+
+        satn = (ws->swc[kz] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+        satn = MIN(satn, 1.0);
+        satn = MAX(satn, SATMIN);
+
+        // Weigh contributions of layers by their water contents, hydraulic conductivities, and depths
+        weight[kz] = ps->soil_depth[kz] * ws->smc[kz] * KrFunc(soil->beta, satn) /
+            (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
+#else
+        weight[kz] = ps->satdpth[kz];
+#endif
+    }
+
+    total_weight = Profile(ps->nlayers, weight);
+
+    if (total_weight <= 0.0)
+    {
+        for (kz = 0; kz < ps->nlayers; kz++)
+        {
+            weight[kz] = 0.0;
+        }
+        weight[ps->nlayers - 1] = 1.0;
+    }
+    else
+    {
+        for (kz = 0; kz < ps->nlayers; kz++)
+        {
+            weight[kz] /= total_weight;
+        }
+    }
+}
