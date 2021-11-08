@@ -10,74 +10,78 @@ CMDVARS := $(strip $(foreach V,$(.VARIABLES),$(if $(findstring command,$(origin 
 
 # Test if invalid make options exist
 ifneq ($(and $(CMDVARS),$(filter-out $(PARAMS),$(CMDVARS))),)
-    $(error Make option $(filter-out $(PARAMS),$(CMDVARS)) is not supported)
+	$(error Make option $(filter-out $(PARAMS),$(CMDVARS)) is not supported)
 endif
 
 CC = gcc
 CFLAGS = -g -O0
 
+# Option to turn on compiling warnings
 ifeq ($(WARNING), on)
 	CFLAGS += -Wall -Wextra
 endif
 
+# Option to turn off debug
 ifeq ($(DEBUG), off)
 	CFLAGS += -O2
 endif
 
-omptest := $(shell echo |cpp -fopenmp -dM 2>/dev/null |grep -i open |awk '{print $$2}')
-
-ifeq ($(omptest), _OPENMP)
+# Turn on OpenMP if available
+ifeq ($(shell echo |cpp -fopenmp -dM 2>/dev/null |grep -i open |awk '{print $$2}'), _OPENMP)
 	CFLAGS += -fopenmp
 endif
 
+# Check CMake version
 CMAKE_VERS := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
 ifeq ($(CMAKE_VERS),)
 	CMAKE_VERS := 0.0.0
 endif
-CMAKE_VERS_RQD = 3.1.3
-CMAKETEST := $(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 1)
+CMAKE_VERS_RQD := 3.1.3
 
-ifeq ($(CMAKETEST),$(CMAKE_VERS_RQD))
-	CMAKE_EXIST = 1
-	CMAKE=cmake
+# Check if CMake version meets requirement
+ifeq ($(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 1), $(CMAKE_VERS_RQD))
+	CMAKE_EXIST := true
+	CMAKE := cmake
 else
-	CMAKE_EXIST = 0
-	OS := $(shell uname)
-	ifeq ($(OS),Darwin)
-		CMAKE_VERS_INSTALL = cmake-3.7.2-Darwin-x86_64
-		CMAKE = $(PWD)/$(CMAKE_VERS_INSTALL)/CMake.app/Contents/bin/cmake
+	CMAKE_EXIST := false
+	ifeq ($(shell uname), Darwin)
+		CMAKE_VERS_INSTALL := cmake-3.7.2-Darwin-x86_64
+		CMAKE := $(PWD)/$(CMAKE_VERS_INSTALL)/CMake.app/Contents/bin/cmake
 	else
-		CMAKE_VERS_INSTALL = cmake-3.7.2-Linux-x86_64
-		CMAKE = $(PWD)/$(CMAKE_VERS_INSTALL)/bin/cmake
+		CMAKE_VERS_INSTALL := cmake-3.7.2-Linux-x86_64
+		CMAKE := $(PWD)/$(CMAKE_VERS_INSTALL)/bin/cmake
 	endif
 endif
 
+# Get current MM-PIHM version number from source file, and the latest version number from GitHub
 CUR_VERS := $(shell grep "VERSION" src/include/pihm.h |awk '{print $$3}'|tr -d '"')
-_LATEST_VERS := $(shell curl --silent "https://api.github.com/repos/PSUmodeling/MM-PIHM/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+LATEST_VERS := $(patsubst v%,%,$(shell curl --silent "https://api.github.com/repos/PSUmodeling/MM-PIHM/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'))
 
-ifeq ($(_LATEST_VERS),)
-	UP_TO_DATE=-1
+# Check if the current version is up-to-date
+ifeq ($(LATEST_VERS),)
+	UP_TO_DATE := fail
 else
-	LATEST_VERS=$(patsubst v%,%,$(_LATEST_VERS))
-
-	VERS_TEST=$(shell printf '%s\n' $(CUR_VERS) $(LATEST_VERS) | sort -V | head -n 1)
-	ifneq ($(VERS_TEST),$(LATEST_VERS))
-		UP_TO_DATE=0
+	ifeq ($(shell printf '%s\n' $(CUR_VERS) $(LATEST_VERS) | sort -V | head -n 1), $(LATEST_VERS))
+		UP_TO_DATE := true
 	else
-		UP_TO_DATE=1
+		UP_TO_DATE := false
 	endif
 endif
 
+# Define CVODE paths
 CVODE_PATH = ./cvode/instdir
 CVODE_LIB = $(CVODE_PATH)/lib
 
+# Define source directory
 SRCDIR = ./src
 LIBS = -lm
 INCLUDES = \
 	-I$(SRCDIR)/include\
 	-I$(CVODE_PATH)/include
 
+# Define libraries
 LFLAGS = -lsundials_cvode -L$(CVODE_LIB)
+
 ifeq ($(CVODE_OMP), on)
 	LFLAGS += -lsundials_nvecopenmp
 else
@@ -160,7 +164,7 @@ MSG = "...  Compiling PIHM  ..."
 #-------------------
 # Flux-PIHM
 #-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm)
+ifeq ($(MAKECMDGOALS), flux-pihm)
 	SFLAGS += -D_NOAH_
 	MODULE_SRCS_ = \
 		noah/lsm_init.c\
@@ -178,7 +182,7 @@ endif
 #-------------------
 # RT-Flux-PIHM
 #-------------------
-ifeq ($(MAKECMDGOALS),rt-flux-pihm)
+ifeq ($(MAKECMDGOALS), rt-flux-pihm)
 	SFLAGS += -D_RT_ -D_NOAH_
 	MODULE_SRCS_=\
 		noah/lsm_init.c\
@@ -209,7 +213,7 @@ endif
 #-------------------
 # Flux-PIHM-BGC
 #-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
+ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
 	SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
 	MODULE_SRCS_= \
 		bgc/bgc_init.c\
@@ -255,14 +259,21 @@ endif
 #-------------------
 # Cycles-L
 #-------------------
-CYCLES_PATH = ../Cycles_dev/src
-CYCLES_VERS_RQD = 0.12.10-alpha
-ifeq ($(MAKECMDGOALS),cycles-l)
+ifeq ($(MAKECMDGOALS), cycles-l)
+#	Define Cycles path
+	CYCLES_PATH = ../Cycles_dev/src
+	CYCLES_VERS_RQD = 0.12.10-alpha
+
+#	Check Cycles version
 	CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')
 	ifeq ($(CYCLES_VERS),)
 		CYCLES_VERS := 0.0.0
 	endif
-	CYCLESTEST := $(shell printf '%s\n' $(CYCLES_VERS) $(CYCLES_VERS_RQD) | sort -V | head -n 1)
+	ifeq ($(shell printf '%s\n' $(CYCLES_VERS) $(CYCLES_VERS_RQD) | sort -V | head -n 1), $(CYCLES_VERS_RQD))
+		CYCLES_TEST := pass
+	else
+		CYCLES_TEST := fail
+	endif
 
 	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\"
 	MODULE_SRCS_= \
@@ -328,7 +339,7 @@ CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
 
 .PHONY: all clean help cvode cmake test
 
-help:			## Show this help
+help:		## Show this help
 	@echo
 	@echo "Makefile for MM-PIHM"
 	@echo
@@ -339,11 +350,11 @@ help:			## Show this help
 	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
 	@echo
 
-all:			## Install cvode and compile PIHM
-all:	cvode pihm
+all:		## Install cvode and compile PIHM
+all: cvode pihm
 
 cmake:
-ifneq ($(CMAKE_EXIST),1)
+ifeq ($(CMAKE_EXIST), false)
 	@echo "CVODE installation requires CMake v$(CMAKE_VERS_RQD) or above."
 	@echo "Download CMake $(CMAKE_VERS_INSTALL) from cmake.org"
 	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS_INSTALL).tar.gz -o $(CMAKE_VERS_INSTALL).tar.gz &> /dev/null
@@ -352,92 +363,84 @@ ifneq ($(CMAKE_EXIST),1)
 	@tar xzf $(CMAKE_VERS_INSTALL).tar.gz
 endif
 
-cvode:			## Install cvode library
-cvode:	cmake
+cvode:		## Install cvode library
+cvode: cmake
 	@echo "Install CVODE library"
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
 	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=OFF -DEXAMPLES_ENABLE_C=OFF -DEXAMPLES_INSTALL=OFF ../
 	@cd $(CVODE_PATH) && make && make install
 	@echo "CVODE library installed."
-ifneq ($(CMAKE_EXIST),1)
+ifeq ($(CMAKE_EXIST), false)
 	@echo "Remove CMake files"
 	@$(RM) -r $(CMAKE_VERS_INSTALL).tar.gz $(CMAKE_VERS_INSTALL)
 endif
 
-pihm:			## Compile PIHM
+pihm:		## Compile PIHM
 pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
+flux-pihm:	## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:		## Compile RT-Flux-PIHM (PIHM with land surface and reactive transport modules)
+rt-flux-pihm:	## Compile RT-Flux-PIHM (PIHM with land surface and reactive transport modules)
 rt-flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
+flux-pihm-bgc:	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-cycles-l:	      	## Compile Cycles-L (Flux-PIHM with agroecosystem module, adapted from Cycles)
+cycles-l:	## Compile Cycles-L (Flux-PIHM with agroecosystem module, adapted from Cycles)
 cycles-l: check_latest_vers check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
 
-test:			## Run a test simulation
+test:		## Run a test simulation using Flux-PIHM
 test: clean
 	@echo "# Compile Flux-PIHM:"
 	@echo
 	@make flux-pihm
 	@echo "# Run a test Flux-PIHM simulation:"
 	@./flux-pihm -o ShaleHillsTestRun ShaleHills
-	@echo
-	@echo "# Results can be visualized by running \"./util/plot.py\"."
 
 check_cycles_vers:
-ifneq ($(CYCLESTEST),$(CYCLES_VERS_RQD))
+ifeq ($(CYCLES_TEST), fail)
 	@echo "Cycles requires Cycles $(CYCLES_VERS_RQD) or above."
 	@echo "Current Cycles version is $(CYCLES_VERS)."
 	@exit 1
 endif
 
 check_latest_vers:
-	@echo "latest $(LATEST_VERS)"
-	@echo "current $(CUR_VERS)"
-	@echo $(VERS_TEST)
-	@echo $(UP_TO_DATE)
-ifeq ($(UP_TO_DATE),-1)
+ifeq ($(UP_TO_DATE), fail)
 	@echo
 	@echo "Checking latest version failed."
 	@echo
-else ifeq ($(UP_TO_DATE),0)
+else ifeq ($(UP_TO_DATE), false)
 	@echo
 	@echo "MM-PIHM has been updated to v$(LATEST_VERS), and you are using v$(CUR_VERS)."
 	@echo "You can download the latest version at https://github.com/PSUmodeling/MM-PIHM/releases/tag/v$(LATEST_VERS)"
 	@echo
-else
-	@echo "MM-PIHM is up to date"
 endif
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
-	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
+	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $< -o $@
 
-clean:			## Clean executables and objects
+clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
