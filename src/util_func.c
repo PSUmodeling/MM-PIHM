@@ -180,6 +180,20 @@ void BackupInput(const char outputdir[], const filename_struct *filename)
         sprintf(system_cmd, "cp %s ./%s/%s.ic.bak", filename->ic, outputdir, project);
         system(system_cmd);
     }
+#if defined(_BGC_)
+    if (pihm_access(filename->bgcic, F_OK) != -1)
+    {
+        sprintf(system_cmd, "cp %s ./%s/%s.bgcic.bak", filename->bgcic, outputdir, project);
+        system(system_cmd);
+    }
+#endif
+#if defined(_CYCLES_)
+    if (pihm_access(filename->cyclesic, F_OK) != -1)
+    {
+        sprintf(system_cmd, "cp %s ./%s/%s.cyclesic.bak", filename->cyclesic, outputdir, project);
+        system(system_cmd);
+    }
+#endif
 }
 
 void CheckCVodeFlag(int cv_flag)
