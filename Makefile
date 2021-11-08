@@ -52,6 +52,22 @@ else
 	endif
 endif
 
+CUR_VERS := $(shell grep "VERSION" src/include/pihm.h |awk '{print $$3}'|tr -d '"')
+_LATEST_VERS := $(shell curl --silent "https://api.github.com/repos/PSUmodeling/MM-PIHM/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+
+ifeq ($(_LATEST_VERS),)
+	UP_TO_DATE=-1
+else
+	LATEST_VERS=$(patsubst v%,%,$(_LATEST_VERS))
+
+	VERS_TEST=$(shell printf '%s\n' $(CUR_VERS) $(LATEST_VERS) | sort -V | head -n 1)
+	ifneq ($(VERS_TEST),$(LATEST_VERS))
+		UP_TO_DATE=0
+	else
+		UP_TO_DATE=1
+	endif
+endif
+
 CVODE_PATH = ./cvode/instdir
 CVODE_LIB = $(CVODE_PATH)/lib
 
@@ -401,7 +417,22 @@ ifneq ($(CYCLESTEST),$(CYCLES_VERS_RQD))
 endif
 
 check_latest_vers:
-	@/bin/sh util/check_latest_vers.sh
+	@echo "latest $(LATEST_VERS)"
+	@echo "current $(CUR_VERS)"
+	@echo $(VERS_TEST)
+	@echo $(UP_TO_DATE)
+ifeq ($(UP_TO_DATE),-1)
+	@echo
+	@echo "Checking latest version failed."
+	@echo
+else ifeq ($(UP_TO_DATE),0)
+	@echo
+	@echo "MM-PIHM has been updated to v$(LATEST_VERS), and you are using v$(CUR_VERS)."
+	@echo "You can download the latest version at https://github.com/PSUmodeling/MM-PIHM/releases/tag/v$(LATEST_VERS)"
+	@echo
+else
+	@echo "MM-PIHM is up to date"
+endif
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
