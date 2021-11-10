@@ -377,75 +377,72 @@ enum output_var{
 };
 
 #if defined(_CYCLES_)
-#define MAXOP                   100
-#define MAXCROP                 100
+#define MAXOP                   100         // maximum number of operations
+#define MAXCROP                 100         // maximum number of crops
 
+// Dimensions in solute arrays
 #define NO3                     0
 #define NH4                     1
 
-#define REMOVE_CLIPPING         0
-#define RETURN_CLIPPING         1
-#define GRAZING_CLIPPING        2
+#define NUM_MA_DAYS             7           // length of moving window for soil temperature average used by conditional
+                                            // planting
+// Clipping biomass destiny
+#define REMOVE_CLIPPING         0           // clipped biomass harvested
+#define RETURN_CLIPPING         1           // clipped biomass returned to soil surface
+#define GRAZING_CLIPPING        2           // clipped biomass consumed by livestock
 
-#define NOT_USED                -999
-#define KILLED                  -1
-#define NO_CROP                 0
-#define PRE_EMERGENCE           1
-#define VEGETATIVE_GROWTH       2
-#define PERENNIAL               3
-#define REPRODUCTIVE_GROWTH     4
-#define MATURITY                5
-#define CLIPPING                6
-#define PLANTING                7
+// Operation types
+#define OPER_TYPES              4           // number of operation types
+#define PLANT_OP                0           // planting
+#define TILLAGE_OP              1           // tillage
+#define FIXIRR_OP               2           // scheduled irrigation
+#define FIXFERT_OP              3           // scheduled fertilization
 
-#define OPER_TYPES              4
-#define PLANT_OP                0
-#define TILLAGE_OP              1
-#define FIXIRR_OP               2
-#define FIXFERT_OP              3
+// Tillage types
+#define TILLAGE                 0           // tillage
+#define GRAIN_HARVEST           1           // grain harvest
+#define FORAGE_HARVEST          2           // forage harvest
+#define KILL_CROP               3           // kill crops
+#define ALL_CROPS               -1          // flag to kill all crops
 
-#define TILLAGE                 0
-#define GRAIN_HARVEST           1
-#define FORAGE_HARVEST          2
-#define KILL_CROP               3
+// Crop growth stages
+#define NOT_USED                -999        // not being used in the simulation
+#define KILLED                  -1          // killed
+#define NO_CROP                 0           // not being planted
+#define PRE_EMERGENCE           1           // pre-emergence
+#define VEGETATIVE_GROWTH       2           // vegetative growth
+#define PERENNIAL               3           // perennial
+#define REPRODUCTIVE_GROWTH     4           // reproductive growth
+#define MATURITY                5           // maturity
+#define CLIPPING                6           // clipping
+#define PLANTING                7           // planting
 
-#define ALL_CROPS               -1
-
-#define FC_BOUND                -1
-#define PWP_BOUND               -2
-
-#define NUM_MA_DAYS             7
+#define SPINUP_TOLERANCE        0.01        // spin-up tolerance for change in soil organic carbon (Mg ha-1 year -1)
 
 #define STAN_RESIDUE_SA         4.0         // standing residue area to mass ratio (m2/kg)
 #define FLAT_RESIDUE_SA         4.0         // flat residue area to mass ratio (m2/kg)
 #define STAN_RESIDUE_K          0.25        // standing residue extinction coefficient
 #define FLAT_RESIDUE_K          1.0         // flat residue extinction
 
-#define SPINUP_TOLERANCE        0.01        // (Mg ha-1 year -1)
+#define MAX_SOC_DECOMP_RATE     1.5E-4      // maximum soil organic carbon decomposition rate (day-1)
+#define MAX_RESIDUE_DECOMP_RATE 0.05        // maximum residue decomposition rate (day-1)
+#define MAX_ROOT_DECOMP_RATE    0.05        // maximum root decomposition rate (day-1)
+#define MAX_RHIZO_DECOMP_RATE   0.1         // maximum rhizome decomposition rate (day-1)
+#define MAX_MANURE_DECOMP_RATE  0.05        // maximum manure decomposition rate (day-1)
+#define MAX_MICROB_DECOMP_RATE  1.0         // maximum microbe decomposition rate (calculated internally) (day-1)
+#define C_FRAC_PLANT            0.43        // C fraction in plant
+#define C_FRAC_RHIZO            0.43        // C fraction in rhizome
+#define C_FRAC_MANURE           0.4         // C fraction in manure
+#define SOC_HUMIF_POWER         6.0         // soil organic carbon humification exponent
 
-#define MAX_SOC_DECOMP_RATE     1.5E-4      // (1 + 0.056)^(1 / 365) - 1 1/day (1/5 for Urbana)
-#define MAX_RESIDUE_DECOMP_RATE 0.05        // 1/day
-#define MAX_ROOT_DECOMP_RATE    0.05        // 1/day
-#define MAX_RHIZO_DECOMP_RATE   0.1         // 1/day
-#define MAX_MANURE_DECOMP_RATE  0.05        // 1/day
-#define MAX_MICROB_DECOMP_RATE  1.0         // calculated internally (1/day)
-#define C_FRAC_PLANT            0.43
-#define C_FRAC_RHIZO            0.43
-#define C_FRAC_MANURE           0.4
+#define WATER_DENSITY           1000.0      // water density (kg m-3)
 
-#define SOC_DECOMP_POWER        0.5
-#define SOC_HUMIF_POWER         6.0
+#define KD_NO3                  0.0         // adsorption coefficient for NO3 (cm3 g-1)
+#define KD_NH4                  5.6         // adsorption coefficient for NH4 (cm3 g-1)
 
-#define WATER_DENSITY           1000.0      // kg/m3
-
-#define KD_NO3                  0.0
-#define KD_NH4                  5.6
-
-#define NITRIF_CONST            0.2         // 1/day
-#define POT_DENITRIF            3.2E-5      // kg N / kg soil day-1
-#define DENITRIF_HALF_RATE      6.0E-5      // kg N / kg Soil
-#define NITRIF_NO3_NH4_RATIO    8.0         // NO3-N / NH4-N
-
+#define NITRIF_CONST            0.2         // nitrification rate (day-1)
+#define POT_DENITRIF            3.2E-5      // potential denitrification rate (kg N kg-1 soil day-1)
+#define DENITRIF_HALF_RATE      6.0E-5      // half saturation constant for denitrification (kg N kg-1 soil)
 #endif
 
 // Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used for declare a large enough array size and
