@@ -63,7 +63,9 @@ __pycache__
 !/input/*.tbl
 !/input/Chimborazo
 !/input/ShaleHills
-/output/
+/output/*
+!/output/ShaleHillsTestRun/ShaleHills.gw.dat
+!/output/ShaleHillsTestRun/ShaleHills.river.flx1.dat
 /*.log
 
 # Winmerge backups

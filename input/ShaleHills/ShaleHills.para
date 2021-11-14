@@ -3,7 +3,7 @@ INIT_MODE           0                   # initialization type: 0 = relaxation, 1
 ASCII_OUTPUT        1                   # write ASCII output? 0 = no, 1 = yes
 WATBAL_OUTPUT       0                   # write water balance? 0 = no, 1 = yes
 WRITE_IC            1                   # write initial condition? 0 = no, 1 = outputs will be written to restart directory
-START               2009-01-01 00:00    # simulation start time
+START               2008-10-20 00:00    # simulation start time
 END                 2010-01-01 00:00    # simulation end time
 MAX_SPINUP_YEAR     50                  # maximum number of spinup years (if spinup simulation)
 MODEL_STEPSIZE      60                  # model step size (s)
