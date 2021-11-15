@@ -166,13 +166,7 @@ For a description of input files, please refer to the *User's Guide* that can be
 #### Output visualization
 
 A [`PIHM-utils` Python package](https://pypi.org/project/PIHM-utils/) is available to read MM-PIHM input and output files for model output visualization.
-
-An example Python script to visualize model output (`plot.py`) is provided in the `util` folder.
-To plot, use:
-
-```shell
-$ python3 ./util/plot.py -s SIMULATION -o OUTPUT_DIR -v VAR
-```
+An [interactive Python notebook](https://colab.research.google.com/drive/1uD7ErWWUb5TFfOos6eQiX_5WZw-SV58h?usp=sharing) provides an example for output visualization using `PIHM-utils` package.
 
 ### Penn State Users
 
