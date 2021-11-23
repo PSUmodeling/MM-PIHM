@@ -160,7 +160,6 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
                 {
                     outval = (varctrl[i].counter > 0) ?
                         varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
-                    outval *= varctrl[i].mltplr;
 
                     fprintf(varctrl[i].txtfile, (roundi(outval) == BADVAL) ?
                         "\t%-8.0lf" : ((outval == 0.0 || fabs(outval) > 1.0E-3) ? "\t%lf" : "\t%.2le"), outval);
@@ -175,7 +174,6 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
             {
                 outval = (varctrl[i].counter > 0) ?
                     varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
-                outval *= varctrl[i].mltplr;
 
                 fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 

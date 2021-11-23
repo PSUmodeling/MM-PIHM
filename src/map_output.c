@@ -644,7 +644,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     break;
                 case IMMOBIL_CTRL:
                     InitPrintCtrl(outputdir, "immobil", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
-                    print->varctrl[n].mltplr = -1.0;
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].ps.immobil;
@@ -669,7 +668,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     break;
                 case LEACHING_CTRL:
                     InitPrintCtrl(outputdir, "NO3leaching", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    print->varctrl[n].mltplr = 0.1;
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].nf.no3_leach;
@@ -677,7 +675,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
 
                     InitPrintCtrl(outputdir, "NH4leaching", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    print->varctrl[n].mltplr = 0.1;
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].nf.nh4_leach;
@@ -685,7 +682,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
 
                     InitPrintCtrl(outputdir, "river.NO3leaching", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
-                    print->varctrl[n].mltplr = 0.1;
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].solute[NO3].flux[DOWNSTREAM];
@@ -693,7 +689,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
 
                     InitPrintCtrl(outputdir, "river.NH4leaching", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
-                    print->varctrl[n].mltplr = 0.1;
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].solute[NH4].flux[DOWNSTREAM];
@@ -895,7 +890,6 @@ void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_
     varctrl->var = (const double **)malloc(nvar * sizeof(double *));
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));
     varctrl->counter = 0;
-    varctrl->mltplr = 1.0;
 }
 
 #if defined(_RT_)

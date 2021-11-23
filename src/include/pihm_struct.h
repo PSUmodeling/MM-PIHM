@@ -179,7 +179,6 @@ typedef struct varctrl_struct
     int             nvar;                   // number of variables for print
     const double  **var;                    // pointers to model variables
     double         *buffer;                 // buffer for averaging variables
-    double          mltplr;                 // multiplier for unit conversion
     int             counter;                // counter for averaging variables
     FILE           *txtfile;                // pointer to txt file
     FILE           *datfile;                // pointer to binary file
