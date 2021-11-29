@@ -27,9 +27,6 @@ void StartupScreen(void)
 #endif
 #if defined(_CYCLES_)
     pihm_printf(VL_BRIEF, "    * Agroecosystem module (Cycles Version %s) turned on.\n", CYCLES_VERSION);
-# if defined(_AVGN_)
-    pihm_printf(VL_BRIEF, "    * Average profile N mode turned on.\n");
-# endif
 #endif
 #if defined(_DGW_)
     pihm_printf(VL_BRIEF, "    * Deep groundwater module turned on.\n");

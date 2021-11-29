@@ -201,7 +201,6 @@ void ConcWeight(const soil_struct *soil, const wstate_struct *ws, const phystate
 
     for (kz = 0; kz < ps->nlayers; kz++)
     {
-#if defined(_AVGN_)
         double          satn;
 
         satn = (ws->swc[kz] - soil->smcmin) / (soil->smcmax - soil->smcmin);
@@ -211,7 +210,7 @@ void ConcWeight(const soil_struct *soil, const wstate_struct *ws, const phystate
         // Weigh contributions of layers by their water contents, hydraulic conductivities, and depths
         weight[kz] = ps->soil_depth[kz] * ws->smc[kz] * KrFunc(soil->beta, satn) /
             (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
-#else
+#if NOT_YET_IMPLEMETED
         weight[kz] = ps->satdpth[kz];
 #endif
     }
