@@ -228,7 +228,6 @@ typedef struct phystate_struct
     double          rch;                    // = ch * air density * CP (W m-2 K-1)
     double          z0;                     // time varying roughness length as function of snow depth (-)
     double          fcr;                    // reduction of infiltration caused by frozen ground (-)
-    int             nmacd;                  // number of soil layers with macropore
     double          salp;                   // shape parameter of distribution function of snow cover (-)
     double          fxexp;                  // soil evaporation exponent used in direct evaporation (-)
     double          sbeta;                  // parameter used to calculate vegetation effect on soil heat (-)
