@@ -46,7 +46,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct 
         elem[i].ps.iceh = (elem[i].lc.glacier == 1) ? ((read_ice_flag == 1) ? iceh[i] : ICEH) : 0.0;
 
         // Set-up soil parameters
-        elem[i].ps.nroot = FindLayer(elem[i].ps.nlayers, elem[i].ps.rzd, elem[i].ps.soil_depth);
+        elem[i].ps.nroot = FindLayer(elem[i].ps.rzd, elem[i].ps.nlayers, elem[i].ps.zsoil);
 
         RootDist(elem[i].ps.nlayers, elem[i].ps.nroot, elem[i].ps.soil_depth, elem[i].ps.rtdis);
 

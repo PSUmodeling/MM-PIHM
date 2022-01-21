@@ -301,7 +301,7 @@ void            Evapo(const soil_struct *, const lc_struct *, const weather_stru
 void            Evapo(double, const soil_struct *, const lc_struct *, const phystate_struct *, const wstate_struct *,
     wflux_struct *);
 # endif
-int             FindLayer(int, double, const double []);
+int             FindLayer(double, int, const double []);
 int             FindWaterTable(int, double, const double [], double []);
 double          FrozRain(double, double);
 double          GwTranspFrac(int, int, double, const double []);
@@ -462,7 +462,8 @@ double          AdjustClipThld(double, double);
 double          Aeration(double);
 double          AirMolarDensity(double, double);
 void            ApplyDailyMeteoForcing(int, int, const siteinfo_struct *, forc_struct *, elem_struct []);
-void            ApplyFert(const fert_struct *, cstate_struct *, nstate_struct *, nflux_struct *);
+void            ApplyFert(const fert_struct *fixed_fert, const phystate_struct *phys, cstate_struct *cs,
+    nstate_struct *ns, nflux_struct *nf);
 void            AutoIrrig(int, const crop_struct [], const airrig_struct [], const soil_struct *, const wstate_struct *,
     const phystate_struct *, wflux_struct *);
 double          BoundLayerCond(double, double, double, double);

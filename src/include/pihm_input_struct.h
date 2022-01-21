@@ -442,6 +442,7 @@ typedef struct plant_struct
     int             doy_end;                // day of year when planting window closes
     double          smc_max;                // maximum soil water content allowed for planting (m3 m-3)
     double          smc_min;                // minimum soil water content required for planting (m3 m-3)
+    double          soil_tmp_max;           // maximum soil temperature required for planting (degree C)
     double          soil_tmp_min;           // minimum soil temperature required for planting (degree C)
     int             auto_irrig;             // automatic irrigation index
     int             auto_fert;              // automatic fertilization flag
@@ -480,7 +481,7 @@ typedef struct fert_struct
     char            source[MAXSTRING];      // name of fertilization input
     double          mass;                   // total mass of input (Mg ha-1)
     char            method[MAXSTRING];      // N/A
-    int             layer;                  // soil layer to which fertilizer is added (-)
+    double          depth;                  // soil depth to which fertilizer is added (m)
     double          c_organic;              // organic C fraction (-)
     double          c_charcoal;             // N/A
     double          n_organic;              // organic N fraction (-)

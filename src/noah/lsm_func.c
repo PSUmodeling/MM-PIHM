@@ -52,34 +52,28 @@ int FindWaterTable(int nlayers, double gw, const double soil_depth[], double sat
     return layer;
 }
 
-int FindLayer(int nlayers, double depth, const double soil_depth[])
+// This function is the same as in Cycles to ensure successful coupling. If this function is modified, the corresponding
+// function in Cycles should be modified, too.
+int FindLayer(double depth, int nlayers, const double zsoil[])
 {
-    int             layer;
-    int             kz = 0;
-    int             ind = 0;
-    double          dsum = 0.0;
-
-    if (depth <= 0.0)
+    if (depth == 0)
     {
-        layer = 0;
+        return 0;
     }
     else
     {
-        while (dsum < depth)
+        int             kz;
+
+        for (kz = 0; kz < nlayers; kz++)
         {
-            if (soil_depth[kz] < 0.0)
+            if (depth <= -zsoil[kz])
             {
                 break;
             }
-            dsum += soil_depth[kz];
-            ind = kz;
-            kz++;
         }
-        layer = ind + 1;
-        layer = MIN(layer, nlayers);
-    }
 
-    return layer;
+        return MIN(kz + 1, nlayers);
+    }
 }
 
 void DefineSoilDepths(int nsoil_std, double total_depth, const double soil_depth_std[], int *nlayers,

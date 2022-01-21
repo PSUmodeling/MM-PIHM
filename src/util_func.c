@@ -205,6 +205,8 @@ void CheckCVodeFlag(int cv_flag)
     }
 }
 
+// This function is the same as in Cycles to ensure successful coupling. If this function is modified, the corresponding
+// function in Cycles should be modified, too.
 int roundi(double x)
 {
     return (int)((x < 0.0) ? x - 0.5 : x + 0.5);

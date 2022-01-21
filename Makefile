@@ -258,7 +258,7 @@ endif
 ifeq ($(MAKECMDGOALS), cycles-l)
 #	Define Cycles path
 	CYCLES_PATH = ../Cycles_dev/src
-	CYCLES_VERS_RQD = 0.12.10-alpha
+	CYCLES_VERS_RQD = 0.13.0-alpha.post
 
 #	Check Cycles version
 	CYCLES_VERS := $(shell grep "VERSION" $(CYCLES_PATH)/include/cycles.h 2> /dev/null |awk '{print $$3}' |tr -d '"')

@@ -421,9 +421,9 @@ typedef struct cstate_struct
 
 typedef struct cflux_struct
 {
-    double          humif;                  // carbon humified from residues, roots, rhizo and manure (Mg ha-1)
-    double          residue_resp;           // carbon respired from residues, roots, rhizo and manure (Mg ha-1)
-    double          soil_resp;              // carbon respired from soil organic carbon only (Mg ha-1)
+    double          humif[MAXLYR];          // carbon humified from residues, roots, rhizo and manure (Mg ha-1)
+    double          residue_resp[MAXLYR];   // carbon respired from residues, roots, rhizo and manure (Mg ha-1)
+    double          soil_resp[MAXLYR];      // carbon respired from soil organic carbon only (Mg ha-1)
     double          total_resp[MAXLYR];     // total respired carbon (Mg ha-1)
 } cflux_struct;
 
