@@ -1,4 +1,4 @@
-MM-PIHM [![Build Status](https://travis-ci.org/PSUmodeling/MM-PIHM.svg?branch=master)](https://travis-ci.org/PSUmodeling/MM-PIHM)
+MM-PIHM [![Build Status](https://app.travis-ci.com/PSUmodeling/MM-PIHM.svg?branch=dev)](https://app.travis-ci.com/PSUmodeling/MM-PIHM)
 =======
 
 The Multi-Modular Penn State Integrated Hydrologic Model (MM-PIHM) is a physically based watershed model with multiple optional modules.
