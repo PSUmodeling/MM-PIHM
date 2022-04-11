@@ -480,7 +480,7 @@ void            ComputeColdDamage(const weather_struct *, const phystate_struct 
 double          ComputeHarvestIndex(double, double, double, double, double);
 void            ConcWeight(const soil_struct *, const wstate_struct *, const phystate_struct *, double []);
 int             CondPlant(int, int, const plant_struct *, const soil_struct *, const wstate_struct *,
-    const estate_struct *, phystate_struct *);
+    const estate_struct *, const phystate_struct *);
 double          CropGrowth(double, const soil_struct *, const weather_struct *, const wstate_struct *,
     const phystate_struct *, crop_struct *);
 void            CropNConc(double, const crop_struct *, double *, double *, double *, double *, double *, double *,
@@ -583,7 +583,7 @@ void            SoilCarbonBalance(const double [], const soil_struct *, const cr
     wstate_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *);
 void            SoilEvap(double, double, const crop_struct [], const soil_struct *, const phystate_struct *,
     wstate_struct *, wflux_struct *);
-double          SoilTmpMovingAvg(double, double []);
+double          SoilTmpMovingAvg(double, const double []);
 double          SoilWaterContent(double, double, double, double);
 double          SoilWaterPot(double, double, double, double);
 void            SoluteConc(double, elem_struct [], river_struct []);

@@ -386,6 +386,8 @@ enum output_var{
 
 #define NUM_MA_DAYS             7           // length of moving window for soil temperature average used by conditional
                                             // planting
+#define COND_DEPTH              0.075       // depth at which soil temperature and moisture are checked planting
+
 // Clipping biomass destiny
 #define REMOVE_CLIPPING         0           // clipped biomass harvested
 #define RETURN_CLIPPING         1           // clipped biomass returned to soil surface

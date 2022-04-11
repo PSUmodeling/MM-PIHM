@@ -206,7 +206,7 @@ typedef struct phystate_struct
     double          nh4_prev;               // total ammonium in soil profile from previous time step (Mg ha-1)
     double          soc;                    // total organic carbon in soil profile (Mg ha-1)
     double          n2o_emis;               // N2O emission (Mg ha-1)
-    double          n_input;                // total nitrogen input (Mg ha-1)
+    double          n_fert;                 // total nitrogen fertilized (Mg ha-1)
     double          volatil;                // total NH4 volatilization in soil profile (Mg ha-1)
 #endif
 #if defined(_NOAH_)
