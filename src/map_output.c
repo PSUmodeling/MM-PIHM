@@ -706,10 +706,32 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case N_INPUT_CTRL:
-                    InitPrintCtrl(outputdir, "n_input", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "n_fert", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ps.n_input;
+                        print->varctrl[n].var[j] = &elem[j].ps.n_fert;
+                    }
+                    n++;
+
+                    InitPrintCtrl(outputdir, "n_auto", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].nf.auto_added;
+                    }
+                    n++;
+
+                    InitPrintCtrl(outputdir, "n_fix", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].nf.fixation;
+                    }
+                    n++;
+                    break;
+                case NEP_CTRL:
+                    InitPrintCtrl(outputdir, "nep", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.nep;
                     }
                     n++;
                     break;

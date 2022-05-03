@@ -127,6 +127,9 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[N_INPUT_CTRL] = ReadPrintCtrl(cmdstr, "N_INPUT", fn, lno);
 
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[NEP_CTRL] = ReadPrintCtrl(cmdstr, "NEP", fn, lno);
+
     fclose(fp);
 }
 

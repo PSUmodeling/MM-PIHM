@@ -482,7 +482,7 @@ void            ConcWeight(const soil_struct *, const wstate_struct *, const phy
 int             CondPlant(int, int, const plant_struct *, const soil_struct *, const wstate_struct *,
     const estate_struct *, const phystate_struct *);
 double          CropGrowth(double, const soil_struct *, const weather_struct *, const wstate_struct *,
-    const phystate_struct *, crop_struct *);
+    const phystate_struct *, crop_struct *, cflux_struct *);
 void            CropNConc(double, const crop_struct *, double *, double *, double *, double *, double *, double *,
     double *);
 void            CropNDemand(double, double, const crop_struct *, double *, double *, double *);
@@ -524,7 +524,7 @@ void            FreeMgmttbl(int, mgmt_struct []);
 void            GrainHarvest(int, int, double, crop_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
     nflux_struct *);
 void            GrowingCrop(int, int, int, const soil_struct *, const weather_struct *, crop_struct [], wstate_struct *,
-    wflux_struct *, cstate_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
+    wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 void            InitAgVar(elem_struct [], river_struct [], N_Vector);
 void            InitCropStateVar(crop_struct *);
 void            InitCycles(const calib_struct *, const agtbl_struct *, const mgmt_struct [], const crop_struct [],
@@ -561,7 +561,7 @@ void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            PotSoluteUptake(double, const double [], const soil_struct *, const wstate_struct *,
     const wflux_struct *, const phystate_struct *, double *, double []);
 void            Processes(int, crop_struct [], const soil_struct *, const weather_struct *, wstate_struct *,
-    wflux_struct *, cstate_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
+    wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 double          Profile(int, const double []);
 void            RadIntcp(crop_struct []);
 void            ReadCrop(const char [], crop_struct []);

@@ -205,6 +205,7 @@ typedef struct phystate_struct
     double          no3_prev;               // total nitrate in soil profile from previous time step (Mg ha-1)
     double          nh4_prev;               // total ammonium in soil profile from previous time step (Mg ha-1)
     double          soc;                    // total organic carbon in soil profile (Mg ha-1)
+    double          nep;                    // net ecosystem productivity (Mg ha-1 day-1)
     double          n2o_emis;               // N2O emission (Mg ha-1)
     double          n_fert;                 // total nitrogen fertilized (Mg ha-1)
     double          volatil;                // total NH4 volatilization in soil profile (Mg ha-1)
@@ -425,6 +426,7 @@ typedef struct cflux_struct
     double          residue_resp[MAXLYR];   // carbon respired from residues, roots, rhizo and manure (Mg ha-1)
     double          soil_resp[MAXLYR];      // carbon respired from soil organic carbon only (Mg ha-1)
     double          total_resp[MAXLYR];     // total respired carbon (Mg ha-1)
+    double          npp;                    // net primary production: net production of organic carbon (Mg ha-1 day-1)
 } cflux_struct;
 
 typedef struct nstate_struct
