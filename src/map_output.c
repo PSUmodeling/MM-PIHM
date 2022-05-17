@@ -610,6 +610,13 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                         print->varctrl[n].var[j] = &elem[j].ps.nh4;
                     }
                     n++;
+
+                    InitPrintCtrl(outputdir, "SON", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.son;
+                    }
+                    n++;
                     break;
                 case N_RIVER_CTRL:
                     InitPrintCtrl(outputdir, "river.NO3", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
