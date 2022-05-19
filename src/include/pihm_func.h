@@ -487,8 +487,8 @@ void            CropNConc(double, const crop_struct *, double *, double *, doubl
     double *);
 void            CropNDemand(double, double, const crop_struct *, double *, double *, double *);
 void            CropNStress(double, double, double, crop_struct *);
-void            CropNUptake(int, double, double, const double [], const double [], const double [], const double [],
-    const double [], const phystate_struct *, double [], double [], crop_struct [], nstate_struct *, nflux_struct *);
+void            CropNUptake(int, const double [], const double [], const double [], const double [], const double [],
+    const phystate_struct *, double [], double [], crop_struct [], nstate_struct *, nflux_struct *);
 void            CropStage(int, crop_struct []);
 void            Cycles(int, elem_struct []);
 void            DailyOper(int, int, int, weather_struct *, mgmt_struct *, crop_struct [], soil_struct *,
@@ -559,7 +559,7 @@ double          PHFunction(double);
 void            Phenology(const weather_struct *, crop_struct []);
 void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            PotSoluteUptake(double, const double [], const soil_struct *, const wstate_struct *,
-    const wflux_struct *, const phystate_struct *, double *, double []);
+    const wflux_struct *, const phystate_struct *, double []);
 void            Processes(int, crop_struct [], const soil_struct *, const weather_struct *, wstate_struct *,
     wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 double          Profile(int, const double []);
