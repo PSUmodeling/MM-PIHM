@@ -697,10 +697,17 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case N2O_CTRL:
-                    InitPrintCtrl(outputdir, "n2o", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    InitPrintCtrl(outputdir, "n2o_nitrif", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ps.n2o_emis;
+                        print->varctrl[n].var[j] = &elem[j].ps.n2o_nitrif;
+                    }
+                    n++;
+
+                    InitPrintCtrl(outputdir, "n2o_denitrif", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.n2o_denitrif;
                     }
                     n++;
                     break;
