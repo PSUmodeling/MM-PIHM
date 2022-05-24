@@ -206,7 +206,7 @@ typedef struct phystate_struct
     double          nh4_prev;               // total ammonium in soil profile from previous time step (Mg ha-1)
     double          soc;                    // total organic carbon in soil profile (Mg ha-1)
     double          son;                    // total organic nitrogen in soil profile (Mg ha-1)
-    double          nep;                    // net ecosystem productivity (Mg ha-1 day-1)
+    double          nep;                    // net ecosystem productivity (kg m-2 day-1)
     double          n2o_nitrif;             // N2O emission from nitrification (Mg ha-1)
     double          n2o_denitrif;           // N2O emission from denitrification (Mg ha-1)
     double          n_fert;                 // total nitrogen fertilized (Mg ha-1)
