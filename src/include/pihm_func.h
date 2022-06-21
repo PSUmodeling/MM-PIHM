@@ -581,6 +581,8 @@ double          ShootBiomassPartn(int, double, double, double);
 double          SoilBufferPower(double, double, double);
 void            SoilCarbonBalance(const double [], const soil_struct *, const crop_struct [], const phystate_struct *,
     wstate_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *);
+int             SoilCond(const plant_struct *, const soil_struct *, const wstate_struct *, const estate_struct *,
+    const phystate_struct *);
 void            SoilEvap(double, double, const crop_struct [], const soil_struct *, const phystate_struct *,
     wstate_struct *, wflux_struct *);
 double          SoilTmpMovingAvg(double, const double []);
