@@ -24,7 +24,7 @@
 # include <omp.h>
 #endif
 
-#define VERSION    "1.0.0-rc2.post"
+#define VERSION    "1.0.0"
 
 // SUNDIAL Header Files
 #include "cvode/cvode.h"    // Prototypes for CVODE fcts., consts.
