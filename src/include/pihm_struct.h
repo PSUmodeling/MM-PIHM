@@ -89,7 +89,19 @@ typedef struct calib_struct
     double          sla;
 #endif
 #if defined(_CYCLES_)
-    double          fert;
+    double          fert;                   // multiplier for fertilization rate
+    double          soc_decomp_rate;
+    double          residue_decomp_rate;
+    double          root_decomp_rate;
+    double          rhizo_decomp_rate;
+    double          manure_decomp_rate;
+    double          microb_decomp_rate;
+    double          soc_humif_power;
+    double          nitrif_const;
+    double          pot_denitrif;
+    double          denitrif_half_rate;
+    double          decomp_half_resp;
+    double          decomp_resp_power;
 #endif
 #if defined(_DGW_)
     double          geol_ksath;

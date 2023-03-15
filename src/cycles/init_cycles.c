@@ -25,6 +25,34 @@ void InitCycles(const calib_struct *calib, const agtbl_struct *agtbl, const mgmt
         int             soil_ind;
         int             kz, kcrop;
 
+        elem[i].ps.max_soc_decomp_rate = MAX_SOC_DECOMP_RATE;
+        elem[i].ps.max_residue_decomp_rate = MAX_RESIDUE_DECOMP_RATE;
+        elem[i].ps.max_root_decomp_rate = MAX_ROOT_DECOMP_RATE;
+        elem[i].ps.max_rhizo_decomp_rate = MAX_RHIZO_DECOMP_RATE;
+        elem[i].ps.max_manure_decomp_rate = MAX_MANURE_DECOMP_RATE;
+        elem[i].ps.max_microb_decomp_rate = MAX_MICROB_DECOMP_RATE;
+        elem[i].ps.soc_humif_power = SOC_HUMIF_POWER;
+        elem[i].ps.nitrif_const = NITRIF_CONST;
+        elem[i].ps.pot_denitrif = POT_DENITRIF;
+        elem[i].ps.denitrif_half_rate = DENITRIF_HALF_RATE;
+        elem[i].ps.decomp_half_resp = DECOMP_HALF_RESP;
+        elem[i].ps.decomp_resp_power = DECOMP_RESP_POWER;
+        elem[i].ps.kd_no3 = KD_NO3;
+        elem[i].ps.kd_nh4 = KD_NH4;
+
+        elem[i].ps.max_soc_decomp_rate *= calib->soc_decomp_rate;
+        elem[i].ps.max_residue_decomp_rate *= calib->residue_decomp_rate;
+        elem[i].ps.max_root_decomp_rate *= calib->root_decomp_rate;
+        elem[i].ps.max_rhizo_decomp_rate *= calib->rhizo_decomp_rate;
+        elem[i].ps.max_manure_decomp_rate *= calib->manure_decomp_rate;
+        elem[i].ps.max_microb_decomp_rate *= calib->microb_decomp_rate;
+        elem[i].ps.soc_humif_power *= calib->soc_humif_power;
+        elem[i].ps.nitrif_const *= calib->nitrif_const;
+        elem[i].ps.pot_denitrif *= calib->pot_denitrif;
+        elem[i].ps.denitrif_half_rate *= calib->denitrif_half_rate;
+        elem[i].ps.decomp_half_resp *= calib->decomp_half_resp;
+        elem[i].ps.decomp_resp_power *= calib->decomp_resp_power;
+
         // Initialize initial soil variables
         soil_ind = elem[i].attrib.soil - 1;
 

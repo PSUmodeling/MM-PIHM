@@ -405,6 +405,7 @@ enum output_var{
 #define GRAIN_HARVEST           1           // grain harvest
 #define FORAGE_HARVEST          2           // forage harvest
 #define KILL_CROP               3           // kill crops
+#define BURN_RESIDUE            4           // burn residue
 #define ALL_CROPS               -1          // flag to kill all crops
 
 // Crop growth stages
@@ -445,6 +446,8 @@ enum output_var{
 #define NITRIF_CONST            0.2         // nitrification rate (day-1)
 #define POT_DENITRIF            3.2E-5      // potential denitrification rate (kg N kg-1 soil day-1)
 #define DENITRIF_HALF_RATE      6.0E-5      // half saturation constant for denitrification (kg N kg-1 soil)
+#define DECOMP_HALF_RESP        0.22        // decomposition half response to saturation
+#define DECOMP_RESP_POWER       3.0         // decomposition exponential response to saturation
 #endif
 
 // Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used for declare a large enough array size and

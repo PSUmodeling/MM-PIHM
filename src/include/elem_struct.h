@@ -196,6 +196,20 @@ typedef struct phystate_struct
     double          tillage_factor[MAXLYR];
     double          comp_factor[MAXLYR];
     double          soil_tmp_hist[NUM_MA_DAYS]; // soil temperature history (degree C)
+    double          max_soc_decomp_rate;    // maximum soil organic carbon decomposition rate (day-1)
+    double          max_residue_decomp_rate;// maximum residue decomposition rate (day-1)
+    double          max_root_decomp_rate;   // maximum root decomposition rate (day-1)
+    double          max_rhizo_decomp_rate;  // maximum rhizome decomposition rate (day-1)
+    double          max_manure_decomp_rate; // maximum manure decomposition rate (day-1)
+    double          max_microb_decomp_rate; // maximum microbe decomposition rate (day-1)
+    double          soc_humif_power;        // soil organic carbon humification exponent
+    double          nitrif_const;           // nitrification rate (day-1)
+    double          pot_denitrif;           // potential denitrification rate (kg N kg-1 soil day-1)
+    double          denitrif_half_rate;     // half saturation constant for denitrification (kg N kg-1 soil)
+    double          decomp_half_resp;       // decomposition half response to saturation (default value 0.22)
+    double          decomp_resp_power;      // decomposition exponential response to saturation (default value 3.0)
+    double          kd_no3;                 // adsorption coefficient for NO3 (cm3 g-1)
+    double          kd_nh4;                 // adsorption coefficient for NH4 (cm3 g-1)
     double          denitrif;               // total NO3 denitrification (Mg ha-1)
     double          nitrif;                 // total NH4 nitrification (Mg ha-1)
     double          immobil;                // total immobilization (Mg ha-1)

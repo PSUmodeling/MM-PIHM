@@ -459,6 +459,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *, s
 
 #if defined(_CYCLES_)
 double          AdjustClipThld(double, double);
+void            AdjustThermalTime(crop_struct *);
 double          Aeration(double);
 double          AirMolarDensity(double, double);
 void            ApplyDailyMeteoForcing(int, int, const siteinfo_struct *, forc_struct *, elem_struct []);
@@ -468,6 +469,7 @@ void            AutoIrrig(int, const crop_struct [], const airrig_struct [], con
     const phystate_struct *, wflux_struct *);
 double          BoundLayerCond(double, double, double, double);
 double          BulkDensity(double, double, double);
+void            BurnResidue(int, int, const tillage_struct *, wstate_struct *, cstate_struct *, nstate_struct *);
 void            CalSnkSrc(int, const nflux_struct *, solute_struct []);
 double          CNDestiny(double, double);
 double          ColdDamage(double, double, double);
