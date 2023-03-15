@@ -159,6 +159,9 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].cs.residue_flat = elem[i].restart_input.c_residue_flat;
         elem[i].cs.manure_surface = elem[i].restart_input.c_manure_surface;
 
+        // Initialize residue related parameters
+        ResidueCover(&elem[i].cs, &elem[i].ps);
+
         for (kz = 0; kz < MAXLYR; kz++)
         {
             elem[i].cs.residue_abgd[kz] = elem[i].restart_input.c_residue_abgd[kz];
