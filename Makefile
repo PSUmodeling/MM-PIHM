@@ -220,7 +220,6 @@ ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
 		bgc/daily_allocation.c\
 		bgc/decomp.c\
 		bgc/firstday.c\
-		bgc/get_co2.c\
 		bgc/get_ndep.c\
 		bgc/growth_resp.c\
 		bgc/maint_resp.c\
@@ -237,6 +236,8 @@ ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
 		bgc/state_update.c\
 		bgc/summary.c\
 		bgc/zero_srcsnk.c\
+		co2/get_co2.c\
+		co2/read_annual_file.c\
 		noah/daily.c\
 		noah/lsm_func.c\
 		noah/lsm_init.c\
