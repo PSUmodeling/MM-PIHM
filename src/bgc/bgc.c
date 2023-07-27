@@ -10,13 +10,13 @@ void DailyBgc(int t, pihm_struct pihm)
     spa_data        spa, prev_spa;
     double         *vwc;
     elem_struct    *elem;
-    co2control_struct *co2;
+    co2control_struct *co2ctrl;
     ndepcontrol_struct *ndepctrl;
     forc_struct    *forc;
     siteinfo_struct *siteinfo;
 
     elem = &pihm->elem[0];
-    co2 = &pihm->co2;
+    co2ctrl = &pihm->co2ctrl;
     ndepctrl = &pihm->ndepctrl;
     forc = &pihm->forc;
     siteinfo = &pihm->siteinfo;
@@ -35,17 +35,17 @@ void DailyBgc(int t, pihm_struct pihm)
     // Get co2 and ndep
     if (spinup_mode)    // Spinup mode
     {
-        co2lvl = co2->co2ppm;
+        co2lvl = co2ctrl->co2ppm;
         ndep = ndepctrl->ndep / 365.0;
         nfix = ndepctrl->nfix / 365.0;
     }
     else    // Model mode
     {
         // Atmospheric CO2 handling
-        if (!(co2->varco2))
+        if (!(co2ctrl->varco2))
         {
             // Constant CO2, constant Ndep
-            co2lvl = co2->co2ppm;
+            co2lvl = co2ctrl->co2ppm;
             ndep = ndepctrl->ndep / 365.0;
             nfix = ndepctrl->nfix / 365.0;
         }

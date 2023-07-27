@@ -294,7 +294,7 @@ void FreeForc(forc_struct *forc)
     }
 #endif
 
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     if (forc->nco2 > 0)
     {
         for (j = 0; j < forc->co2[0].length; j++)
@@ -306,7 +306,9 @@ void FreeForc(forc_struct *forc)
         free(forc->co2[0].value);
     }
     free(forc->co2);
+#endif
 
+#if defined(_BGC_)
     if (forc->nndep > 0)
     {
         for (j = 0; j < forc->ndep[0].length; j++)

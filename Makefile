@@ -285,6 +285,8 @@ ifeq ($(MAKECMDGOALS), cycles-l)
 		cycles/init_cycles.c\
 		cycles/n_conc.c\
 		cycles/read_cycles.c\
+		co2/get_co2.c\
+		co2/read_annual_file.c\
 		transpt/init_solute.c\
 		transpt/solute_transpt.c
 	CYCLES_SRCS_ =\

@@ -70,12 +70,14 @@ void InitForcing(const calib_struct *calib, forc_struct *forc, elem_struct elem[
     }
 #endif
 
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     if (forc->nco2 > 0)
     {
         forc->co2[0].value = (double *)malloc(sizeof(double));
     }
+#endif
 
+#if defined(_BGC_)
     if (forc->nndep > 0)
     {
         forc->ndep[0].value = (double *)malloc(sizeof(double));

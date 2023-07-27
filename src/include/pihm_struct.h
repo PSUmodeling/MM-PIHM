@@ -25,14 +25,16 @@ typedef struct siteinfo_struct
     double          tavg;                   // annual average air temperature (K)
 } siteinfo_struct;
 
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
 // A structure to hold information on the annual CO2 concentration
 typedef struct co2control_struct
 {
     int             varco2;                 // 0 = const 1 = use file
     double          co2ppm;                 // constant CO2 concentration (ppm)
 } co2control_struct;
+#endif
 
+#if defined(_BGC_)
 // A structure to hold annual nitrogen deposition data
 typedef struct ndepcontrol_struct
 {
@@ -90,6 +92,20 @@ typedef struct calib_struct
 #endif
 #if defined(_CYCLES_)
     double          fert;
+    double          soc_decomp_rate;        // calibration multiplier: soil organic carbon decomposition rate
+    double          residue_decomp_rate;    // calibration multiplier: residue decomposition rate
+    double          root_decomp_rate;       // calibration multiplier: root decomposition rate
+    double          rhizo_decomp_rate;      // calibration multiplier: rhizome decomposition rate
+    double          manure_decomp_rate;     // calibration multiplier: manure decomposition rate
+    double          microb_decomp_rate;     // calibration multiplier: microbe decomposition rate
+    double          soc_humif_power;        // calibration multiplier: soil organic carbon humification exponent
+    double          nitrif_const;           // calibration multiplier: nitrification rate
+    double          pot_denitrif;           // calibration multiplier: potential denitrification rate
+    double          denitrif_half_rate;     // calibration multiplier: half saturation constant for denitrification
+    double          decomp_half_resp;       // calibration multiplier: decomposition half response to saturation
+    double          decomp_resp_power;      // calibration multiplier: decomposition exponential response to saturation
+    double          kd_no3;                 // adsorption coefficient for NO3 (cm3 g-1)
+    double          kd_nh4;                 // adsorption coefficient for NH4 (cm3 g-1)
 #endif
 #if defined(_DGW_)
     double          geol_ksath;
@@ -213,8 +229,10 @@ typedef struct pihm_struct
     crop_struct     croptbl[MAXCROP];
     mgmt_struct     mgmttbl[MAXOP];
 #endif
+#if defined(_BGC_) || defined(_CYCLES_)
+    co2control_struct co2ctrl;
+#endif
 #if defined(_BGC_)
-    co2control_struct co2;
     ndepcontrol_struct ndepctrl;
     epctbl_struct   epctbl;
     cninit_struct   cninit;

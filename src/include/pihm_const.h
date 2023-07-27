@@ -134,7 +134,7 @@
 #define CLAY                    11
 
 // Number of river fluxes of a river segment
-# define NUM_RIVFLX             6
+#define NUM_RIVFLX              6
 
 // River fluxes
 #define UPSTREAM                0
@@ -191,7 +191,7 @@
 #define GRPNOW                  1.0         // proportion of storage growth resp at fixation (-)
 #define PPFD50                  75.0        // PPFD for 1/2 stomatal closure (umol m-2 s-1)
 #define DENITRIF_PROPORTION     0.01        // fraction of mineralization to volatile
-# define MOBILEN_PROPORTION     0.1         // fraction mineral N avail for leaching
+#define MOBILEN_PROPORTION      0.1         // fraction mineral N avail for leaching
 
 // Respiration fractions for fluxes between compartments (-)
 #define RFL1S1                  0.39        // transfer from litter 1 to soil 1
@@ -405,6 +405,7 @@ enum output_var{
 #define GRAIN_HARVEST           1           // grain harvest
 #define FORAGE_HARVEST          2           // forage harvest
 #define KILL_CROP               3           // kill crops
+#define BURN_RESIDUE            4           // burn residue
 #define ALL_CROPS               -1          // flag to kill all crops
 
 // Crop growth stages
@@ -420,6 +421,8 @@ enum output_var{
 #define PLANTING                7           // planting
 
 #define SPINUP_TOLERANCE        0.01        // spin-up tolerance for change in soil organic carbon (Mg ha-1 year -1)
+
+#define CO2_DEFAULT             400.0       // default atmospheric CO2 concentration (ppm)
 
 #define STAN_RESIDUE_SA         4.0         // standing residue area to mass ratio (m2/kg)
 #define FLAT_RESIDUE_SA         4.0         // flat residue area to mass ratio (m2/kg)
@@ -445,6 +448,15 @@ enum output_var{
 #define NITRIF_CONST            0.2         // nitrification rate (day-1)
 #define POT_DENITRIF            3.2E-5      // potential denitrification rate (kg N kg-1 soil day-1)
 #define DENITRIF_HALF_RATE      6.0E-5      // half saturation constant for denitrification (kg N kg-1 soil)
+#define DECOMP_HALF_RESP        0.22        // decomposition half response to saturation
+#define DECOMP_RESP_POWER       3.0         // decomposition exponential response to saturation
+
+#define ALPHA_C3                0.0033      // RUE and TUE adjustment factor for C3 crops
+#define BETA_C3                 1.28        // RUE and TUE adjustment factor for C3 crops
+#define THETA_C3                0.94        // RUE and TUE adjustment factor for C3 crops
+#define ALPHA_C4                0.006       // RUE and TUE adjustment factor for C4 crops
+#define BETA_C4                 1.05        // RUE and TUE adjustment factor for C4 crops
+#define THETA_C4                0.95        // RUE and TUE adjustment factor for C4 crops
 #endif
 
 // Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used for declare a large enough array size and

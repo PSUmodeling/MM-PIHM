@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
+void ReadCyclesCtrl(const char fn[], char co2_fn[], agtbl_struct *agtbl, ctrl_struct *ctrl, co2control_struct *co2ctrl)
 {
     FILE           *fp;
     char            cmdstr[MAXSTRING];
@@ -64,6 +64,18 @@ void ReadCyclesCtrl(const char fn[], agtbl_struct *agtbl, ctrl_struct *ctrl)
 
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "WRITE_IC", 'i', fn, lno, &ctrl->write_cycles_restart);
+
+    FindLine(fp, "BOF", &lno, fn);
+    FindLine(fp, "CO2_CONTROL", &lno, fn);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "VARIABLE_CO2", 'i', fn, lno, &co2ctrl->varco2);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CO2_LEVEL", 'd', fn, lno, &co2ctrl->co2ppm);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CO2_FILE", 'w', fn, lno, co2_fn);
 
     FindLine(fp, "PRINT_CTRL", &lno, fn);
 

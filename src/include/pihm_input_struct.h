@@ -17,9 +17,11 @@ typedef struct filename_struct
     char            ic[MAXSTRING];          // initial condition file
 #if defined(_BGC_)
     char            bgc[MAXSTRING];         // bgc module control file
-    char            co2[MAXSTRING];         // CO2 forcing file
     char            ndep[MAXSTRING];        // nitrogen deposition forcing file
     char            bgcic[MAXSTRING];       // bgc module initial condition file
+#endif
+#if defined(_BGC_) || defined(_CYCLES_)
+    char            co2[MAXSTRING];         // CO2 forcing file
 #endif
 #if defined(_CYCLES_)
     char            cycles[MAXSTRING];
@@ -227,10 +229,12 @@ typedef struct forc_struct
     int             nriverbc;               // number of river boundary conditions
     tsdata_struct  *riverbc;                // river boundary condition series
 #if defined(_BGC_)
-    int             nco2;
-    tsdata_struct  *co2;                    // CO2 forcing series
     int             nndep;
     tsdata_struct  *ndep;                   // nitrogen deposition forcing series
+#endif
+#if defined(_BGC_) || defined(_CYCLES_)
+    int             nco2;
+    tsdata_struct  *co2;                    // CO2 forcing series
 #endif
 #if defined(_NOAH_)
     int             nrad;                   // number of radiation forcing series
@@ -348,8 +352,8 @@ typedef struct crop_epc_struct
     double          rad_use_eff;            // radiation use efficiency (g MJ-1)
     double          transp_use_eff;         // transpiration use efficiency at 1 kPa VPD (g kg-1)
     double          hi_max;                 // maximum harvest index (-)
-    double          hi_opt;                 // optimum harvest index (-)
     double          hi_min;                 // minimum harvest index (-)
+    double          hi_slope;               // harvest index slope multiplier in the exponential term (-)
     double          emergen_thermal_time;   // thermal time to emergence (degree C)
     double          n_conc_max;             // maximum N concentration (g g-1)
     double          n_dil_slope;            // N dilution curve slope parameter (-)

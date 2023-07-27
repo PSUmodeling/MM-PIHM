@@ -397,7 +397,7 @@ void SFlx(double dt, soil_struct *soil, lc_struct *lc, epconst_struct *epc, phys
     if (lc->shdfac > 0.0)
     {
 #if defined(_CYCLES_)
-        CanRes(es, ps);
+        CanRes(weather, es, ps);
 #else
         CanRes(soil, epc, ws, es, ef, ps);
 #endif
@@ -573,7 +573,7 @@ void CalHum(phystate_struct *ps, estate_struct *es)
 // Source:  Jarvis (1976), Noilhan and Planton (1989, MWR), Jacquemin and Noilhan (1990, BLM)
 // See also: Chen et al. (1996, JGR, Vol 101(D3), 7251-7268), Eqns 12-14 and Table 2 of Sec. 3.1.2
 #if defined(_CYCLES_)
-void CanRes(const estate_struct *es, phystate_struct *ps)
+void CanRes(const weather_struct *weather, const estate_struct *es, phystate_struct *ps)
 #else
 void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_struct *ws, const estate_struct *es,
     const eflux_struct *ef, phystate_struct *ps)
@@ -593,7 +593,7 @@ void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_str
 #endif
 
 #if defined(_CYCLES_)
-    ps->rc = RC;
+    ps->rc = RC / (0.32 * (1.0 + 4.9 * exp(-0.0024 * weather->co2)));
 #else
     // Initialize canopy resistance multiplier terms.
     ps->rcs    = 0.0;
@@ -662,6 +662,10 @@ void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_str
     delta = (SLV / CP) * ps->dqsdt2;
 
     ps->pc = (rr + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
+
+#if defined(_CYCLES_)
+    ps->co2_adjust_transp = (rr * (1.0 + RC * ps->ch) + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
+#endif
 }
 
 // Calculate snow thermal conductivity

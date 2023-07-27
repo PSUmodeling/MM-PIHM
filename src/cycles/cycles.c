@@ -1,10 +1,11 @@
 #include "pihm.h"
 
-void Cycles(int t, elem_struct elem[])
+void Cycles(int t, const co2control_struct *co2ctrl, forc_struct *forc, elem_struct elem[])
 {
     int             i;
     int             year, month, day;
     int             doy;
+    double          co2;
     pihm_t_struct   pihm_t;
 
     pihm_t = PIHMTime(t);
@@ -17,11 +18,15 @@ void Cycles(int t, elem_struct elem[])
     pihm_printf(VL_BRIEF, "DOY %d\n", doy);
 #endif
 
+    co2 = (co2ctrl->varco2 == 1) ? GetCO2(t, &forc->co2[0]) : co2ctrl->co2ppm;
+
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
+        elem[i].weather.co2 = co2;
+
         // Run daily cycles processes
         DailyOper(year, doy, elem[i].mgmt.auto_n, &elem[i].weather, &elem[i].mgmt, elem[i].crop, &elem[i].soil,
             &elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].cs, &elem[i].cf, &elem[i].ns, &elem[i].nf, &elem[i].ps);

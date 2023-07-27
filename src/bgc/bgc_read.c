@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, co2control_struct *co2,
+void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, co2control_struct *co2ctrl,
     ndepcontrol_struct *ndepctrl, cninit_struct * cninit)
 {
     FILE           *fp;
@@ -28,9 +28,9 @@ void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, 
 
     FindLine(fp, "CO2_CONTROL", &lno, fn);
     NextLine(fp, cmdstr, &lno);
-    sscanf(cmdstr, "%d", &co2->varco2);
+    sscanf(cmdstr, "%d", &co2ctrl->varco2);
     NextLine(fp, cmdstr, &lno);
-    sscanf(cmdstr, "%lf", &co2->co2ppm);
+    sscanf(cmdstr, "%lf", &co2ctrl->co2ppm);
     NextLine(fp, cmdstr, &lno);
     sscanf(cmdstr, "%s", co2_fn);
 

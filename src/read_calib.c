@@ -105,6 +105,48 @@ void ReadCalib(const char fn[], calib_struct *calib)
 
     NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "FERTILIZATION", 'd', fn, lno, &calib->fert);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SOC_DECOMP_RATE", 'd', fn, lno, &calib->soc_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RESIDUE_DECOMP_RATE", 'd', fn, lno, &calib->residue_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ROOT_DECOMP_RATE", 'd', fn, lno, &calib->root_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RHIZO_DECOMP_RATE", 'd', fn, lno, &calib->rhizo_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MANURE_DECOMP_RATE", 'd', fn, lno, &calib->manure_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MICROB_DECOMP_RATE", 'd', fn, lno, &calib->microb_decomp_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SOC_HUMIF_POWER", 'd', fn, lno, &calib->soc_humif_power);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "NITRIF_RATE", 'd', fn, lno, &calib->nitrif_const);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "POT_DENITRIF_RATE", 'd', fn, lno, &calib->pot_denitrif);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DENITRIF_HALF_RATE", 'd', fn, lno, &calib->denitrif_half_rate);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DECOMP_HALF_RESP", 'd', fn, lno, &calib->decomp_half_resp);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DECOMP_RESP_POWER", 'd', fn, lno, &calib->decomp_resp_power);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KD_NO3", 'd', fn, lno, &calib->kd_no3);
+
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KD_NH4", 'd', fn, lno, &calib->kd_nh4);
 #endif
 
 #if defined(_DGW_)

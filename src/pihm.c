@@ -54,7 +54,7 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 #if defined(_CYCLES_)
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-        Cycles(t, pihm->elem);
+        Cycles(t, &pihm->co2ctrl, &pihm->forc, pihm->elem);
 
         // Update print variables for CN (daily) step variables
         UpdatePrintVar(pihm->print.nprint, CN_STEP, pihm->print.varctrl);

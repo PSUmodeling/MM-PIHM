@@ -211,6 +211,21 @@ typedef struct phystate_struct
     double          n2o_denitrif;           // N2O emission from denitrification (Mg ha-1)
     double          n_fert;                 // total nitrogen fertilized (Mg ha-1)
     double          volatil;                // total NH4 volatilization in soil profile (Mg ha-1)
+    double          max_soc_decomp_rate;    // maximum soil organic carbon decomposition rate (day-1)
+    double          max_residue_decomp_rate;// maximum residue decomposition rate (day-1)
+    double          max_root_decomp_rate;   // maximum root decomposition rate (day-1)
+    double          max_rhizo_decomp_rate;  // maximum rhizome decomposition rate (day-1)
+    double          max_manure_decomp_rate; // maximum manure decomposition rate (day-1)
+    double          max_microb_decomp_rate; // maximum microbe decomposition rate (day-1)
+    double          soc_humif_power;        // soil organic carbon humification exponent
+    double          nitrif_const;           // nitrification rate (day-1)
+    double          pot_denitrif;           // potential denitrification rate (kg N kg-1 soil day-1)
+    double          denitrif_half_rate;     // half saturation constant for denitrification (kg N kg-1 soil)
+    double          decomp_half_resp;       // decomposition half response to saturation (default value 0.22)
+    double          decomp_resp_power;      // decomposition exponential response to saturation (default value 3.0)
+    double          kd_no3;                 // adsorption coefficient for NO3 (cm3 g-1)
+    double          kd_nh4;                 // adsorption coefficient for NH4 (cm3 g-1)
+    double          co2_adjust_transp;      // CO2 adjustment factor for crop transpiration (-)
 #endif
 #if defined(_NOAH_)
     double          alb;                    // background snow-free surface albedo (-)
@@ -407,6 +422,7 @@ typedef struct weather_struct
     double          tmp_max;                // daily maximum temperature (degree C)
     double          tmp_min;                // daily minimum temperature (degree C)
     double          atm_pres;               // atmospheric pressure (kPa)
+    double          co2;                    // atmospheric CO2 concentration (ppm)
 } weather_struct;
 
 typedef struct cstate_struct
