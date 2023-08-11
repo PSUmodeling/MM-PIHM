@@ -61,9 +61,9 @@ void UpdateNProfile(double dt, const soil_struct *soil, const wstate_struct *ws,
     // Add lateral transport fluxes to NO3 and NH4 mass
     FindWaterTable(ps->nlayers, ws->gw, ps->soil_depth, ps->satdpth);
 
-    LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, Profile(ps->nlayers, no3), ps->no3, no3);
+    LateralNFlow(ps->kd_no3, soil, ws, ps, ns->no3, Profile(ps->nlayers, no3), ps->no3, no3);
 
-    LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4), ps->nh4, nh4);
+    LateralNFlow(ps->kd_nh4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4), ps->nh4, nh4);
 }
 
 void LateralNFlow(double kd, const soil_struct *soil, const wstate_struct *ws, const phystate_struct *ps,

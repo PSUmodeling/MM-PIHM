@@ -442,9 +442,6 @@ enum output_var{
 
 #define WATER_DENSITY           1000.0      // water density (kg m-3)
 
-#define KD_NO3                  0.0         // adsorption coefficient for NO3 (cm3 g-1)
-#define KD_NH4                  5.6         // adsorption coefficient for NH4 (cm3 g-1)
-
 #define NITRIF_CONST            0.2         // nitrification rate (day-1)
 #define POT_DENITRIF            3.2E-5      // potential denitrification rate (kg N kg-1 soil day-1)
 #define DENITRIF_HALF_RATE      6.0E-5      // half saturation constant for denitrification (kg N kg-1 soil)
