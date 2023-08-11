@@ -25,14 +25,16 @@ typedef struct siteinfo_struct
     double          tavg;                   // annual average air temperature (K)
 } siteinfo_struct;
 
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
 // A structure to hold information on the annual CO2 concentration
 typedef struct co2control_struct
 {
     int             varco2;                 // 0 = const 1 = use file
     double          co2ppm;                 // constant CO2 concentration (ppm)
 } co2control_struct;
+#endif
 
+#if defined(_BGC_)
 // A structure to hold annual nitrogen deposition data
 typedef struct ndepcontrol_struct
 {
@@ -227,8 +229,10 @@ typedef struct pihm_struct
     crop_struct     croptbl[MAXCROP];
     mgmt_struct     mgmttbl[MAXOP];
 #endif
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     co2control_struct co2ctrl;
+#endif
+#if defined(_BGC_)
     ndepcontrol_struct ndepctrl;
     epctbl_struct   epctbl;
     cninit_struct   cninit;

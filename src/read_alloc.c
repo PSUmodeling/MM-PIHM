@@ -133,7 +133,7 @@ void ReadAlloc(pihm_struct pihm)
 
 #if defined(_CYCLES_)
     // Read Cycles simulation control file
-    ReadCyclesCtrl(pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
+    ReadCyclesCtrl(pihm->filename.cycles, pihm->filename.co2, &pihm->agtbl, &pihm->ctrl, &pihm->co2ctrl);
 
     // Read soil initialization file
     ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
@@ -152,19 +152,8 @@ void ReadAlloc(pihm_struct pihm)
     // Read Biome-BGC epc files
     ReadEpc(&pihm->epctbl);
 
-    // Read CO2 and Ndep files
-    pihm->forc.co2  = (tsdata_struct *)malloc(sizeof(tsdata_struct));
+    // Read Ndep file
     pihm->forc.ndep = (tsdata_struct *)malloc(sizeof(tsdata_struct));
-
-    if (pihm->co2ctrl.varco2)
-    {
-        pihm->forc.nco2 = 1;
-        ReadAnnualFile(pihm->filename.co2, &pihm->forc.co2[0]);
-    }
-    else
-    {
-        pihm->forc.nco2 = 0;
-    }
 
     if (pihm->ndepctrl.varndep)
     {
@@ -174,6 +163,21 @@ void ReadAlloc(pihm_struct pihm)
     else
     {
         pihm->forc.nndep = 0;
+    }
+#endif
+
+#if defined(_BGC_) || defined(_CYCLES_)
+    // Read CO2 file
+    pihm->forc.co2  = (tsdata_struct *)malloc(sizeof(tsdata_struct));
+
+    if (pihm->co2ctrl.varco2)
+    {
+        pihm->forc.nco2 = 1;
+        ReadAnnualFile(pihm->filename.co2, &pihm->forc.co2[0]);
+    }
+    else
+    {
+        pihm->forc.nco2 = 0;
     }
 #endif
 }

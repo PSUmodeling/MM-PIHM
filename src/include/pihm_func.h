@@ -399,6 +399,11 @@ void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
 void            SoluteTranspt(double, double, double, elem_struct [], river_struct []);
 #endif
 
+#if defined(_BGC_) || defined(_CYCLES_)
+void            ReadAnnualFile(const char [], tsdata_struct *);
+double          GetCO2(int, tsdata_struct *);
+#endif
+
 #if defined(_BGC_)
 void            BackgroundLitterfall(const epconst_struct *, const cstate_struct *, epvar_struct *, cflux_struct *,
     nflux_struct *);
@@ -418,7 +423,6 @@ void            EvergreenPhenology(const epconst_struct *, const cstate_struct *
 void            FirstDay(const cninit_struct *, elem_struct [], river_struct []);
 void            FRootLitFall(double, const epconst_struct *, cflux_struct *, nflux_struct *);
 void            FreeEpctbl(epctbl_struct *);
-double          GetCO2(int, tsdata_struct *);
 double          GetNdep(int, tsdata_struct *);
 void            GrowthResp(const epconst_struct *, cflux_struct *);
 void            InitBgc(const epctbl_struct *, const calib_struct *, elem_struct []);
@@ -440,7 +444,6 @@ void            Photosynthesis(psn_struct *);
 void            PrecisionControl(cstate_struct *cs, nstate_struct *ns);
 void            RadTrans(const cstate_struct *, const epconst_struct *, const daily_struct *, epvar_struct *,
     phystate_struct *, eflux_struct *);
-void            ReadAnnualFile(const char [], tsdata_struct *);
 void            ReadBgc(const char [], char [], char [], ctrl_struct *, co2control_struct *, ndepcontrol_struct *,
     cninit_struct *);
 void            ReadBgcIc(const char [], elem_struct [], river_struct []);
@@ -492,7 +495,7 @@ void            CropNStress(double, double, double, crop_struct *);
 void            CropNUptake(int, const double [], const double [], const double [], const double [], const double [],
     const phystate_struct *, double [], double [], crop_struct [], nstate_struct *, nflux_struct *);
 void            CropStage(int, crop_struct []);
-void            Cycles(int, elem_struct []);
+void            Cycles(int, const co2control_struct *, forc_struct *, elem_struct []);
 void            DailyOper(int, int, int, weather_struct *, mgmt_struct *, crop_struct [], soil_struct *,
     wstate_struct *, wflux_struct *, estate_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     phystate_struct *);
@@ -567,7 +570,7 @@ void            Processes(int, crop_struct [], const soil_struct *, const weathe
 double          Profile(int, const double []);
 void            RadIntcp(crop_struct []);
 void            ReadCrop(const char [], crop_struct []);
-void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadCyclesCtrl(const char [], char [], agtbl_struct *, ctrl_struct *, co2control_struct *);
 void            ReadCyclesIc(const char [], elem_struct []);
 void            ReadMultOper(const agtbl_struct *, mgmt_struct [], crop_struct []);
 void            ReadOper(const char [], int, int, mgmt_struct *, crop_struct []);

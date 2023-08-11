@@ -421,6 +421,7 @@ typedef struct weather_struct
     double          tmp_max;                // daily maximum temperature (degree C)
     double          tmp_min;                // daily minimum temperature (degree C)
     double          atm_pres;               // atmospheric pressure (kPa)
+    double          co2;                    // atmospheric CO2 concentration (ppm)
 } weather_struct;
 
 typedef struct cstate_struct

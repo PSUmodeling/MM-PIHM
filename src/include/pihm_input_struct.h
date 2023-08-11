@@ -15,9 +15,11 @@ typedef struct filename_struct
     char            para[MAXSTRING];        // control parameter file
     char            calib[MAXSTRING];       // calibration file
     char            ic[MAXSTRING];          // initial condition file
+#if defined(_BGC_) || defined(_CYCLES_)
+    char            co2[MAXSTRING];         // CO2 forcing file
+#endif
 #if defined(_BGC_)
     char            bgc[MAXSTRING];         // bgc module control file
-    char            co2[MAXSTRING];         // CO2 forcing file
     char            ndep[MAXSTRING];        // nitrogen deposition forcing file
     char            bgcic[MAXSTRING];       // bgc module initial condition file
 #endif
@@ -226,9 +228,11 @@ typedef struct forc_struct
     tsdata_struct  *source;                 // source forcing series
     int             nriverbc;               // number of river boundary conditions
     tsdata_struct  *riverbc;                // river boundary condition series
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     int             nco2;
     tsdata_struct  *co2;                    // CO2 forcing series
+#endif
+#if defined(_BGC_)
     int             nndep;
     tsdata_struct  *ndep;                   // nitrogen deposition forcing series
 #endif
