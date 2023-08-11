@@ -348,7 +348,7 @@ typedef struct crop_epc_struct
     double          rad_use_eff;            // radiation use efficiency (g MJ-1)
     double          transp_use_eff;         // transpiration use efficiency at 1 kPa VPD (g kg-1)
     double          hi_max;                 // maximum harvest index (-)
-    double          hi_opt;                 // optimum harvest index (-)
+    double          hi_slope;               // harvest index slope multiplier in the exponential term (-)
     double          hi_min;                 // minimum harvest index (-)
     double          emergen_thermal_time;   // thermal time to emergence (degree C)
     double          n_conc_max;             // maximum N concentration (g g-1)

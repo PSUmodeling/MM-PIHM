@@ -89,7 +89,21 @@ typedef struct calib_struct
     double          sla;
 #endif
 #if defined(_CYCLES_)
-    double          fert;
+    double          fert;                   // fertilization rate
+    double          soc_decomp_rate;        // soil organic carbon decomposition rate
+    double          residue_decomp_rate;    // residue decomposition rate
+    double          root_decomp_rate;       // root decomposition rate
+    double          rhizo_decomp_rate;      // rhizome decomposition rate
+    double          manure_decomp_rate;     // manure decomposition rate
+    double          microb_decomp_rate;     // microbe decomposition rate
+    double          soc_humif_power;        // soil organic carbon humification exponent
+    double          nitrif_const;           // nitrification rate
+    double          pot_denitrif;           // potential denitrification rate
+    double          denitrif_half_rate;     // half saturation constant for denitrification
+    double          decomp_half_resp;       // decomposition half response to saturation
+    double          decomp_resp_power;      // decomposition exponential response to saturation
+    double          kd_no3;                 // offset of adsorption coefficient for NO3 (cm3 g-1)
+    double          kd_nh4;                 // offset of adsorption coefficient for NH4 (cm3 g-1)
 #endif
 #if defined(_DGW_)
     double          geol_ksath;

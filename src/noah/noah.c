@@ -112,9 +112,9 @@ void NoahHydrol(double dt, elem_struct elem[])
             wflux[kz + 1] = elem[i].wf.smflx[kz] * RHOH2O * dt;
         }
 
-        SoluteTransp(KD_NO3, 0.0, wflux, elem[i].ws.smc, &elem[i].soil, &elem[i].ps, elem[i].ns.no3);
+        SoluteTransp(elem[i].ps.kd_no3, 0.0, wflux, elem[i].ws.smc, &elem[i].soil, &elem[i].ps, elem[i].ns.no3);
 
-        SoluteTransp(KD_NH4, 0.0, wflux, elem[i].ws.smc, &elem[i].soil, &elem[i].ps, elem[i].ns.nh4);
+        SoluteTransp(elem[i].ps.kd_nh4, 0.0, wflux, elem[i].ws.smc, &elem[i].soil, &elem[i].ps, elem[i].ns.nh4);
 #endif
     }
 

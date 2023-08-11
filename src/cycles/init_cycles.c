@@ -25,6 +25,22 @@ void InitCycles(const calib_struct *calib, const agtbl_struct *agtbl, const mgmt
         int             soil_ind;
         int             kz, kcrop;
 
+        elem[i].ps.max_soc_decomp_rate = MAX_SOC_DECOMP_RATE * calib->soc_decomp_rate;
+        elem[i].ps.max_residue_decomp_rate = MAX_RESIDUE_DECOMP_RATE * calib->residue_decomp_rate;
+        elem[i].ps.max_root_decomp_rate = MAX_ROOT_DECOMP_RATE * calib->root_decomp_rate;
+        elem[i].ps.max_rhizo_decomp_rate = MAX_RHIZO_DECOMP_RATE * calib->rhizo_decomp_rate;
+        elem[i].ps.max_manure_decomp_rate = MAX_MANURE_DECOMP_RATE * calib->manure_decomp_rate;
+        elem[i].ps.max_microb_decomp_rate = MAX_MICROB_DECOMP_RATE * calib->microb_decomp_rate;
+        elem[i].ps.soc_humif_power = SOC_HUMIF_POWER * calib->soc_humif_power;
+        elem[i].ps.nitrif_const = NITRIF_CONST * calib->nitrif_const;
+        elem[i].ps.pot_denitrif = POT_DENITRIF * calib->pot_denitrif;
+        elem[i].ps.denitrif_half_rate = DENITRIF_HALF_RATE * calib->denitrif_half_rate;
+        elem[i].ps.decomp_half_resp = DECOMP_HALF_RESP * calib->decomp_half_resp;
+        elem[i].ps.decomp_resp_power = DECOMP_RESP_POWER * calib->decomp_resp_power;
+        // Adsorption coefficients in calibration files are offsets, not multipliers
+        elem[i].ps.kd_no3 = KD_NO3 + calib->kd_no3;
+        elem[i].ps.kd_nh4 = KD_NH4 + calib->kd_nh4;
+
         // Initialize initial soil variables
         soil_ind = elem[i].attrib.soil - 1;
 
