@@ -146,7 +146,7 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 
 #if defined(_BGC_)
-    ReadBgc(pihm->filename.bgc, pihm->filename.co2, pihm->filename.ndep, &pihm->ctrl, &pihm->co2, &pihm->ndepctrl,
+    ReadBgc(pihm->filename.bgc, pihm->filename.co2, pihm->filename.ndep, &pihm->ctrl, &pihm->co2ctrl, &pihm->ndepctrl,
         &pihm->cninit);
 
     // Read Biome-BGC epc files
@@ -156,7 +156,7 @@ void ReadAlloc(pihm_struct pihm)
     pihm->forc.co2  = (tsdata_struct *)malloc(sizeof(tsdata_struct));
     pihm->forc.ndep = (tsdata_struct *)malloc(sizeof(tsdata_struct));
 
-    if (pihm->co2.varco2)
+    if (pihm->co2ctrl.varco2)
     {
         pihm->forc.nco2 = 1;
         ReadAnnualFile(pihm->filename.co2, &pihm->forc.co2[0]);

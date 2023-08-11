@@ -228,7 +228,7 @@ typedef struct pihm_struct
     mgmt_struct     mgmttbl[MAXOP];
 #endif
 #if defined(_BGC_)
-    co2control_struct co2;
+    co2control_struct co2ctrl;
     ndepcontrol_struct ndepctrl;
     epctbl_struct   epctbl;
     cninit_struct   cninit;
