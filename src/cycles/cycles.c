@@ -26,7 +26,7 @@ void Cycles(int t, const co2control_struct *co2ctrl, forc_struct *forc, elem_str
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem[i].weather.co2 = co2;
+        elem[i].ps.co2 = co2;
 
         // Run daily cycles processes
         DailyOper(year, doy, elem[i].mgmt.auto_n, &elem[i].weather, &elem[i].mgmt, elem[i].crop, &elem[i].soil,

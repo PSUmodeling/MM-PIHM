@@ -405,6 +405,7 @@ void SFlx(double dt, soil_struct *soil, lc_struct *lc, epconst_struct *epc, phys
     else
     {
         ps->rc = 0.0;
+        ps->co2_adjust_transp = 1.0;
     }
 
     // Now decide major pathway branch to take depending on whether snowpack exists or not
@@ -593,7 +594,7 @@ void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_str
 #endif
 
 #if defined(_CYCLES_)
-    ps->rc = RC;
+    ps->rc = RC / (0.32 * (1.0 + 4.9 * exp(-0.0024 * ps->co2)));
 #else
     // Initialize canopy resistance multiplier terms.
     ps->rcs    = 0.0;
@@ -662,6 +663,7 @@ void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_str
     delta = (SLV / CP) * ps->dqsdt2;
 
     ps->pc = (rr + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
+    ps->co2_adjust_transp = (rr * (1.0 + RC * ps->ch) + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
 }
 
 // Calculate snow thermal conductivity

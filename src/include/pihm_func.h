@@ -475,6 +475,7 @@ double          BulkDensity(double, double, double);
 void            BurnResidue(int, int, const tillage_struct *, wstate_struct *, cstate_struct *, nstate_struct *);
 void            CalSnkSrc(int, const nflux_struct *, solute_struct []);
 double          CNDestiny(double, double);
+double          CO2FuncGrowth(int, double);
 double          ColdDamage(double, double, double);
 double          CommRadIntcp(const crop_struct []);
 double          CommTotRadIntcp(const crop_struct []);

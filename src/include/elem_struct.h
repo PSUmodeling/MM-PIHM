@@ -181,8 +181,10 @@ typedef struct phystate_struct
     double          rh_min;                 // daily minimum relative humidity (100%)
 #endif
     double          sfcprs;                 // surface pressure at height zlvl above ground (Pa)
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     double          co2;                    // atmospheric CO2 concentration (ppm)
+#endif
+#if defined(_BGC_)
     double          ppfd_per_plaisun;       // ppfd per unit sunlit proj LAI (umol m-2 s-1)
     double          ppfd_per_plaishade;     // ppfd per unit shaded proj LAI (umol m-2 s-1)
     double          all_lai;                // live all-sided leaf area index (m2 m-2)
@@ -225,6 +227,7 @@ typedef struct phystate_struct
     double          decomp_resp_power;      // decomposition exponential response to saturation (default value 3.0)
     double          kd_no3;                 // adsorption coefficient for NO3 (cm3 g-1)
     double          kd_nh4;                 // adsorption coefficient for NH4 (cm3 g-1)
+    double          co2_adjust_transp;      // CO2 adjustment factor for crop transpiration (-)
 #endif
 #if defined(_NOAH_)
     double          alb;                    // background snow-free surface albedo (-)
@@ -421,7 +424,6 @@ typedef struct weather_struct
     double          tmp_max;                // daily maximum temperature (degree C)
     double          tmp_min;                // daily minimum temperature (degree C)
     double          atm_pres;               // atmospheric pressure (kPa)
-    double          co2;                    // atmospheric CO2 concentration (ppm)
 } weather_struct;
 
 typedef struct cstate_struct

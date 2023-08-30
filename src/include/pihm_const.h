@@ -440,6 +440,8 @@ enum output_var{
 
 #define WATER_DENSITY           1000.0      // water density (kg m-3)
 
+#define CO2_DEFAULT             400.0       // default atmospheric CO2 concentration (ppm)
+
 #define KD_NO3                  0.0         // adsorption coefficient for NO3 (cm3 g-1)
 #define KD_NH4                  5.6         // adsorption coefficient for NH4 (cm3 g-1)
 
@@ -448,6 +450,13 @@ enum output_var{
 #define DENITRIF_HALF_RATE      6.0E-5      // half saturation constant for denitrification (kg N kg-1 soil)
 #define DECOMP_HALF_RESP        0.22        // decomposition half response to saturation
 #define DECOMP_RESP_POWER       3.0         // decomposition exponential response to saturation
+
+#define ALPHA_C3                0.0033      // RUE and TUE adjustment factor for C3 crops
+#define BETA_C3                 1.28        // RUE and TUE adjustment factor for C3 crops
+#define THETA_C3                0.94        // RUE and TUE adjustment factor for C3 crops
+#define ALPHA_C4                0.006       // RUE and TUE adjustment factor for C4 crops
+#define BETA_C4                 1.05        // RUE and TUE adjustment factor for C4 crops
+#define THETA_C4                0.95        // RUE and TUE adjustment factor for C4 crops
 #endif
 
 // Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used for declare a large enough array size and
