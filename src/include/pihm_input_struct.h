@@ -444,6 +444,7 @@ typedef struct plant_struct
     int             year;                   // year in rotation
     int             doy;                    // day of year
     int             doy_end;                // day of year when planting window closes
+    int             delayed;                // delayed planting flag
     double          smc_max;                // maximum soil water content allowed for planting (m3 m-3)
     double          smc_min;                // minimum soil water content required for planting (m3 m-3)
     double          soil_tmp_max;           // maximum soil temperature required for planting (degree C)

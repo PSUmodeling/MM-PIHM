@@ -171,6 +171,7 @@ void EndRotation(elem_struct elem[])
     for (i = 0; i < nelem; i++)
     {
         int             kcrop;
+        int             kplant;
 
         for (kcrop = 0; kcrop < MAXCROP; kcrop++)
         {
@@ -178,6 +179,12 @@ void EndRotation(elem_struct elem[])
             InitCropStateVar(&elem[i].crop[kcrop]);
 
             InitMgmt(&elem[i].mgmt);
+        }
+
+        // Clear all delayed operations
+        for (kplant = 0; kplant < elem[i].mgmt.n_oper[PLANT_OP]; kplant++)
+        {
+            elem[i].mgmt.planting[kplant].delayed = 0;
         }
     }
 }

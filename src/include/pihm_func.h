@@ -485,8 +485,8 @@ void            ComputeColdDamage(const weather_struct *, const phystate_struct 
     cstate_struct *, nstate_struct *);
 double          ComputeHarvestIndex(double, double, double, double, double);
 void            ConcWeight(const soil_struct *, const wstate_struct *, const phystate_struct *, double []);
-int             CondPlant(int, int, const plant_struct *, const soil_struct *, const wstate_struct *,
-    const estate_struct *, const phystate_struct *);
+int             CondPlant(int, int, const soil_struct *, const wstate_struct *, const estate_struct *,
+    const phystate_struct *, plant_struct *);
 double          CropGrowth(double, const soil_struct *, const weather_struct *, const wstate_struct *,
     const phystate_struct *, crop_struct *, cflux_struct *);
 void            CropNConc(double, const crop_struct *, double *, double *, double *, double *, double *, double *,
