@@ -408,6 +408,14 @@ enum output_var{
 #define BURN_RESIDUE            4           // burn residue
 #define ALL_CROPS               -1          // flag to kill all crops
 
+// Crop life cycle types
+#define ANNUAL_CROP             1           // annual crop
+#define PERENNIAL_CROP          0           // perennial crop
+
+// Crop photosynthesis pathways
+#define C3_CROP                 1           // C3 crop
+#define C4_CROP                 0           // C4 crop
+
 // Crop growth stages
 #define NOT_USED                -999        // not being used in the simulation
 #define KILLED                  -1          // killed

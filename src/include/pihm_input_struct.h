@@ -358,9 +358,9 @@ typedef struct crop_epc_struct
     double          n_conc_max;             // maximum N concentration (g g-1)
     double          n_dil_slope;            // N dilution curve slope parameter (-)
     double          kc;                     // transpiration coefficient (-)
-    int             annual;                 // annual/perennial flag (-)
+    int             life_cycle;             // crop life cycle: annual or perennial (-)
     int             legume;                 // legume flag (-)
-    int             c3;                     // C3/C4 flag (-)
+    int             psn_pathway;            // photosynthetic pathway: C3 or C4 (-)
     double          lwp_stress_onset;       // leaf water potential for onset of stress (J kg-1)
     double          lwp_wilting_point;      // leaf water potential at wilting point (J kg-1)
     double          transp_max;             // maximum transpiration rate (mm day-1)
@@ -407,7 +407,7 @@ typedef struct crop_struct
     double          thermal_time_cum;       // cumulative thermal time (degree C)
     double          rad_intcp;              // solar radiation intercepted by green leaves (-)
     double          rad_intcp_brown;        // solar radiation intercepted by brown leaves (-)
-    double          rad_intcp_nc;           // solar radiation intercepted by green leaves without considering
+    double          rad_intcp_pot;          // solar radiation intercepted by green leaves without considering
                                             // competition (-)
     double          biomass;                // total biomass (Mg ha-1)
     double          shoot;                  // shoot biomass (Mg ha-1)
