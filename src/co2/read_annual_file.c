@@ -22,13 +22,13 @@ void ReadAnnualFile(const char fn[], tsdata_struct *ts)
         NextLine(fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%s %lf", timestr, &ts->data[k][0]) != 2)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
 
         ts->ftime[k] = StrTime(timestr);
         if (ts->ftime[k] == BADVAL)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

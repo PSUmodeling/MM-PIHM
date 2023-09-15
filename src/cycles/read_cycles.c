@@ -26,7 +26,7 @@ void ReadCyclesCtrl(const char fn[], char co2_fn[], agtbl_struct *agtbl, ctrl_st
         NextLine(fp, cmdstr, &lno);
         if (sscanf(cmdstr, "%d %d", &index, &agtbl->oper[i]) != 2)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -47,7 +47,7 @@ void ReadCyclesCtrl(const char fn[], char co2_fn[], agtbl_struct *agtbl, ctrl_st
         match = sscanf(cmdstr, "%d %s", &index, agtbl->oper_filen[n]);
         if (match != 2 || n != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
         n++;
     }
@@ -182,7 +182,7 @@ void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
 
         if (i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
 
         NextLine(fp, cmdstr, &lno);
@@ -217,7 +217,7 @@ void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
 
             if (match != 7 || kz != layer - 1)
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
 
             soiltbl->clay_layer[i][kz] = (soiltbl->clay_layer[i][kz] < 0.0) ?

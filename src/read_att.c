@@ -27,7 +27,7 @@ void ReadAtt(const char fn[], atttbl_struct *atttbl)
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 9, "INDEX", "SOIL", "GEOL", "LC", "METEO", "LAI", "BC1", "BC2", "BC3"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
     for (i = 0; i < nelem; i++)
     {
@@ -36,7 +36,7 @@ void ReadAtt(const char fn[], atttbl_struct *atttbl)
             &atttbl->meteo[i], &atttbl->lai[i], &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 9 || index != i + 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

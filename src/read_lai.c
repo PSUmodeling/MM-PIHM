@@ -42,13 +42,13 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
 
                 if (i != index - 1)
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
                 // Check header lines
                 NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME", "LAI"))
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
                 forc->lai[i].length = CountLines(fp, cmdstr, 1, "LAI_TS");
             }
@@ -69,7 +69,7 @@ void ReadLai(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                     NextLine(fp, cmdstr, &lno);
                     if (!ReadTs(cmdstr, 1, &forc->lai[i].ftime[j], &forc->lai[i].data[j][0]))
                     {
-                        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                     }
                 }
             }

@@ -27,7 +27,7 @@ void ReadCini(const char fn[], const chemtbl_struct *chemtbl, int num_stc, atttb
     if (!CheckHeader(cmdstr, 3, "ELEM", "PRCPC", "SOIL", "GEOL"))
 #endif
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
     for (i = 0; i < nelem; i++)
     {
@@ -43,7 +43,7 @@ void ReadCini(const char fn[], const chemtbl_struct *chemtbl, int num_stc, atttb
 
         if (match != NCHMVOL + 2)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

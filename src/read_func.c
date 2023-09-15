@@ -145,7 +145,7 @@ int ReadKeyword(const char buffer[], const char keyword[], char type, const char
 
     if (!success)
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     return success;
@@ -162,11 +162,11 @@ int ReadPrintCtrl(const char buffer[], const char keyword[], const char fn[], in
     if (strcasecmp(keyword, optstr) != 0)
     {
         pihm_printf(VL_ERROR, "Expected keyword \"%s\", detected keyword \"%s\".\n", keyword, optstr);
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
     else if (match != 2)
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     if (strcasecmp(ctrlstr, "YEARLY") == 0)
@@ -190,7 +190,7 @@ int ReadPrintCtrl(const char buffer[], const char keyword[], const char fn[], in
         if (sscanf(ctrlstr, "%d", &prtvrbl) != 1)
         {
             pihm_printf(VL_ERROR, "Unknown output control option %s.\n", ctrlstr);
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

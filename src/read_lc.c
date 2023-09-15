@@ -37,7 +37,7 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
     if (!CheckHeader(cmdstr, 16, "INDEX", "SHDFAC", "DROOT", "RS", "RGL", "HS", "SNUP", "LAIMIN", "LAIMAX", "EMISMIN",
         "EMISMAX", "ALBMIN", "ALBMAX", "Z0MIN", "Z0MAX", "ROUGH"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < lctbl->number; i++)
@@ -51,7 +51,7 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
             &lctbl->albedomin[i], &lctbl->albedomax[i], &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

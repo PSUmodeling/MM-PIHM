@@ -41,9 +41,13 @@ FILE* _custom_fopen(const char *fn, const char *mode)
 {
     FILE           *fp;
 
+#if defined(_MSC_VER)
+    if (fopen_s(&fp, fn, mode) != 0)
+#else
     fp = fopen(fn, mode);
 
     if (fp == NULL)
+#endif
     {
         fprintf(stderr, "Error opening %s.\n", fn);
         fflush(stderr);
@@ -51,23 +55,6 @@ FILE* _custom_fopen(const char *fn, const char *mode)
     }
 
     return fp;
-}
-
-void _error(const char *fn, int lno, const char *func, int debug, const char *fmt, ...)
-{
-    va_list         va;
-    char            error_msg[MAXSTRING];
-
-    va_start(va, fmt);
-
-    vsprintf(error_msg, fmt, va);
-
-    va_end(va);
-
-    fprintf(stderr, "Error: %s\n\n", error_msg);
-    fflush(stderr);
-
-    _custom_exit(fn, lno, func, debug, EXIT_FAILURE);
 }
 
 int NonBlank(char *cmdstr)
@@ -142,13 +129,28 @@ int CountLines(FILE *fp, char *cmdstr, int num_arg, ...)
     // Access all the arguments assigned to valist
     while (NextLine(fp, cmdstr, &dummy) != 0)
     {
+#if defined(_MSC_VER)
+        sscanf_s(cmdstr, "%s", optstr, (unsigned)_countof(optstr));
+#else
         sscanf(cmdstr, "%s", optstr);
+#endif
 
         // Initialize valist for num number of arguments
         va_start(valist, num_arg);
         for (k = 0; k < num_arg; k++)
         {
+#if defined(_MSC_VER)
+            int err = strcpy_s(token, _countof(token), va_arg(valist, char*));
+
+            if (err < 0)
+            {
+                fprintf(stderr, "\n Error CountLine");
+                fflush(stderr);
+                exit(EXIT_FAILURE);
+            }
+#else
             strcpy(token, va_arg(valist, char *));
+#endif
             if (strcasecmp(token, optstr) == 0)
             {
                 success = 1;
@@ -178,7 +180,12 @@ int CountOccurr(FILE *fp, const char *token)
 
     while (NextLine(fp, cmdstr, &dummy) != 0)
     {
+#if defined(_MSC_VER)
+        sscanf_s(cmdstr, "%s", optstr, MAXSTRING);
+#else
         sscanf(cmdstr, "%s", optstr);
+#endif
+
         if (strcasecmp(token, optstr) == 0)
         {
             count++;
@@ -204,7 +211,11 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *fn)
     {
         while (NextLine(fp, cmdstr, lno) != 0)
         {
+#if defined(_MSC_VER)
+            sscanf_s(cmdstr, "%s", optstr, MAXSTRING);
+#else
             sscanf(cmdstr, "%s", optstr);
+#endif
             if (strcasecmp(token, optstr) == 0)
             {
                 return;
@@ -216,4 +227,47 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *fn)
     fprintf(stderr, "Error reading %s.\n", fn);
     fflush(stderr);
     exit(EXIT_FAILURE);
+}
+
+#if !defined(_PIHM_)
+void _error(const char *fn, int lno, const char *func, const char *name, int multi, int debug, int error_level,
+    const char *fmt, ...)
+#else
+void _error(const char *fn, int lno, const char *func, int debug, int error_level, const char *fmt, ...)
+#endif
+{
+    va_list         va;
+    char            error_msg[MAXSTRING];
+
+    va_start(va, fmt);
+
+#if defined (_MSC_VER)
+    vsprintf_s(error_msg, MAXSTRING, fmt, va);
+#else
+    vsprintf(error_msg, fmt, va);
+#endif
+
+    va_end(va);
+
+    fprintf(stderr, "\n");
+#if !defined(_PIHM_)
+    if (strcasecmp(fn, "src/main.c") != 0)
+    {
+        if (multi == 1)
+        {
+            fprintf(stderr, "Simulation %s:\n", name);
+        }
+    }
+#endif
+    if (error_level == ERROR)
+    {
+        fprintf(stderr, "Error: %s\n", error_msg);
+        fflush(stderr);
+        _custom_exit(fn, lno, func, debug, EXIT_FAILURE);
+    }
+    else if (error_level == WARNING)
+    {
+        fprintf(stderr, "\nWarning: %s\n\n", error_msg);
+        fflush(stderr);
+    }
 }

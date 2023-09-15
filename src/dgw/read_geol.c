@@ -31,7 +31,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
     if (!CheckHeader(cmdstr, 10,
         "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < geoltbl->number; i++)
@@ -43,7 +43,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
 
         if (match != 10 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

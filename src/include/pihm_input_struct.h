@@ -364,6 +364,7 @@ typedef struct crop_epc_struct
     double          lwp_stress_onset;       // leaf water potential for onset of stress (J kg-1)
     double          lwp_wilting_point;      // leaf water potential at wilting point (J kg-1)
     double          transp_max;             // maximum transpiration rate (mm day-1)
+    double          daily_hi_max;           // maximum daily harvest index (-)
 } crop_epc_struct;
 
 typedef struct realized_crop_struct
@@ -409,12 +410,16 @@ typedef struct crop_struct
     double          rad_intcp_brown;        // solar radiation intercepted by brown leaves (-)
     double          rad_intcp_pot;          // solar radiation intercepted by green leaves without considering
                                             // competition (-)
+    double          rad_frac;               // fractional intercepted light by the crop canopy (-)
     double          biomass;                // total biomass (Mg ha-1)
     double          shoot;                  // shoot biomass (Mg ha-1)
     double          root;                   // root biomass (Mg ha-1)
+    double          grain;                  // grain biomass (Mg ha-1)
     double          rhizo;                  // rhizo biomass (Mg ha-1)
+    double          reserve;                // reserve biomass that can be remobilized from shoot biomass to grain (Mg ha-1)
     double          shoot_growth;           // daily shoot growth (Mg ha-1)
     double          root_growth;            // daily root growth (Mg ha-1)
+    double          grain_growth;           // daily grain growth (Mg ha-1)
     double          rhizo_deposit;          // daily rhizo deposition (Mg ha-1)
     double          shoot_growth_unstr;     // unstressed daily shoot growth (Mg ha-1)
     double          root_growth_unstr;      // unstressed daily root growth (Mg ha-1)

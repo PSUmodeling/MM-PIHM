@@ -465,6 +465,10 @@ enum output_var{
 #define ALPHA_C4                0.006       // RUE and TUE adjustment factor for C4 crops
 #define BETA_C4                 1.05        // RUE and TUE adjustment factor for C4 crops
 #define THETA_C4                0.95        // RUE and TUE adjustment factor for C4 crops
+
+#define TB                      0           // normalized time at beginning of growth period
+#define TM                      0.52        // normalized time at maximum growth rate
+#define TE                      1           // normalized time at end of growth period
 #endif
 
 // Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used for declare a large enough array size and

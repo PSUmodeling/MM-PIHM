@@ -21,10 +21,18 @@
 #define VL_NORMAL               0
 #define VL_VERBOSE              1
 
+// Error type
+#define ERROR                   1
+#define WARNING                 0
+
 void            _custom_exit(const char *, int, const char *, int, int);
 FILE*           _custom_fopen(const char *, const char *);
 void            _custom_printf(int, int, const char *, ...);
-void            _error(const char *, int, const char *, int, const char *, ...);
+#if !defined(_PIHM_)
+void            _error(const char *, int, const char *, const char *, int, int, int, const char *, ...);
+#else
+void            _error(const char *, int, const char *, int, int, const char *, ...);
+#endif
 int             CountLines(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, const char *);
 void            FindLine(FILE *, const char *, int *, const char *);

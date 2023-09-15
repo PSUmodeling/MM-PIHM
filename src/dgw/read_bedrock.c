@@ -24,7 +24,7 @@ void ReadBedrock(const char fn[], meshtbl_struct *meshtbl, atttbl_struct *atttbl
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 4, "INDEX", "BC1", "BC2", "BC3"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
     for (i = 0; i < nelem; i++)
     {

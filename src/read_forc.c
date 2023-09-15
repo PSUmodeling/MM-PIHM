@@ -29,13 +29,13 @@ void ReadMeteo(const char fn[], forc_struct *forc)
             if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "METEO_TS") != 0 ||
                 strcasecmp(tempstr[1], "WIND_LVL") != 0)
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             // Check header lines
             NextLine(fp, cmdstr, &lno);
             if (!CheckHeader(cmdstr, 8, "TIME", "PRCP", "SFCTMP", "RH", "SFCSPD", "SOLAR", "LONGWV", "PRES"))
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             forc->meteo[i].length = CountLines(fp, cmdstr, 1, "METEO_TS");
         }
@@ -56,7 +56,7 @@ void ReadMeteo(const char fn[], forc_struct *forc)
                 NextLine(fp, cmdstr, &lno);
                 if (!ReadTs(cmdstr, NUM_METEO_VAR, &forc->meteo[i].ftime[j], &forc->meteo[i].data[j][0]))
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
             }
         }

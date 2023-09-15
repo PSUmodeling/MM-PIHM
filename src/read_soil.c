@@ -43,7 +43,7 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
     if (!CheckHeader(cmdstr, 16, "INDEX", "SILT", "CLAY", "OM", "BD", "KINF", "KSATV", "KSATH", "MAXSMC", "MINSMC",
         "ALPHA", "BETA", "MACHF", "MACVF", "DMAC", "QTZ"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < soiltbl->number; i++)
@@ -56,7 +56,7 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
 
         if (match != 16 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
 
         // Fill in missing organic matter and bulk density values

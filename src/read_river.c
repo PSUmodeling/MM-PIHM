@@ -35,7 +35,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 10, "INDEX", "FROM", "TO", "DOWN", "LEFT", "RIGHT", "SHAPE", "MATL", "BC", "RES"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     // Read river segment information
@@ -47,7 +47,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
             &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -64,7 +64,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 4, "INDEX", "DPTH", "OINT", "CWID"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < shptbl->number; i++)
@@ -73,7 +73,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
         match = sscanf(cmdstr, "%d %lf %d %lf", &index, &shptbl->depth[i], &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -90,7 +90,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
     NextLine(fp, cmdstr, &lno);
     if (!CheckHeader(cmdstr, 4, "INDEX", "ROUGH", "CWR", "KH"))
     {
-        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
 
     for (i = 0; i < matltbl->number; i++)
@@ -99,7 +99,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
         match = sscanf(cmdstr, "%d %lf %lf %lf", &index, &matltbl->rough[i], &matltbl->cwr[i], &matltbl->ksath[i]);
         if (match != 4 || i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 
@@ -118,18 +118,18 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
             if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "RIV_TS") != 0 ||
                 strcasecmp(tempstr[1], "TYPE") != 0)
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             if (forc->riverbc[i].bc_type != DIRICHLET && forc->riverbc[i].bc_type != NEUMANN)
             {
                 pihm_printf(VL_ERROR, "Boundary condition type should be either Dirichlet (1) or Neumann (2).\n");
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             // Check header
             NextLine(fp, cmdstr, &lno);
             if (!CheckHeader(cmdstr, 2, "TIME", (forc->riverbc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
 
             forc->riverbc[i].length = CountLines(fp, cmdstr, 2, "RIV_TS", "RES");
@@ -151,7 +151,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
                 NextLine(fp, cmdstr, &lno);
                 if (!ReadTs(cmdstr, 1, &forc->riverbc[i].ftime[j], &forc->riverbc[i].data[j][0]))
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
             }
         }

@@ -39,7 +39,7 @@ void ReadLsm(const char fn[], ctrl_struct *ctrl, siteinfo_struct *siteinfo, noah
     {
         if (sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[kz], &bytes_now) != 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
         bytes_consumed += bytes_now;
     }
@@ -164,14 +164,14 @@ void ReadRad(const char fn[], forc_struct *forc)
 
         if (i != index - 1)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
 
         // Check header lines
         NextLine(fp, cmdstr, &lno);
         if (!CheckHeader(cmdstr, 3, "TIME", "SDIR", "SDIF"))
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
         forc->rad[i].length = CountLines(fp, cmdstr, 1, "RAD_TS");
     }
@@ -192,7 +192,7 @@ void ReadRad(const char fn[], forc_struct *forc)
             NextLine(fp, cmdstr, &lno);
             if (!ReadTs(cmdstr, 2, &forc->rad[i].ftime[j], &forc->rad[i].data[j][0]))
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
         }
     }
@@ -219,7 +219,7 @@ void ReadGlacierIce(const char fn[], double iceh[])
         match = sscanf(cmdstr, "%d %lf", &index, &iceh[i]);
         if (match != 2)
         {
-            pihm_error(ERR_WRONG_FORMAT, fn, lno);
+            pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
         }
     }
 

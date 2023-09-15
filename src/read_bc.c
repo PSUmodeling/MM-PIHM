@@ -72,12 +72,12 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                 if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "BC_TS") != 0 ||
                     strcasecmp(tempstr[1], "TYPE") != 0)
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
                 if (forc->bc[i].bc_type != DIRICHLET && forc->bc[i].bc_type != NEUMANN)
                 {
                     pihm_printf(VL_ERROR, "Boundary condition type should be either Dirichlet (1) or Neumann (2).\n");
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
 #if defined(_RT_)
                 int             k;
@@ -94,7 +94,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                 if (strcasecmp(tempstr[0], "TIME") != 0 ||
                     strcasecmp(tempstr[1], (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX")!= 0)
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
 
                 for (k = 0; k < rttbl->num_stc; k++)
@@ -122,7 +122,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                 NextLine(fp, cmdstr, &lno);
                 if (!CheckHeader(cmdstr, 2, "TIME", (forc->bc[i].bc_type == DIRICHLET) ? "HEAD" : "FLUX"))
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
 #endif
                 forc->bc[i].length = CountLines(fp, cmdstr, 1, "BC_TS");
@@ -152,7 +152,7 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                     if (!ReadTs(cmdstr, 1, &forc->bc[i].ftime[j], &forc->bc[i].data[j][0]))
 #endif
                     {
-                        pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                        pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                     }
 #if defined(_RT_)
                     else

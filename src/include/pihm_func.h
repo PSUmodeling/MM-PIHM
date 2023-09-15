@@ -59,6 +59,7 @@
 #endif
 
 #if defined(_CYCLES_)
+#define cycles_error            pihm_error
 #define cycles_exit             pihm_exit
 #define cycles_fopen            pihm_fopen
 #define cycles_printf           pihm_printf
@@ -527,6 +528,7 @@ int             ForcedMaturity(int, int, int, int, int, int);
 double          Fraction(double, double, double, double, double);
 void            FreeAgtbl(agtbl_struct *);
 void            FreeMgmttbl(int, mgmt_struct []);
+double          GrainGrowth(const crop_struct *);
 void            GrainHarvest(int, int, double, crop_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
     nflux_struct *);
 void            GrowingCrop(int, int, int, const soil_struct *, const weather_struct *, crop_struct [], wstate_struct *,
@@ -569,7 +571,7 @@ void            PotSoluteUptake(double, const double [], const soil_struct *, co
 void            Processes(int, crop_struct [], const soil_struct *, const weather_struct *, wstate_struct *,
     wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 double          Profile(int, const double []);
-void            RadIntcp(crop_struct []);
+void            RadIntcp(double, crop_struct []);
 void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], char [], agtbl_struct *, ctrl_struct *, co2control_struct *);
 void            ReadCyclesIc(const char [], elem_struct []);

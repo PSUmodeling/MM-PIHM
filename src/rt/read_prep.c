@@ -35,7 +35,7 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[], const rttbl_struc
             if (match != 4 || i != tsind - 1 || strcasecmp(tempstr[0], "PRCP_CONC_TS") != 0 ||
                 strcasecmp(tempstr[1], "PCONC") != 0)
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             // Skip header lines
             NextLine(fp, cmdstr, &lno);
@@ -54,13 +54,13 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[], const rttbl_struc
             // Check header line with TIME keyword
             if (sscanf(cmdstr + bytes_consumed, "%s%n", tempstr[0], &bytes_now) != 1)
             {
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             bytes_consumed += bytes_now;
             if (strcasecmp(tempstr[0], "TIME") != 0)
             {
                 pihm_printf(VL_ERROR, "Expect header line starting with \"TIME\".\n");
-                pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
             for (j = 0; j < nsps[i]; j++)
             {
@@ -97,7 +97,7 @@ void ReadPrep(const char fn[], const chemtbl_struct chemtbl[], const rttbl_struc
                 NextLine(fp, cmdstr, &lno);
                 if (!ReadTs(cmdstr, nsps[i], &forc->prcpc[i].ftime[j], temp_conc))
                 {
-                    pihm_error(ERR_WRONG_FORMAT, fn, lno);
+                    pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
                 }
 
                 for (k = 0; k < rttbl->num_spc; k++)
