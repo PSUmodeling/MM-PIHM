@@ -405,7 +405,9 @@ void SFlx(double dt, soil_struct *soil, lc_struct *lc, epconst_struct *epc, phys
     else
     {
         ps->rc = 0.0;
+#if defined(_CYCLES_)
         ps->co2_adjust_transp = 1.0;
+#endif
     }
 
     // Now decide major pathway branch to take depending on whether snowpack exists or not
@@ -663,7 +665,9 @@ void CanRes(const soil_struct *soil, const epconst_struct *epc, const wstate_str
     delta = (SLV / CP) * ps->dqsdt2;
 
     ps->pc = (rr + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
+#if defined(_CYCLES_)
     ps->co2_adjust_transp = (rr * (1.0 + RC * ps->ch) + delta) / (rr * (1.0 + ps->rc * ps->ch) + delta);
+#endif
 }
 
 // Calculate snow thermal conductivity
