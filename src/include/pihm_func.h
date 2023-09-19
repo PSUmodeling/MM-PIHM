@@ -477,7 +477,9 @@ void            BurnResidue(int, int, const tillage_struct *, wstate_struct *, c
 void            CalSnkSrc(int, const nflux_struct *, solute_struct []);
 double          CNDestiny(double, double);
 double          CO2FuncGrowth(int, double);
-double          ColdDamage(double, double, double);
+void            ColdDamage(int, int, const weather_struct *, crop_struct [], wstate_struct *, cstate_struct *,
+    nstate_struct *, nflux_struct *, phystate_struct *);
+double          ColdDamageFunc(double, double, double);
 double          CommRadIntcp(const crop_struct []);
 double          CommTotRadIntcp(const crop_struct []);
 double          CommTransp(const crop_struct []);
@@ -490,12 +492,16 @@ int             CondPlant(int, int, const soil_struct *, const wstate_struct *, 
     const phystate_struct *, plant_struct *);
 double          CropGrowth(double, const soil_struct *, const weather_struct *, const wstate_struct *,
     const phystate_struct *, crop_struct *, cflux_struct *);
+void            CropHarvest(int, int, crop_struct [], wstate_struct *, cstate_struct *, nstate_struct *, nflux_struct *,
+    phystate_struct *);
 void            CropNConc(double, const crop_struct *, double *, double *, double *, double *, double *, double *,
     double *);
 void            CropNDemand(double, double, const crop_struct *, double *, double *, double *);
 void            CropNStress(double, double, double, crop_struct *);
 void            CropNUptake(int, const double [], const double [], const double [], const double [], const double [],
     const phystate_struct *, double [], double [], crop_struct [], nstate_struct *, nflux_struct *);
+void            CropProcesses(int, crop_struct [], const soil_struct *, const weather_struct *, wstate_struct *,
+    wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 void            CropStage(int, crop_struct []);
 void            Cycles(int, const co2control_struct *, forc_struct *, elem_struct []);
 void            DailyOper(int, int, int, weather_struct *, mgmt_struct *, crop_struct [], soil_struct *,
@@ -568,8 +574,6 @@ void            Phenology(const weather_struct *, crop_struct []);
 void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            PotSoluteUptake(double, const double [], const soil_struct *, const wstate_struct *,
     const wflux_struct *, const phystate_struct *, double []);
-void            Processes(int, crop_struct [], const soil_struct *, const weather_struct *, wstate_struct *,
-    wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
 double          Profile(int, const double []);
 void            RadIntcp(double, crop_struct []);
 void            ReadCrop(const char [], crop_struct []);
