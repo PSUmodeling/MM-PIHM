@@ -486,7 +486,7 @@ double          CommTransp(const crop_struct []);
 void            ComposFactor(const soil_struct *, const wstate_struct *, const estate_struct *, phystate_struct *);
 void            ComputeColdDamage(const weather_struct *, const phystate_struct *, crop_struct *, wstate_struct *,
     cstate_struct *, nstate_struct *);
-double          ComputeHarvestIndex(double, double, double, double, double);
+double          ComputeHarvestIndex(const crop_struct *);
 void            ConcWeight(const soil_struct *, const wstate_struct *, const phystate_struct *, double []);
 int             CondPlant(int, int, const soil_struct *, const wstate_struct *, const estate_struct *,
     const phystate_struct *, plant_struct *);
