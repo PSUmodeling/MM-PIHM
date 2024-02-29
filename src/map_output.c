@@ -914,7 +914,11 @@ void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
 
     // When spinning-up, print interval is set to monthly or longer
-    varctrl->intvl = (spinup_mode) ? MAX(MONTHLY_OUTPUT, intvl): intvl;
+    if (spinup_mode)
+    {
+        intvl = (intvl == YEARLY_OUTPUT) ? YEARLY_OUTPUT : MONTHLY_OUTPUT;
+    }
+    varctrl->intvl = intvl;
     varctrl->upd_intvl = upd_intvl;
     varctrl->nvar = nvar;
     varctrl->var = (const double **)malloc(nvar * sizeof(double *));
