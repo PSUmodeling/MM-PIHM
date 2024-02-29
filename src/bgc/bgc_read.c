@@ -124,6 +124,9 @@ void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, 
     NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[SMINN_CTRL] = ReadPrintCtrl(cmdstr, "SMINN", fn, lno);
 
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrintCtrl(cmdstr, "DENITRIF", fn, lno);
+
     fclose(fp);
 }
 

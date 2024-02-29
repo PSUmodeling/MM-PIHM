@@ -459,6 +459,14 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     }
                     n++;
                     break;
+                case DENITRIF_CTRL:
+                    InitPrintCtrl(outputdir, "denitrif", prtvrbl[i], CN_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ns.nvol_snk;
+                    }
+                    n++;
+                    break;
 #endif
 #if defined(_CYCLES_)
                 case YIELD_CTRL:

@@ -328,6 +328,7 @@ enum output_var{
     N_PROFILE_CTRL,
     N_RIVER_CTRL,
     LEACHING_CTRL,
+    DENITRIF_CTRL,
     // Cycles
     YIELD_CTRL,
     BIOMASS_CTRL,
@@ -336,7 +337,6 @@ enum output_var{
     N_STS_CTRL,
     CROP_TR_CTRL,
     CROP_POTTR_CTRL,
-    DENITRIF_CTRL,
     NITRIF_CTRL,
     IMMOBIL_CTRL,
     MINERAL_CTRL,
