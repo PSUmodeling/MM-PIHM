@@ -68,7 +68,8 @@ void CSummary(const cstate_struct *cs, const cflux_struct *cf, summary_struct *s
         cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc + cs->livecrootc_storage +
         cs->livecrootc_transfer + cs->deadcrootc + cs->deadcrootc_storage + cs->deadcrootc_transfer +
         cs->gresp_storage + cs->gresp_transfer + cs->cpool;
-    summary->agc = cs->leafc + cs->livestemc + cs->deadstemc;
+    summary->agc = cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->livestemc + cs->livestemc_storage +
+        cs->livestemc_transfer + cs->deadstemc + cs->deadstemc_storage + cs->deadstemc_transfer;
     summary->litrc = cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
     summary->soilc = cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c;
     summary->totalc = summary->vegc + summary->litrc + summary->soilc;
