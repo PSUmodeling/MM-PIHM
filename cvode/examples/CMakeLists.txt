@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -11,171 +11,133 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples level CMakeLists.txt for SUNDIALS (for cmake build system)
+# examples level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-# The examples will be linked with the library corresponding to the build type.
-# Whenever building shared libraries, use them to link the examples.
-IF(BUILD_SHARED_LIBS)
-  SET(LINK_LIBRARY_TYPE "shared")
-ELSE()
-  SET(LINK_LIBRARY_TYPE "static")
-ENDIF()
+# We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
+# at least until we convert all of the templates to use the SUNDIALS CMake
+# target.
 
+# ===================================================================
+# Configure compilers for installed examples
+# ===================================================================
+
+foreach(lang ${_SUNDIALS_ENABLED_LANGS})
+  if(ENABLE_MPI)
+    if(DEFINED MPI_${lang}_COMPILER)
+      set(_EXAMPLES_${lang}_COMPILER
+          "${MPI_${lang}_COMPILER}"
+          CACHE INTERNAL "${lang} compiler for installed examples")
+    endif()
+  else()
+    set(_EXAMPLES_${lang}_COMPILER
+        "${CMAKE_${lang}_COMPILER}"
+        CACHE INTERNAL "${lang} compiler for installed examples")
+  endif()
+endforeach()
+
+# Disable some warnings for examples
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+endif()
+
+# Initialize CMAKE_Fortran_MODULE_DIRECTORY for examples
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+# ===================================================================
 # Set variables used in generating CMake and Makefiles for examples
-IF(EXAMPLES_INSTALL)
+# ===================================================================
 
-  SET(SHELL "sh")
-  SET(prefix "${CMAKE_INSTALL_PREFIX}")
-  SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
-  SET(includedir "${prefix}/include")
-  SET(libdir "${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-  SET(CPP "${CMAKE_C_COMPILER}")
-  SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
-  SET(CC "${CMAKE_C_COMPILER}")
-  SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
-  SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-  LIST2STRING(EXTRA_LINK_LIBS LIBS)
+if(EXAMPLES_INSTALL)
 
-  IF(CXX_FOUND)
-    SET(CXX "${CMAKE_CXX_COMPILER}")
-    SET(CXX_LNKR "${CMAKE_CXX_COMPILER}")
-    SET(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
-    SET(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
-    LIST2STRING(EXTRA_LINK_LIBS CXX_LIBS)
-  ENDIF(CXX_FOUND)
+  set(SHELL "sh")
+  set(prefix "${CMAKE_INSTALL_PREFIX}")
+  set(exec_prefix "${CMAKE_INSTALL_PREFIX}")
+  set(includedir "${prefix}/include")
+  set(libdir "${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+  set(CPP "${CMAKE_CXX_COMPILER}")
+  set(CPPFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
+  set(CC "${CMAKE_C_COMPILER}")
+  set(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
+  set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+  list2string(EXE_EXTRA_LINK_LIBS LIBS)
+  list2string(EXE_EXTRA_LINK_LIBS EXAMPLES_EXTRA_LIBS)
 
-  IF(F77_FOUND)
-    SET(F77 "${CMAKE_Fortran_COMPILER}")
-    SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
-    SET(FFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-    SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-    LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
-  ENDIF(F77_FOUND)
+  if(CXX_FOUND)
+    set(CXX "${_EXAMPLES_CXX_COMPILER}")
+    set(CXX_LNKR "${_EXAMPLES_CXX_COMPILER}")
+    set(CXXFLAGS
+        "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}"
+    )
+    set(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
+    list2string(EXE_EXTRA_LINK_LIBS CXX_LIBS)
+  endif()
 
-  IF(F90_FOUND)
-    SET(F90 "${CMAKE_Fortran_COMPILER}")
-    SET(F90_LNKR "${CMAKE_Fortran_COMPILER}")
-    SET(F90FLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-    SET(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-    LIST2STRING(EXTRA_LINK_LIBS F90_LIBS)
-  ENDIF(F90_FOUND)
+  if(SUPERLUMT_FOUND)
+    list2string(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
+    set(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
+  endif()
 
-  IF(SUPERLUMT_FOUND)
-    LIST2STRING(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
-    SET(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
-  ENDIF(SUPERLUMT_FOUND)
+  if(KLU_FOUND)
+    list2string(KLU_LIBRARIES KLU_LIBS)
+    set(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
+  endif()
 
-  IF(KLU_FOUND)
-    LIST2STRING(KLU_LIBRARIES KLU_LIBS)
-    SET(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
-  ENDIF(KLU_FOUND)
+  if(LAPACK_FOUND)
+    list2string(LAPACK_LIBRARIES LAPACK_LIBS)
+  endif()
 
-  IF(BLAS_FOUND)
-    LIST2STRING(BLAS_LIBRARIES BLAS_LIBS)
-  ENDIF(BLAS_FOUND)
+  if(HYPRE_FOUND)
+    set(HYPRE_INC_DIR "${HYPRE_INCLUDE_DIR}")
+    set(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
+    set(HYPRE_LIBS "${HYPRE_LIBRARIES}")
+  endif()
 
-  IF(LAPACK_FOUND)
-    LIST2STRING(LAPACK_LIBRARIES LAPACK_LIBS)
-  ENDIF(LAPACK_FOUND)
+  if(MPI_C_FOUND)
+    set(MPICC "${MPI_C_COMPILER}")
+    set(MPI_INC_DIR ".")
+    set(MPI_LIB_DIR ".")
+    set(MPI_LIBS "")
+    set(MPI_FLAGS "")
+  endif()
 
-  IF(MPI_C_FOUND)
-    IF(MPI_C_COMPILER)
-      SET(MPICC "${MPI_C_COMPILER}")
-      SET(MPI_INC_DIR ".")
-      SET(MPI_LIB_DIR ".")
-      SET(MPI_LIBS "")
-      SET(MPI_FLAGS "")
-    ELSE()
-      SET(MPICC "${CMAKE_C_COMPILER}")
-      SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
-      SET(MPI_LIB_DIR ".")
-      LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-    ENDIF()
-    SET(HYPRE_INC_DIR "${HYPRE_INCLUDE_DIR}")
-    SET(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
-    SET(HYPRE_LIBS "${HYPRE_LIBRARIES}")
-  ENDIF()
+  if(MPI_CXX_FOUND)
+    set(MPICXX "${MPI_CXX_COMPILER}")
+  endif()
 
-  IF(MPI_CXX_FOUND)
-    IF(MPI_CXX_COMPILER)
-      SET(MPICXX "${MPI_CXX_COMPILER}")
-    ELSE()
-      SET(MPICXX "${CMAKE_CXX_COMPILER}")
-      LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-    ENDIF()
-  ENDIF()
+endif()
 
-  IF(MPI_Fortran_FOUND)
-    IF(MPI_Fortran_COMPILER)
-      SET(MPIF77 "${MPI_Fortran_COMPILER}")
-      SET(MPIF77_LNKR "${MPI_Fortran_COMPILER}")
-
-      SET(MPIF90 "${MPI_Fortran_COMPILER}")
-      SET(MPIF90_LNKR "${MPI_Fortran_COMPILER}")
-    ELSE()
-      SET(MPIF77 "${CMAKE_Fortran_COMPILER}")
-      SET(MPIF77_LNKR "${CMAKE_Fortran_COMPILER}")
-      SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
-      SET(MPI_LIB_DIR ".")
-      LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-
-      SET(MPIF90 "${CMAKE_Fortran_COMPILER}")
-      SET(MPIF90_LNKR "${CMAKE_Fortran_COMPILER}")
-      LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-    ENDIF()
-  ENDIF()
-
-ENDIF(EXAMPLES_INSTALL)
-
-
-#----------------------------------------
+# ===================================================================
 # Add specific examples
-#----------------------------------------
+# ===================================================================
 
 # Add ARKode examples
-IF(BUILD_ARKODE)
-  ADD_SUBDIRECTORY(arkode)
-ENDIF(BUILD_ARKODE)
+if(BUILD_ARKODE)
+  add_subdirectory(arkode)
+endif()
 
 # Add CVODE examples
-IF(BUILD_CVODE)
-  ADD_SUBDIRECTORY(cvode)
-ENDIF(BUILD_CVODE)
+if(BUILD_CVODE)
+  add_subdirectory(cvode)
+endif()
 
 # Add CVODES Examples
-IF(BUILD_CVODES)
-  ADD_SUBDIRECTORY(cvodes)
-ENDIF(BUILD_CVODES)
+if(BUILD_CVODES)
+  add_subdirectory(cvodes)
+endif()
 
 # Add IDA examples
-IF(BUILD_IDA)
-  ADD_SUBDIRECTORY(ida)
-ENDIF(BUILD_IDA)
+if(BUILD_IDA)
+  add_subdirectory(ida)
+endif()
 
 # Add IDAS examples
-IF(BUILD_IDAS)
-  ADD_SUBDIRECTORY(idas)
-ENDIF(BUILD_IDAS)
+if(BUILD_IDAS)
+  add_subdirectory(idas)
+endif()
 
 # Add KINSOL examples
-IF(BUILD_KINSOL)
-  ADD_SUBDIRECTORY(kinsol)
-ENDIF(BUILD_KINSOL)
-
-# Add CPODES examples
-IF(BUILD_CPODES)
-  ADD_SUBDIRECTORY(cpodes)
-ENDIF(BUILD_CPODES)
-
-# Add the nvector examples
-ADD_SUBDIRECTORY(nvector)
-
-# Add the sunmatrix examples
-ADD_SUBDIRECTORY(sunmatrix)
-
-# Add the sunlinearsolver examples
-ADD_SUBDIRECTORY(sunlinsol)
-
-# Add the sunnonlinearsolver examples
-ADD_SUBDIRECTORY(sunnonlinsol)
+if(BUILD_KINSOL)
+  add_subdirectory(kinsol)
+endif()

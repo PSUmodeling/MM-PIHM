@@ -2,20 +2,31 @@
 
 #define MAX_TYPE    100
 
-void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
+void Initialize(pihm_struct *pihm, cvode_struct *cvode)
 {
     int             i, j;
     int             bc;
 
     pihm_printf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
+    // Initialize CVODE structure
+    SUNContext_Create(SUN_COMM_NULL, &cvode->sunctx);
+    cvode->CV_Y = N_VNew(NumStateVar(), cvode->sunctx);
+    if (cvode->CV_Y == NULL)
+    {
+        pihm_printf(VL_ERROR, "Error creating CVODE state variable vector.\n");
+        pihm_exit(EXIT_FAILURE);
+    }
+
     // Allocate memory for solver
-    *cvode_mem = CVodeCreate(CV_BDF);
-    if (*cvode_mem == NULL)
+    cvode->memory_block= CVodeCreate(CV_BDF, cvode->sunctx);
+    if (cvode->memory_block == NULL)
     {
         pihm_printf(VL_ERROR, "Error in allocating memory for solver.\n");
         pihm_exit(EXIT_FAILURE);
     }
+
+    cvode->user_data = (void *)pihm;
 
     // Initialize PIHM structure
     pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
@@ -176,7 +187,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     // Initialize state variables
-    InitVar(pihm->elem, pihm->river, CV_Y);
+    InitVar(pihm->elem, pihm->river, cvode);
 
 #if defined(_CYCLES_)
     // Initialize Cycles module
@@ -462,7 +473,7 @@ void RelaxIc(elem_struct elem[], river_struct river[])
     }
 }
 
-void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitVar(elem_struct elem[], river_struct river[], cvode_struct *cvode)
 {
     int             i;
 
@@ -479,16 +490,16 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw    = elem[i].ic.gw;
 
-        NV_Ith(CV_Y, SURF(i))  = elem[i].ic.surf;
-        NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
-        NV_Ith(CV_Y, GW(i))    = elem[i].ic.gw;
+        NV_Ith(cvode->CV_Y, SURF(i))  = elem[i].ic.surf;
+        NV_Ith(cvode->CV_Y, UNSAT(i)) = elem[i].ic.unsat;
+        NV_Ith(cvode->CV_Y, GW(i))    = elem[i].ic.gw;
 
 #if defined(_DGW_)
         elem[i].ws.unsat_geol = elem[i].ic.unsat_geol;
         elem[i].ws.gw_geol    = elem[i].ic.gw_geol;
 
-        NV_Ith(CV_Y, UNSAT_GEOL(i)) = elem[i].ic.unsat_geol;
-        NV_Ith(CV_Y, GW_GEOL(i))    = elem[i].ic.gw_geol;
+        NV_Ith(cvode->CV_Y, UNSAT_GEOL(i)) = elem[i].ic.unsat_geol;
+        NV_Ith(cvode->CV_Y, GW_GEOL(i))    = elem[i].ic.gw_geol;
 #endif
 
 #if defined(_NOAH_)
@@ -515,7 +526,7 @@ void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     {
         river[i].ws.stage = river[i].ic.stage;
 
-        NV_Ith(CV_Y, RIVER(i)) = river[i].ic.stage;
+        NV_Ith(cvode->CV_Y, RIVER(i)) = river[i].ic.stage;
     }
 
     // Other variables

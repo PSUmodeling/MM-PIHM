@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,6 +14,10 @@
 # nonlinear solver level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS provided nonlinear solver modules
+# required modules
 add_subdirectory(newton)
 add_subdirectory(fixedpoint)
+
+if(BUILD_SUNNONLINSOL_PETSCSNES)
+  add_subdirectory(petscsnes)
+endif()

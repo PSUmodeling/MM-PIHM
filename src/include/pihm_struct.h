@@ -249,6 +249,15 @@ typedef struct pihm_struct
     rttbl_struct    rttbl;
     chmictbl_struct chmictbl;
 #endif
-} *pihm_struct;
+} pihm_struct;
+
+typedef struct cvode_struct
+{
+    SUNContext      sunctx;
+    N_Vector        CV_Y;
+    SUNLinearSolver sun_ls;
+    void           *memory_block;
+    void           *user_data;
+} cvode_struct;
 
 #endif

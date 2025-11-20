@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void FreeMem(pihm_struct pihm)
+void FreeMem(pihm_struct *pihm)
 {
     int             i;
 

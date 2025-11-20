@@ -1,11 +1,11 @@
 #include "pihm.h"
 
-void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_struct *cvode)
 {
     double         *y;
     int             i;
 
-    y = NV_DATA(CV_Y);
+    y = NV_DATA(cvode->CV_Y);
 
 #if defined(_OPENMP)
 # pragma omp parallel for

@@ -1,17 +1,17 @@
 #include "pihm.h"
 
-int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
+int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 {
     int             i;
     double         *y;
     double         *dy;
-    pihm_struct     pihm;
+    pihm_struct    *pihm;
     elem_struct    *elem;
     river_struct   *river;
 
     y = NV_DATA(CV_Y);
     dy = NV_DATA(CV_Ydot);
-    pihm = (pihm_struct)pihm_data;
+    pihm = (pihm_struct *)pihm_data;
 
     elem = &pihm->elem[0];
     river = &pihm->river[0];
@@ -94,7 +94,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_BGC_)
     SoluteConc(pihm->elem, pihm->river);
 #elif defined(_CYCLES_)
-    SoluteConc(t + (realtype)pihm->ctrl.tout[0] - (realtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
+    SoluteConc(t + (sunrealtype)pihm->ctrl.tout[0] - (sunrealtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
 #elif defined(_RT_)
     SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
@@ -223,7 +223,7 @@ int NumStateVar(void)
     return nsv;
 }
 
-void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls, N_Vector CV_Y)
+void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
 {
     int             cv_flag;
     static int      reset;
@@ -240,53 +240,53 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls, N
     {
         // When model spins-up and recycles forcing, use CVodeReInit to reset solver time, which does not allocates
         // memory
-        cv_flag = CVodeReInit(cvode_mem, 0.0, CV_Y);
+        cv_flag = CVodeReInit(cvode->memory_block, 0.0, cvode->CV_Y);
         CheckCVodeFlag(cv_flag);
     }
     else
     {
-        cv_flag = CVodeInit(cvode_mem, Ode, 0.0, CV_Y);
+        cv_flag = CVodeInit(cvode->memory_block, Ode, 0.0, cvode->CV_Y);
         CheckCVodeFlag(cv_flag);
         reset = 1;
 
-        *sun_ls = SUNLinSol_SPGMR(CV_Y, PREC_NONE, 0);
+        cvode->sun_ls = SUNLinSol_SPGMR(cvode->CV_Y, SUN_PREC_NONE, 0, cvode->sunctx);
 
         // Attach the linear solver
-        CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
+        CVodeSetLinearSolver(cvode->memory_block, cvode->sun_ls, NULL);
 
         // When BGC, Cycles, or RT module is turned on, both water storage and transport variables are in the CVODE
         // vector. A vector of absolute tolerances is needed to specify different absolute tolerances for water storage
         // variables and transport variables
-        abstol = N_VNew(NumStateVar());
+        abstol = N_VNew(NumStateVar(), cvode->sunctx);
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
 #else
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
 #endif
 
-        cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol, abstol);
+        cv_flag = CVodeSVtolerances(cvode->memory_block, (sunrealtype)pihm->ctrl.reltol, abstol);
         CheckCVodeFlag(cv_flag);
 
         N_VDestroy(abstol);
 
         // Specifies PIHM data block and attaches it to the main cvode memory block
-        cv_flag = CVodeSetUserData(cvode_mem, pihm);
+        cv_flag = CVodeSetUserData(cvode->memory_block, cvode->user_data);
         CheckCVodeFlag(cv_flag);
 
         // Specifies the initial step size
-        cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
+        cv_flag = CVodeSetInitStep(cvode->memory_block, (sunrealtype)pihm->ctrl.initstep);
         CheckCVodeFlag(cv_flag);
 
         // Indicates if the BDF stability limit detection algorithm should be used
-        cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
+        cv_flag = CVodeSetStabLimDet(cvode->memory_block, SUNTRUE);
         CheckCVodeFlag(cv_flag);
 
         // Specifies an upper bound on the magnitude of the step size
-        cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
+        cv_flag = CVodeSetMaxStep(cvode->memory_block, (sunrealtype)pihm->ctrl.maxstep);
         CheckCVodeFlag(cv_flag);
 
         // Specifies the maximum number of steps to be taken by the solver in its attempt to reach the next output time
-        cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
+        cv_flag = CVodeSetMaxNumSteps(cvode->memory_block, pihm->ctrl.stepsize * 10);
         CheckCVodeFlag(cv_flag);
     }
 }
@@ -312,7 +312,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #endif
     for (i = 0; i < num_hydrol_var; i++)
     {
-        NV_Ith(abstol, i) = (realtype)hydrol_tol;
+        NV_Ith(abstol, i) = (sunrealtype)hydrol_tol;
     }
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
@@ -322,15 +322,15 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 # endif
     for (i = num_hydrol_var; i < NumStateVar(); i++)
     {
-        NV_Ith(abstol, i) = (realtype)transp_tol;
+        NV_Ith(abstol, i) = (sunrealtype)transp_tol;
     }
 #endif
 }
 
-void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t, void *cvode_mem, N_Vector CV_Y)
+void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t, cvode_struct *cvode)
 {
-    realtype        solvert;
-    realtype        tout;
+    sunrealtype    solvert;
+    sunrealtype    tout;
     pihm_t_struct   pihm_time;
     int             starttime;
     int             nextptr;
@@ -340,13 +340,13 @@ void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t, void *cvode_mem
     starttime = ctrl->starttime;
     nextptr = ctrl->tout[ctrl->cstep + 1];
 
-    tout = (realtype)(nextptr - starttime);
+    tout = (sunrealtype)(nextptr - starttime);
 
     // Specifies the value of the independent variable t past which the solution is not to proceed
-    cv_flag = CVodeSetStopTime(cvode_mem, tout);
+    cv_flag = CVodeSetStopTime(cvode->memory_block, tout);
     CheckCVodeFlag(cv_flag);
 
-    cv_flag = CVode(cvode_mem, tout, CV_Y, &solvert, CV_NORMAL);
+    cv_flag = CVode(cvode->memory_block, tout, cvode->CV_Y, &solvert, CV_NORMAL);
     CheckCVodeFlag(cv_flag);
 
     *t = roundi(solvert) + starttime;
@@ -380,7 +380,7 @@ void SolveCVode(double cputime, const ctrl_struct *ctrl, int *t, void *cvode_mem
     }
 }
 
-void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
+void AdjCVodeMaxStep(cvode_struct *cvode, ctrl_struct *ctrl)
 {
     // Variable CVODE max step (to reduce oscillations)
     long int        nst;
@@ -395,15 +395,15 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     double          niters;
 
     // Gets the cumulative number of internal steps taken by the solver (total so far)
-    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    cv_flag = CVodeGetNumSteps(cvode->memory_block, &nst);
     CheckCVodeFlag(cv_flag);
 
     // Gets the number of nonlinear convergence failures that have occurred
-    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode->memory_block, &ncfn);
     CheckCVodeFlag(cv_flag);
 
     // Gets the number of nonlinear iterations performed
-    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode->memory_block, &nni);
     CheckCVodeFlag(cv_flag);
 
     nsteps = (double)(nst - nst0);
@@ -418,7 +418,7 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     ctrl->maxstep = MAX(ctrl->maxstep, ctrl->stmin);
 
     // Updates the upper bound on the magnitude of the step size
-    cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
+    cv_flag = CVodeSetMaxStep(cvode->memory_block, (sunrealtype)ctrl->maxstep);
     CheckCVodeFlag(cv_flag);
 
     nst0  = nst;

@@ -241,8 +241,7 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime, int in
     }
 }
 
-void PrintPerf(int t, int starttime, double cputime_dt, double cputime, double maxstep, FILE *perf_file,
-    void *cvode_mem)
+void PrintPerf(int t, int starttime, double cputime_dt, double cputime, double maxstep, FILE *perf_file, cvode_struct *cvode)
 {
     static double   dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
@@ -250,23 +249,23 @@ void PrintPerf(int t, int starttime, double cputime_dt, double cputime, double m
     int             cv_flag;
 
     // Get the cumulative number of internal steps taken by the solver (total so far)
-    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    cv_flag = CVodeGetNumSteps(cvode->memory_block, &nst);
     CheckCVodeFlag(cv_flag);
 
     // Get the number of calls to the user's right-hand side function
-    cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+    cv_flag = CVodeGetNumRhsEvals(cvode->memory_block, &nfe);
     CheckCVodeFlag(cv_flag);
 
     // Get the number of nonlinear iterations performed
-    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode->memory_block, &nni);
     CheckCVodeFlag(cv_flag);
 
     // Get the number of nonlinear convergence failures that have occurred
-    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode->memory_block, &ncfn);
     CheckCVodeFlag(cv_flag);
 
     // Get the number of local error test failures that have occurred
-    cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    cv_flag = CVodeGetNumErrTestFails(cvode->memory_block, &netf);
     CheckCVodeFlag(cv_flag);
 
     fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f", t - starttime, cputime_dt, cputime, maxstep);
@@ -335,7 +334,7 @@ void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[], cons
     tot_strg_prev = tot_strg;
 }
 
-void PrintCVodeFinalStats(void *cvode_mem)
+void PrintCVodeFinalStats(cvode_struct *cvode)
 {
     int             cv_flag;
     long int        nst;
@@ -344,19 +343,19 @@ void PrintCVodeFinalStats(void *cvode_mem)
     long int        nni;
     long int        ncfn;
 
-    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    cv_flag = CVodeGetNumSteps(cvode->memory_block, &nst);
     CheckCVodeFlag(cv_flag);
 
-    cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+    cv_flag = CVodeGetNumRhsEvals(cvode->memory_block, &nfe);
     CheckCVodeFlag(cv_flag);
 
-    cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    cv_flag = CVodeGetNumErrTestFails(cvode->memory_block, &netf);
     CheckCVodeFlag(cv_flag);
 
-    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode->memory_block, &ncfn);
     CheckCVodeFlag(cv_flag);
 
-    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode->memory_block, &nni);
     CheckCVodeFlag(cv_flag);
 
     pihm_printf(VL_NORMAL, "\n");

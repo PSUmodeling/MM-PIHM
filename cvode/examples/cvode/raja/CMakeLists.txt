@@ -1,10 +1,8 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
-# ---------------------------------------------------------------
-# Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
+# Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,113 +14,88 @@
 # CMakeLists.txt file for CVODE RAJA examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;type" where the type is 'develop' for examples
+# excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(CVODE_examples
-  "cvAdvDiff_kry_raja\;develop"
-  #"cvAdvDiffReac_kry_raja\;develop"
-  )
-
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
+set(CVODE_examples "cvAdvDiff_kry_raja.cpp\;develop")
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH})
+include_directories(.)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(CVODE_LIB sundials_cvode_static)
-  SET(NVECS_LIB sundials_nveccudaraja_static)
-ELSE()
-  SET(CVODE_LIB sundials_cvode_shared)
-  SET(NVECS_LIB sundials_nveccudaraja_shared)
-ENDIF()
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(_fused_stubs sundials_cvode_fused_stubs)
+endif()
 
-# Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
+else()
+  set(_lang CXX)
+endif()
 
+if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  set(OTHER_LIBS OpenMP::OpenMP_CXX)
+endif()
 
 # Add the build and install targets for each CVODE example
-FOREACH(example_tuple ${CVODE_examples})
+foreach(example_tuple ${CVODE_examples})
 
   # parse the example tuple
-  LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_type)
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 example_type)
 
-  set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
+  set_source_files_properties(${example} PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
-  CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
+  sundials_add_executable(${example_target} ${example})
 
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-
-  # add example to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-  # install example source and out files
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.cu ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja)
-  ENDIF()
+  target_link_libraries(
+    ${example_target} PRIVATE sundials_cvode sundials_nvecraja ${_fused_stubs}
+                              ${EXE_EXTRA_LINK_LIBS} ${OTHER_LIBS})
 
-ENDFOREACH(example_tuple ${CVODE_examples})
+  # add example to regression tests
+  sundials_add_test(
+    ${example_target} ${example_target}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
+endforeach(example_tuple ${CVODE_examples})
 
-# create Makfile and CMakeLists.txt for examples
-IF(EXAMPLES_INSTALL)
+# create Makefile and CMakeLists.txt for examples
+if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja)
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(_fused_stubs_target cvode_fused_stubs)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "CVODE")
-  SET(SOLVER_LIB "sundials_cvode")
-  SET(NVECTOR_LIB "sundials_nveccudaraja")
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"
+                                                ))
+    set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
+    set(_openmp_target OpenMP::OpenMP_CXX)
+  endif()
 
-  EXAMPLES2STRING(CVODE_examples EXAMPLES)
+  if(RAJA_NEEDS_THREADS)
+    set(EXAMPLES_FIND_PACKAGE
+        "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+  endif()
 
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  sundials_install_examples(
+    cvode CVODE_examples
+    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
+    MAKE_TEMPLATE makefile_serial_RAJA_ex.in
+    SOLVER_LIBRARY sundials_cvode
+    SUNDIALS_TARGETS cvode nvecraja ${_fused_stubs_target}
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION cvode/raja
+    EXTRA_FILES README
+    TEST_INSTALL raja)
 
-  # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/raja/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/raja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  IF(UNIX)
-    # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/raja/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/raja/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja
-      RENAME Makefile
-      )
-  ENDIF(UNIX)
-
-ENDIF(EXAMPLES_INSTALL)
+endif()

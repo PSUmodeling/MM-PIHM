@@ -27,17 +27,15 @@ int             first_balance;
 int main(int argc, char *argv[])
 {
     char            outputdir[MAXSTRING];
-    pihm_struct     pihm;
-    ctrl_struct    *ctrl;
-    N_Vector        CV_Y;
-    void           *cvode_mem;
-    SUNLinearSolver sun_ls;
 #if defined(_OPENMP)
     double          start_omp;
 #else
     clock_t         start;
 #endif
     double          cputime, cputime_dt;    // Time cpu duration
+    ctrl_struct    *ctrl;
+    pihm_struct    *pihm = (pihm_struct *)malloc(sizeof(pihm_struct));
+    cvode_struct   *cvode = (cvode_struct *)malloc(sizeof(cvode_struct));
 
 #if defined(unix) || defined(__unix__) || defined(__unix)
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
@@ -60,7 +58,6 @@ int main(int argc, char *argv[])
     fclose(fp);
 #endif
 
-
     memset(outputdir, 0, MAXSTRING);
 
     // Read command line arguments
@@ -69,22 +66,11 @@ int main(int argc, char *argv[])
     // Print AscII art
     StartupScreen();
 
-    // Allocate memory for model data structure
-    pihm = (pihm_struct)malloc(sizeof(*pihm));
-
     // Read PIHM input files
     ReadAlloc(pihm);
 
-    // Initialize CVODE state variables
-    CV_Y = N_VNew(NumStateVar());
-    if (CV_Y == NULL)
-    {
-        pihm_printf(VL_ERROR, "Error creating CVODE state variable vector.\n");
-        pihm_exit(EXIT_FAILURE);
-    }
-
     // Initialize PIHM structure
-    Initialize(pihm, CV_Y, &cvode_mem);
+    Initialize(pihm, cvode);
 
     // Create output directory
     CreateOutputDir(outputdir);
@@ -111,7 +97,7 @@ int main(int argc, char *argv[])
     pihm_printf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     // Set solver parameters
-    SetCVodeParam(pihm, cvode_mem, &sun_ls, CV_Y);
+    SetCVodeParam(pihm, cvode);
 
 #if defined(_BGC_)
     first_balance = 1;
@@ -128,7 +114,7 @@ int main(int argc, char *argv[])
 
     if (spinup_mode)
     {
-        Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
+        Spinup(pihm, cvode);
 
         // In spin-up mode, initial conditions are always printed
         PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL], pihm->elem,
@@ -157,16 +143,16 @@ int main(int argc, char *argv[])
 #endif
 
             // Run PIHM time step
-            PIHM(cputime, pihm, cvode_mem, CV_Y);
+            PIHM(cputime, pihm, cvode);
 
             // Adjust CVODE max step to reduce oscillation
-            AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
+            AdjCVodeMaxStep(cvode, &pihm->ctrl);
 
             // Print CVODE performance and statistics
             if (debug_mode)
             {
                 PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime, cputime_dt, cputime, ctrl->maxstep,
-                    pihm->print.cvodeperf_file, cvode_mem);
+                    pihm->print.cvodeperf_file, cvode);
             }
 
             // Write init files
@@ -202,15 +188,15 @@ int main(int argc, char *argv[])
 
     if (debug_mode)
     {
-        PrintCVodeFinalStats(cvode_mem);
+        PrintCVodeFinalStats(cvode);
     }
 
     // Free memory
-    N_VDestroy(CV_Y);
+    N_VDestroy(cvode->CV_Y);
 
     // Free integrator memory
-    CVodeFree(&cvode_mem);
-    SUNLinSolFree(sun_ls);
+    CVodeFree(&cvode->memory_block);
+    SUNContext_Free(&cvode->sunctx);
     FreeMem(pihm);
     free(pihm);
 

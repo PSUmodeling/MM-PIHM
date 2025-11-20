@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem, SUNLinearSolver *sun_ls)
+void Spinup(pihm_struct *pihm, cvode_struct *cvode)
 {
     int             spinyears = 0;
     int             first_spin_cycle = 1;
@@ -22,7 +22,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem, SUNLinearSolver *s
 
         for (ctrl->cstep = 0; ctrl->cstep < ctrl->nstep; ctrl->cstep++)
         {
-            PIHM(0.0, pihm, cvode_mem, CV_Y);
+            PIHM(0.0, pihm, cvode);
         }
 
 #if defined(_CYCLES_)
@@ -30,7 +30,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem, SUNLinearSolver *s
 #endif
 
         // Reset solver parameters
-        SetCVodeParam(pihm, cvode_mem, sun_ls, CV_Y);
+        SetCVodeParam(pihm, cvode);
 
         spinyears += metyears;
 

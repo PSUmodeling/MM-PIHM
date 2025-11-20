@@ -36,7 +36,7 @@ CMAKE_VERS := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
 ifeq ($(CMAKE_VERS),)
 	CMAKE_VERS := 0.0.0
 endif
-CMAKE_VERS_RQD := 3.1.3
+CMAKE_VERS_RQD := 4.1.2
 
 # Check if CMake version meets requirement
 ifeq ($(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 1), $(CMAKE_VERS_RQD))
@@ -44,12 +44,13 @@ ifeq ($(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 
 	CMAKE := cmake
 else
 	CMAKE_EXIST := false
+	CMAKE_VERS := 4.1.2
 	ifeq ($(shell uname), Darwin)
-		CMAKE_VERS_INSTALL := cmake-3.7.2-Darwin-x86_64
-		CMAKE := $(PWD)/$(CMAKE_VERS_INSTALL)/CMake.app/Contents/bin/cmake
+		CMAKE_PKG := cmake-$(CMAKE_VERS)-macos-universal
+		CMAKE := $(PWD)/$(CMAKE_PKG)/CMake.app/Contents/bin/cmake
 	else
-		CMAKE_VERS_INSTALL := cmake-3.7.2-Linux-x86_64
-		CMAKE := $(PWD)/$(CMAKE_VERS_INSTALL)/bin/cmake
+		CMAKE_PKG := cmake-$(CMAKE_VERS)-linux-x86_64
+		CMAKE := $(PWD)/$(CMAKE_PKG)/bin/cmake
 	endif
 endif
 
@@ -80,7 +81,7 @@ INCLUDES = \
 	-I$(CVODE_PATH)/include
 
 # Define libraries
-LFLAGS = -lsundials_cvode -L$(CVODE_LIB)
+LFLAGS = -lsundials_cvode -L$(CVODE_LIB) -lsundials_core
 
 ifeq ($(CVODE_OMP), on)
 	LFLAGS += -lsundials_nvecopenmp
@@ -355,11 +356,11 @@ all: cvode pihm
 cmake:
 ifeq ($(CMAKE_EXIST), false)
 	@echo "CVODE installation requires CMake v$(CMAKE_VERS_RQD) or above."
-	@echo "Download CMake $(CMAKE_VERS_INSTALL) from cmake.org"
-	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS_INSTALL).tar.gz -o $(CMAKE_VERS_INSTALL).tar.gz &> /dev/null
+	@echo "Download CMake $(CMAKE_PKG) from cmake.org"
+	@curl https://cmake.org/files/v$(shell echo $(CMAKE_VERS) | cut -d. -f1,2)/$(CMAKE_PKG).tar.gz -o $(CMAKE_PKG).tar.gz &> /dev/null
 	@echo
-	@echo "Extract $(CMAKE_VERS_INSTALL).tar.gz"
-	@tar xzf $(CMAKE_VERS_INSTALL).tar.gz
+	@echo "Extract $(CMAKE_PKG).tar.gz"
+	@tar xzf $(CMAKE_PKG).tar.gz
 endif
 
 cvode:		## Install cvode library
@@ -371,7 +372,7 @@ cvode: cmake
 	@echo "CVODE library installed."
 ifeq ($(CMAKE_EXIST), false)
 	@echo "Remove CMake files"
-	@$(RM) -r $(CMAKE_VERS_INSTALL).tar.gz $(CMAKE_VERS_INSTALL)
+	@$(RM) -r $(CMAKE_PKG).tar.gz $(CMAKE_PKG)
 endif
 
 pihm:		## Compile PIHM

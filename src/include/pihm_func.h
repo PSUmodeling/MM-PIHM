@@ -31,11 +31,11 @@
 
 // CVode functions
 #if defined(_CVODE_OMP)
-# define N_VNew(N)              N_VNew_OpenMP(N, nthreads)
+# define N_VNew(N, sunctx)      N_VNew_OpenMP(N, nthreads, sunctx)
 # define NV_DATA                NV_DATA_OMP
 # define NV_Ith                 NV_Ith_OMP
 #else
-# define N_VNew(N)              N_VNew_Serial(N)
+# define N_VNew(N, sunctx)      N_VNew_Serial(N, sunctx)
 # define NV_DATA                NV_DATA_S
 # define NV_Ith                 NV_Ith_S
 #endif
@@ -73,7 +73,7 @@ int             feenableexcept(int);
 // Function Declarations
 void            _InitLc(const lctbl_struct *, const calib_struct *, elem_struct *);
 double          _WsAreaElev(int, const elem_struct *);
-void            AdjCVodeMaxStep(void *, ctrl_struct *);
+void            AdjCVodeMaxStep(cvode_struct *, ctrl_struct *);
 #if defined(_RT_)
 void            ApplyBc(int, const rttbl_struct *, forc_struct *, elem_struct [], river_struct []);
 #else
@@ -134,7 +134,7 @@ void            FreeForc(forc_struct *);
 void            FreeLctbl(lctbl_struct *);
 void            FreeMatltbl(matltbl_struct *);
 void            FreeMeshtbl(meshtbl_struct *);
-void            FreeMem(pihm_struct);
+void            FreeMem(pihm_struct *);
 void            FreeRivtbl(rivtbl_struct *);
 void            FreeShptbl(shptbl_struct *);
 void            FreeSoiltbl(soiltbl_struct *);
@@ -150,7 +150,7 @@ void            InitForcing(const rttbl_struct *, const calib_struct *, forc_str
 #else
 void            InitForcing(const calib_struct *, forc_struct *, elem_struct []);
 #endif
-void            Initialize(pihm_struct, N_Vector, void **);
+void            Initialize(pihm_struct *, cvode_struct *);
 void            InitLc(const lctbl_struct *, const calib_struct *, elem_struct []);
 void            InitMesh(const meshtbl_struct *, elem_struct []);
 void            InitOutputFiles(const char [], int, int, print_struct *);
@@ -166,7 +166,7 @@ void            InitSoil(const soiltbl_struct *, const calib_struct *, elem_stru
 #endif
 void            InitSurfL(const meshtbl_struct *, elem_struct []);
 void            InitTopo(const meshtbl_struct *, elem_struct []);
-void            InitVar(elem_struct [], river_struct [], N_Vector);
+void            InitVar(elem_struct [], river_struct [], cvode_struct *);
 void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
@@ -194,19 +194,20 @@ double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);
 int             NumStateVar(void);
-int             Ode(realtype, N_Vector, N_Vector, void *);
+int             Ode(sunrealtype, N_Vector, N_Vector, void *);
 double          OutletFlux(int, const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *, const river_wstate_struct *);
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(int, double, const elem_struct *, const elem_struct *);
 double          OvlFlowElemToRiver(const river_struct *, elem_struct *);
 void            ParseCmdLineParam(int, char *[], char []);
-void            PIHM(double, pihm_struct, void *, N_Vector); pihm_t_struct   PIHMTime(int);
-void            PrintCVodeFinalStats(void *);
+void            PIHM(double, pihm_struct *, cvode_struct *);
+pihm_t_struct   PIHMTime(int);
+void            PrintCVodeFinalStats(cvode_struct *);
 void            PrintData(int, int, int, int, varctrl_struct *);
 void            PrintInit(const char [], int, int, int, int, const elem_struct [], const river_struct []);
 int             PrintNow(int, int, pihm_t_struct);
-void            PrintPerf(int, int, double, double, double, FILE *, void *);
+void            PrintPerf(int, int, double, double, double, FILE *, cvode_struct *);
 void            PrintWaterBalance(int, int, int, const elem_struct [], const river_struct [], FILE *);
 void            ProgressBar(double);
 double          Psi(double, double, double);
@@ -216,7 +217,7 @@ double          PtfKv(double, double, double, double, int);
 double          PtfThetar(double, double);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
-void            ReadAlloc(pihm_struct);
+void            ReadAlloc(pihm_struct *);
 void            ReadAtt(const char [], atttbl_struct *);
 #if defined(_RT_)
 void            ReadBc(const char [], const atttbl_struct *, const chemtbl_struct [], const rttbl_struct *,
@@ -249,14 +250,14 @@ void            RunTime(double, double *, double *);
 void            RunTime (clock_t, double *, double *);
 #endif
 void            RelaxIc(elem_struct [], river_struct []);
-void            SetCVodeParam(pihm_struct, void *, SUNLinearSolver *, N_Vector);
+void            SetCVodeParam(pihm_struct *, cvode_struct *);
 int             SoilTex(double, double);
-void            SolveCVode(double, const ctrl_struct *, int *, void *, N_Vector);
-void            Spinup(pihm_struct, N_Vector, void *, SUNLinearSolver *);
+void            SolveCVode(double, const ctrl_struct *, int *, cvode_struct *);
+void            Spinup(pihm_struct *, cvode_struct *);
 void            StartupScreen(void);
 int             StrTime(const char []);
 double          SubsurfFlow(int, const elem_struct *, const elem_struct *);
-void            UpdateVar(double, elem_struct [], river_struct [], N_Vector);
+void            UpdateVar(double, elem_struct [], river_struct [], cvode_struct *);
 double          SurfH(double);
 void            UpdatePrintVar(int, int, varctrl_struct *);
 void            UpdPrintVarT(varctrl_struct *, int);
@@ -415,7 +416,7 @@ void            CheckNitrogenBalance(const nstate_struct *, double *);
 void            CSummary(const cstate_struct *, const cflux_struct *, summary_struct *);
 void            DailyAllocation(const epconst_struct *, const cstate_struct *, const nstate_struct *, epvar_struct *,
     cflux_struct *, nflux_struct *, ntemp_struct *);
-void            DailyBgc(int, pihm_struct);
+void            DailyBgc(int, pihm_struct *);
 void            DailyCarbonStateUpdate(int, int, int, cstate_struct *, cflux_struct *);
 void            DailyNitrogenStateUpdate(int, int, int, nstate_struct *, nflux_struct *, solute_struct *);
 void            Decomp(double, const epconst_struct *, const cstate_struct *, const nstate_struct *, epvar_struct *,
@@ -427,7 +428,7 @@ void            FreeEpctbl(epctbl_struct *);
 double          GetNdep(int, tsdata_struct *);
 void            GrowthResp(const epconst_struct *, cflux_struct *);
 void            InitBgc(const epctbl_struct *, const calib_struct *, elem_struct []);
-void            InitBgcVar(elem_struct [], river_struct [], N_Vector);
+void            InitBgcVar(elem_struct [], river_struct [], cvode_struct *);
 void            LeafLitFall(double, const epconst_struct *, cflux_struct *, nflux_struct *);
 void            LivewoodTurnover(const epconst_struct *, const cstate_struct *, const nstate_struct *, epvar_struct *,
     cflux_struct *, nflux_struct *);
@@ -539,7 +540,7 @@ void            GrainHarvest(int, int, double, crop_struct *, wstate_struct *, c
     nflux_struct *);
 void            GrowingCrop(int, int, int, const soil_struct *, const weather_struct *, crop_struct [], wstate_struct *,
     wflux_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, phystate_struct *);
-void            InitAgVar(elem_struct [], river_struct [], N_Vector);
+void            InitAgVar(elem_struct [], river_struct [], cvode_struct *);
 void            InitCropStateVar(crop_struct *);
 void            InitCycles(const calib_struct *, const agtbl_struct *, const mgmt_struct [], const crop_struct [],
     const soiltbl_struct *, elem_struct []);
@@ -653,7 +654,7 @@ void            ApplyPrcpConc(int, const  rttbl_struct *, forc_struct *, elem_st
 void            Wrap(char *);
 void            SoluteConc(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct []);
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
-void            InitRTVar(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct [], N_Vector);
+void            InitRTVar(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct [], cvode_struct *);
 int             MatchWrappedKey(const char [], const char []);
 void            ReadTempPoints(const char [], double, int *, int *);
 void            ReadDHParam(const char [], int, double *);

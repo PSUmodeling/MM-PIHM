@@ -1,10 +1,9 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * Based on codes <solver>_lapack.c by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -13,41 +12,41 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the LAPACK band 
+ * This is the implementation file for the LAPACK band
  * implementation of the SUNLINSOL package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sunlinsol/sunlinsol_lapackband.h>
 #include <sundials/sundials_math.h>
+#include <sunlinsol/sunlinsol_lapackband.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#include "sundials_lapack_defs.h"
+#include "sundials_macros.h"
 
-/* Private function prototypes */
-sunindextype GlobalVectorLength_LapBand(N_Vector y);
+/* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define xgbtrf_f77 dgbtrf_f77
+#define xgbtrs_f77 dgbtrs_f77
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define xgbtrf_f77 sgbtrf_f77
+#define xgbtrs_f77 sgbtrs_f77
+#else
+#error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
+#endif
+
+#define ONE SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
- * Band solver structure accessibility macros: 
+ * Band solver structure accessibility macros:
  * -----------------------------------------------------------------
  */
 
-#define LAPACKBAND_CONTENT(S) ( (SUNLinearSolverContent_LapackBand)(S->content) )
-#define PIVOTS(S)             ( LAPACKBAND_CONTENT(S)->pivots )
-#define LASTFLAG(S)           ( LAPACKBAND_CONTENT(S)->last_flag )
-
-/*
- * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_LapackBand(y, A)); }
+#define LAPACKBAND_CONTENT(S) ((SUNLinearSolverContent_LapackBand)(S->content))
+#define PIVOTS(S)             (LAPACKBAND_CONTENT(S)->pivots)
+#define LASTFLAG(S)           (LAPACKBAND_CONTENT(S)->last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -59,75 +58,69 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
  * Function to create a new LAPACK band linear solver
  */
 
-SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_LapackBand content;
-  sunindextype MatrixRows, VecLength;
-  
-  /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return(NULL);
-  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A))
-    return(NULL);
-  MatrixRows = SUNBandMatrix_Rows(A);
-  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
-    return(NULL);
+  sunindextype MatrixRows;
 
-  /* optimally this function would be replaced with a generic N_Vector routine */
-  VecLength = GlobalVectorLength_LapBand(y);
-  if (MatrixRows != VecLength)
-    return(NULL);
-  
-  /* Create linear solver */
+  /* Check compatibility with supplied SUNMatrix and N_Vector */
+  if (SUNMatGetID(A) != SUNMATRIX_BAND) { return (NULL); }
+
+  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A)) { return (NULL); }
+
+  if ((N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS))
+  {
+    return (NULL);
+  }
+
+  MatrixRows = SUNBandMatrix_Rows(A);
+  if (MatrixRows != N_VGetLength(y)) { return (NULL); }
+
+  /* Create an empty linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
-  if (S == NULL) return(NULL);
-  
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
+  S = SUNLinSolNewEmpty(sunctx);
+  if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_LapackBand;
-  ops->initialize        = SUNLinSolInitialize_LapackBand;
-  ops->setup             = SUNLinSolSetup_LapackBand;
-  ops->solve             = SUNLinSolSolve_LapackBand;
-  ops->lastflag          = SUNLinSolLastFlag_LapackBand;
-  ops->space             = SUNLinSolSpace_LapackBand;
-  ops->free              = SUNLinSolFree_LapackBand;
-  ops->setatimes         = NULL;
-  ops->setpreconditioner = NULL;
-  ops->setscalingvectors = NULL;
-  ops->numiters          = NULL;
-  ops->resnorm           = NULL;
-  ops->resid             = NULL;
+  S->ops->gettype    = SUNLinSolGetType_LapackBand;
+  S->ops->getid      = SUNLinSolGetID_LapackBand;
+  S->ops->initialize = SUNLinSolInitialize_LapackBand;
+  S->ops->setup      = SUNLinSolSetup_LapackBand;
+  S->ops->solve      = SUNLinSolSolve_LapackBand;
+  S->ops->lastflag   = SUNLinSolLastFlag_LapackBand;
+  S->ops->space      = SUNLinSolSpace_LapackBand;
+  S->ops->free       = SUNLinSolFree_LapackBand;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_LapackBand) malloc(sizeof(struct _SUNLinearSolverContent_LapackBand));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_LapackBand)malloc(sizeof *content);
+  if (content == NULL)
+  {
+    SUNLinSolFree(S);
+    return (NULL);
+  }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
-  content->N = MatrixRows;
+  content->N         = MatrixRows;
   content->last_flag = 0;
-  content->pivots = NULL;
-  content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) {
-    free(content); free(ops); free(S); return(NULL);
+  content->pivots    = NULL;
+
+  /* Allocate content */
+  content->pivots = (sunindextype*)malloc(MatrixRows * sizeof(sunindextype));
+  if (content->pivots == NULL)
+  {
+    SUNLinSolFree(S);
+    return (NULL);
   }
-  
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
 
-  return(S);
+  return (S);
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -135,146 +128,126 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_LapackBand(
+  SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
-  return(SUNLINEARSOLVER_DIRECT);
+  return (SUNLINEARSOLVER_DIRECT);
 }
 
+SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
+{
+  return (SUNLINEARSOLVER_LAPACKBAND);
+}
 
-int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
-
 
 int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 {
-  int n, ml, mu, ldim, ier;
+  sunindextype n, ml, mu, ldim, ier;
 
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) ) 
-    return(SUNLS_MEM_NULL);
-  
+  if ((A == NULL) || (S == NULL)) { return SUN_ERR_ARG_CORRUPT; }
+
   /* Ensure that A is a band matrix */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND) {
-    LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(LASTFLAG(S));
+  if (SUNMatGetID(A) != SUNMATRIX_BAND)
+  {
+    LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
-  
+
   /* Call LAPACK to do LU factorization of A */
-  n = SUNBandMatrix_Rows(A);
-  ml = SUNBandMatrix_LowerBandwidth(A);
-  mu = SUNBandMatrix_UpperBandwidth(A);
+  ier  = 0;
+  n    = SUNBandMatrix_Rows(A);
+  ml   = SUNBandMatrix_LowerBandwidth(A);
+  mu   = SUNBandMatrix_UpperBandwidth(A);
   ldim = SUNBandMatrix_LDim(A);
-  xgbtrf_f77(&n, &n, &ml, &mu, SUNBandMatrix_Data(A), 
-	     &ldim, PIVOTS(S), &ier);
-  
-  LASTFLAG(S) = (long int) ier;
-  if (ier > 0) 
-    return(SUNLS_LUFACT_FAIL);
-  if (ier < 0) 
-    return(SUNLS_PACKAGE_FAIL_UNREC);
-  return(SUNLS_SUCCESS);
+  xgbtrf_f77(&n, &n, &ml, &mu, SUNBandMatrix_Data(A), &ldim, PIVOTS(S), &ier);
+
+  LASTFLAG(S) = ier;
+  if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
+  return SUN_SUCCESS;
 }
 
-
-int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                              N_Vector b, realtype tol)
+int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                              N_Vector b, SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
-  int n, ml, mu, ldim, one, ier;
-  realtype *xdata;
-  
+  sunindextype n, ml, mu, ldim, one, ier;
+  sunrealtype* xdata;
+
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
-    return(SUNLS_MEM_NULL);
-  
+  if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
+  {
+    return SUN_ERR_ARG_CORRUPT;
+  }
+
   /* copy b into x */
   N_VScale(ONE, b, x);
 
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
-  if (xdata == NULL) {
-    LASTFLAG(S) = 1;
-    return(LASTFLAG(S));
+  if (xdata == NULL)
+  {
+    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
-  
+
   /* Call LAPACK to solve the linear system */
-  n = SUNBandMatrix_Rows(A);
-  ml = SUNBandMatrix_LowerBandwidth(A);
-  mu = SUNBandMatrix_UpperBandwidth(A);
+  ier  = 0;
+  n    = SUNBandMatrix_Rows(A);
+  ml   = SUNBandMatrix_LowerBandwidth(A);
+  mu   = SUNBandMatrix_UpperBandwidth(A);
   ldim = SUNBandMatrix_LDim(A);
-  one = 1;
-  xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A), 
-	     &ldim, PIVOTS(S), xdata, &n, &ier, 1);
-  LASTFLAG(S) = (long int) ier;
-  if (ier < 0) 
-    return(SUNLS_PACKAGE_FAIL_UNREC);
+  one  = 1;
+  xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A), &ldim, PIVOTS(S),
+             xdata, &n, &ier);
+  LASTFLAG(S) = ier;
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-
-long int SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
 {
-  /* return the stored 'last_flag' value */
-  return(LASTFLAG(S));
+  return (LASTFLAG(S));
 }
 
-
-int SUNLinSolSpace_LapackBand(SUNLinearSolver S, 
-                              long int *lenrwLS, 
-                              long int *leniwLS)
+SUNErrCode SUNLinSolSpace_LapackBand(SUNLinearSolver S, long int* lenrwLS,
+                                     long int* leniwLS)
 {
   *lenrwLS = 0;
   *leniwLS = 2 + LAPACKBAND_CONTENT(S)->N;
-  return(SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
 
-int SUNLinSolFree_LapackBand(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_LapackBand(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL)
-    return(SUNLS_SUCCESS);
-  
+  if (S == NULL) { return SUN_SUCCESS; }
+
   /* delete items from contents, then delete generic structure */
-  if (S->content) {
-    if (PIVOTS(S)) {
+  if (S->content)
+  {
+    if (PIVOTS(S))
+    {
       free(PIVOTS(S));
       PIVOTS(S) = NULL;
     }
-    free(S->content);  
+    free(S->content);
     S->content = NULL;
   }
- 
-  if (S->ops) {
-    free(S->ops);  
+  if (S->ops)
+  {
+    free(S->ops);
     S->ops = NULL;
   }
-  free(S); S = NULL;
-  return(SUNLS_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-/* Inefficient kludge for determining the number of entries in a N_Vector 
-   object (replace if such a routine is ever added to the N_Vector API).
-
-   Returns "-1" on an error. */
-sunindextype GlobalVectorLength_LapBand(N_Vector y)
-{
-  realtype len;
-  N_Vector tmp = NULL;
-  tmp = N_VClone(y);
-  if (tmp == NULL)  return(-1);
-  N_VConst(ONE, tmp);
-  len = N_VDotProd(tmp, tmp);
-  N_VDestroy(tmp);
-  return( (sunindextype) len );
+  free(S);
+  S = NULL;
+  return SUN_SUCCESS;
 }

@@ -1,8 +1,9 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU,
+#                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,97 +13,25 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the SPBCGS SUNLinearSolver library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPBCGS\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPBCGS\n\")")
+
+# Add the sunlinsol_spbcgs library
+sundials_add_library(
+  sundials_sunlinsolspbcgs
+  SOURCES sunlinsol_spbcgs.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spbcgs.h
+  INCLUDE_SUBDIR sunlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES
+  OUTPUT_NAME sundials_sunlinsolspbcgs
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
+
+message(STATUS "Added SUNLINSOL_SPBCGS module")
 
 # Add F90 module if F2003 interface is enabled
-IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
-ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-
-# Add variable sunlinsolspbcgs_SOURCES with the sources for the SUNLINSOLSPBCGS lib
-SET(sunlinsolspbcgs_SOURCES sunlinsol_spbcgs.c)
-
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the SUNLINSOLSPBCGS library
-SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
-  )
-
-# Add variable sunlinsolspbcgs_HEADERS with the exported SUNLINSOLSPBCGS header files
-SET(sunlinsolspbcgs_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_spbcgs.h
-  )
-
-# Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
-
-# Rules for building and installing the static library:
-#  - Add the build target for the SUNLINSOLSPBCGS library
-#  - Set the library name and make sure it is not deleted
-#  - Install the SUNLINSOLSPBCGS library
-IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolspbcgs_static STATIC ${sunlinsolspbcgs_SOURCES} ${shared_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_static
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolspbcgs_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_STATIC_LIBS)
-
-# Rules for building and installing the shared library:
-#  - Add the build target for the SUNLINSOLSPBCGS library
-#  - Set the library name and make sure it is not deleted
-#  - Set VERSION and SOVERSION for shared libraries
-#  - Install the SUNLINSOLSPBCGS library
-IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolspbcgs_shared SHARED ${sunlinsolspbcgs_SOURCES} ${shared_SOURCES})
-
-  IF(UNIX)
-    TARGET_LINK_LIBRARIES(sundials_sunlinsolspbcgs_shared m)
-  ENDIF()
-
-  SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_shared
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_shared
-    PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolspbcgs_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_SHARED_LIBS)
-
-# Install the SUNLINSOLSPBCGS header files
-INSTALL(FILES ${sunlinsolspbcgs_HEADERS} DESTINATION include/sunlinsol)
-
-# If FCMIX is enabled, build and install the FSUNLINSOLSPBCGS library
-IF(F77_INTERFACE_ENABLE AND F77_FOUND)
-  SET(fsunlinsolspbcgs_SOURCES fsunlinsol_spbcgs.c)
-
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolspbcgs_static STATIC ${fsunlinsolspbcgs_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolspbcgs_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_STATIC_LIBS)
-
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolspbcgs_shared ${fsunlinsolspbcgs_SOURCES})
-
-    # fsunlinsolspbcgs depdens on fnvecserial and sunlinsolspbcgs
-    TARGET_LINK_LIBRARIES(sundials_fsunlinsolspbcgs_shared
-      sundials_fnvecserial_shared
-      sundials_sunlinsolspbcgs_shared)
-
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_shared
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolspbcgs_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_SHARED_LIBS)
-
-ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
-
-#
-MESSAGE(STATUS "Added SUNLINSOL_SPBCGS module")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
+endif()

@@ -1,9 +1,6 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban,
- *                Aaron Collier, and Slaven Peles @ LLNL
- * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -16,20 +13,26 @@
  * are used by MPI parallel vector implementations.
  * -----------------------------------------------------------------*/
 
+#ifndef _SUNDIALS_MPI_TYPES_H
+#define _SUNDIALS_MPI_TYPES_H
+
+#include <mpi.h>
 #include <sundials/sundials_types.h>
 
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_FLOAT
+#define MPI_SUNREALTYPE MPI_FLOAT
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
+#define MPI_SUNREALTYPE MPI_DOUBLE
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
+#define MPI_SUNREALTYPE MPI_LONG_DOUBLE
 #endif
 
 #if defined(SUNDIALS_INT64_T)
-  #define PVEC_INTEGER_MPI_TYPE MPI_INT64_T
+#define MPI_SUNINDEXTYPE MPI_INT64_T
 #elif defined(SUNDIALS_INT32_T)
-  #define PVEC_INTEGER_MPI_TYPE MPI_INT32_T
+#define MPI_SUNINDEXTYPE MPI_INT32_T
 #endif
+
+#endif /* _SUNDIALS_MPI_TYPES_H */

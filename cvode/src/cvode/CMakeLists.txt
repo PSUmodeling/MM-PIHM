@@ -1,9 +1,9 @@
 # ---------------------------------------------------------------
-# Programmer(s):  Daniel R. Reynolds @ SMU
-#                 Radu Serban @ LLNL
+# Programmer(s): Daniel R. Reynolds @ SMU
+#                Radu Serban, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -13,135 +13,100 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CVODE library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
-
-# Add F90 module if F2003 interface is enabled
-IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
-ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+install(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
 # Add variable cvode_SOURCES with the sources for the CVODE library
-SET(cvode_SOURCES
-  cvode.c
-  cvode_bandpre.c
-  cvode_bbdpre.c
-  cvode_diag.c
-  cvode_direct.c
-  cvode_io.c
-  cvode_ls.c
-  cvode_nls.c
-  cvode_spils.c
-  )
-
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the CVODE library
-SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
-  ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
-  )
-
-# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
-# also be included in the CVODE library
-SET(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmatrix/band/sunmatrix_band.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/sunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/sunmatrix_sparse.c
-  )
-
-# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
-# also be included in the CVODE library
-SET(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol/band/sunlinsol_band.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/sunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/sunlinsol_spbcgs.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/sunlinsol_spfgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/sunlinsol_spgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/sunlinsol_sptfqmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/sunlinsol_pcg.c
-  )
-
-# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
-# which will also be included in the CVODE library
-SET(sunnonlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
-  )
+set(cvode_SOURCES
+    cvode.c
+    cvode_bandpre.c
+    cvode_bbdpre.c
+    cvode_diag.c
+    cvode_io.c
+    cvode_ls.c
+    cvode_nls.c
+    cvode_proj.c
+    cvode_resize.c)
 
 # Add variable cvode_HEADERS with the exported CVODE header files
-SET(cvode_HEADERS
-  cvode.h
-  cvode_bandpre.h
-  cvode_bbdpre.h
-  cvode_diag.h
-  cvode_direct.h
-  cvode_ls.h
-  cvode_spils.h
-  )
+set(cvode_HEADERS cvode.h cvode_bandpre.h cvode_bbdpre.h cvode_diag.h
+                  cvode_ls.h cvode_proj.h)
 
 # Add prefix with complete path to the CVODE header files
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
+add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 
-# Add source directories to include directories for access to
-# implementation only header files.
-INCLUDE_DIRECTORIES(.)
-INCLUDE_DIRECTORIES(../sundials)
+# Build fused kernel libraries
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+  if(BUILD_NVECTOR_CUDA)
 
-# Build the static library
-IF(BUILD_STATIC_LIBS)
-  # Add the build target for the static CVODE library
-  ADD_LIBRARY(sundials_cvode_static STATIC
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
-  )
+    set_source_files_properties(cvode_fused_gpu.cpp PROPERTIES LANGUAGE CUDA)
 
-  # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_cvode_static
-    PROPERTIES OUTPUT_NAME sundials_cvode CLEAN_DIRECT_OUTPUT 1)
+    sundials_add_library(
+      sundials_cvode_fused_cuda
+      SOURCES cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS PRIVATE USE_CUDA
+      LINK_LIBRARIES PUBLIC sundials_core PRIVATE sundials_nveccuda
+      OUTPUT_NAME sundials_cvode_fused_cuda
+      VERSION ${cvodelib_VERSION}
+      SOVERSION ${cvodelib_SOVERSION})
+  endif()
 
-  # Install the CVODE library
-  INSTALL(TARGETS sundials_cvode_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  if(BUILD_NVECTOR_HIP)
+    sundials_add_library(
+      sundials_cvode_fused_hip
+      SOURCES cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS PRIVATE USE_HIP
+      LINK_LIBRARIES PUBLIC sundials_core PRIVATE sundials_nvechip
+      OUTPUT_NAME sundials_cvode_fused_hip
+      VERSION ${cvodelib_VERSION}
+      SOVERSION ${cvodelib_SOVERSION})
+  endif()
 
-ENDIF(BUILD_STATIC_LIBS)
+  sundials_add_library(
+    sundials_cvode_fused_stubs
+    SOURCES cvode_fused_stubs.c
+    LINK_LIBRARIES PUBLIC sundials_core
+    OUTPUT_NAME sundials_cvode_fused_stubs
+    VERSION ${cvodelib_VERSION}
+    SOVERSION ${cvodelib_SOVERSION})
 
-# Build the shared library
-IF(BUILD_SHARED_LIBS)
-  # Add the build target for the shared CVODE library
-  ADD_LIBRARY(sundials_cvode_shared SHARED
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
-  )
+  set(_fused_link_lib sundials_cvode_fused_stubs)
+endif()
 
-  IF(UNIX)
-    TARGET_LINK_LIBRARIES(sundials_cvode_shared m)
-  ENDIF()
+# Create the library
+sundials_add_library(
+  sundials_cvode
+  SOURCES ${cvode_SOURCES}
+  HEADERS ${cvode_HEADERS}
+  INCLUDE_SUBDIR cvode
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES
+    sundials_sunmemsys_obj
+    sundials_nvecserial_obj
+    sundials_sunmatrixband_obj
+    sundials_sunmatrixdense_obj
+    sundials_sunmatrixsparse_obj
+    sundials_sunlinsolband_obj
+    sundials_sunlinsoldense_obj
+    sundials_sunlinsolspbcgs_obj
+    sundials_sunlinsolspfgmr_obj
+    sundials_sunlinsolspgmr_obj
+    sundials_sunlinsolsptfqmr_obj
+    sundials_sunlinsolpcg_obj
+    sundials_sunnonlinsolnewton_obj
+    sundials_sunnonlinsolfixedpoint_obj
+  LINK_LIBRARIES # Link to stubs so examples work.
+                 PRIVATE ${_fused_link_lib}
+  OUTPUT_NAME sundials_cvode
+  VERSION ${cvodelib_VERSION}
+  SOVERSION ${cvodelib_SOVERSION})
 
-  # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_cvode_shared
-    PROPERTIES OUTPUT_NAME sundials_cvode CLEAN_DIRECT_OUTPUT 1)
+# Finished CVODE
+message(STATUS "Added CVODE module")
 
-  # Set VERSION and SOVERSION for shared libraries
-  SET_TARGET_PROPERTIES(sundials_cvode_shared
-    PROPERTIES VERSION ${cvodelib_VERSION} SOVERSION ${cvodelib_SOVERSION})
-
-  # Install the CVODE library
-  INSTALL(TARGETS sundials_cvode_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-ENDIF(BUILD_SHARED_LIBS)
-
-# Install the CVODE header files
-INSTALL(FILES ${cvode_HEADERS} DESTINATION include/cvode)
-
-#
-MESSAGE(STATUS "Added CVODE module")
+# Add F2003 module if the interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
+endif()

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
+void PIHM(double cputime, pihm_struct *pihm, cvode_struct *cvode)
 {
     int             t;
 #if defined(_RT_)
@@ -62,10 +62,10 @@ void PIHM(double cputime, pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 #endif
 
     // Solve PIHM hydrology ODE using CVode
-    SolveCVode(cputime, &pihm->ctrl, &t, cvode_mem, CV_Y);
+    SolveCVode(cputime, &pihm->ctrl, &t, cvode);
 
     // Use mass balance to calculate model fluxes or variables
-    UpdateVar((double)pihm->ctrl.stepsize, pihm->elem, pihm->river, CV_Y);
+    UpdateVar((double)pihm->ctrl.stepsize, pihm->elem, pihm->river, cvode);
 
 #if defined(_NOAH_)
     NoahHydrol((double)pihm->ctrl.stepsize, pihm->elem);

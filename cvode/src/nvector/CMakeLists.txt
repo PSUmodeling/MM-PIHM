@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,43 +14,81 @@
 # vector level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS serial vector
+# required modules
 add_subdirectory(serial)
 
-# Add NVECTOR modules with depedencies
-if(MPI_ENABLE AND MPI_C_FOUND)
+if(BUILD_NVECTOR_MANYVECTOR OR BUILD_NVECTOR_MPIMANYVECTOR)
+  add_subdirectory(manyvector)
+endif()
+
+if(BUILD_NVECTOR_PARALLEL)
   add_subdirectory(parallel)
-endif(MPI_ENABLE AND MPI_C_FOUND)
+endif()
 
-if(HYPRE_ENABLE AND HYPRE_FOUND)
+if(BUILD_NVECTOR_MPIPLUSX)
+  add_subdirectory(mpiplusx)
+endif()
+
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
-endif(HYPRE_ENABLE AND HYPRE_FOUND)
+endif()
 
-if(OPENMP_ENABLE AND OPENMP_FOUND)
+if(BUILD_NVECTOR_OPENMP)
   add_subdirectory(openmp)
-endif(OPENMP_ENABLE AND OPENMP_FOUND)
+endif()
 
-if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+if(BUILD_NVECTOR_OPENMPDEV)
   add_subdirectory(openmpdev)
-endif(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+endif()
 
-if(PTHREADS_ENABLE AND PTHREADS_FOUND)
+if(BUILD_NVECTOR_PTHREADS)
   add_subdirectory(pthreads)
-endif(PTHREADS_ENABLE AND PTHREADS_FOUND)
+endif()
 
-if(PETSC_ENABLE AND PETSC_FOUND)
+if(BUILD_NVECTOR_PETSC)
   add_subdirectory(petsc)
-endif(PETSC_ENABLE AND PETSC_FOUND)
+endif()
 
-if(CUDA_ENABLE AND CUDA_FOUND)
+if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
-endif(CUDA_ENABLE AND CUDA_FOUND)
+endif()
 
-if(RAJA_ENABLE AND RAJA_FOUND)
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
+if(BUILD_NVECTOR_SYCL)
+  add_subdirectory(sycl)
+endif()
+
+if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
-endif(RAJA_ENABLE AND RAJA_FOUND)
+endif()
 
-IF(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
-  ADD_SUBDIRECTORY(trilinos)
-ENDIF(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
+if(BUILD_NVECTOR_TRILINOS)
+  add_subdirectory(trilinos)
+endif()
 
+if(BUILD_NVECTOR_KOKKOS)
+  install(CODE "MESSAGE(\"\nInstall NVECTOR_KOKKOS\n\")")
+  message(STATUS "Added BUILD_NVECTOR_KOKKOS module")
+  add_library(sundials_nveckokkos INTERFACE)
+  target_link_libraries(sundials_nveckokkos INTERFACE sundials_core)
+  if(ENABLE_HIP)
+    target_link_libraries(sundials_nveckokkos INTERFACE Kokkos::kokkos
+                                                        hip::device)
+  else()
+    target_link_libraries(sundials_nveckokkos INTERFACE Kokkos::kokkos)
+  endif()
+  target_include_directories(
+    sundials_nveckokkos
+    INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+              $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+              $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  install(FILES ${PROJECT_SOURCE_DIR}/include/nvector/nvector_kokkos.hpp
+          DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/nvector")
+  set(_SUNDIALS_INSTALLED_COMPONENTS
+      "nveckokkos;${_SUNDIALS_INSTALLED_COMPONENTS}"
+      CACHE INTERNAL "" FORCE)
+endif()
