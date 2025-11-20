@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=12
+#SBATCH --time=48:00:00
+#SBATCH --mail-type=BEGIN,END
+#SBATCH --mail-user=yshi@psu.edu
+
+echo "Job started on `hostname` at `date`"
+jobstart=`date +%s`
+
+./flux-pihm -bo ShaleHills ShaleHills
+
+jobend=`date +%s`
+echo -e "\nJob ended at `date`"
+dt=$((jobend - jobstart))
+ds=$((dt % 60))
+dm=$(((dt / 60) % 60))
+dh=$((dt / 3600))
+printf "Elapsed time %d:%02d:%02d" $dh $dm $ds
