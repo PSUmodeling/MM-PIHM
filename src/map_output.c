@@ -118,6 +118,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case RIVFLX0_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     InitPrintCtrl(outputdir, "river.flx0", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -134,6 +138,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case RIVFLX2_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     InitPrintCtrl(outputdir, "river.flx2", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -142,6 +150,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case RIVFLX3_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     InitPrintCtrl(outputdir, "river.flx3", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -150,6 +162,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case RIVFLX4_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     InitPrintCtrl(outputdir, "river.flx4", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -158,6 +174,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case RIVFLX5_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     InitPrintCtrl(outputdir, "river.flx5", prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -166,6 +186,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case SUBFLX_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "subflx%d", k);
@@ -178,6 +202,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     }
                     break;
                 case SURFFLX_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "surfflx%d", k);
@@ -800,6 +828,10 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
                 case DGWFLOW_CTRL:
+                    if (!debug_mode)
+                    {
+                        break;
+                    }
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "deep.flow%d", k);
