@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, matltbl_struct *matltbl,
-    forc_struct *forc)
+void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
     FILE           *fp;
@@ -42,9 +41,8 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
     for (i = 0; i < nriver; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d", &index, &rivtbl->from[i], &rivtbl->to[i],
-            &rivtbl->down[i], &rivtbl->left[i], &rivtbl->right[i], &rivtbl->shp[i], &rivtbl->matl[i], &rivtbl->bc[i],
-            &rivtbl->rsvr[i]);
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
+            &index, &rivtbl->from[i], &rivtbl->to[i], &rivtbl->down[i], &rivtbl->left[i], &rivtbl->right[i], &rivtbl->shp[i], &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
             pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
@@ -115,8 +113,7 @@ void ReadRiver(const char fn[], rivtbl_struct *rivtbl, shptbl_struct *shptbl, ma
         for (i = 0; i < forc->nriverbc; i++)
         {
             match = sscanf(cmdstr, "%s %d %s %d", tempstr[0], &index, tempstr[1], &forc->riverbc[i].bc_type);
-            if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "RIV_TS") != 0 ||
-                strcasecmp(tempstr[1], "TYPE") != 0)
+            if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "RIV_TS") != 0 || strcasecmp(tempstr[1], "TYPE") != 0)
             {
                 pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }

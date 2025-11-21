@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstate_struct *cs, const nstate_struct *ns,
-    epvar_struct *epv, cflux_struct *cf)
+void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf)
 {
     // Maintenance respiration routine
     // Uses reference values at 20 deg C and an empirical relationship between tissue N content and respiration rate
@@ -57,8 +56,7 @@ void MaintResp(const epconst_struct *epc, const daily_struct *daily, const cstat
 
         // Leaf, night
         exponent = (tnight - 20.0) / 10.0;
-        cf->leaf_night_mr = t1 * pow(Q10, exponent) * (86400.0 - epv->dayl) /
-            86400.0;
+        cf->leaf_night_mr = t1 * pow(Q10, exponent) * (86400.0 - epv->dayl) / 86400.0;
     }
     else    // No leaves on
     {

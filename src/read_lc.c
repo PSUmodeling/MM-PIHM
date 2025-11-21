@@ -34,8 +34,7 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
 
     // Check header line
     NextLine(fp, cmdstr, &lno);
-    if (!CheckHeader(cmdstr, 16, "INDEX", "SHDFAC", "DROOT", "RS", "RGL", "HS", "SNUP", "LAIMIN", "LAIMAX", "EMISMIN",
-        "EMISMAX", "ALBMIN", "ALBMAX", "Z0MIN", "Z0MAX", "ROUGH"))
+    if (!CheckHeader(cmdstr, 16, "INDEX", "SHDFAC", "DROOT", "RS", "RGL", "HS", "SNUP", "LAIMIN", "LAIMAX", "EMISMIN", "EMISMAX", "ALBMIN", "ALBMAX", "Z0MIN", "Z0MAX", "ROUGH"))
     {
         pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
@@ -46,9 +45,8 @@ void ReadLc(const char fn[], lctbl_struct *lctbl)
         match =
             sscanf(cmdstr,
             "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i], &lctbl->rgl[i], &lctbl->hs[i],
-            &lctbl->snup[i], &lctbl->laimin[i], &lctbl->laimax[i], &lctbl->emissmin[i], &lctbl->emissmax[i],
-            &lctbl->albedomin[i], &lctbl->albedomax[i], &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
+            &index, &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i], &lctbl->rgl[i], &lctbl->hs[i], &lctbl->snup[i], &lctbl->laimin[i], &lctbl->laimax[i], &lctbl->emissmin[i],
+            &lctbl->emissmax[i], &lctbl->albedomin[i], &lctbl->albedomax[i], &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
             pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);

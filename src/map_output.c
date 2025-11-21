@@ -1,11 +1,9 @@
 #include "pihm.h"
 
 #if defined(_CYCLES_)
-void MapOutput(const char outputdir[], const int prtvrbl[], const crop_struct crop[], const elem_struct elem[],
-    const river_struct river[], print_struct *print)
+void MapOutput(const char outputdir[], const int prtvrbl[], const crop_struct crop[], const elem_struct elem[], const river_struct river[], print_struct *print)
 #else
-void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct elem[], const river_struct river[],
-    print_struct *print)
+void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct elem[], const river_struct river[], print_struct *print)
 #endif
 {
     int             i, j, k;
@@ -857,8 +855,7 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
     print->nprint = n;
 }
 
-void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_intvl, int nvar,
-    varctrl_struct *varctrl)
+void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_intvl, int nvar, varctrl_struct *varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
 

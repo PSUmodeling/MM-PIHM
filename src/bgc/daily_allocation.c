@@ -1,8 +1,6 @@
 #include "pihm.h"
 
-void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
-    const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf,
-    nflux_struct *nf, ntemp_struct *nt)
+void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf, nflux_struct *nf, ntemp_struct *nt)
 {
     double          day_gpp;      // daily gross production
     double          day_mresp;    // daily total maintenance respiration
@@ -37,9 +35,7 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
 
     // Assess the carbon availability on the basis of this day's gross production and maintenance respiration costs
     day_gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
-    day_mresp = (epc->woody) ?
-        cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr :
-        cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
+    day_mresp = (epc->woody) ? cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr : cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
 
     avail_c = day_gpp - day_mresp;
 
@@ -168,8 +164,7 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
         cf->cpool_to_livecrootc = nlc * f2 * f3 * f4 * pnow;
         cf->cpool_to_livecrootc_storage = nlc * f2 * f3 * f4 * (1.0 - pnow);
         cf->cpool_to_deadcrootc = nlc * f2 * f3 * (1.0 - f4) * pnow;
-        cf->cpool_to_deadcrootc_storage =
-            nlc * f2 * f3 * (1.0 - f4) * (1.0 - pnow);
+        cf->cpool_to_deadcrootc_storage = nlc * f2 * f3 * (1.0 - f4) * (1.0 - pnow);
     }
     // Daily N fluxes out of npool and into new growth or storage
     nf->npool_to_leafn = (nlc / cnl) * pnow;
@@ -196,8 +191,7 @@ void DailyAllocation(const epconst_struct *epc, const cstate_struct *cs,
     // that the storage of C for growth resp during display of transferred growth is assigned here.
     gresp_storage = (epc->woody) ?
         (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage + cf->cpool_to_livestemc_storage +
-        cf->cpool_to_deadstemc_storage + cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) *
-        g1 * (1.0 - g2) :
+        cf->cpool_to_deadstemc_storage + cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) * g1 * (1.0 - g2) :
         (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage) * g1 * (1.0 - g2);
     cf->cpool_to_gresp_storage = gresp_storage;
 

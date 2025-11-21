@@ -43,8 +43,8 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
     }
 }
 
-void UpdateNProfile(double dt, const soil_struct *soil, const wstate_struct *ws, const nstate_struct *ns,
-    const solute_struct solute[], double no3[], double nh4[], phystate_struct *ps, nflux_struct *nf)
+void UpdateNProfile(double dt, const soil_struct *soil, const wstate_struct *ws, const nstate_struct *ns, const solute_struct solute[],
+    double no3[], double nh4[], phystate_struct *ps, nflux_struct *nf)
 {
     int             kz;
 
@@ -66,8 +66,7 @@ void UpdateNProfile(double dt, const soil_struct *soil, const wstate_struct *ws,
     LateralNFlow(ps->kd_nh4, soil, ws, ps, ns->nh4, Profile(ps->nlayers, nh4), ps->nh4, nh4);
 }
 
-void LateralNFlow(double kd, const soil_struct *soil, const wstate_struct *ws, const phystate_struct *ps,
-    const double solute0[], double profile0, double profile, double solute[])
+void LateralNFlow(double kd, const soil_struct *soil, const wstate_struct *ws, const phystate_struct *ps, const double solute0[], double profile0, double profile, double solute[])
 {
     int             kz;
     double          total_weight;
@@ -115,8 +114,7 @@ void LateralNFlow(double kd, const soil_struct *soil, const wstate_struct *ws, c
     }
 }
 
-double MobileNConc(double kd, const double solute[], const soil_struct *soil, const wstate_struct *ws,
-    const phystate_struct *ps)
+double MobileNConc(double kd, const double solute[], const soil_struct *soil, const wstate_struct *ws, const phystate_struct *ps)
 {
     int             k;
     double          weight[MAXLYR];
@@ -208,8 +206,7 @@ void ConcWeight(const soil_struct *soil, const wstate_struct *ws, const phystate
         satn = MAX(satn, SATMIN);
 
         // Weigh contributions of layers by their water contents, hydraulic conductivities, and depths
-        weight[kz] = ps->soil_depth[kz] * ws->smc[kz] * KrFunc(soil->beta, satn) /
-            (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
+        weight[kz] = ps->soil_depth[kz] * ws->smc[kz] * KrFunc(soil->beta, satn) / (soil->depth + ps->zsoil[kz] + 0.5 * ps->soil_depth[kz]);
 #if NOT_YET_IMPLEMETED
         weight[kz] = ps->satdpth[kz];
 #endif

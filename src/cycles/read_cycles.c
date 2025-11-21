@@ -212,19 +212,16 @@ void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
 
             NextLine(fp, cmdstr, &lno);
             match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf",
-                &layer, &soiltbl->clay_layer[i][kz], &soiltbl->sand_layer[i][kz], &soiltbl->om_layer[i][kz],
-                &soiltbl->bd_layer[i][kz], &soiltbl->no3[i][kz], &soiltbl->nh4[i][kz]);
+                &layer, &soiltbl->clay_layer[i][kz], &soiltbl->sand_layer[i][kz], &soiltbl->om_layer[i][kz], &soiltbl->bd_layer[i][kz], &soiltbl->no3[i][kz], &soiltbl->nh4[i][kz]);
 
             if (match != 7 || kz != layer - 1)
             {
                 pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }
 
-            soiltbl->clay_layer[i][kz] = (soiltbl->clay_layer[i][kz] < 0.0) ?
-                soiltbl->clay[i] : soiltbl->clay_layer[i][kz];
+            soiltbl->clay_layer[i][kz] = (soiltbl->clay_layer[i][kz] < 0.0) ? soiltbl->clay[i] : soiltbl->clay_layer[i][kz];
             soiltbl->clay_layer[i][kz] /= 100.0;
-            soiltbl->sand_layer[i][kz] = (soiltbl->sand_layer[i][kz] < 0.0) ?
-                100.0 - soiltbl->clay[i] - soiltbl->silt[i] : soiltbl->sand_layer[i][kz];
+            soiltbl->sand_layer[i][kz] = (soiltbl->sand_layer[i][kz] < 0.0) ? 100.0 - soiltbl->clay[i] - soiltbl->silt[i] : soiltbl->sand_layer[i][kz];
             soiltbl->sand_layer[i][kz] /= 100.0;
             soiltbl->om_layer[i][kz] = (soiltbl->om_layer[i][kz] < 0.0) ? soiltbl->om[i] : soiltbl->om_layer[i][kz];
 
@@ -236,8 +233,7 @@ void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
             soiltbl->b[i][kz] = (log(1500.0) - log(33.0)) / (log(wc33) - log(wc1500));
 
             // Air entry potential
-            soiltbl->air_entry_pot[i][kz] = -33.0 * pow(wc33 / (1.0 - bd / 2.65), soiltbl->b[i][kz]) *
-                ((roundi(soiltbl->bd_layer[i][kz]) == BADVAL) ?
+            soiltbl->air_entry_pot[i][kz] = -33.0 * pow(wc33 / (1.0 - bd / 2.65), soiltbl->b[i][kz]) * ((roundi(soiltbl->bd_layer[i][kz]) == BADVAL) ?
                 1.0 : pow(soiltbl->bd_layer[i][kz] / bd, 0.67 * soiltbl->b[i][kz]));
 
             // Bulk density
@@ -245,12 +241,10 @@ void ReadSoilInit(const char fn[], soiltbl_struct *soiltbl)
 
             // Field capacity
             fc_water_pot = -0.35088 * soiltbl->clay_layer[i][kz] * 100.0 - 28.947;
-            soiltbl->fc[i][kz] =
-                SoilWaterContent(soiltbl->smcmax[i], soiltbl->air_entry_pot[i][kz], soiltbl->b[i][kz], fc_water_pot);
+            soiltbl->fc[i][kz] = SoilWaterContent(soiltbl->smcmax[i], soiltbl->air_entry_pot[i][kz], soiltbl->b[i][kz], fc_water_pot);
 
             // Permanent wilting point
-            soiltbl->pwp[i][kz] =
-                SoilWaterContent(soiltbl->smcmax[i], soiltbl->air_entry_pot[i][kz], soiltbl->b[i][kz], -1500.0);
+            soiltbl->pwp[i][kz] = SoilWaterContent(soiltbl->smcmax[i], soiltbl->air_entry_pot[i][kz], soiltbl->b[i][kz], -1500.0);
         }
 
         // When the number of soil layers in Flux-PIHM is larger than in soilinit file, use the last described layer to

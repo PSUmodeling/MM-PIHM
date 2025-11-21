@@ -115,8 +115,7 @@ int main(int argc, char *argv[])
         Spinup(pihm, cvode);
 
         // In spin-up mode, initial conditions are always printed
-        PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL], pihm->elem,
-            pihm->river);
+        PrintInit(outputdir, ctrl->endtime, ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
 
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
@@ -145,15 +144,13 @@ int main(int argc, char *argv[])
             // Print CVODE performance and statistics
             if (debug_mode)
             {
-                PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime, cputime_dt, cputime, ctrl->maxstep,
-                    pihm->print.cvodeperf_file, cvode);
+                PrintPerf(ctrl->tout[ctrl->cstep + 1], ctrl->starttime, cputime_dt, cputime, ctrl->maxstep, pihm->print.cvodeperf_file, cvode);
             }
 
             // Write init files
             if (ctrl->write_ic)
             {
-                PrintInit(outputdir, ctrl->tout[ctrl->cstep + 1], ctrl->starttime, ctrl->endtime,
-                    ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
+                PrintInit(outputdir, ctrl->tout[ctrl->cstep + 1], ctrl->starttime, ctrl->endtime, ctrl->prtvrbl[IC_CTRL], pihm->elem, pihm->river);
             }
 
         }

@@ -101,12 +101,10 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
         else
         {
             satn = ((elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw)) > 1.0) ?
-                1.0 : ((elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw)) < 0.0) ? 0.0 :
-                0.5 * (1.0 - cos(3.14 * (elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw))));
+                1.0 : ((elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw)) < 0.0) ? 0.0 : 0.5 * (1.0 - cos(3.14 * (elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw))));
         }
 
-        betas = (satn * elem[i].soil.porosity + elem[i].soil.smcmin - elem[i].soil.smcwlt) /
-            (elem[i].soil.smcref - elem[i].soil.smcwlt);
+        betas = (satn * elem[i].soil.porosity + elem[i].soil.smcmin - elem[i].soil.smcwlt) / (elem[i].soil.smcref - elem[i].soil.smcwlt);
         betas = (betas < 0.0001) ? 0.0001 : ((betas > 1.0) ? 1.0 : betas);
         elem[i].wf.edir = (1.0 - elem[i].lc.shdfac) * pow(betas, 2) * etp;
         elem[i].wf.edir = (elem[i].wf.edir < 0.0) ? 0.0 : elem[i].wf.edir;
@@ -114,8 +112,8 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
         // Note the dependence on physical units
         if (lai > 0.0)
         {
-            elem[i].wf.ec = elem[i].lc.shdfac * pow(((elem[i].ws.cmc < 0.0) ? 0.0 :
-                ((elem[i].ws.cmc > intcp_max) ? intcp_max : elem[i].ws.cmc)) / intcp_max, elem[i].lc.cfactr) * etp;
+            elem[i].wf.ec = elem[i].lc.shdfac * pow(((elem[i].ws.cmc < 0.0) ?
+                0.0 : ((elem[i].ws.cmc > intcp_max) ? intcp_max : elem[i].ws.cmc)) / intcp_max, elem[i].lc.cfactr) * etp;
             elem[i].wf.ec = (elem[i].wf.ec < 0.0) ? 0.0 : elem[i].wf.ec;
 
             fr = 1.1 * radnet / (elem[i].epc.rgl * lai);
@@ -131,16 +129,14 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
 
             pc = (1.0 + delta / gamma) / (1.0 + rs / ra + delta / gamma);
 
-            elem[i].wf.ett = elem[i].lc.shdfac * pc * (1.0 - pow((elem[i].ws.cmc < 0.0) ? 0.0 :
-                ((elem[i].ws.cmc > intcp_max) ? intcp_max : elem[i].ws.cmc) / intcp_max, elem[i].lc.cfactr)) * etp;
+            elem[i].wf.ett = elem[i].lc.shdfac * pc * (1.0 - pow((elem[i].ws.cmc < 0.0) ?
+                0.0 : ((elem[i].ws.cmc > intcp_max) ? intcp_max : elem[i].ws.cmc) / intcp_max, elem[i].lc.cfactr)) * etp;
             elem[i].wf.ett = (elem[i].wf.ett < 0.0) ? 0.0 : elem[i].wf.ett;
-            elem[i].wf.ett = ((elem[i].ws.gw < (elem[i].soil.depth - elem[i].ps.rzd)) && elem[i].ws.unsat <= 0.0) ?
-                0.0 : elem[i].wf.ett;
+            elem[i].wf.ett = ((elem[i].ws.gw < (elem[i].soil.depth - elem[i].ps.rzd)) && elem[i].ws.unsat <= 0.0) ? 0.0 : elem[i].wf.ett;
 
             // Drip function from Rutter and Morton, 1977, Journal of Applied Ecology
             // D0 = 3.91E-5 m/min = 6.52E-7 m/s
-            elem[i].wf.drip = (elem[i].ws.cmc <= 0.0) ?
-                0.0 : 6.52E-7 * intcp_max * exp(3.89 * elem[i].ws.cmc / intcp_max);
+            elem[i].wf.drip = (elem[i].ws.cmc <= 0.0) ? 0.0 : 6.52E-7 * intcp_max * exp(3.89 * elem[i].ws.cmc / intcp_max);
         }
         else
         {
@@ -158,8 +154,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
             elem[i].wf.drip = elem[i].ws.cmc / stepsize;
         }
 
-        isval = elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize -
-            elem[i].wf.ec * stepsize - elem[i].wf.drip * stepsize;
+        isval = elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize - elem[i].wf.ec * stepsize - elem[i].wf.drip * stepsize;
 
         if (isval > intcp_max)
         {
@@ -171,10 +166,8 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
             elem[i].ws.cmc = 0.0;
             if (elem[i].wf.ec + elem[i].wf.drip > 0.0)
             {
-                elem[i].wf.ec = elem[i].wf.ec / (elem[i].wf.ec + elem[i].wf.drip) *
-                    (elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize);
-                elem[i].wf.drip = elem[i].wf.drip / (elem[i].wf.ec + elem[i].wf.drip) *
-                    (elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize);
+                elem[i].wf.ec = elem[i].wf.ec / (elem[i].wf.ec + elem[i].wf.drip) * (elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize);
+                elem[i].wf.drip = elem[i].wf.drip / (elem[i].wf.ec + elem[i].wf.drip) * (elem[i].ws.cmc + (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize);
             }
         }
         else
@@ -182,8 +175,7 @@ void IntcpSnowEt(int t, double stepsize, const calib_struct *calib, elem_struct 
             elem[i].ws.cmc = isval;
         }
 
-        elem[i].wf.pcpdrp = (1.0 - elem[i].lc.shdfac) * (1.0 - frac_snow) * elem[i].wf.prcp + elem[i].wf.drip +
-            melt_rate;
+        elem[i].wf.pcpdrp = (1.0 - elem[i].lc.shdfac) * (1.0 - frac_snow) * elem[i].wf.prcp + elem[i].wf.drip + melt_rate;
     }
 }
 #endif

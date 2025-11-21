@@ -28,8 +28,7 @@ void ReadGeol(const char *fn, geoltbl_struct *geoltbl)
 
     // Check header line
     NextLine (fp, cmdstr, &lno);
-    if (!CheckHeader(cmdstr, 10,
-        "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
+    if (!CheckHeader(cmdstr, 10, "INDEX", "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF", "DMAC"))
     {
         pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }

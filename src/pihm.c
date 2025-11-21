@@ -77,8 +77,7 @@ void PIHM(double cputime, pihm_struct *pihm, cvode_struct *cvode)
     // Print water balance
     if (pihm->ctrl.waterbal)
     {
-        PrintWaterBalance(t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, pihm->river,
-            pihm->print.watbal_file);
+        PrintWaterBalance(t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, pihm->river, pihm->print.watbal_file);
     }
 
     // Print binary and txt output files

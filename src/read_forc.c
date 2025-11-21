@@ -26,8 +26,7 @@ void ReadMeteo(const char fn[], forc_struct *forc)
         for (i = 0; i < forc->nmeteo; i++)
         {
             match = sscanf(cmdstr, "%s %d %s %lf", tempstr[0], &index, tempstr[1], &forc->meteo[i].zlvl_wind);
-            if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "METEO_TS") != 0 ||
-                strcasecmp(tempstr[1], "WIND_LVL") != 0)
+            if (match != 4 || i != index - 1 || strcasecmp(tempstr[0], "METEO_TS") != 0 || strcasecmp(tempstr[1], "WIND_LVL") != 0)
             {
                 pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
             }

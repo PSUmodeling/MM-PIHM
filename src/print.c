@@ -89,8 +89,7 @@ void InitOutputFiles(const char outputdir[], int watbal, int ascii, print_struct
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
         print->cvodeperf_file = pihm_fopen(perf_fn, mode);
         // Print header lines
-        fprintf(print->cvodeperf_file, "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
-            "step", "cpu_dt", "cputime", "maxstep", "nsteps", "niters", "nevals", "nefails", "ncfails");
+        fprintf(print->cvodeperf_file, "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n", "step", "cpu_dt", "cputime", "maxstep", "nsteps", "niters", "nevals", "nefails", "ncfails");
     }
 
     // Initialize model variable output files
@@ -152,11 +151,9 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
                 fprintf(varctrl[i].txtfile, "\"%s\"", pihm_time.str);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    outval = (varctrl[i].counter > 0) ?
-                        varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
+                    outval = (varctrl[i].counter > 0) ? varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
-                    fprintf(varctrl[i].txtfile, (roundi(outval) == BADVAL) ?
-                        "\t%-8.0lf" : ((outval == 0.0 || fabs(outval) > 1.0E-3) ? "\t%lf" : "\t%.2le"), outval);
+                    fprintf(varctrl[i].txtfile, (roundi(outval) == BADVAL) ? "\t%-8.0lf" : ((outval == 0.0 || fabs(outval) > 1.0E-3) ? "\t%lf" : "\t%.2le"), outval);
                 }
                 fprintf(varctrl[i].txtfile, "\n");
                 fflush(varctrl[i].txtfile);
@@ -166,8 +163,7 @@ void PrintData(int nprint, int t, int lapse, int ascii, varctrl_struct *varctrl)
             fwrite(&outtime, sizeof(double), 1, varctrl[i].datfile);
             for (j = 0; j < varctrl[i].nvar; j++)
             {
-                outval = (varctrl[i].counter > 0) ?
-                    varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
+                outval = (varctrl[i].counter > 0) ? varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
                 fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 
@@ -323,8 +319,7 @@ void PrintWaterBalance(int t, int tstart, int dt, const elem_struct elem[], cons
     {
         error += tot_src - tot_snk - (tot_strg - tot_strg_prev);
 
-        fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart, tot_src, tot_snk, tot_strg - tot_strg_prev,
-            tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
+        fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart, tot_src, tot_snk, tot_strg - tot_strg_prev, tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
         fflush(watbal_file);
     }
 
@@ -357,9 +352,7 @@ void PrintCVodeFinalStats(cvode_struct *cvode)
 
     pihm_printf(VL_NORMAL, "\n");
     pihm_printf(VL_NORMAL, "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
-    pihm_printf(VL_NORMAL, "num of nonlin solv iters = %-6ld "
-        "num of nonlin solv conv fails = %-6ld "
-        "num of err test fails = %-6ld\n", nni, ncfn, netf);
+    pihm_printf(VL_NORMAL, "num of nonlin solv iters = %-6ld num of nonlin solv conv fails = %-6ld num of err test fails = %-6ld\n", nni, ncfn, netf);
 }
 
 int PrintNow(int intvl, int lapse, pihm_t_struct pihm_time)
@@ -371,8 +364,7 @@ int PrintNow(int intvl, int lapse, pihm_t_struct pihm_time)
         switch (intvl)
         {
             case YEARLY_OUTPUT:
-                print = (pihm_time.month == 1 && pihm_time.day == 1 && pihm_time.hour == 0 && pihm_time.minute == 0) ?
-                    1 : 0;
+                print = (pihm_time.month == 1 && pihm_time.day == 1 && pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;
                 break;
             case MONTHLY_OUTPUT:
                 print = (pihm_time.day == 1 && pihm_time.hour == 0 && pihm_time.minute == 0) ? 1 : 0;

@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void RadTrans(const cstate_struct *cs, const epconst_struct *epc, const daily_struct *daily, epvar_struct *epv,
-    phystate_struct *ps, eflux_struct *ef)
+void RadTrans(const cstate_struct *cs, const epconst_struct *epc, const daily_struct *daily, epvar_struct *epv, phystate_struct *ps, eflux_struct *ef)
 {
     // Calculate the projected leaf area and SLA for sun and shade fractions and the canopy transmission and absorption
     // of shortwave radiation based on the Beer's Law assumption of radiation attenuation as a function of projected

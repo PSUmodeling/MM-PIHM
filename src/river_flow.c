@@ -21,8 +21,7 @@ void RiverFlow(elem_struct elem[], river_struct river[])
             // When a downstream segment is present, boundary conditions are always applied to the upstream node
             if (river[i].attrib.riverbc_type != 0)
             {
-                river[i].wf.rivflow[UPSTREAM] += BoundFluxRiver(river[i].attrib.riverbc_type, &river[i].topo,
-                    &river[i].shp, &river[i].matl, &river[i].bc, &river[i].ws);
+                river[i].wf.rivflow[UPSTREAM] += BoundFluxRiver(river[i].attrib.riverbc_type, &river[i].topo, &river[i].shp, &river[i].matl, &river[i].bc, &river[i].ws);
             }
 
             // Channel flow between river-river segments
@@ -33,8 +32,7 @@ void RiverFlow(elem_struct elem[], river_struct river[])
         else
         {
             // Outlet flux
-            river[i].wf.rivflow[DOWNSTREAM] =
-                OutletFlux(river[i].down, &river[i].topo, &river[i].shp, &river[i].matl, &river[i].bc, &river[i].ws);
+            river[i].wf.rivflow[DOWNSTREAM] = OutletFlux(river[i].down, &river[i].topo, &river[i].shp, &river[i].matl, &river[i].bc, &river[i].ws);
         }
 
         // Flux between river segments and triangular elements
@@ -79,8 +77,7 @@ void RiverToElem(river_struct *river_ptr, elem_struct *left, elem_struct *right)
         river_ptr->wf.rivflow[SURF_RIGHT] = OvlFlowElemToRiver(river_ptr, right);
 
         effk_right = EffKh(right->ws.gw, &right->soil);
-        river_ptr->wf.rivflow[AQUIFER_RIGHT] =
-            ChannelFlowElemToRiver(effk_right, river_ptr->topo.dist_right, river_ptr, right);
+        river_ptr->wf.rivflow[AQUIFER_RIGHT] = ChannelFlowElemToRiver(effk_right, river_ptr->topo.dist_right, river_ptr, right);
     }
 }
 
@@ -103,14 +100,12 @@ double OvlFlowElemToRiver(const river_struct *river_ptr, elem_struct *bank)
         if (bank_h > z_bank)
         {
             // Submerged weir
-            flux = river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(river_h - bank_h) *
-                (river_h - z_bank) / 3.0;
+            flux = river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(river_h - bank_h) * (river_h - z_bank) / 3.0;
         }
         else
         {
             // Free-flowing weir
-            flux = (z_bank < river_h) ? river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) *
-                river_ptr->shp.length * sqrt(river_h - z_bank) * (river_h - z_bank) / 3.0 : 0.0;
+            flux = (z_bank < river_h) ? river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(river_h - z_bank) * (river_h - z_bank) / 3.0 : 0.0;
         }
     }
     else if (bank->ws.surfh > DEPRSTG)
@@ -118,14 +113,12 @@ double OvlFlowElemToRiver(const river_struct *river_ptr, elem_struct *bank)
         if (river_h > z_bank)
         {
             // Submerged weir
-            flux = -river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(bank_h - river_h) *
-                (bank_h - z_bank) / 3.0;
+            flux = -river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(bank_h - river_h) * (bank_h - z_bank) / 3.0;
         }
         else
         {
             // Free-flowing weir
-            flux = (z_bank < bank_h) ? -river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length *
-                sqrt(bank_h - z_bank) * (bank_h - z_bank) / 3.0 : 0.0;
+            flux = (z_bank < bank_h) ? -river_ptr->matl.cwr * 2.0 * sqrt(2.0 * GRAV) * river_ptr->shp.length * sqrt(bank_h - z_bank) * (bank_h - z_bank) / 3.0 : 0.0;
         }
     }
     else
@@ -183,8 +176,7 @@ double ChannelFlowRiverToRiver(const river_struct *river_ptr, const river_struct
     return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
 }
 
-double OutletFlux(int down, const river_topo_struct *topo, const shp_struct *shp, const matl_struct *matl,
-    const river_bc_struct *bc, const river_wstate_struct *ws)
+double OutletFlux(int down, const river_topo_struct *topo, const shp_struct *shp, const matl_struct *matl, const river_bc_struct *bc, const river_wstate_struct *ws)
 {
     double          total_h;
     double          total_h_down;
@@ -219,8 +211,7 @@ double OutletFlux(int down, const river_topo_struct *topo, const shp_struct *shp
             avg_h = ws->stage;
             avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
             cross_area = RiverCrossSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
-            discharge = sqrt(grad_h) * cross_area * ((avg_perim > 0.0) ?
-                pow(cross_area / avg_perim, 2.0 / 3.0) : 0.0) / matl->rough;
+            discharge = sqrt(grad_h) * cross_area * ((avg_perim > 0.0) ? pow(cross_area / avg_perim, 2.0 / 3.0) : 0.0) / matl->rough;
             break;
         case CRIT_DPTH:
             // Critical depth boundary conditions
@@ -235,8 +226,7 @@ double OutletFlux(int down, const river_topo_struct *topo, const shp_struct *shp
     return discharge;
 }
 
-double BoundFluxRiver(int riverbc_type, const river_topo_struct *topo, const shp_struct *shp, const matl_struct *matl,
-    const river_bc_struct *bc, const river_wstate_struct *ws)
+double BoundFluxRiver(int riverbc_type, const river_topo_struct *topo, const shp_struct *shp, const matl_struct *matl, const river_bc_struct *bc, const river_wstate_struct *ws)
 {
     double          total_h;
     double          total_h_down;
@@ -360,9 +350,8 @@ double RiverPerim(int order, double depth, double coeff)
                 sqrt(1.0 + 4.0 * coeff * depth)) / (2.0 * coeff);
             break;
         case CUBIC:
-            perim = 2.0 * (pow(depth * (1.0 + 9.0 * pow(coeff, 2.0 / 3.0) * depth), 0.5) / 3.0 +
-                log(3.0 * pow(coeff, 1.0 / 3.0) * sqrt(depth) + pow(1.0 + 9.0 * pow(coeff, 2.0 / 3.0) * depth, 0.5)) /
-                (9.0 * pow(coeff, 1.0 / 3.0)));
+            perim = 2.0 * (pow(depth * (1.0 + 9.0 * pow(coeff, 2.0 / 3.0) * depth), 0.5) / 3.0 + log(3.0 * pow(coeff, 1.0 / 3.0) * sqrt(depth) +
+                pow(1.0 + 9.0 * pow(coeff, 2.0 / 3.0) * depth, 0.5)) / (9.0 * pow(coeff, 1.0 / 3.0)));
             break;
         default:
             pihm_printf(VL_ERROR, "Error: River order %d is not defined.\n", order);

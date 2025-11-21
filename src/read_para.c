@@ -52,11 +52,9 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
     }
     else if (spinup_mode)
     {
-        if (start_time.month != end_time.month || start_time.day != end_time.day || start_time.hour != end_time.hour ||
-            start_time.minute != end_time.minute)
+        if (start_time.month != end_time.month || start_time.day != end_time.day || start_time.hour != end_time.hour || start_time.minute != end_time.minute)
         {
-            pihm_printf(VL_ERROR, "Error: In spinup mode, simulation period should be full years. "
-                "Please check your\n.para input file.\n");
+            pihm_printf(VL_ERROR, "Error: In spinup mode, simulation period should be full years. Please check your\n.para input file.\n");
             pihm_exit(EXIT_FAILURE);
         }
     }
@@ -170,8 +168,7 @@ void ReadPara(const char fn[], ctrl_struct *ctrl)
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
-        pihm_printf(VL_ERROR,
-            "Error: Land surface model (ET) step size should be an integral multiple of model step size.\n");
+        pihm_printf(VL_ERROR, "Error: Land surface model (ET) step size should be an integral multiple of model step size.\n");
         pihm_printf(VL_ERROR, "Error in %s near Line %d.\n", fn, lno);
         pihm_exit(EXIT_FAILURE);
     }

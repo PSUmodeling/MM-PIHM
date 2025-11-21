@@ -153,8 +153,7 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
             elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
             elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
 
-            elem[i].ef.soldn =
-                TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif, spa.zenith, spa.azimuth180, &elem[i].topo);
+            elem[i].ef.soldn = TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif, spa.zenith, spa.azimuth180, &elem[i].topo);
             elem[i].ef.soldn = MAX(elem[i].ef.soldn, 0.0);
         }
 #endif
@@ -232,8 +231,7 @@ void ApplyDailyMeteoForcing(int t, int rad_mode, const siteinfo_struct *siteinfo
             elem[i].ps.rh += forc->meteo[ind].value[RH_TS] / 24.0;
             elem[i].ps.sfcspd += forc->meteo[ind].value[SFCSPD_TS] / 24.0;
             elem[i].ef.soldn += (rad_mode > 0 && forc->nrad > 0) ?
-                MAX(TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif, spa.zenith, spa.azimuth180, &elem[i].topo), 0.0) /
-                24.0 : MAX(forc->meteo[ind].value[SOLAR_TS], 0.0) / 24.0;
+                MAX(TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif, spa.zenith, spa.azimuth180, &elem[i].topo), 0.0) / 24.0 : MAX(forc->meteo[ind].value[SOLAR_TS], 0.0) / 24.0;
             elem[i].ef.longwave += forc->meteo[ind].value[LONGWAVE_TS] / 24.0;
             elem[i].ps.sfcprs += forc->meteo[ind].value[PRES_TS] / 24.0;
 
@@ -403,9 +401,7 @@ void IntrplForcing(int t, int nvrbl, int intrpl, int forcing_type, tsdata_struct
         {
             for (j = 0; j < nvrbl; j++)
             {
-                ts->value[j] = (intrpl) ?
-                    ((double)(ts->ftime[middle] - t) * ts->data[middle - 1][j] +
-                    (double)(t - ts->ftime[middle - 1]) * ts->data[middle][j]) /
+                ts->value[j] = (intrpl) ? ((double)(ts->ftime[middle] - t) * ts->data[middle - 1][j] + (double)(t - ts->ftime[middle - 1]) * ts->data[middle][j]) /
                     (double)(ts->ftime[middle] - ts->ftime[middle - 1]) : ts->data[middle - 1][j];
             }
             break;
@@ -613,8 +609,7 @@ double MonthlyMf(int t)
     pihm_t_struct   pihm_time;
 
     double          mf_tbl[12] = {
-        0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171, 0.003197325, 0.003095839, 0.002745240,
-        0.002260213, 0.001759481, 0.001373646, 0.001202083
+        0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171, 0.003197325, 0.003095839, 0.002745240, 0.002260213, 0.001759481, 0.001373646, 0.001202083
     };
 
     pihm_time = PIHMTime(t);

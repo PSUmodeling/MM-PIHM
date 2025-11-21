@@ -85,8 +85,7 @@ void FirstDay(const cninit_struct *cninit, elem_struct elem[], river_struct rive
             restart->livestemc_transfer = new_stemc * epc->alloc_newlivewoodc_newwoodc;
             restart->livestemc = restart->livestemc_transfer / epc->livewood_turnover;
             restart->deadstemc_transfer = new_stemc - restart->livestemc_transfer;
-            restart->deadstemc =
-                max_stemc - restart->livestemc_transfer - restart->livestemc - restart->deadstemc_transfer;
+            restart->deadstemc = max_stemc - restart->livestemc_transfer - restart->livestemc - restart->deadstemc_transfer;
             restart->deadstemc = MAX(restart->deadstemc, 0.0);
             restart->livecrootc_transfer = restart->livestemc_transfer * epc->alloc_crootc_stemc;
             restart->livecrootc = restart->livestemc * epc->alloc_crootc_stemc;
@@ -118,8 +117,7 @@ void FirstDay(const cninit_struct *cninit, elem_struct elem[], river_struct rive
         restart->gresp_transfer += (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;
         if (epc->woody)
         {
-            restart->gresp_transfer += (restart->livestemc_transfer + restart->deadstemc_transfer +
-                restart->livecrootc_transfer + restart->deadcrootc_transfer) * GRPERC;
+            restart->gresp_transfer += (restart->livestemc_transfer + restart->deadstemc_transfer + restart->livecrootc_transfer + restart->deadcrootc_transfer) * GRPERC;
         }
 
         // Set the initial rates of litterfall and live wood turnover

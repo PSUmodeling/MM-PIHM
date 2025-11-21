@@ -144,18 +144,15 @@ void FirstDay(const soiltbl_struct *soiltbl, const ctrl_struct *ctrl, elem_struc
             elem[i].restart_input.no3[kz] = BADVAL;
             elem[i].restart_input.nh4[kz] = BADVAL;
 
-            elem[i].restart_input.soc[kz] = soiltbl->om_layer[soil_ind][kz] / 100.0 * 0.58 * elem[i].ps.soil_depth[kz] *
-                elem[i].soil.bd[kz] * 1.0E4;
+            elem[i].restart_input.soc[kz] = soiltbl->om_layer[soil_ind][kz] / 100.0 * 0.58 * elem[i].ps.soil_depth[kz] * elem[i].soil.bd[kz] * 1.0E4;
             // Initializes as 3% of SOC_Mass but "added" C
             elem[i].restart_input.mbc[kz] = 0.03 * elem[i].restart_input.soc[kz];
             // Initializes with CN ratio = 10
             elem[i].restart_input.son[kz] = elem[i].restart_input.soc[kz] * 0.1;
             // Initializes with CN ratio = 10
             elem[i].restart_input.mbn[kz] = elem[i].restart_input.mbc[kz] * 0.1;
-            elem[i].restart_input.no3[kz] =
-                soiltbl->no3[soil_ind][kz] * 1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
-            elem[i].restart_input.nh4[kz] =
-                soiltbl->nh4[soil_ind][kz] * 1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
+            elem[i].restart_input.no3[kz] = soiltbl->no3[soil_ind][kz] * 1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
+            elem[i].restart_input.nh4[kz] = soiltbl->nh4[soil_ind][kz] * 1.0E-3 * elem[i].ps.soil_depth[kz] / ctrl->soil_depth[kz];
         }
     }
 }

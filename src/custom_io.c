@@ -230,8 +230,7 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *fn)
 }
 
 #if !defined(_PIHM_)
-void _error(const char *fn, int lno, const char *func, const char *name, int multi, int debug, int error_level,
-    const char *fmt, ...)
+void _error(const char *fn, int lno, const char *func, const char *name, int multi, int debug, int error_level, const char *fmt, ...)
 #else
 void _error(const char *fn, int lno, const char *func, int debug, int error_level, const char *fmt, ...)
 #endif

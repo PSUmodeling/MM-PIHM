@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct *noahtbl, const calib_struct *calib,
-    elem_struct elem[])
+void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct *noahtbl, const calib_struct *calib, elem_struct elem[])
 {
     int             i;
     double          frzfact;
@@ -27,8 +26,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct 
         if (fp == NULL)
         {
             read_ice_flag = 0;
-            pihm_printf(VL_NORMAL,
-                "Optional input file *.ice is not available. Glacier ice depth will be initialized as 0.5 m.\n");
+            pihm_printf(VL_NORMAL, "Optional input file *.ice is not available. Glacier ice depth will be initialized as 0.5 m.\n");
         }
         else
         {
@@ -39,8 +37,7 @@ void InitLsm(const char ice_fn[], const ctrl_struct *ctrl, const noahtbl_struct 
     for (i = 0; i < nelem; i++)
     {
         // Set-up soil layer depths
-        DefineSoilDepths(ctrl->nlayers, elem[i].soil.depth, ctrl->soil_depth, &elem[i].ps.nlayers,
-            elem[i].ps.soil_depth, elem[i].ps.zsoil);
+        DefineSoilDepths(ctrl->nlayers, elem[i].soil.depth, ctrl->soil_depth, &elem[i].ps.nlayers, elem[i].ps.soil_depth, elem[i].ps.zsoil);
 
         // Set-up glacier ice parameters
         elem[i].ps.iceh = (elem[i].lc.glacier == 1) ? ((read_ice_flag == 1) ? iceh[i] : ICEH) : 0.0;

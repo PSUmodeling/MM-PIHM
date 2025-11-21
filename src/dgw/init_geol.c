@@ -9,8 +9,7 @@ void InitGeol(const geoltbl_struct *geoltbl, const calib_struct *calib, elem_str
     {
         if (elem[i].attrib.geol > geoltbl->number)
         {
-            pihm_printf(VL_ERROR, "Error: Geol type %d for Element %d is not in the geol file.",
-                elem[i].attrib.geol, i + 1);
+            pihm_printf(VL_ERROR, "Error: Geol type %d for Element %d is not in the geol file.", elem[i].attrib.geol, i + 1);
             pihm_exit(EXIT_FAILURE);
         }
 

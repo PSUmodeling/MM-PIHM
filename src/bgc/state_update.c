@@ -253,8 +253,7 @@ void DailyCarbonStateUpdate(int alloc, int woody, int evergreen, cstate_struct *
 // This is a special case where the updating of state variables is order-sensitive, since otherwise the
 // complications of possibly having mortality fluxes drive the pools negative would create big, unnecessary
 // headaches.
-void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen, nstate_struct *ns, nflux_struct *nf,
-    solute_struct *solute)
+void DailyNitrogenStateUpdate(int alloc, int woody, int evergreen, nstate_struct *ns, nflux_struct *nf, solute_struct *solute)
 {
     solute->snksrc = 0.0;
 

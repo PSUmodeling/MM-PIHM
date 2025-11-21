@@ -83,12 +83,9 @@ void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
         edge_vector[1][ZCOMP] = zmax[1] - zmax[2];
 
         // Calculate normal vector
-        normal_vector[XCOMP] =
-            edge_vector[0][YCOMP] * edge_vector[1][ZCOMP] - edge_vector[0][ZCOMP] * edge_vector[1][YCOMP];
-        normal_vector[YCOMP] =
-            edge_vector[0][ZCOMP] * edge_vector[1][XCOMP] - edge_vector[0][XCOMP] * edge_vector[1][ZCOMP];
-        normal_vector[ZCOMP] =
-            edge_vector[0][XCOMP] * edge_vector[1][YCOMP] - edge_vector[0][YCOMP] * edge_vector[1][XCOMP];
+        normal_vector[XCOMP] = edge_vector[0][YCOMP] * edge_vector[1][ZCOMP] - edge_vector[0][ZCOMP] * edge_vector[1][YCOMP];
+        normal_vector[YCOMP] = edge_vector[0][ZCOMP] * edge_vector[1][XCOMP] - edge_vector[0][XCOMP] * edge_vector[1][ZCOMP];
+        normal_vector[ZCOMP] = edge_vector[0][XCOMP] * edge_vector[1][YCOMP] - edge_vector[0][YCOMP] * edge_vector[1][XCOMP];
 
         if (normal_vector[ZCOMP] < 0.0)
         {
@@ -170,10 +167,8 @@ void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
                 edge_vector[1][YCOMP] = y2 - elem[i].topo.y;
                 edge_vector[1][ZCOMP] = z2 - elem[i].topo.zmax;
 
-                c1 =
-                    sqrt(edge_vector[0][XCOMP] * edge_vector[0][XCOMP] + edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
-                c2 =
-                    sqrt(edge_vector[1][XCOMP] * edge_vector[1][XCOMP] + edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
+                c1 = sqrt(edge_vector[0][XCOMP] * edge_vector[0][XCOMP] + edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
+                c2 = sqrt(edge_vector[1][XCOMP] * edge_vector[1][XCOMP] + edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
 
                 ce1 = edge_vector[0][XCOMP] / c1;
                 se1 = edge_vector[0][YCOMP] / c1;
@@ -218,10 +213,8 @@ void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
         // Calculate sky view factor (Eq. 7b)
         for (ind = 0; ind < 36; ind++)
         {
-            integrable = sin(elem[i].topo.slope * PI / 180.0) *
-                cos((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
-            integrable *= elem[i].topo.h_phi[ind] * PI / 180.0 -
-                sin(elem[i].topo.h_phi[ind] * PI / 180.0) * cos(elem[i].topo.h_phi[ind] * PI / 180.0);
+            integrable = sin(elem[i].topo.slope * PI / 180.0) * cos((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
+            integrable *= elem[i].topo.h_phi[ind] * PI / 180.0 - sin(elem[i].topo.h_phi[ind] * PI / 180.0) * cos(elem[i].topo.h_phi[ind] * PI / 180.0);
             integrable += cos(elem[i].topo.slope * PI / 180.0) * pow(sin(elem[i].topo.h_phi[ind] * PI / 180.0), 2);
 
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;

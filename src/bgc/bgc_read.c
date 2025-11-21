@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, co2control_struct *co2,
-    ndepcontrol_struct *ndepctrl, cninit_struct * cninit)
+void ReadBgc(const char fn[], char co2_fn[], char ndep_fn[], ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_struct *ndepctrl, cninit_struct * cninit)
 {
     FILE           *fp;
     char            cmdstr[MAXSTRING];

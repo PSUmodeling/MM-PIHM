@@ -29,8 +29,7 @@ void ReadBedrock(const char fn[], meshtbl_struct *meshtbl, atttbl_struct *atttbl
     for (i = 0; i < nelem; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d",
-            &index, &atttbl->bc_geol[i][0], &atttbl->bc_geol[i][1], &atttbl->bc_geol[i][2]);
+        match = sscanf(cmdstr, "%d %d %d %d", &index, &atttbl->bc_geol[i][0], &atttbl->bc_geol[i][1], &atttbl->bc_geol[i][2]);
         if (match != 4 || i != index - 1)
         {
             pihm_printf(VL_ERROR, "Error reading boundary condition type for deep zone of the %dth element.\n", i + 1);

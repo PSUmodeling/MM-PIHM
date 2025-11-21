@@ -226,8 +226,7 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
         {
             if (elem[i].nabr[j] != 0)
             {
-                nabr_zmax = (elem[i].nabr_river[j] == 0) ?
-                    elem[elem[i].nabr[j] - 1].topo.zmax : river[elem[i].nabr_river[j] - 1].topo.zmax;
+                nabr_zmax = (elem[i].nabr_river[j] == 0) ? elem[elem[i].nabr[j] - 1].topo.zmax : river[elem[i].nabr_river[j] - 1].topo.zmax;
                 if (elem[i].topo.zmax >= nabr_zmax)
                 {
                     sink = 0;
@@ -241,16 +240,14 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
             pihm_printf(VL_NORMAL, "Element %4d is a sink.\n", i + 1);
 
             // Note: Following correction is being applied for correction mode only
-            pihm_printf(VL_NORMAL,
-                "  Before correction: surface %7.2lf m, bedrock %7.2lf m. ", elem[i].topo.zmax, elem[i].topo.zmin);
+            pihm_printf(VL_NORMAL, "  Before correction: surface %7.2lf m, bedrock %7.2lf m. ", elem[i].topo.zmax, elem[i].topo.zmin);
 
             new_elevation = 1.0e7;
             for (j = 0; j < NUM_EDGE; j++)
             {
                 if (elem[i].nabr[j] != 0)
                 {
-                    nabr_zmax = (elem[i].nabr_river[j] == 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmax : river[elem[i].nabr_river[j] - 1].topo.zmax;
+                    nabr_zmax = (elem[i].nabr_river[j] == 0) ? elem[elem[i].nabr[j] - 1].topo.zmax : river[elem[i].nabr_river[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ? nabr_zmax : new_elevation;
                 }
             }
@@ -287,8 +284,7 @@ void CorrectElev(const river_struct river[], elem_struct elem[])
 
     if (river_flag == 1)
     {
-        pihm_printf(VL_NORMAL,
-            "\nRiver elevation correction needed but PIHM will continue without fixing river elevation.\n\n");
+        pihm_printf(VL_NORMAL, "\nRiver elevation correction needed but PIHM will continue without fixing river elevation.\n\n");
     }
 }
 
@@ -340,17 +336,15 @@ void InitSurfL(const meshtbl_struct *meshtbl, elem_struct elem[])
             {
                 elem[i].topo.x_nabr[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.y_nabr[j] = elem[i].topo.y - 2.0 * disty;
-                elem[i].topo.dist_nabr[j] = sqrt(pow(elem[i].topo.edge[0] * elem[i].topo.edge[1] *
-                    elem[i].topo.edge[2] / (4.0 * elem[i].topo.area), 2) - pow(elem[i].topo.edge[j] / 2.0, 2));
+                elem[i].topo.dist_nabr[j] =
+                    sqrt(pow(elem[i].topo.edge[0] * elem[i].topo.edge[1] * elem[i].topo.edge[2] / (4.0 * elem[i].topo.area), 2) - pow(elem[i].topo.edge[j] / 2.0, 2));
             }
             else
             {
                 elem[i].topo.x_nabr[j] = elem[elem[i].nabr[j] - 1].topo.x;
                 elem[i].topo.y_nabr[j] = elem[elem[i].nabr[j] - 1].topo.y;
-                elem[i].topo.dist_nabr[j] =
-                    (elem[i].topo.x - elem[i].topo.x_nabr[j]) * (elem[i].topo.x - elem[i].topo.x_nabr[j]);
-                elem[i].topo.dist_nabr[j] +=
-                    (elem[i].topo.y - elem[i].topo.y_nabr[j]) * (elem[i].topo.y - elem[i].topo.y_nabr[j]);
+                elem[i].topo.dist_nabr[j] = (elem[i].topo.x - elem[i].topo.x_nabr[j]) * (elem[i].topo.x - elem[i].topo.x_nabr[j]);
+                elem[i].topo.dist_nabr[j] += (elem[i].topo.y - elem[i].topo.y_nabr[j]) * (elem[i].topo.y - elem[i].topo.y_nabr[j]);
                 elem[i].topo.dist_nabr[j] = sqrt(elem[i].topo.dist_nabr[j]);
             }
         }
@@ -422,8 +416,7 @@ void RelaxIc(elem_struct elem[], river_struct river[])
         for (j = 1; j < MAXLYR; j++)
         {
             elem[i].ic.stc[j] = (elem[i].ps.soil_depth[j] > 0.0) ?
-                elem[i].ic.stc[j - 1] + (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot * 0.5 *
-                (elem[i].ps.soil_depth[j - 1] + elem[i].ps.soil_depth[j]) : BADVAL;
+                elem[i].ic.stc[j - 1] + (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot * 0.5 * (elem[i].ps.soil_depth[j - 1] + elem[i].ps.soil_depth[j]) : BADVAL;
         }
 
         for (j = 0; j < MAXLYR; j++)

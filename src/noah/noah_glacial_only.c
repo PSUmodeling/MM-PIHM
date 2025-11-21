@@ -3,8 +3,7 @@
 // Sub-driver for "Noah LSM" family of physics subroutines for a soil/veg/snowpack land-surface model to update ice
 // temperature, skin temperature, snowpack water content, snowdepth, and all terms of the surface energy balance
 // (excluding input atmospheric forcing of downward radiation and precip
-void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, phystate_struct *ps, wstate_struct *ws, wflux_struct *wf,
-    estate_struct *es, eflux_struct *ef)
+void SFlxGlacial(double dt, soil_struct *soil, lc_struct *lc, phystate_struct *ps, wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 {
     int             frzgra, snowng;
     const int       IZ0TLND = 0;
@@ -366,8 +365,7 @@ void IcePac(int snowng, double dt, double t24, double prcpf, double df1, const s
     dtot = ps->snowh + ps->iceh + dsoil;
     denom = 1.0 + df1 / (dtot * ps->rr * ps->rch);
 
-    t12a = ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) /
-        ps->rch + es->th2 - es->sfctmp - etanrg / ps->rch) / ps->rr;
+    t12a = ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) / ps->rch + es->th2 - es->sfctmp - etanrg / ps->rch) / ps->rr;
     t12b = df1 * es->stc[0] / (dtot * ps->rr * ps->rch);
 
     t12 = (es->sfctmp + t12a + t12b) / denom;
@@ -438,8 +436,7 @@ void IcePac(int snowng, double dt, double t24, double prcpf, double df1, const s
             etp3 = wf->etp * 1000.0 * LVH2O;
             seh = ps->rch * (es->t1 - es->th2);
             t14 = es->t1 * es->t1 * es->t1 * es->t1;
-            ef->flx3 = ef->fdown - ef->flx1 - ef->flx2 -
-                ps->emissi * SIGMA * t14 - ef->ssoil - seh - etanrg;
+            ef->flx3 = ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t14 - ef->ssoil - seh - etanrg;
             ef->flx3 = MAX(ef->flx3, 0.0);
 
             ex = ef->flx3 * 1.0E-3 / LSUBF;

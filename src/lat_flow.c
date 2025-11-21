@@ -24,8 +24,7 @@ void LateralFlow(const river_struct river[], elem_struct elem[])
         {
             if (elem[i].nabr[j] == 0)   // Boundary condition flux
             {
-                BoundFluxElem(elem[i].attrib.bc[j], j, &elem[i].topo, &elem[i].soil, &elem[i].bc, &elem[i].ws,
-                    &elem[i].wf);
+                BoundFluxElem(elem[i].attrib.bc[j], j, &elem[i].topo, &elem[i].soil, &elem[i].bc, &elem[i].ws, &elem[i].wf);
             }
             else
             {
@@ -39,10 +38,8 @@ void LateralFlow(const river_struct river[], elem_struct elem[])
                 {
                     // Surface flux between triangular elements
                     // avg_sf not needed in kinematic mode
-                    avg_sf = 0.5 *
-                        (sqrt(dh_dx[i] * dh_dx[i] + dh_dy[i] * dh_dy[i]) +
-                        sqrt(dh_dx[nabr->ind - 1] * dh_dx[nabr->ind - 1] +
-                        dh_dy[nabr->ind - 1] * dh_dy[nabr->ind - 1]));
+                    avg_sf =
+                        0.5 * (sqrt(dh_dx[i] * dh_dx[i] + dh_dy[i] * dh_dy[i]) + sqrt(dh_dx[nabr->ind - 1] * dh_dx[nabr->ind - 1] + dh_dy[nabr->ind - 1] * dh_dy[nabr->ind - 1]));
 
                     elem[i].wf.overland[j] = OvlFlowElemToElem(j, avg_sf, &elem[i], nabr);
                 }
@@ -117,8 +114,7 @@ void FrictionSlope(const elem_struct elem[], const river_struct river[], double 
             {
                 river_nabr = &river[elem[i].nabr_river[j] - 1];
 
-                surfh[j] = (river_nabr->ws.stage > river_nabr->shp.depth) ?
-                    river_nabr->topo.zbed + river_nabr->ws.stage : river_nabr->topo.zmax;
+                surfh[j] = (river_nabr->ws.stage > river_nabr->shp.depth) ? river_nabr->topo.zbed + river_nabr->ws.stage : river_nabr->topo.zmax;
                 x[j] = river[elem[i].nabr_river[j] - 1].topo.x;
                 y[j] = river[elem[i].nabr_river[j] - 1].topo.y;
             }
@@ -221,8 +217,7 @@ double OvlFlowElemToElem(int j, double avg_sf, const elem_struct *elem_ptr, cons
     return OverLandFlow(avg_h, grad_h, avg_sf, cross_area, avg_rough);
 }
 
-void BoundFluxElem(int bc_type, int j, const topo_struct *topo, const soil_struct *soil, const bc_struct *bc,
-    const wstate_struct *ws, wflux_struct *wf)
+void BoundFluxElem(int bc_type, int j, const topo_struct *topo, const soil_struct *soil, const bc_struct *bc, const wstate_struct *ws, wflux_struct *wf)
 {
     double          diff_h;
     double          avg_h;

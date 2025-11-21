@@ -24,8 +24,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
 #endif
 
 #if defined(_DGW_)
-        AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].geol, &elem[i].ws, &elem[i].ws0, &subrunoff,
-            &elem[i].wf);
+        AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].geol, &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
 #else
         AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
 #endif
@@ -55,8 +54,7 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
         elem[i].ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
         elem[i].ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 
-        UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns, elem[i].solute, elem[i].ns.no3,
-            elem[i].ns.nh4, &elem[i].ps, &elem[i].nf);
+        UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns, elem[i].solute, elem[i].ns.no3, elem[i].ns.nh4, &elem[i].ps, &elem[i].nf);
 
         elem[i].ns0 = elem[i].ns;
         elem[i].ps.no3_prev = elem[i].ps.no3;
@@ -88,11 +86,10 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
 // without considering oversturation, and is based on the mass balance of the whole soil column, instead of just the
 // unsaturated zone.
 #if defined(_DGW_)
-void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const soil_struct *geol,
-    const wstate_struct *ws, const wstate_struct *ws0, double *subrunoff, wflux_struct *wf)
+void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const soil_struct *geol, const wstate_struct *ws, const wstate_struct *ws0,
+    double *subrunoff, wflux_struct *wf)
 #else
-void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const wstate_struct *ws,
-    const wstate_struct *ws0, double *subrunoff, wflux_struct *wf)
+void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const wstate_struct *ws, const wstate_struct *ws0, double *subrunoff, wflux_struct *wf)
 #endif
 {
     int             j;
@@ -153,8 +150,7 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const w
     soilw1 = MIN(soilw1, soil->depth);
     soilw1 = MAX(soilw1, 0.0);
 
-    wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff + wf->edir_unsat + wf->edir_gw +
-        wf->ett_unsat + wf->ett_gw;
+    wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff + wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
 #if defined(_DGW_)
     geolw0 = ws0->gw_geol + ws0->unsat_geol;

@@ -40,8 +40,7 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
 
     // Check header line
     NextLine(fp, cmdstr, &lno);
-    if (!CheckHeader(cmdstr, 16, "INDEX", "SILT", "CLAY", "OM", "BD", "KINF", "KSATV", "KSATH", "MAXSMC", "MINSMC",
-        "ALPHA", "BETA", "MACHF", "MACVF", "DMAC", "QTZ"))
+    if (!CheckHeader(cmdstr, 16, "INDEX", "SILT", "CLAY", "OM", "BD", "KINF", "KSATV", "KSATH", "MAXSMC", "MINSMC", "ALPHA", "BETA", "MACHF", "MACVF", "DMAC", "QTZ"))
     {
         pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
     }
@@ -50,9 +49,8 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
     {
         NextLine(fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i], &soiltbl->bd[i], &soiltbl->kinfv[i],
-            &soiltbl->ksatv[i], &soiltbl->ksath[i], &soiltbl->smcmax[i], &soiltbl->smcmin[i], &soiltbl->alpha[i],
-            &soiltbl->beta[i], &soiltbl->areafh[i], &soiltbl->areafv[i], &soiltbl->dmac[i], &soiltbl->qtz[i]);
+            &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i], &soiltbl->bd[i], &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i], &soiltbl->smcmax[i],
+            &soiltbl->smcmin[i], &soiltbl->alpha[i], &soiltbl->beta[i], &soiltbl->areafh[i], &soiltbl->areafv[i], &soiltbl->dmac[i], &soiltbl->qtz[i]);
 
         if (match != 16 || i != index - 1)
         {
@@ -122,17 +120,13 @@ void ReadSoil(const char fn[], soiltbl_struct *soiltbl)
 
     if (ptf_used)
     {
-        pihm_printf(VL_NORMAL,
-            "\nA priori soil parameter values (uncalibrated) estimated from pedotransfer functions:\n");
-        pihm_printf(VL_NORMAL, "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
-            "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA", "BETA", "QTZ");
-        pihm_printf(VL_NORMAL, "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
-            "-", "m s-1", "m s-1", "m s-1", "m3 m-3", "m3 m-3", "m-1", "-", "-");
+        pihm_printf(VL_NORMAL, "\nA priori soil parameter values (uncalibrated) estimated from pedotransfer functions:\n");
+        pihm_printf(VL_NORMAL, "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n", "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA", "BETA", "QTZ");
+        pihm_printf(VL_NORMAL, "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n", "-", "m s-1", "m s-1", "m s-1", "m3 m-3", "m3 m-3", "m-1", "-", "-");
         for (i = 0; i < soiltbl->number; i++)
         {
             pihm_printf(VL_NORMAL, "%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\n",
-                i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i], soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i],
-                soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
+                i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i], soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
         }
     }
 

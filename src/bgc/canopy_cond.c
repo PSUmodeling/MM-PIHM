@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void CanopyCond(const soil_struct *soil, const epconst_struct *epc, const daily_struct *daily,
-    const phystate_struct *ps, const eflux_struct *ef, epvar_struct *epv)
+void CanopyCond(const soil_struct *soil, const epconst_struct *epc, const daily_struct *daily, const phystate_struct *ps, const eflux_struct *ef, epvar_struct *epv)
 {
     int             kz;
     double          part[MAXLYR];
@@ -15,8 +14,7 @@ void CanopyCond(const soil_struct *soil, const epconst_struct *epc, const daily_
     double          gl_s_sun, gl_s_shade;
     double          gl_bl;
 
-    sw_sun = (ef->swabs_per_plaisun * ps->plaisun) /
-        (ef->swabs_per_plaisun * ps->plaisun + ef->swabs_per_plaishade * ps->plaishade) * daily->avg_soldn;
+    sw_sun = (ef->swabs_per_plaisun * ps->plaisun) / (ef->swabs_per_plaisun * ps->plaisun + ef->swabs_per_plaishade * ps->plaishade) * daily->avg_soldn;
     ff_sun = 0.55 * 2.0 * sw_sun / (epc->rgl * ps->plaisun);
     rcs_sun = (ff_sun + epc->rsmin / epc->rsmax) / (1.0 + ff_sun);
     rcs_sun = MAX(rcs_sun, 1.0E-4);

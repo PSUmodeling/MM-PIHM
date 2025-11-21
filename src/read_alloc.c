@@ -122,8 +122,7 @@ void ReadAlloc(pihm_struct *pihm)
 #endif
 
 #if defined(_BGC_)
-    ReadBgc(pihm->filename.bgc, pihm->filename.co2, pihm->filename.ndep, &pihm->ctrl, &pihm->co2ctrl, &pihm->ndepctrl,
-        &pihm->cninit);
+    ReadBgc(pihm->filename.bgc, pihm->filename.co2, pihm->filename.ndep, &pihm->ctrl, &pihm->co2ctrl, &pihm->ndepctrl, &pihm->cninit);
 
     // Read Biome-BGC epc files
     ReadEpc(&pihm->epctbl);

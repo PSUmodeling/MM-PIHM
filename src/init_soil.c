@@ -1,8 +1,7 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl, const calib_struct *calib,
-    elem_struct elem[])
+void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl, const calib_struct *calib, elem_struct elem[])
 #else
 void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib, elem_struct elem[])
 #endif
@@ -18,8 +17,7 @@ void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *calib, elem_str
 
         if (elem[i].attrib.soil > soiltbl->number)
         {
-            pihm_printf(VL_ERROR, "Error: Soil type %d for Element %d is not in the soil file.",
-                elem[i].attrib.soil, i + 1);
+            pihm_printf(VL_ERROR, "Error: Soil type %d for Element %d is not in the soil file.", elem[i].attrib.soil, i + 1);
             pihm_exit(EXIT_FAILURE);
         }
 

@@ -32,8 +32,8 @@ void ReadAtt(const char fn[], atttbl_struct *atttbl)
     for (i = 0; i < nelem; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d", &index, &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
-            &atttbl->meteo[i], &atttbl->lai[i], &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d",
+            &index, &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i], &atttbl->meteo[i], &atttbl->lai[i], &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 9 || index != i + 1)
         {
             pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);

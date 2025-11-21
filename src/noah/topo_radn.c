@@ -22,8 +22,7 @@ double TopoRadn(double sdir, double sdif, double zenith, double azimuth180, cons
     tcf = (1.0 + cos(topo->slope * PI / 180.0)) / 2.0 - topo->svf;
     tcf = MAX(tcf, 0.0);
 
-    soldown = sdir * cos(incidence * PI / 180.0) + topo->svf * sdif +
-        0.2 * tcf * (sdir * cos(zenith * PI / 180.0) + sdif);
+    soldown = sdir * cos(incidence * PI / 180.0) + topo->svf * sdif + 0.2 * tcf * (sdir * cos(zenith * PI / 180.0) + sdif);
     soldown = MAX(soldown, 0.0);
 
     return soldown;

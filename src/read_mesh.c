@@ -32,9 +32,8 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
         meshtbl->nabr[i] = (int *)malloc(NUM_EDGE * sizeof(int));
 
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d %d", &index,
-            &meshtbl->node[i][0], &meshtbl->node[i][1], &meshtbl->node[i][2],
-            &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d",
+            &index, &meshtbl->node[i][0], &meshtbl->node[i][1], &meshtbl->node[i][2], &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
             pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);
@@ -60,8 +59,7 @@ void ReadMesh(const char *fn, meshtbl_struct *meshtbl)
     for (i = 0; i < meshtbl->numnodes; i++)
     {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index, &meshtbl->x[i], &meshtbl->y[i], &meshtbl->zmin[i],
-            &meshtbl->zmax[i]);
+        match = sscanf(cmdstr, "%d %lf %lf %lf %lf", &index, &meshtbl->x[i], &meshtbl->y[i], &meshtbl->zmin[i], &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)
         {
             pihm_error(ERROR, ERR_WRONG_FORMAT, fn, lno);

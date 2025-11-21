@@ -76,8 +76,7 @@ int FindLayer(double depth, int nlayers, const double zsoil[])
     }
 }
 
-void DefineSoilDepths(int nsoil_std, double total_depth, const double soil_depth_std[], int *nlayers,
-    double soil_depth[], double zsoil[])
+void DefineSoilDepths(int nsoil_std, double total_depth, const double soil_depth_std[], int *nlayers, double soil_depth[], double zsoil[])
 {
     int             kz, k;
     double          zsoil_std[MAXLYR];

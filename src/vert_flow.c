@@ -27,8 +27,7 @@ void VerticalFlow(double dt, elem_struct elem[])
     }
 }
 
-double Infil(double dt, const topo_struct *topo, const soil_struct *soil, const wstate_struct *ws,
-    const wstate_struct *ws0, const wflux_struct *wf)
+double Infil(double dt, const topo_struct *topo, const soil_struct *soil, const wstate_struct *ws, const wstate_struct *ws0, const wflux_struct *wf)
 {
     double          appl_rate;
     double          wet_frac;
@@ -105,7 +104,7 @@ double Infil(double dt, const topo_struct *topo, const soil_struct *soil, const 
 
             h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
             dh_dz = (ws->surfh + topo->zmax - h_u) / (0.5 * (ws->surfh + soil->dinf));
-            dh_dz = (ws->surfh <= 0.0 && dh_dz > 0.0) ?  0.0 : dh_dz;
+            dh_dz = (ws->surfh <= 0.0 && dh_dz > 0.0) ? 0.0 : dh_dz;
 
             satkfunc = KrFunc(soil->beta, satn);
 
@@ -243,8 +242,7 @@ double EffKinf(double dh_dz, double ksatfunc, double satn, double appl_rate, dou
             if (appl_rate < kmax)
             {
                 // Application control
-                keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
-                    soil->kmacv * soil->areafh * KrFunc(BETA_CRACK, satn);
+                keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc + soil->kmacv * soil->areafh * KrFunc(BETA_CRACK, satn);
             }
             else
             {
@@ -304,11 +302,9 @@ double GeolInfil(const topo_struct *topo, const soil_struct *soil, const soil_st
 
             dh_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
 
-            ksoil = (soil->dmac >= soil->depth) ?
-                soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh) : soil->ksatv;
+            ksoil = (soil->dmac >= soil->depth) ? soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh) : soil->ksatv;
             kgeol = (geol->dmac > 0.0) ?
-                geol->ksatv * (1.0 - geol->areafh) * KrFunc(geol->beta, satn) + geol->kmacv * geol->areafh *
-                KrFunc(geol->beta, satn) : geol->ksatv * KrFunc(geol->beta, satn);
+                geol->ksatv * (1.0 - geol->areafh) * KrFunc(geol->beta, satn) + geol->kmacv * geol->areafh * KrFunc(geol->beta, satn) : geol->ksatv * KrFunc(geol->beta, satn);
 
             kavg = (ws->gw + deficit) / (ws->gw / ksoil + deficit / kgeol);
             infil = kavg * dh_dz;

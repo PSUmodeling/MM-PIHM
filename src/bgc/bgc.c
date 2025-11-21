@@ -2,7 +2,6 @@
 
 void DailyBgc(int t, pihm_struct *pihm)
 {
-
     int             i;
     double          co2lvl;
     double          dayl, prev_dayl;
@@ -94,8 +93,7 @@ void DailyBgc(int t, pihm_struct *pihm)
         {
             for (kz = 1; kz < elem[i].ps.nlayers; kz++)
             {
-                vwc[i] += elem[i].daily.avg_sh2o[kz] *
-                    elem[i].ps.soil_depth[kz];
+                vwc[i] += elem[i].daily.avg_sh2o[kz] * elem[i].ps.soil_depth[kz];
             }
         }
         vwc[i] /= elem[i].soil.depth;

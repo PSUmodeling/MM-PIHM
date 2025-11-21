@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void Phenology(const epconst_struct *epc, const daily_struct *daily, const cstate_struct *cs, const nstate_struct *ns,
-    epvar_struct *epv, cflux_struct *cf, nflux_struct *nf)
+void Phenology(const epconst_struct *epc, const daily_struct *daily, const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf, nflux_struct *nf)
 {
     // Define the phenology signals for cases in which the phenology signals are constant between years
     if (epc->evergreen)
@@ -166,8 +165,7 @@ void OnsetGrowth(const epconst_struct *epc, const epvar_struct *epv, const cstat
     }
 }
 
-void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv, const cstate_struct *cs, cflux_struct *cf,
-    nflux_struct *nf)
+void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv, const cstate_struct *cs, cflux_struct *cf, nflux_struct *nf)
 {
     double          leaflitfallc, frootlitfallc;
     double          drate;
@@ -186,13 +184,11 @@ void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv, const cstate
         {
             // Otherwise, assess litterfall rates as described above
             leaflitfallc = epv->prev_leafc_to_litter;
-            drate = 2.0 * (cs->leafc - leaflitfallc * (double)epv->offset_counter) /
-                ((double)epv->offset_counter * (double)epv->offset_counter);
+            drate = 2.0 * (cs->leafc - leaflitfallc * (double)epv->offset_counter) / ((double)epv->offset_counter * (double)epv->offset_counter);
             leaflitfallc += drate;
 
             frootlitfallc = epv->prev_frootc_to_litter;
-            drate = 2.0 * (cs->frootc - frootlitfallc * (double)epv->offset_counter) /
-                ((double)epv->offset_counter * (double)epv->offset_counter);
+            drate = 2.0 * (cs->frootc - frootlitfallc * (double)epv->offset_counter) / ((double)epv->offset_counter * (double)epv->offset_counter);
             frootlitfallc += drate;
         }
 
@@ -208,8 +204,7 @@ void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv, const cstate
     }
 }
 
-void BackgroundLitterfall(const epconst_struct *epc, const cstate_struct *cs, epvar_struct *epv, cflux_struct *cf,
-    nflux_struct *nf)
+void BackgroundLitterfall(const epconst_struct *epc, const cstate_struct *cs, epvar_struct *epv, cflux_struct *cf, nflux_struct *nf)
 
 {
     double          leaflitfallc, frootlitfallc;
@@ -228,8 +223,7 @@ void BackgroundLitterfall(const epconst_struct *epc, const cstate_struct *cs, ep
     FRootLitFall(frootlitfallc, epc, cf, nf);
 }
 
-void LivewoodTurnover(const epconst_struct *epc, const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv,
-    cflux_struct *cf, nflux_struct *nf)
+void LivewoodTurnover(const epconst_struct *epc, const cstate_struct *cs, const nstate_struct *ns, epvar_struct *epv, cflux_struct *cf, nflux_struct *nf)
 {
     double          livestemtovrc, livestemtovrn;
     double          livecroottovrc, livecroottovrn;
