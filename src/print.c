@@ -417,3 +417,34 @@ void ProgressBar(double progress)
         pihm_printf(VL_NORMAL, "\n");
     }
 }
+
+void WriteMetadata(const char outputdir[])
+{
+    FILE           *meta_file;
+    char            fn[MAXSTRING];
+
+    sprintf(fn, "%smetadata.txt", outputdir);
+
+    meta_file = pihm_fopen(fn, "w");
+
+    fprintf(meta_file, "MM-PIHM Version: %s (%s)\n", VERSION, _COMMIT_ID_);
+#if defined(_NOAH_)
+    fprintf(meta_file, "Land surface module turned on.\n");
+#endif
+#if defined(_BGC_)
+    fprintf(meta_file, "Biogeochemistry module turned on.\n");
+#endif
+#if defined(_CYCLES_)
+    fprintf(meta_file, "Agroecosystem module (Cycles Version %s) turned on.\n", CYCLES_VERSION);
+#endif
+#if defined(_DGW_)
+    fprintf(meta_file, "Deep groundwater module turned on.\n");
+#endif
+    if (1 == corr_mode)
+    {
+        fprintf(meta_file, "Surface elevation correction mode turned on.\n");
+    }
+    fprintf(meta_file, "Generated at %s on %s\n", __TIME__, __DATE__);
+
+    fclose(meta_file);
+}

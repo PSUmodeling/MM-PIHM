@@ -241,6 +241,7 @@ void            UpdatePrintVar(int, int, varctrl_struct *);
 void            UpdPrintVarT(varctrl_struct *, int);
 void            VerticalFlow(double, elem_struct []);
 double          WiltingPoint(double, double, double, double);
+void            WriteMetadata(const char []);
 
 // DGW functions
 #if defined(_DGW_)

@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
     // Create output directory
     CreateOutputDir(outputdir);
 
+    WriteMetadata(outputdir);
+
     // Create output structures
 #if defined(_CYCLES_)
     MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river, &pihm->print);

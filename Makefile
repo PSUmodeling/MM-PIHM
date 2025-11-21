@@ -31,6 +31,8 @@ ifeq ($(shell echo |cpp -fopenmp -dM 2>/dev/null |grep -i open |awk '{print $$2}
 	CFLAGS += -fopenmp
 endif
 
+COMMIT_ID := $(shell git log --oneline | head -1 2> /dev/null |awk '{print $$1}')
+
 # Check CMake version
 CMAKE_VERS := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
 ifeq ($(CMAKE_VERS),)
@@ -89,7 +91,7 @@ else
 	LFLAGS += -lsundials_nvecserial
 endif
 
-SFLAGS = -D_PIHM_
+SFLAGS = -D_PIHM_ -D_COMMIT_ID_=\"$(COMMIT_ID)\"
 
 ifeq ($(DGW), on)
 	SFLAGS += -D_DGW_
