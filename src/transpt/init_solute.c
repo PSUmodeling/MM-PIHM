@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitSolute(elem_struct elem[])
+void InitSolute(elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -10,6 +10,8 @@ void InitSolute(elem_struct elem[])
     for (i = 0; i < nelem; i++)
     {
         int             j, k;
+
+        elem[i].solute = (solute_struct *)malloc(nsolute * sizeof(solute_struct));
 
         for (k = 0; k < nsolute; k++)
         {
@@ -29,6 +31,26 @@ void InitSolute(elem_struct elem[])
 #else
             elem[i].solute[k].snksrc = 0.0;
 #endif
+        }
+    }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        int             j, k;
+
+        river[i].solute = (river_solute_struct *)malloc(nsolute * sizeof(river_solute_struct));
+
+        for (k = 0; k < nsolute; k++)
+        {
+            river[i].solute[k].conc = 0.0;
+
+            for (j = 0; j < NUM_RIVFLX; j++)
+            {
+                river[i].solute[k].flux[j] = 0.0;
+            }
         }
     }
 }

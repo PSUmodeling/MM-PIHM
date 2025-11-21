@@ -51,6 +51,16 @@ void FreeMem(pihm_struct *pihm)
             fclose(pihm->print.varctrl[i].txtfile);
         }
     }
+#if defined(_TRANSPORT_)
+    for (i = 0; i < nelem; i++)
+    {
+        free(pihm->elem[i].solute);
+    }
+    for (i = 0; i < nriver; i++)
+    {
+        free(pihm->river[i].solute);
+    }
+#endif
     free(pihm->elem);
     free(pihm->river);
 }

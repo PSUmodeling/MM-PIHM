@@ -9,7 +9,7 @@
 #define GW(i)                   (i + 2 * nelem)
 #define RIVER(i)                (i + 3 * nelem)
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 #  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 3 * nelem + nriver)
 #  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (3 + nsolute) * nelem + nriver)
 #endif
@@ -337,15 +337,15 @@ void            DailyVar(int, int, elem_struct []);
 void            InitDailyStruct(elem_struct []);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 void            SetAbsTolArray(double, double, N_Vector);
 #else
 void            SetAbsTolArray(double, N_Vector);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 double          Advection(double, double, double);
-void            InitSolute(elem_struct []);
+void            InitSolute(elem_struct [], river_struct[]);
 void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
 void            SoluteTranspt(elem_struct [], river_struct []);
 #endif

@@ -374,17 +374,17 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 typedef struct solute_struct
 {
     double          conc_surf;              // solute concentration at surface (mass/amount of subs m-3)
     double          conc;                   // solute concentration in soil (mass/amount of subs m-3)
     double          infil;                  // solute flux from infiltration (mass/amount of subs m-2 s-1)
     double          subflux[NUM_EDGE];      // solute flux from subsurface lateral flux (mass/amount of subs s-1)
-# if defined(_CYCLES_)
-    double          snksrc[MAXLYR];         // sink/source term (mass/amount of subs m-2 s-1)
-# else
+# if defined(_BGC_)
     double          snksrc;                 // sink/source term (mass/amount of subs m-2 s-1)
+# elif defined(_CYCLES_)
+    double          snksrc[MAXLYR];         // sink/source term (mass/amount of subs m-2 s-1)
 # endif
 } solute_struct;
 #endif
@@ -1165,8 +1165,8 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     phystate_struct ps;
-#if defined(_BGC_) || defined(_CYCLES_)
-    solute_struct   solute[NSOLUTE];
+#if defined(_TRANSPORT_)
+    solute_struct  *solute;
 #endif
 #if defined(_BGC_)
     bgcic_struct    restart_input;

@@ -178,7 +178,7 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
-	SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
+	SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_ -D_TRANSPORT_
 	MODULE_SRCS_= \
 		bgc/bgc_init.c\
 		bgc/bgc_read.c\
@@ -240,7 +240,7 @@ ifeq ($(MAKECMDGOALS), cycles-l)
 		CYCLES_TEST := fail
 	endif
 
-	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\"
+	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\" -D_TRANSPORT_ 
 	MODULE_SRCS_= \
 		noah/lsm_func.c\
 		noah/lsm_init.c\

@@ -449,7 +449,7 @@ extern int     first_balance;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 int            nsolute;
 #endif
 

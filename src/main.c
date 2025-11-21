@@ -17,6 +17,8 @@ int             nthreads = 1;               // Default value
 int             nsolute = 1;
 #elif defined(_CYCLES_)
 int             nsolute = 2;
+#elif defined(_TRANSPORT_)
+int             nsolute;
 #endif
 #if defined(_BGC_)
 int             first_balance;

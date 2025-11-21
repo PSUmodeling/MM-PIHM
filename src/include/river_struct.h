@@ -93,7 +93,7 @@ typedef struct river_nstate_struct
 } river_nstate_struct;
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 typedef struct river_solute_struct
 {
     double          conc;                   // solute concentration
@@ -118,8 +118,8 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
-#if defined(_BGC_) || defined(_CYCLES_)
-    river_solute_struct solute[NSOLUTE];
+#if defined(_TRANSPORT_)
+    river_solute_struct *solute;
 #endif
 #if defined(_CYCLES_)
     river_nstate_struct ns;

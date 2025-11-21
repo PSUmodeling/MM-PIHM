@@ -71,8 +71,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     SoluteConc(t + (sunrealtype)pihm->ctrl.tout[0] - (sunrealtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
 #endif
 
-
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
     SoluteTranspt(pihm->elem, pihm->river);
 #endif
 
@@ -155,7 +154,7 @@ int NumStateVar(void)
 
     nsv = 3 * nelem + nriver;
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
     nsv += nsolute * (nelem + nriver);
 #endif
 
@@ -167,7 +166,7 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
     int             cv_flag;
     static int      reset;
     N_Vector        abstol;
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
     const double    TRANSP_TOL = 1.0E-5;
 #endif
 
@@ -195,7 +194,7 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
         // vector of absolute tolerances is needed to specify different absolute tolerances for water storage variables
         // and transport variables
         abstol = N_VNew(NumStateVar(), cvode->sunctx);
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
 #else
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
@@ -228,7 +227,7 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
     }
 }
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
 void SetAbsTolArray(double hydrol_tol, double transp_tol, N_Vector abstol)
 #else
 void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
@@ -248,7 +247,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (sunrealtype)hydrol_tol;
     }
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_TRANSPORT_)
     // Set absolute errors for solute state variables
 # if defined(_OPENMP)
 #  pragma omp parallel for

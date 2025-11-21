@@ -123,8 +123,8 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     InitBgc(&pihm->epctbl, &pihm->calib, pihm->elem);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
-    InitSolute(pihm->elem);
+#if defined(_TRANSPORT_)
+    InitSolute(pihm->elem, pihm->river);
 #endif
 
     // Create hydrological and land surface initial conditions
