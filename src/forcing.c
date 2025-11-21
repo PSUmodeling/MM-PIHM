@@ -47,7 +47,7 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForcing(t, 1, INTRPL, &forc->bc[k]);
+        IntrplForcing(t, 1, INTRPL, FORCING_BC, &forc->bc[k]);
     }
 
 #if defined(_OPENMP)
@@ -106,7 +106,7 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForcing(t, NUM_METEO_VAR, INTRPL, &forc->meteo[k]);
+        IntrplForcing(t, NUM_METEO_VAR, INTRPL, FORCING_METEO, &forc->meteo[k]);
     }
 
 #if defined(_NOAH_)
@@ -118,7 +118,7 @@ void ApplyMeteoForcing(int t, forc_struct *forc, elem_struct elem[])
 # endif
         for (k = 0; k < forc->nrad; k++)
         {
-            IntrplForcing(t, 2, INTRPL, &forc->rad[k]);
+            IntrplForcing(t, 2, INTRPL, FORCING_RAD, &forc->rad[k]);
         }
 
         // Calculate Sun position for topographic solar radiation
@@ -193,7 +193,7 @@ void ApplyDailyMeteoForcing(int t, int rad_mode, const siteinfo_struct *siteinfo
         // Meteorological forcing for PIHM
         for (k = 0; k < forc->nmeteo; k++)
         {
-            IntrplForcing(kt, NUM_METEO_VAR, INTRPL, &forc->meteo[k]);
+            IntrplForcing(kt, NUM_METEO_VAR, INTRPL, FORCING_METEO, &forc->meteo[k]);
         }
 
         // Topographic radiation for Noah
@@ -204,7 +204,7 @@ void ApplyDailyMeteoForcing(int t, int rad_mode, const siteinfo_struct *siteinfo
 #endif
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForcing(kt, 2, INTRPL, &forc->rad[k]);
+                IntrplForcing(kt, 2, INTRPL, FORCING_RAD, &forc->rad[k]);
             }
 
             // Calculate Sun position for topographic solar radiation
@@ -296,7 +296,7 @@ void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForcing(t, 1, INTRPL, &forc->lai[k]);
+            IntrplForcing(t, 1, INTRPL, FORCING_LAI, &forc->lai[k]);
         }
     }
 
@@ -330,7 +330,7 @@ void ApplyRiverBc(int t, forc_struct *forc, river_struct river[])
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForcing(t, 1, INTRPL, &forc->riverbc[k]);
+        IntrplForcing(t, 1, INTRPL, FORCING_RIVERBC, &forc->riverbc[k]);
     }
 
 #if defined(_OPENMP)
@@ -353,19 +353,43 @@ void ApplyRiverBc(int t, forc_struct *forc, river_struct river[])
     }
 }
 
-void IntrplForcing(int t, int nvrbl, int intrpl, tsdata_struct *ts)
+void IntrplForcing(int t, int nvrbl, int intrpl, int forcing_type, tsdata_struct *ts)
 {
     int             j;
     int             first, middle, last;
+    char            forcing[MAXSTRING];
 
-    if (t < ts->ftime[0])
+    switch (forcing_type)
     {
-        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\nPlease check your forcing file.\n");
-        pihm_exit(EXIT_FAILURE);
+        case FORCING_BC:
+            strcpy(forcing, "boundary condition (.bc)");
+            break;
+        case FORCING_METEO:
+            strcpy(forcing, "meteorological (.meteo)");
+            break;
+        case FORCING_RAD:
+            strcpy(forcing, "radiation (.rad)");
+            break;
+        case FORCING_LAI:
+            strcpy(forcing, "LAI (.lai)");
+            break;
+        case FORCING_RIVERBC:
+            strcpy(forcing, "river boundary condition (.riv)");
+            break;
+        case FORCING_CO2:
+            strcpy(forcing, "CO2");
+            break;
+        case FORCING_NDEP:
+            strcpy(forcing, "nitrogen deposition");
+            break;
+        default:
+            strcpy(forcing, "unknown");
+            break;
     }
-    else if (t > ts->ftime[ts->length - 1])
+
+    if (t < ts->ftime[0] || t > ts->ftime[ts->length - 1])
     {
-        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\nPlease check your forcing file.\n");
+        pihm_printf(VL_ERROR, "Error finding forcing for current time step.\nPlease check your %s forcing file.\n", forcing);
         pihm_exit(EXIT_FAILURE);
     }
 

@@ -238,6 +238,14 @@
 #define DAILY_OUTPUT            -3
 #define HOURLY_OUTPUT           -4
 
+#define FORCING_BC              0
+#define FORCING_METEO           1
+#define FORCING_RAD             2
+#define FORCING_LAI             3
+#define FORCING_RIVERBC         4
+#define FORCING_CO2             5
+#define FORCING_NDEP            6
+
 // Output variable types
 enum output_var{
     SURF_CTRL,
