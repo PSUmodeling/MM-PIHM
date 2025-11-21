@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_struct elem[], river_struct river[])
+void SoluteTranspt(elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -93,8 +93,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
                         wflux = elem[i].wf.subsurf[j] + ((elem[i].ind == river_ptr->left) ?  river_ptr->wf.rivflow[AQUIFER_LEFT] : river_ptr->wf.rivflow[AQUIFER_RIGHT]);
                     }
 
-                    // Advection, diffusion, and dispersion between triangular elements
-                    elem[i].solute[k].subflux[j] = AdvDiffDisp(diff_coef, disp_coef, cementation, elem[i].solute[k].conc, nabr->solute[k].conc, 0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax), elem[i].topo.dist_nabr[j], 0.5 * (elem[i].soil.depth + nabr->soil.depth), wflux);
+                    elem[i].solute[k].subflux[j] = Advection(elem[i].solute[k].conc, nabr->solute[k].conc, wflux);
                 }
             }   // End of element to element
 
@@ -115,8 +114,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation, elem_
                 {
                     nabr = &elem[elem[i].nabr[j] - 1];
 
-                    // Groundwater advection, diffusion, and dispersion
-                    elem[i].solute[k].dgwflux[j] = AdvDiffDisp(diff_coef, disp_coef, cementation, elem[i].solute[k].conc_geol, nabr->solute[k].conc_geol, 0.5 * (elem[i].geol.smcmax + nabr->geol.smcmax), elem[i].topo.dist_nabr[j], 0.5 * (elem[i].geol.depth + nabr->geol.depth), elem[i].wf.dgw[j]);
+                    elem[i].solute[k].dgwflux[j] = Advection(elem[i].solute[k].conc_geol, nabr->solute[k].conc_geol, elem[i].wf.dgw[j]);
                 }
             }   // End of element to element
 #endif
@@ -195,23 +193,7 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl, elem_struct *ban
     }
 }
 
-double AdvDiffDisp(double diff_coef, double disp_coef, double cementation, double conc_up, double conc_down, double porosity, double distance, double area, double wflux)
+double Advection(double conc_up, double conc_down, double wflux)
 {
-    // Calculate the total of advection, diffusion and dispersion
-    double          inv_dist;
-    double          diff_conc;
-    double          diff_flux, disp_flux;
-
-    inv_dist = 1.0 / distance;
-
-    // Difference in concentration (mol kg-1 water)
-    diff_conc = conc_up - conc_down;
-
-    // Diffusion flux, effective diffusion coefficient
-    diff_flux = diff_coef * area * pow(porosity, cementation) * inv_dist * diff_conc;
-
-    // Longitudinal dispersion
-    disp_flux = fabs(wflux) * disp_coef * inv_dist * diff_conc;
-
-    return wflux * ((wflux > 0.0) ? conc_up : conc_down) + diff_flux + disp_flux;
+    return wflux * ((wflux > 0.0) ? conc_up : conc_down);
 }

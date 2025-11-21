@@ -78,7 +78,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
 
 #if defined(_BGC_) || defined(_CYCLES_)
-    SoluteTranspt(0.0, 0.0, 0.0, pihm->elem, pihm->river);
+    SoluteTranspt(pihm->elem, pihm->river);
 #endif
 
     // Build RHS of ODEs

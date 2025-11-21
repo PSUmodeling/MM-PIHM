@@ -374,10 +374,10 @@ void            SetAbsTolArray(double, N_Vector);
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_)
-double          AdvDiffDisp(double, double, double, double, double, double, double, double, double);
+double          Advection(double, double, double);
 void            InitSolute(elem_struct []);
 void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
-void            SoluteTranspt(double, double, double, elem_struct [], river_struct []);
+void            SoluteTranspt(elem_struct [], river_struct []);
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_)
