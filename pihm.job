@@ -9,6 +9,7 @@
 echo "Job started on `hostname` at `date`"
 jobstart=`date +%s`
 
+export OMP_NUM_THREADS=12
 ./flux-pihm -bo ShaleHills ShaleHills
 
 jobend=`date +%s`
