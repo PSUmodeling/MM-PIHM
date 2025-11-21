@@ -30,26 +30,9 @@ HS              1.0     # parameter used in vapor pressure deficit function
 REFSMC          0.95    # soil moisture threshold where transpiration begins to stress
 WLTSMC          1.0     # wilting point
 
-DGW_CALIBRATION
-KSATH           1.0     # deep layer horizontal saturated hydraulic conductivity
-KSATV           1.0     # deep layer vertical saturated hydraulic conductivity
-POROSITY        1.0     # deep layer porosity
-ALPHA           1.0     # deep layer van Genuchten alpha
-BETA            1.0     # deep layer van Genuchten beta (n)
-KMACSATH        1.0     # deep layer macropore horizontal saturated hydraulic conductivity
-KMACSATV        1.0     # deep layer macropore vertical saturated hydraulic conductivity
-DMAC            1.0     # deep layer macropore depth
-MACVF           1.0     # deep layer macropore area fraction on a vertical cross-section
-MACHF           1.0     # deep layer macropore area fraction on a horizontal cross-section
-
 BGC_CALIBRATION
 MORTALITY       9.0     # mortality turnover rate
 SLA             1.0     # canopy average projected SLA
-
-RT_CALIBRATION
-RATE            0.0183
-SSA             0.3355
-XSORPTION       0.0
 
 SCENARIO
 PRCP            1.0     # precipitation multiplier

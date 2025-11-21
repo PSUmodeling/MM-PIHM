@@ -9,20 +9,9 @@
 #define GW(i)                   (i + 2 * nelem)
 #define RIVER(i)                (i + 3 * nelem)
 
-#if defined(_DGW_)
-# define UNSAT_GEOL(i)          (i + 3 * nelem + nriver)
-# define GW_GEOL(i)             (i + 4 * nelem + nriver)
-#endif
-
 #if defined(_BGC_) || defined(_CYCLES_)
-# if defined(_DGW_)
-#  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 5 * nelem + nriver)
-#  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
-#  define SOLUTE_GEOL(i, j)     ((i) * nsolute + j + (5 + nsolute) * nelem + (1 + nsolute) * nriver)
-# else
 #  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 3 * nelem + nriver)
 #  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (3 + nsolute) * nelem + nriver)
-# endif
 #endif
 
 #define AvgElev(...)            _WsAreaElev(WS_ZMAX, __VA_ARGS__)
@@ -166,13 +155,7 @@ void            MapOutput(const char [], const int [], const crop_struct [], con
 #else
 void            MapOutput(const char [], const int [], const elem_struct [], const river_struct [],  print_struct *);
 #endif
-#if defined(_DGW_)
-void            AdjustFluxes(double, double, const soil_struct *, const soil_struct *, const wstate_struct *,
-    const wstate_struct *, double *, wflux_struct *);
-#else
-void            AdjustFluxes(double, double, const soil_struct *, const wstate_struct *, const wstate_struct *,
-    double *, wflux_struct *);
-#endif
+void            AdjustFluxes(double, double, const soil_struct *, const wstate_struct *, const wstate_struct *, double *, wflux_struct *);
 double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);
@@ -242,19 +225,6 @@ void            UpdPrintVarT(varctrl_struct *, int);
 void            VerticalFlow(double, elem_struct []);
 double          WiltingPoint(double, double, double, double);
 void            WriteMetadata(const char []);
-
-// DGW functions
-#if defined(_DGW_)
-double          DeepBoundFluxElem(int, int, const topo_struct *, const soil_struct *, const bc_struct *,
-    const wstate_struct *);
-double          DeepFlowElemToElem(double, double, const elem_struct *, const elem_struct *);
-double          GeolInfil(const topo_struct *, const soil_struct *, const soil_struct *, const wstate_struct *);
-double          GeolRecharge(const soil_struct *, const wstate_struct *, const wflux_struct *);
-void            FreeGeoltbl(geoltbl_struct *);
-void            InitGeol(const geoltbl_struct *, const calib_struct *, elem_struct []);
-void            ReadBedrock(const char [], meshtbl_struct *, atttbl_struct *, ctrl_struct *);
-void            ReadGeol(const char *, geoltbl_struct *);
-#endif
 
 // Noah functions
 #if defined(_NOAH_)

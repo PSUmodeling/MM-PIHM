@@ -34,11 +34,6 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.unsat = MAX(y[UNSAT(i)], 0.0);
         elem[i].ws.gw = MAX(y[GW(i)], 0.0);
 
-#if defined(_DGW_)
-        elem[i].ws.unsat_geol = MAX(y[UNSAT_GEOL(i)], 0.0);
-        elem[i].ws.gw_geol = MAX(y[GW_GEOL(i)], 0.0);
-#endif
-
 #if defined(_BGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
@@ -94,30 +89,15 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[UNSAT(i)] += elem[i].wf.infil - elem[i].wf.recharge - elem[i].wf.edir_unsat - elem[i].wf.ett_unsat;
         dy[GW(i)] += elem[i].wf.recharge - elem[i].wf.edir_gw - elem[i].wf.ett_gw;
 
-#if defined(_DGW_)
-        // Vertical water fluxes for deep zone
-        dy[GW(i)] -= elem[i].wf.infil_geol;
-
-        dy[UNSAT_GEOL(i)] += elem[i].wf.infil_geol - elem[i].wf.rechg_geol;
-        dy[GW_GEOL(i)] += elem[i].wf.rechg_geol;
-#endif
-
         // Horizontal water fluxes
         for (j = 0; j < NUM_EDGE; j++)
         {
             dy[SURF(i)] -= elem[i].wf.overland[j] / elem[i].topo.area;
             dy[GW(i)] -= elem[i].wf.subsurf[j] / elem[i].topo.area;
-#if defined(_DGW_)
-            dy[GW_GEOL(i)] -= elem[i].wf.dgw[j] / elem[i].topo.area;
-#endif
         }
 
         dy[UNSAT(i)] /= elem[i].soil.porosity;
         dy[GW(i)] /= elem[i].soil.porosity;
-#if defined(_DGW_)
-        dy[UNSAT_GEOL(i)] /= elem[i].geol.porosity;
-        dy[GW_GEOL(i)] /= elem[i].geol.porosity;
-#endif
 
 #if defined(_CYCLES_) || defined(_BGC_)
         int             k;
@@ -130,18 +110,9 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SOLUTE_SOIL(i, k)] += elem[i].solute[k].infil + elem[i].solute[k].snksrc;
 # endif
 
-# if defined(_DGW_)
-            dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].infil_geol;
-
-            dy[SOLUTE_GEOL(i, k)] += elem[i].solute[k].infil_geol + elem[i].solute[k].snksrc_geol;
-# endif
-
             for (j = 0; j < NUM_EDGE; j++)
             {
                 dy[SOLUTE_SOIL(i, k)] -= elem[i].solute[k].subflux[j] / elem[i].topo.area;
-# if defined(_DGW_)
-                dy[SOLUTE_GEOL(i, k)] -= elem[i].solute[k].dgwflux[j] / elem[i].topo.area;
-# endif
             }
         }
 #endif
@@ -186,13 +157,6 @@ int NumStateVar(void)
 
 #if defined(_BGC_) || defined(_CYCLES_)
     nsv += nsolute * (nelem + nriver);
-#endif
-
-#if defined(_DGW_)
-    nsv += 2 * nelem;
-# if defined(_BGC_) || defined(_CYCLES_)
-    nsv += nsolute * nelem;
-# endif
 #endif
 
     return nsv;
@@ -274,10 +238,6 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
     int             num_hydrol_var;
 
     num_hydrol_var = 3 * nelem + nriver;
-
-#if defined(_DGW_)
-    num_hydrol_var += 2 * nelem;
-#endif
 
     // Set absolute errors for hydrologic state variables
 #if defined(_OPENMP)

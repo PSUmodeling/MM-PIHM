@@ -9,10 +9,6 @@ typedef struct attrib_struct
     int             bc[NUM_EDGE];           // boundary condition type
     int             meteo;                  // meteorological forcing type
     int             lai;                    // leaf area index forcing type
-#if defined(_DGW_)
-    int             geol;                   // geology type
-    int             bc_geol[NUM_EDGE];      // deep zone boundary condition type
-#endif
 } attrib_struct;
 
 // Topography parameters
@@ -27,9 +23,6 @@ typedef struct topo_struct
     double          dist_nabr[NUM_EDGE];    // distance to neighbor (m)
     double          x_nabr[NUM_EDGE];       // x of neighbor centroid (m)
     double          y_nabr[NUM_EDGE];       // y of neighbor centroid (m)
-#if defined(_DGW_)
-    double          zbed;                   // impermeable bedrock elevation (m)
-#endif
 #if defined(_NOAH_)
     double          slope;                  // slope (degree)
     double          aspect;                 // surface aspect (degree)
@@ -290,10 +283,6 @@ typedef struct wstate_struct
 #endif
     double          cmcmax;                 // maximum canopy water capacity (m)/
     double          cmc;                    // interception storage (m)
-#if defined(_DGW_)
-    double          unsat_geol;             // unsaturated storage in deep zone (m)
-    double          gw_geol;                // deep groundwater (m)
-#endif
 #if defined(_NOAH_)
     double          smc[MAXLYR];            // total soil moisture content (m3 m-3)
     double          swc[MAXLYR];            // unfrozen soil moisture content (m3 m-3)
@@ -326,11 +315,6 @@ typedef struct wflux_struct
     double          esnow;                  // sublimation from (or deposition to) snowpack (m s-1)
 #if defined(_CYCLES_)
     double          irrig;                  // irrigation volume (mm day-1)
-#endif
-#if defined(_DGW_)
-    double          infil_geol;             // deep zone infiltration (m s-1)
-    double          rechg_geol;             // deep zone recharge (m s-1)
-    double          dgw[NUM_EDGE];          // lateral deep groundwater flow (m3 s-1)
 #endif
 #if defined(_NOAH_)
     double          et[MAXLYR];             // plant transpiration from each soil layer (m s-1)
@@ -401,12 +385,6 @@ typedef struct solute_struct
     double          snksrc[MAXLYR];         // sink/source term (mass/amount of subs m-2 s-1)
 # else
     double          snksrc;                 // sink/source term (mass/amount of subs m-2 s-1)
-# endif
-# if defined(_DGW_)
-    double          conc_geol;              // solute concentration in deep zone (mass/amount of subs m-3)
-    double          infil_geol;             // solute flux from deep zone infiltration (mass/amount of subs m-2 s-1)
-    double          dgwflux[NUM_EDGE];      // lateral solute flux in deep zone (mass/amount of subs s-1)
-    double          snksrc_geol;            // deep zone sink/source term (mass/amount of subs m-2 s-1)
 # endif
 } solute_struct;
 #endif
@@ -502,10 +480,6 @@ typedef struct ic_struct
     double          surf;
     double          unsat;
     double          gw;
-#if defined(_DGW_)
-    double          unsat_geol;
-    double          gw_geol;
-#endif
 #if defined(_NOAH_)
     double          t1;
     double          snowh;
@@ -1222,10 +1196,6 @@ typedef struct elem_struct
     epconst_struct  epc;
 #if defined(_DAILY_)
     daily_struct    daily;
-#endif
-#if defined(_DGW_)
-    soil_struct     geol;
-    bc_struct       bc_geol;
 #endif
 } elem_struct;
 #endif

@@ -149,40 +149,6 @@ void ReadCalib(const char fn[], calib_struct *calib)
     ReadKeyword(cmdstr, "KD_NH4", 'd', fn, lno, &calib->kd_nh4);
 #endif
 
-#if defined(_DGW_)
-    FindLine(fp, "DGW_CALIBRATION", &lno, fn);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATH", 'd', fn, lno, &calib->geol_ksath);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KSATV", 'd', fn, lno, &calib->geol_ksatv);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "POROSITY", 'd', fn, lno, &calib->geol_porosity);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ALPHA", 'd', fn, lno, &calib->geol_alpha);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BETA", 'd', fn, lno, &calib->geol_beta);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATH", 'd', fn, lno, &calib->geol_kmach);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KMACSATV", 'd', fn, lno, &calib->geol_kmacv);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DMAC", 'd', fn, lno, &calib->geol_dmac);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACVF", 'd', fn, lno, &calib->geol_areafv);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MACHF", 'd', fn, lno, &calib->geol_areafh);
-#endif
-
 #if defined(_BGC_)
     FindLine(fp, "BGC_CALIBRATION", &lno, fn);
 

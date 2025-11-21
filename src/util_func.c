@@ -62,9 +62,6 @@ void ParseCmdLineParam(int argc, char *argv[], char outputdir[])
 #if defined(_CYCLES_)
                 printf("Cycles Version %s coupled\n", CYCLES_VERSION);
 #endif
-#if defined(_DGW_)
-                printf("Compiled with deep groundwater module\n");
-#endif
 #if defined(_OPENMP)
                 printf("Paralleled with OpenMP\n");
 #endif

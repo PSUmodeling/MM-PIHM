@@ -30,10 +30,6 @@ void ReadAlloc(pihm_struct *pihm)
     sprintf(pihm->filename.para, "input/%s/%s.para", proj, proj);
     sprintf(pihm->filename.calib, "input/%s/%s.calib", proj, project);
     sprintf(pihm->filename.ic, "input/%s/%s.ic", proj, project);
-#if defined(_DGW_)
-    sprintf(pihm->filename.geol, "input/%s/%s.geol", proj, proj);
-    sprintf(pihm->filename.bedrock, "input/%s/%s.bedrock", proj, proj);
-#endif
 #if defined(_NOAH_)
     sprintf(pihm->filename.lsm, "input/%s/%s.lsm", proj, proj);
     sprintf(pihm->filename.rad, "input/%s/%s.rad", proj, proj);
@@ -83,14 +79,6 @@ void ReadAlloc(pihm_struct *pihm)
     // Read calibration input file
     ReadCalib(pihm->filename.calib, &pihm->calib);
 
-#if defined(_DGW_)
-    // Read geology input file
-    ReadGeol(pihm->filename.geol, &pihm->geoltbl);
-
-    // Read bedrock control file
-    ReadBedrock(pihm->filename.bedrock, &pihm->meshtbl, &pihm->atttbl, &pihm->ctrl);
-#endif
-
 #if defined(_NOAH_)
     // Read LSM input file
     ReadLsm(pihm->filename.lsm, &pihm->ctrl, &pihm->siteinfo, &pihm->noahtbl);
@@ -103,7 +91,6 @@ void ReadAlloc(pihm_struct *pihm)
 #endif
 
     // Read boundary condition input file
-    // Boundary conditions might be needed by DGW thus should be read in after reading bedrock and chemistry
     // input
     ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->forc);
 

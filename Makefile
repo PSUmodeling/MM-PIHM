@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------
 
 # Valid make options for MM-PIHM
-PARAMS := WARNING DEBUG OMP DGW CVODE_OMP
+PARAMS := WARNING DEBUG OMP CVODE_OMP
 
 # Get all make options
 CMDVARS := $(strip $(foreach V,$(.VARIABLES),$(if $(findstring command,$(origin $V)),$V)))
@@ -92,10 +92,6 @@ else
 endif
 
 SFLAGS = -D_PIHM_ -D_COMMIT_ID_=\"$(COMMIT_ID)\"
-
-ifeq ($(DGW), on)
-	SFLAGS += -D_DGW_
-endif
 
 ifeq ($(CVODE_OMP), on)
 	SFLAGS += -D_CVODE_OMP
@@ -288,13 +284,6 @@ ifeq ($(MAKECMDGOALS), cycles-l)
 	MODULE_HEADERS_ = include/spa.h
 	EXECUTABLE = cycles-l
 	MSG = "... Compiling Cycles-L ..."
-endif
-
-ifeq ($(DGW), on)
-	MODULE_SRCS_ +=\
-		dgw/init_geol.c\
-		dgw/read_bedrock.c\
-		dgw/read_geol.c
 endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))

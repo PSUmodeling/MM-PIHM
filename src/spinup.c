@@ -82,20 +82,10 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area, const el
     double          soc = 0.0;
     double          cdiff;
 #endif
-#if defined(_DGW_)
-    double          gwgeol = 0.0;
-    static double   gwgeol_prev = 0.0;
-#endif
 
     for (i = 0; i < nelem; i++)
     {
         totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity * elem[i].topo.area / total_area;
-
-#if defined(_DGW_)
-        totalw += (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) * elem[i].geol.porosity * elem[i].topo.area / total_area;
-
-        gwgeol += elem[i].ws.gw_geol * elem[i].topo.area / total_area;
-#endif
 
 #if defined(_BGC_)
         // Convert soilc and totalc to average daily soilc
@@ -114,9 +104,6 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area, const el
     {
         // Check if domain reaches steady state
         steady = (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE);
-#if defined(_DGW_)
-        steady = (steady && (fabs(gwgeol - gwgeol_prev) < SPINUP_W_TOLERANCE));
-#endif
 #if defined(_BGC_)
         steady = (steady && (fabs(t1) < SPINUP_C_TOLERANCE));
 #endif
@@ -126,9 +113,6 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area, const el
 
         pihm_printf(VL_BRIEF, "spinyears = %d ", spinyears);
         pihm_printf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n", totalw_prev, totalw, totalw - totalw_prev);
-#if defined(_DGW_)
-        pihm_printf(VL_BRIEF, "dgw_prev = %lg dgw = %lg wdif = %lg\n", gwgeol_prev, gwgeol, gwgeol - gwgeol_prev);
-#endif
 #if defined(_BGC_)
         pihm_printf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n", soilc_prev, soilc, t1);
 #endif
@@ -142,9 +126,6 @@ int CheckSteadyState(int first_cycle, int spinyears, double total_area, const el
     }
 
     totalw_prev = totalw;
-#if defined(_DGW_)
-    gwgeol_prev = gwgeol;
-#endif
 #if defined(_BGC_)
     soilc_prev = soilc;
 #endif

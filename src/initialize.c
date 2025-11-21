@@ -35,9 +35,6 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     for (i = 0; i < nelem; i++)
     {
         pihm->elem[i].attrib.soil = pihm->atttbl.soil[i];
-#if defined(_DGW_)
-        pihm->elem[i].attrib.geol = pihm->atttbl.geol[i];
-#endif
         pihm->elem[i].attrib.lc = pihm->atttbl.lc[i];
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -54,21 +51,6 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
                 // Neumann type
                 pihm->elem[i].attrib.bc[j] = (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
-
-#if defined(_DGW_)
-            bc = pihm->atttbl.bc_geol[i][j];
-
-            if (bc == NO_FLOW)
-            {
-                pihm->elem[i].attrib.bc_geol[j] = NO_FLOW;
-            }
-            else
-            {
-                // Adjust bc_type flag so that positive values indicate Dirichlet type, and negative values indicate
-                // Neumann type
-                pihm->elem[i].attrib.bc_geol[j] = (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
-            }
-#endif
         }
 
         pihm->elem[i].attrib.meteo = pihm->atttbl.meteo[i];
@@ -107,11 +89,6 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     InitSoil(&pihm->soiltbl, &pihm->noahtbl, &pihm->calib, pihm->elem);
 #else
     InitSoil(&pihm->soiltbl, &pihm->calib, pihm->elem);
-#endif
-
-#if defined(_DGW_)
-    // Initialize element geol properties
-    InitGeol(&pihm->geoltbl, &pihm->calib, pihm->elem);
 #endif
 
     // Initialize element land cover properties
@@ -383,9 +360,6 @@ void RelaxIc(elem_struct elem[], river_struct river[])
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
-#if defined(_DGW_)
-    const double    INIT_DGW = 5.0;
-#endif
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -397,11 +371,6 @@ void RelaxIc(elem_struct elem[], river_struct river[])
         elem[i].ic.surf  = 0.0;
         elem[i].ic.unsat = INIT_UNSAT;
         elem[i].ic.gw    = elem[i].soil.depth - INIT_UNSAT;
-
-#if defined(_DGW_)
-        elem[i].ic.gw_geol = MIN(elem[i].geol.depth, INIT_DGW);
-        elem[i].ic.unsat_geol = 0.5 * (elem[i].geol.depth - elem[i].ic.gw_geol);
-#endif
 
 #if defined(_NOAH_)
         int             j;
@@ -458,14 +427,6 @@ void InitVar(elem_struct elem[], river_struct river[], cvode_struct *cvode)
         NV_Ith(cvode->CV_Y, SURF(i))  = elem[i].ic.surf;
         NV_Ith(cvode->CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith(cvode->CV_Y, GW(i))    = elem[i].ic.gw;
-
-#if defined(_DGW_)
-        elem[i].ws.unsat_geol = elem[i].ic.unsat_geol;
-        elem[i].ws.gw_geol    = elem[i].ic.gw_geol;
-
-        NV_Ith(cvode->CV_Y, UNSAT_GEOL(i)) = elem[i].ic.unsat_geol;
-        NV_Ith(cvode->CV_Y, GW_GEOL(i))    = elem[i].ic.gw_geol;
-#endif
 
 #if defined(_NOAH_)
         int             j;
@@ -591,15 +552,6 @@ void InitWFlux(wflux_struct *wf)
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
     wf->esnow = 0.0;
-
-#if defined(_DGW_)
-    wf->infil_geol = 0.0;
-    wf->rechg_geol = 0.0;
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        wf->dgw[j] = 0.0;
-    }
-#endif
 
 #if defined(_NOAH_)
     int             k;

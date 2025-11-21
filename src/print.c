@@ -25,9 +25,6 @@ void StartupScreen(void)
 #if defined(_CYCLES_)
     pihm_printf(VL_BRIEF, "    * Agroecosystem module (Cycles Version %s) turned on.\n", CYCLES_VERSION);
 #endif
-#if defined(_DGW_)
-    pihm_printf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
-#endif
 #if defined(_OPENMP)
     pihm_printf(VL_BRIEF, "    * OpenMP (# of threads = %d).\n", nthreads);
 #endif
@@ -199,10 +196,6 @@ void PrintInit(const char outputdir[], int t, int starttime, int endtime, int in
             fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
-#if defined(_DGW_)
-            fwrite(&elem[i].ws.unsat_geol, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.gw_geol, sizeof(double), 1, init_file);
-#endif
 #if defined(_NOAH_)
             fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
             fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
@@ -428,9 +421,6 @@ void WriteMetadata(const char outputdir[])
 #endif
 #if defined(_CYCLES_)
     fprintf(meta_file, "Agroecosystem module (Cycles Version %s) turned on.\n", CYCLES_VERSION);
-#endif
-#if defined(_DGW_)
-    fprintf(meta_file, "Deep groundwater module turned on.\n");
 #endif
     if (1 == corr_mode)
     {

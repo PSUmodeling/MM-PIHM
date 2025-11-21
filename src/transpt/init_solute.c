@@ -29,16 +29,6 @@ void InitSolute(elem_struct elem[])
 #else
             elem[i].solute[k].snksrc = 0.0;
 #endif
-
-#if defined(_DGW_)
-            elem[i].solute[k].conc_geol = 0.0;
-            elem[i].solute[k].infil_geol = 0.0;
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                elem[i].solute[k].dgwflux[j] = 0.0;
-            }
-            elem[i].solute[k].snksrc_geol = 0.0;
-#endif
         }
     }
 }

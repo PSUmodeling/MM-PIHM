@@ -4,13 +4,11 @@ MM-PIHM [![Build Status](https://app.travis-ci.com/PSUmodeling/MM-PIHM.svg?branc
 The Multi-Modular Penn State Integrated Hydrologic Model (MM-PIHM) is a physically based watershed model with multiple optional modules.
 MM-PIHM is the **sweetest** PIHM, ever!
 
-The current release contains the source code for PIHM, Flux-PIHM, Flux-PIHM-BGC, and bioRT-Flux-PIHM.
+The current release contains the source code for PIHM, Flux-PIHM, and Flux-PIHM-BGC.
 
 PIHM is a spatially-distributed, physically based hydrologic model.
 Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for the simulation of land surface processes.
 Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
-BioRT-Flux-PIHM couples Flux-PIHM with a multi-component subsurface reactive transport module.
-A deep groundwater module (DGW) can be turned on for PIHM and Flux-PIHM.
 
 MM-PIHM is open source software licensed under the MIT License.
 All bug reports and feature requests should be submitted using the [Issues](https://github.com/PSUmodeling/MM-PIHM/issues) page.
@@ -62,13 +60,6 @@ Note: If you want to switch from one MM-PIHM model to another one, you must `mak
 A help message will appear if you run `make`.
 
 #### Installation options
-
-The deep groundwater module (DGW) can be turned on during compilation.
-To turn on the DGW module, compile MM-PIHM models using
-
-```shell
-$ make DGW=on [model]
-```
 
 By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models.
 CVODE, however, is not implemented using OpenMP by default.

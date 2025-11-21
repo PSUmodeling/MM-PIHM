@@ -70,21 +70,6 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
                 ind = -elem[i].attrib.bc[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
             }
-
-#if defined(_DGW_)
-            if (elem[i].attrib.bc_geol[j] > 0)
-            {
-                // Dirichlet type boundary conditions
-                ind = elem[i].attrib.bc_geol[j] - 1;
-                elem[i].bc_geol.head[j] = forc->bc[ind].value[0];
-            }
-            else if (elem[i].attrib.bc_geol[j] < 0)
-            {
-                //  Neumann type boundary conditions
-                ind = -elem[i].attrib.bc_geol[j] - 1;
-                elem[i].bc_geol.flux[j] = forc->bc[ind].value[0];
-            }
-#endif
         }
     }
 }

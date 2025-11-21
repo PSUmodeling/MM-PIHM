@@ -30,11 +30,6 @@ HS          1.0
 REFSMC      1.0
 WLTSMC      1.0
 
-RT_CALIBRATION
-rate        0.0183
-ssa         0.3355
-Xsorption   0.0
-
 SCENARIO
 PRCP            1.0     # Multiplier
 SFCTMP          0.0     # Offset in K

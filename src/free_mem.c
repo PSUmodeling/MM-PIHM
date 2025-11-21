@@ -16,10 +16,6 @@ void FreeMem(pihm_struct *pihm)
 
     FreeSoiltbl(&pihm->soiltbl);
 
-#if defined(_DGW_)
-    FreeGeoltbl(&pihm->geoltbl);
-#endif
-
     FreeLctbl(&pihm->lctbl);
 
     FreeForc(&pihm->forc);
@@ -101,9 +97,6 @@ void FreeMeshtbl(meshtbl_struct *meshtbl)
     free(meshtbl->y);
     free(meshtbl->zmin);
     free(meshtbl->zmax);
-#if defined(_DGW_)
-    free(meshtbl->zbed);
-#endif
 }
 
 void FreeAtttbl(atttbl_struct *atttbl)
@@ -114,14 +107,8 @@ void FreeAtttbl(atttbl_struct *atttbl)
     for (i = 0; i < nelem; i++)
     {
         free(atttbl->bc[i]);
-#if defined(_DGW_)
-        free(atttbl->bc_geol[i]);
-#endif
     }
     free(atttbl->bc);
-#if defined(_DGW_)
-    free(atttbl->bc_geol);
-#endif
     free(atttbl->soil);
     free(atttbl->geol);
     free(atttbl->lc);
@@ -178,21 +165,6 @@ void FreeSoiltbl(soiltbl_struct *soiltbl)
     free(soiltbl->b);
 #endif
 }
-
-#if defined(_DGW_)
-void FreeGeoltbl(geoltbl_struct *geoltbl)
-{
-    free(geoltbl->ksatv);
-    free(geoltbl->ksath);
-    free(geoltbl->smcmax);
-    free(geoltbl->smcmin);
-    free(geoltbl->alpha);
-    free(geoltbl->beta);
-    free(geoltbl->areafh);
-    free(geoltbl->areafv);
-    free(geoltbl->dmac);
-}
-#endif
 
 void FreeLctbl(lctbl_struct *lctbl)
 {

@@ -29,10 +29,6 @@ typedef struct filename_struct
     char            crop[MAXSTRING];
     char            cyclesic[MAXSTRING];
 #endif
-#if defined(_DGW_)
-    char            geol[MAXSTRING];        // geology property file
-    char            bedrock[MAXSTRING];     // bedrock elevation file
-#endif
 #if defined(_NOAH_)
     char            lsm[MAXSTRING];         // land surface module control file
     char            rad[MAXSTRING];         // radiation forcing file
@@ -83,9 +79,6 @@ typedef struct meshtbl_struct
     double         *y;                      // y of node (m)
     double         *zmin;                   // soil bottom elevation of node (m)
     double         *zmax;                   // surface elevation of node (m)
-#if defined(_DGW_)
-    double         *zbed;                   // impermeable bedrock elevation (m)
-#endif
 } meshtbl_struct;
 
 // Element attribute
@@ -98,9 +91,6 @@ typedef struct atttbl_struct
     int            *meteo;                  // meteorological forcing type
     int            *lai;                    // leaf area index forcing type
                                             // 0: use climatological values, else: use forcing file
-#if defined(_DGW_)
-    int           **bc_geol;                // boundary condition type for deep zone
-#endif
 } atttbl_struct;
 
 // Soil parameter

@@ -18,22 +18,10 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
         elem[i].ws.unsat = y[UNSAT(i)];
         elem[i].ws.gw = y[GW(i)];
 
-#if defined(_DGW_)
-        elem[i].ws.unsat_geol = y[UNSAT_GEOL(i)];
-        elem[i].ws.gw_geol = y[GW_GEOL(i)];
-#endif
-
-#if defined(_DGW_)
-        AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].geol, &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
-#else
         AdjustFluxes(elem[i].topo.area, stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ws0, &subrunoff, &elem[i].wf);
-#endif
 
 #if defined(_NOAH_)
         elem[i].wf.runoff2 = subrunoff;
-# if defined(_DGW_)
-        elem[i].wf.runoff2 += elem[i].wf.infil_geol;
-# endif
 
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.nlayers, elem[i].ws.gw, elem[i].ps.soil_depth, elem[i].ps.satdpth);
 
@@ -85,19 +73,10 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
 // in the Noah soil moisture calculation. Unlike the infiltration rate, the equivalent infiltration rate is calculated
 // without considering oversturation, and is based on the mass balance of the whole soil column, instead of just the
 // unsaturated zone.
-#if defined(_DGW_)
-void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const soil_struct *geol, const wstate_struct *ws, const wstate_struct *ws0,
-    double *subrunoff, wflux_struct *wf)
-#else
 void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const wstate_struct *ws, const wstate_struct *ws0, double *subrunoff, wflux_struct *wf)
-#endif
 {
     int             j;
     double          soilw0, soilw1;
-#if defined(_DGW_)
-    double          geolw0, geolw1;
-    double          geol_runoff;
-#endif
 
     // Adjust recharge
     soilw0 = ws0->gw;
@@ -117,30 +96,6 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const w
 
     wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize + wf->recharge + wf->edir_unsat + wf->ett_unsat;
 
-#if defined(_DGW_)
-    // Adjust bedrock recharge
-    geolw0 = ws0->gw_geol;
-    geolw1 = ws->gw_geol;
-
-    geol_runoff = 0.0;
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        geol_runoff += wf->dgw[j] / area;
-    }
-
-    wf->rechg_geol = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
-
-    // Adjust bedrock infiltration
-    geolw0 = ws0->unsat_geol;
-    geolw1 = ws->unsat_geol;
-
-    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize + wf->rechg_geol;
-
-    // Further adjust soil infiltration and recharge rate to take into account bedrock leakage
-    wf->recharge += wf->infil_geol;
-    wf->infil += wf->infil_geol;
-#endif
-
     // Calculate equivalent infiltration based on mass conservation
     soilw0 = ws0->gw + ws0->unsat;
     soilw0 = MIN(soilw0, soil->depth);
@@ -151,21 +106,6 @@ void AdjustFluxes(double area, double stepsize, const soil_struct *soil, const w
     soilw1 = MAX(soilw1, 0.0);
 
     wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff + wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
-
-#if defined(_DGW_)
-    geolw0 = ws0->gw_geol + ws0->unsat_geol;
-    geolw1 = ws->gw_geol + ws->unsat_geol;
-
-    geol_runoff = 0.0;
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        geol_runoff += wf->dgw[j] / area;
-    }
-
-    wf->infil_geol = (geolw1 - geolw0) * geol->porosity / stepsize + geol_runoff;
-
-    wf->eqv_infil += wf->infil_geol;
-#endif
 
     if (wf->eqv_infil < 0.0)
     {

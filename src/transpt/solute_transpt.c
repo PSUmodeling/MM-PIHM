@@ -21,19 +21,6 @@ void SoluteTranspt(elem_struct elem[], river_struct river[])
                 elem[i].solute[k].subflux[j] = 0.0;
             }
         }
-
-#if defined(_DGW_)
-        for (k = 0; k < nsolute; k++)
-        {
-            // Initialize chemical fluxes
-            elem[i].solute[k].infil_geol = 0.0;
-
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                elem[i].solute[k].dgwflux[j] = 0.0;
-            }
-        }
-#endif
     }
 
 #if defined(_OPENMP)
@@ -96,28 +83,6 @@ void SoluteTranspt(elem_struct elem[], river_struct river[])
                     elem[i].solute[k].subflux[j] = Advection(elem[i].solute[k].conc, nabr->solute[k].conc, wflux);
                 }
             }   // End of element to element
-
-#if defined(_DGW_)
-            // Bedrock infiltration
-            elem[i].solute[k].infil_geol = elem[i].wf.infil_geol * ((elem[i].wf.infil_geol > 0.0) ?  elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
-
-            // Element to element
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                if (elem[i].nabr[j] == 0)
-                {
-                    // Diffusion and dispersion are ignored for boundary fluxes
-                    elem[i].solute[k].dgwflux[j] = (elem[i].attrib.bc_geol[j] == 0) ?
-                        0.0 : elem[i].wf.dgw[j] * ((elem[i].wf.dgw[j] > 0.0) ? elem[i].solute[k].conc_geol : elem[i].bc_geol.conc[j][k]);
-                }
-                else
-                {
-                    nabr = &elem[elem[i].nabr[j] - 1];
-
-                    elem[i].solute[k].dgwflux[j] = Advection(elem[i].solute[k].conc_geol, nabr->solute[k].conc_geol, elem[i].wf.dgw[j]);
-                }
-            }   // End of element to element
-#endif
         }   // End of species loop
     }
 

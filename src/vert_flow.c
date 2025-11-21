@@ -19,11 +19,6 @@ void VerticalFlow(double dt, elem_struct elem[])
 
         // Calculate recharge rate
         elem[i].wf.recharge = Recharge(&elem[i].soil, &elem[i].ws, &elem[i].wf);
-
-#if defined(_DGW_)
-        elem[i].wf.infil_geol = GeolInfil(&elem[i].topo, &elem[i].soil, &elem[i].geol, &elem[i].ws);
-        elem[i].wf.rechg_geol = GeolRecharge(&elem[i].geol, &elem[i].ws, &elem[i].wf);
-#endif
     }
 }
 
@@ -262,92 +257,3 @@ double Psi(double satn, double alpha, double beta)
     // van Genuchten 1980 SSSAJ
     return -pow(pow(1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha;
 }
-
-#if defined(_DGW_)
-// Hydrology for deep zone
-double GeolInfil(const topo_struct *topo, const soil_struct *soil, const soil_struct *geol, const wstate_struct *ws)
-{
-    double          deficit;
-    double          satn;
-    double          psi_u;
-    double          h_u;
-    double          dh_dz;
-    double          kavg;
-    double          infil;
-
-    if (ws->gw_geol >= geol->depth)
-    {
-        infil = -soil->ksatv;
-    }
-    else
-    {
-        if (ws->unsat_geol + ws->gw_geol > geol->depth || ws->gw <= 0.0)
-        {
-            infil = 0.0;
-        }
-        else
-        {
-            double          ksoil, kgeol;
-
-            deficit = geol->depth - ws->gw_geol;
-
-            satn = ws->unsat_geol / deficit;
-            satn = MIN(satn, 1.0);
-            satn = MAX(satn, SATMIN);
-
-            psi_u = Psi(satn, geol->alpha, geol->beta);
-            psi_u = MAX(psi_u, PSIMIN);
-
-            h_u = psi_u + topo->zmin - 0.5 * deficit;
-
-            dh_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
-
-            ksoil = (soil->dmac >= soil->depth) ? soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh) : soil->ksatv;
-            kgeol = (geol->dmac > 0.0) ?
-                geol->ksatv * (1.0 - geol->areafh) * KrFunc(geol->beta, satn) + geol->kmacv * geol->areafh * KrFunc(geol->beta, satn) : geol->ksatv * KrFunc(geol->beta, satn);
-
-            kavg = (ws->gw + deficit) / (ws->gw / ksoil + deficit / kgeol);
-            infil = kavg * dh_dz;
-        }
-    }
-
-    return infil;
-}
-
-double GeolRecharge(const soil_struct *geol, const wstate_struct *ws, const wflux_struct *wf)
-{
-    double          deficit;
-    double          satn;
-    double          psi_u;
-    double          dh_dz;
-    double          kavg;
-    double          recharge;
-
-    if (ws->gw_geol >= geol->depth)
-    {
-        recharge = wf->infil_geol;
-    }
-    else
-    {
-        deficit = geol->depth - ws->gw_geol;
-
-        satn = ws->unsat_geol / deficit;
-        satn = MIN(satn, 1.0);
-        satn = MAX(satn, SATMIN);
-
-        psi_u = Psi(satn, geol->alpha, geol->beta);
-        psi_u = MAX(psi_u, PSIMIN);
-
-        dh_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw_geol));
-
-        kavg = AvgKv(ws->gw_geol, KrFunc(geol->beta, satn), geol);
-
-        recharge = kavg * dh_dz;
-
-        recharge = (recharge > 0.0 && ws->unsat_geol <= 0.0) ? 0.0 : recharge;
-        recharge = (recharge < 0.0 && ws->gw_geol <= 0.0) ? 0.0 : recharge;
-    }
-
-    return recharge;
-}
-#endif

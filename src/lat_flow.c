@@ -49,34 +49,6 @@ void LateralFlow(const river_struct river[], elem_struct elem[])
 
     free(dh_dx);
     free(dh_dy);
-
-#if defined(_DGW_)
-    // Lateral deep groundwater flow
-# if defined(_OPENMP)
-#  pragma omp parallel for
-# endif
-    for (i = 0; i < nelem; i++)
-    {
-        int             j;
-        elem_struct    *nabr;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            if (elem[i].nabr[j] == 0)
-            {
-                elem[i].wf.dgw[j] = DeepBoundFluxElem(elem[i].attrib.bc_geol[j], j, &elem[i].topo, &elem[i].geol,
-                    &elem[i].bc_geol, &elem[i].ws);
-            }
-            else
-            {
-                nabr = &elem[elem[i].nabr[j] - 1];
-
-                // Groundwater flow modeled by Darcy's Law
-                elem[i].wf.dgw[j] = DeepFlowElemToElem(elem[i].topo.dist_nabr[j], elem[i].topo.edge[j], &elem[i], nabr);
-            }
-        }
-    }
-#endif
 }
 
 void FrictionSlope(const elem_struct elem[], const river_struct river[], double dh_dx[], double dh_dy[])
@@ -250,57 +222,3 @@ void BoundFluxElem(int bc_type, int j, const topo_struct *topo, const soil_struc
         wf->subsurf[j] = -bc->flux[j];
     }
 }
-
-#if defined(_DGW_)
-double DeepFlowElemToElem(double distance, double edge, const elem_struct *elem_ptr, const elem_struct *nabr)
-{
-    double          diff_h;
-    double          avg_h;
-    double          grad_h;
-    double          effk, effk_nabr;
-    double          avg_ksat;
-
-    diff_h = (elem_ptr->ws.gw_geol + elem_ptr->topo.zbed) - (nabr->ws.gw_geol + nabr->topo.zbed);
-    avg_h = AvgH(diff_h, elem_ptr->ws.gw_geol, nabr->ws.gw_geol);
-    grad_h = diff_h / distance;
-
-    effk = EffKh(elem_ptr->ws.gw_geol, &elem_ptr->geol);
-    effk_nabr = EffKh(nabr->ws.gw_geol, &nabr->geol);
-    avg_ksat = 0.5 * (effk + effk_nabr);
-
-    return avg_ksat * grad_h * avg_h * edge;
-}
-
-double DeepBoundFluxElem(int bc_type, int j, const topo_struct *topo, const soil_struct *geol, const bc_struct *bc,
-    const wstate_struct *ws)
-{
-    double          diff_h;
-    double          avg_h;
-    double          effk;
-    double          grad_h;
-    double          flux;
-
-    // No flow (natural) boundary condition is default
-    if (bc_type == NO_FLOW)
-    {
-        flux = 0.0;
-    }
-    else if (bc_type > 0)
-    {
-        // Dirichlet boundary conditions
-        diff_h = ws->gw_geol + topo->zbed - bc->head[j];
-        avg_h = AvgH(diff_h, ws->gw_geol, bc->head[j] - topo->zbed);
-        // Minimum distance from circumcenter to the edge of the triangle on which boundary condition is defined
-        effk = geol->ksath;
-        grad_h = diff_h / topo->dist_nabr[j];
-        flux = effk * grad_h * avg_h * topo->edge[j];
-    }
-    else
-    {
-        // Neumann boundary conditions
-        flux = -bc->flux[j];
-    }
-
-    return flux;
-}
-#endif

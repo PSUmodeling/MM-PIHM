@@ -107,18 +107,6 @@ typedef struct calib_struct
     double          kd_no3;                 // offset of adsorption coefficient for NO3 (cm3 g-1)
     double          kd_nh4;                 // offset of adsorption coefficient for NH4 (cm3 g-1)
 #endif
-#if defined(_DGW_)
-    double          geol_ksath;
-    double          geol_ksatv;
-    double          geol_porosity;
-    double          geol_alpha;
-    double          geol_beta;
-    double          geol_dmac;
-    double          geol_kmach;
-    double          geol_kmacv;
-    double          geol_areafv;
-    double          geol_areafh;
-#endif
 #if defined(_NOAH_)
     double          smcref;
     double          smcwlt;

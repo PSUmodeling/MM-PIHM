@@ -789,56 +789,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     n++;
                     break;
 #endif
-#if defined(_DGW_)
-                case GEOLUNSAT_CTRL:
-                    InitPrintCtrl(outputdir, "deep.unsat", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ws.unsat_geol;
-                    }
-                    n++;
-                    break;
-                case GEOLGW_CTRL:
-                    InitPrintCtrl(outputdir, "deep.gw", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ws.gw_geol;
-                    }
-                    n++;
-                    break;
-                case GEOLINFIL_CTRL:
-                    InitPrintCtrl(outputdir, "deep.infil", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].wf.infil_geol;
-                    }
-                    n++;
-                    break;
-                case GEOLRECHG_CTRL:
-                    InitPrintCtrl(outputdir, "deep.recharge", prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].wf.rechg_geol;
-                    }
-                    n++;
-                    break;
-                case DGWFLOW_CTRL:
-                    if (!debug_mode)
-                    {
-                        break;
-                    }
-                    for (k = 0; k < NUM_EDGE; k++)
-                    {
-                        sprintf(ext, "deep.flow%d", k);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] = &elem[j].wf.dgw[k];
-                        }
-                        n++;
-                    }
-                    break;
-#endif
                 default:
                     break;
             }

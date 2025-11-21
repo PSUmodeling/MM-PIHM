@@ -33,7 +33,6 @@
 #define HYDROL_STEP             0
 #define LS_STEP                 1
 #define CN_STEP                 2
-#define RT_STEP                 3
 
 // Maximum number of output files
 #define MAXPRINT                1024
@@ -329,12 +328,6 @@ enum output_var{
     GWTEC_CTRL,
     RIVSTGTEC_CTRL,
     RIVGWTEC_CTRL,
-    // DGW
-    GEOLUNSAT_CTRL,
-    GEOLGW_CTRL,
-    GEOLINFIL_CTRL,
-    GEOLRECHG_CTRL,
-    DGWFLOW_CTRL,
 };
 
 #if defined(_CYCLES_)

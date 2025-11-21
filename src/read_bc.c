@@ -20,13 +20,6 @@ void ReadBc(const char fn[], const atttbl_struct *atttbl, forc_struct *forc)
                 read_bc = 1;
                 break;
             }
-#if defined(_DGW_)
-            if (atttbl->bc_geol[i][j] != 0)
-            {
-                read_bc = 1;
-                break;
-            }
-#endif
         }
     }
 
