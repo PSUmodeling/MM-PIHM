@@ -38,7 +38,7 @@ CMAKE_VERS := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
 ifeq ($(CMAKE_VERS),)
 	CMAKE_VERS := 0.0.0
 endif
-CMAKE_VERS_RQD := 4.1.2
+CMAKE_VERS_RQD := 3.18.0
 
 # Check if CMake version meets requirement
 ifeq ($(shell printf '%s\n' $(CMAKE_VERS) $(CMAKE_VERS_RQD) | sort -V | head -n 1), $(CMAKE_VERS_RQD))
