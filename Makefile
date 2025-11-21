@@ -177,37 +177,6 @@ ifeq ($(MAKECMDGOALS), flux-pihm)
 endif
 
 #-------------------
-# RT-Flux-PIHM
-#-------------------
-ifeq ($(MAKECMDGOALS), rt-flux-pihm)
-	SFLAGS += -D_RT_ -D_NOAH_
-	MODULE_SRCS_=\
-		noah/lsm_init.c\
-		noah/lsm_func.c\
-		noah/lsm_read.c\
-		noah/noah.c\
-		noah/noah_glacial_only.c\
-		noah/topo_radn.c\
-		spa/spa.c\
-		rt/init_rt.c\
-		rt/lookup.c\
-		rt/react.c\
-		rt/read_chem.c\
-		rt/read_cini.c\
-		rt/read_prep.c\
-		rt/restart_io.c\
-		rt/rt_util.c\
-		rt/solute_conc.c\
-		rt/speciation.c\
-		transpt/init_solute.c\
-		transpt/solute_transpt.c
-	MODULE_HEADERS_ =\
-		include/spa.h
-	EXECUTABLE = rt-flux-pihm
-	MSG = "... Compiling RT-Flux-PIHM ..."
-endif
-
-#-------------------
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
@@ -389,13 +358,6 @@ flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:	## Compile RT-Flux-PIHM (PIHM with land surface and reactive transport modules)
-rt-flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 flux-pihm-bgc:	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
@@ -444,4 +406,4 @@ clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc cycles-l
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc cycles-l

@@ -1,10 +1,6 @@
 #include "pihm.h"
 
-#if defined(_RT_)
-void InitForcing(const rttbl_struct *rttbl, const calib_struct *calib, forc_struct *forc, elem_struct elem[])
-#else
 void InitForcing(const calib_struct *calib, forc_struct *forc, elem_struct elem[])
-#endif
 {
     int             i, j;
 
@@ -25,11 +21,7 @@ void InitForcing(const calib_struct *calib, forc_struct *forc, elem_struct elem[
     {
         for (i = 0; i < forc->nbc; i++)
         {
-#if defined(_RT_)
-            forc->bc[i].value = (double *)malloc((rttbl->num_stc + 1) * sizeof(double));
-#else
             forc->bc[i].value = (double *)malloc(sizeof(double));
-#endif
         }
     }
     if (forc->nmeteo > 0)

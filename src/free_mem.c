@@ -319,22 +319,6 @@ void FreeForc(forc_struct *forc)
     }
     free(forc->ndep);
 #endif
-
-#if defined(_RT_)
-    if (forc->prcp_flag == 2)
-    {
-        for (i = 0; i < forc->nprcpc; i++)
-        {
-            for (j = 0; j < forc->prcpc[i].length; j++)
-            {
-                free(forc->prcpc[i].data[j]);
-            }
-            free(forc->prcpc[i].ftime);
-            free(forc->prcpc[i].data);
-            free(forc->prcpc[i].value);
-        }
-    }
-#endif
 }
 
 #if defined(_BGC_)

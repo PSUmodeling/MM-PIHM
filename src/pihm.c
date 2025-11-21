@@ -3,26 +3,17 @@
 void PIHM(double cputime, pihm_struct *pihm, cvode_struct *cvode)
 {
     int             t;
-#if defined(_RT_)
-    const int       SPECIATION_STEP = 3600;
-#endif
 
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
 
     // Apply boundary conditions
-#if defined(_RT_)
-    ApplyBc(t, &pihm->rttbl, &pihm->forc, pihm->elem, pihm->river);
-#else
     ApplyBc(t, &pihm->forc, pihm->elem, pihm->river);
-#endif
 
     // Apply forcing and simulate land surface processes
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         // Apply forcing
-#if defined(_RT_)
-        ApplyForcing(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->rttbl, &pihm->forc, pihm->elem);
-#elif defined(_NOAH_)
+#if defined(_NOAH_)
         ApplyForcing(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->forc, pihm->elem);
 #else
         ApplyForcing(t, &pihm->forc, pihm->elem);
@@ -39,17 +30,6 @@ void PIHM(double cputime, pihm_struct *pihm, cvode_struct *cvode)
         // Update print variables for land surface step variables
         UpdatePrintVar(pihm->print.nprint, LS_STEP, pihm->print.varctrl);
     }
-
-#if defined(_RT_)
-    // Reaction
-    if (pihm->rttbl.transpt_flag == KIN_REACTION)
-    {
-        if ((t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
-        {
-            Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem);
-        }
-    }
-#endif
 
 #if defined(_CYCLES_)
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
@@ -73,24 +53,6 @@ void PIHM(double cputime, pihm_struct *pihm, cvode_struct *cvode)
 
     // Update print variables for hydrology step variables
     UpdatePrintVar(pihm->print.nprint, HYDROL_STEP, pihm->print.varctrl);
-
-#if defined(_RT_)
-    // Update chemical concentrations
-    if (pihm->rttbl.transpt_flag == KIN_REACTION)
-    {
-        if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
-        {
-            // Speciation
-            RiverSpeciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
-        }
-    }
-    else
-    {
-        UpdatePrimConc(&pihm->rttbl, pihm->elem, pihm->river);
-    }
-
-    UpdatePrintVar(pihm->print.nprint, RT_STEP, pihm->print.varctrl);
-#endif
 
 #if defined(_DAILY_)
     DailyVar(t, pihm->ctrl.starttime, pihm->elem);

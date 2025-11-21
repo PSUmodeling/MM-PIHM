@@ -69,7 +69,7 @@ void InitBgc(const epctbl_struct *epctbl, const calib_struct *calib, elem_struct
     }
 }
 
-void InitBgcVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitBgcVar(elem_struct elem[], river_struct river[], cvode_struct *cvode)
 {
     int             i;
 
@@ -80,7 +80,7 @@ void InitBgcVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary, &elem[i].solute[0]);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
-        NV_Ith(CV_Y, SOLUTE_SOIL(i, 0)) = elem[i].ns.sminn;
+        NV_Ith(cvode->CV_Y, SOLUTE_SOIL(i, 0)) = elem[i].ns.sminn;
 
         elem[i].nt.sminn0 = elem[i].ns.sminn;
     }
@@ -89,6 +89,6 @@ void InitBgcVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;
 
-        NV_Ith(CV_Y, SOLUTE_RIVER(i, 0)) = river[i].ns.streamn;
+        NV_Ith(cvode->CV_Y, SOLUTE_RIVER(i, 0)) = river[i].ns.streamn;
     }
 }

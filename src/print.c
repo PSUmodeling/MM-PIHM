@@ -19,9 +19,6 @@ void StartupScreen(void)
 #if defined(_NOAH_)
     pihm_printf(VL_BRIEF, "    * Land surface module turned on.\n");
 #endif
-#if defined(_RT_)
-    pihm_printf(VL_BRIEF, "    * Reactive transport module turned on.\n");
-#endif
 #if defined(_BGC_)
     pihm_printf(VL_BRIEF, "    * Biogeochemistry module turned on.\n");
 #endif

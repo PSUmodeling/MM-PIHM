@@ -131,11 +131,6 @@ typedef struct calib_struct
     double          rgl;
     double          hs;
 #endif
-#if defined(_RT_)
-    double          rate;                   // rate constant
-    double          ssa;                    // specific surface area
-    double          Xsorption;              // DOC sorption
-#endif
 } calib_struct;
 
 // Model control parameters
@@ -177,11 +172,6 @@ typedef struct ctrl_struct
     int             nlayers;                // number of standard soil layers
     double          soil_depth[MAXLYR];     // thickness of soil layer (m)
     int             rad_mode;               // radiation forcing mode: 0 = uniform, 1 = topographic
-#endif
-#if defined(_RT_)
-    int             read_rt_restart;        // flag to read chemistry restart file
-    int             write_rt_restart;       // flag to write chemistry restart file
-    int             AvgScl;                 // reaction time step (s)
 #endif
 } ctrl_struct;
 
@@ -243,12 +233,6 @@ typedef struct pihm_struct
     calib_struct    calib;
     ctrl_struct     ctrl;
     print_struct    print;
-#if defined(_RT_)
-    chemtbl_struct  chemtbl[MAXSPS];
-    kintbl_struct   kintbl[MAXSPS];
-    rttbl_struct    rttbl;
-    chmictbl_struct chmictbl;
-#endif
 } pihm_struct;
 
 typedef struct cvode_struct

@@ -13,10 +13,6 @@ typedef struct attrib_struct
     int             geol;                   // geology type
     int             bc_geol[NUM_EDGE];      // deep zone boundary condition type
 #endif
-#if defined(_RT_)
-    int             prcp_conc;              // precipitation concentration type
-    int             chem_ic[2];             // chemical concentration type
-#endif
 } attrib_struct;
 
 // Topography parameters
@@ -394,7 +390,7 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 typedef struct solute_struct
 {
     double          conc_surf;              // solute concentration at surface (mass/amount of subs m-3)
@@ -496,9 +492,6 @@ typedef struct bc_struct
         double          head[NUM_EDGE];     // value of Dirichlet-type boundary condition (m)
         double          flux[NUM_EDGE];     // value of Neumann-type boundary condition (m3 s-1)
     };
-#if defined(_RT_)
-    double          conc[NUM_EDGE][MAXSPS]; // value of chemical concentration boundary condition (mol [L H2O]-1)
-#endif
 } bc_struct;
 
 // Land surface and hydrologic initial conditions
@@ -1166,37 +1159,6 @@ typedef struct summary_struct
 } summary_struct;
 #endif
 
-#if defined(_RT_)
-typedef struct rtic_struct
-{
-    double          tot_conc[MAXSPS];
-    double          ssa[MAXSPS];
-} rtic_struct;
-
-typedef struct prcpchem_struct
-{
-    double          tot_conc[MAXSPS];       // concentration (mol kgH2O-1)
-} prcpchem_struct;
-
-typedef struct chmstate_struct
-{
-    double          tot_conc[MAXSPS];       // concentration (mol kgH2O-1)
-    double          prim_conc[MAXSPS];      // primary concentration (mol kgH2O-1)
-    double          sec_conc[MAXSPS];       // secondary concentration (mol kgH2O-1)
-    double          prim_actv[MAXSPS];      // activity of primary species
-    double          ssa[MAXSPS];            // specific surface area (m2 g-1)
-    double          tot_mol[MAXSPS];        // total moles (kmol m-2)
-} chmstate_struct;
-
-typedef struct chmflux_struct
-{
-    double          react[MAXSPS];          // reaction flux in unsaturated zone (mol L-1 s-1)
-# if defined(_DGW_)
-    double          react_geol[MAXSPS];     // reaction flux in deep groundwater (mol L-1 s-1)
-# endif
-} chmflux_struct;
-#endif
-
 // Spinup variables
 typedef struct spinup_struct
 {
@@ -1229,7 +1191,7 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     phystate_struct ps;
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
     solute_struct   solute[NSOLUTE];
 #endif
 #if defined(_BGC_)
@@ -1264,16 +1226,6 @@ typedef struct elem_struct
 #if defined(_DGW_)
     soil_struct     geol;
     bc_struct       bc_geol;
-#endif
-#if defined(_RT_)
-    rtic_struct     restart_input[NCHMVOL];
-    rtic_struct     restart_output[NCHMVOL];
-    prcpchem_struct prcpchm;
-    chmstate_struct chms;
-# if defined(_DGW_)
-    chmstate_struct chms_geol;
-# endif
-    chmflux_struct  chmf;
 #endif
 } elem_struct;
 #endif

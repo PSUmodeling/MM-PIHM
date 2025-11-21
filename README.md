@@ -10,7 +10,7 @@ PIHM is a spatially-distributed, physically based hydrologic model.
 Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for the simulation of land surface processes.
 Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
 BioRT-Flux-PIHM couples Flux-PIHM with a multi-component subsurface reactive transport module.
-A deep groundwater module (DGW) can be turned on for PIHM, Flux-PIHM, and RT-Flux-PIHM.
+A deep groundwater module (DGW) can be turned on for PIHM and Flux-PIHM.
 
 MM-PIHM is open source software licensed under the MIT License.
 All bug reports and feature requests should be submitted using the [Issues](https://github.com/PSUmodeling/MM-PIHM/issues) page.
@@ -22,12 +22,12 @@ For instructions on how to install MM-PIHM on Windows, please refer to this [gui
 
 ### Installing CVODE
 
-MM-PIHM uses the SUNDIALS CVODE v2.9.0 implicit solvers.
-The CVODE Version 2.9.0 source code is provided with the MM-PIHM package for users' convenience.
+MM-PIHM uses the SUNDIALS CVODE v7.3.0 implicit solvers.
+The CVODE Version 7.3.0 source code is provided with the MM-PIHM package for users' convenience.
 SUNDIALS (:copyright:2012--2016) is copyrighted software produced at the Lawrence Livermore National Laboratory.
 A SUNDIALS copyright note can be found in the `cvode` directory.
 
-If you already have CVODE v2.9.0 installed, you can edit the Makefile and point `CVODE_PATH` to your CVODE directory.
+If you already have CVODE v7.3.0 installed, you can edit the Makefile and point `CVODE_PATH` to your CVODE directory.
 Otherwise, you need to install CVODE before compiling MM-PIHM, by doing
 
 ```shell
@@ -47,7 +47,7 @@ Once CVODE is installed, you can compile MM-PIHM models from the MM-PIHM directo
 $ make [model]
 ```
 
-The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `flux-pihm`, `flux-pihm-bgc`, or `rt-flux-pihm`.
+The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `flux-pihm`, or `flux-pihm-bgc`.
 
 The command
 

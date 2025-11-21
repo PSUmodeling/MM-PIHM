@@ -38,13 +38,6 @@ typedef struct filename_struct
     char            rad[MAXSTRING];         // radiation forcing file
     char            ice[MAXSTRING];         // glacier ice file
 #endif
-#if defined(_RT_)
-    char            cdbs[MAXSTRING];        // chemistry database file
-    char            chem[MAXSTRING];        // chemistry control file
-    char            cini[MAXSTRING];        // chemistry initial condition file
-    char            prep[MAXSTRING];        // precipitation concentration time series file
-    char            rtic[MAXSTRING];        // chemistry restart file
-#endif
 } filename_struct;
 
 // River input structure
@@ -107,10 +100,6 @@ typedef struct atttbl_struct
                                             // 0: use climatological values, else: use forcing file
 #if defined(_DGW_)
     int           **bc_geol;                // boundary condition type for deep zone
-#endif
-#if defined(_RT_)
-    int            *prcpc;                  // precipitation concentration type
-    int           **chem_ic;                // chemical concentration type
 #endif
 } atttbl_struct;
 
@@ -239,11 +228,6 @@ typedef struct forc_struct
 #if defined(_NOAH_)
     int             nrad;                   // number of radiation forcing series
     tsdata_struct  *rad;                    // radiation forcing series
-#endif
-#if defined(_RT_)
-    int             prcp_flag;              // flag that indicates how precipitation is specified
-    int             nprcpc;                 // number of precipitation concentration time series
-    tsdata_struct  *prcpc;                  // concentration in precipitation
 #endif
 } forc_struct;
 
@@ -534,90 +518,6 @@ typedef struct mgmt_struct
     airrig_struct  *auto_irrig;             // automatic irrigation array
     int             n_auto_irrig;           // number of automatic irrigation operations
 } mgmt_struct;
-#endif
-
-#if defined(_RT_)
-typedef struct chemtbl_struct
-{
-    char            name[MAXSTRING];        // molecular formula or name
-    double          molar_mass;             // (g mol-1)
-    double          molar_vol;              // (cm3 mol-1)
-    double          charge;                 // charge
-    double          size_fac;               // size factor for DH equation
-    int             itype;                  // type of primary species
-                                            // 1 = primary aqueous, 2 = primary adsorption,
-                                            // 3 = primary cation exchange, 4 = primary mineral
-    int             mtype;                  // type of the mass action species
-                                            // 0 = immobile mass action, 1 = mobile mass action,
-                                            // 2 = mixed mobility mass action
-} chemtbl_struct;
-
-typedef struct kintbl_struct
-{
-    int             position;               // position of target mineral in the array of primary species
-    char            label[MAXSTRING];       // label of kinetic reaction
-    int             type;                   // type of the kinetic reaction
-                                            // 1: tst, 2: precipitation-only, 3: dissolution-only, 4: monod
-    double          rate;                   // rate of kinetic reaction
-    double          actv;                   // activation energy, used to calculate kinetic rate of reaction under
-                                            // different temperatures
-    double          keq;                    // equilibrium constant
-    int             ndep;                   // number of dependency
-    int             dep_index[MAXDEP];      // position of species that kinetic reaction depends on
-    double          dep_power[MAXDEP];      // power of dependency
-    int             biomass_index;          // position of biomass species
-    int             nmonod;                 // number of monod species
-    int             monod_index[MAXDEP];    // position of monod species
-    double          monod_para[MAXDEP];     // parameter for monod dependency
-    int             ninhib;                 // number of inhibition species
-    int             inhib_index[MAXDEP];    // position of inhibition species
-    double          inhib_para[MAXDEP];     // parameters that controls this inhibition
-} kintbl_struct;
-
-typedef struct rttbl_struct
-{
-    int             actv_mode;              // activity coefficient mode: 0 = unity coefficient, 1 = DH equation
-    int             tmp_coup;               // flag to couple soil temperature
-    int             rel_min;                // relative mineral flag: 1 = total solid volume, 0 = total pore volume
-    int             transpt_flag;           // transport only flag: 0 = simulate kinetic reaction, 1 = transport only
-    double          cond;                   // ratio between infiltration concentration and rain water
-    int             num_stc;                // number of total species
-    int             num_spc;                // number of primary species
-    int             num_ssc;                // number of secondary speices
-    int             num_sdc;                // number of independent species
-    int             num_min;                // number of minerals
-    int             num_ads;                // number of adsorption species
-    int             num_cex;                // number of cation exchange
-    int             num_mkr;                // number of mineral kinetic reactions
-    int             num_akr;                // number of aqueous kinetic reactions
-    double          diff_coef;              // diffusion coefficient (m2 s-1)
-    double          disp_coef;              // dispersion coefficient (m)
-    double          cementation;            // cementation factor that represents connectivity of pores
-    double          tmp;                    // temperature of the moment
-    double          prcp_conc[MAXSPS];      // concentration in precipitation (mol L-1)
-    double          dep_mtx[MAXSPS][MAXSPS];// dependency of secondary species on primary species
-    double          dep_kin[MAXSPS][MAXSPS];// dependency of kinetic species on primary species
-    double          conc_contrib[MAXSPS][MAXSPS];   // contribution of each species to total concentration
-#if NOT_YET_IMPLEMENTED
-    double          Totalconck[MAXSPS][MAXSPS]; // contribution of each species to total concentration with kinetic
-                                            // reaction included
-#endif
-    double          keq[MAXSPS];            // Keq's of secondary species
-    double          keq_kin[MAXSPS];        // Keq's of kinetic species
-    double          adh;                    // Debye Huckel parameter
-    double          bdh;                    // Debye Huckel parameter
-    double          bdt;                    // Debye Huckel parameter
-    double          sw_thld;                // threshold in soil moisture function (-)
-    double          sw_exp;                 // exponent in soil moisture function (-)
-    double          q10;                    // Q10 factor for soil temperature function
-} rttbl_struct;
-
-typedef struct chmictbl_struct
-{
-    int             nic;                    // number of initial conditions
-    double        **conc;                   // chemical concentration
-    double        **ssa;                    // specific surface area
-} chmictbl_struct;
 #endif
 
 #endif

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyBgc(int t, pihm_struct pihm)
+void DailyBgc(int t, pihm_struct *pihm)
 {
 
     int             i;

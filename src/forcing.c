@@ -1,19 +1,11 @@
 #include "pihm.h"
 
-#if defined(_RT_)
-void ApplyBc(int t, const rttbl_struct *rttbl, forc_struct *forc, elem_struct elem[], river_struct river[])
-#else
 void ApplyBc(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
-#endif
 {
     // Element boundary conditions
     if (forc->nbc > 0)
     {
-#if defined(_RT_)
-        ApplyElemBc(t, rttbl, forc, elem);
-#else
         ApplyElemBc(t, forc, elem);
-#endif
     }
 
     // River boundary conditions
@@ -23,10 +15,7 @@ void ApplyBc(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
     }
 }
 
-#if defined(_RT_)
-void ApplyForcing(int t, int rad_mode, const siteinfo_struct *siteinfo, const rttbl_struct *rttbl, forc_struct *forc,
-    elem_struct elem[])
-#elif defined(_NOAH_)
+#if defined(_NOAH_)
 void ApplyForcing(int t, int rad_mode, const siteinfo_struct *siteinfo, forc_struct *forc, elem_struct elem[])
 #else
 void ApplyForcing(int t, forc_struct *forc, elem_struct elem[])
@@ -47,18 +36,9 @@ void ApplyForcing(int t, forc_struct *forc, elem_struct elem[])
 #else
     ApplyLai(t, forc, elem);
 #endif
-
-#if defined(_RT_)
-    // Precipitation solute concentration
-    ApplyPrcpConc(t, rttbl, forc, elem);
-#endif
 }
 
-#if defined(_RT_)
-void ApplyElemBc(int t, const rttbl_struct *rttbl, forc_struct *forc, elem_struct elem[])
-#else
 void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
-#endif
 {
     int             i, k;
 
@@ -67,11 +47,7 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
-#if defined(_RT_)
-        IntrplForcing(t, 1 + rttbl->num_stc, INTRPL, &forc->bc[k]);
-#else
         IntrplForcing(t, 1, INTRPL, &forc->bc[k]);
-#endif
     }
 
 #if defined(_OPENMP)
@@ -81,9 +57,6 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
     {
         int             ind;
         int             j;
-#if defined(_RT_)
-        int             k;
-#endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -91,25 +64,12 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
             {
                 ind = elem[i].attrib.bc[j] - 1;
                 elem[i].bc.head[j] = forc->bc[ind].value[0];
-#if defined(_RT_)
-                for (k = 0; k < rttbl->num_stc; k++)
-                {
-                    elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
-                }
-#endif
             }
             else if (elem[i].attrib.bc[j] < 0)
             {
                 ind = -elem[i].attrib.bc[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
-#if defined(_RT_)
-                for (k = 0; k < rttbl->num_stc; k++)
-                {
-                    elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
-                }
-#endif
             }
-
 
 #if defined(_DGW_)
             if (elem[i].attrib.bc_geol[j] > 0)
@@ -117,24 +77,12 @@ void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
                 // Dirichlet type boundary conditions
                 ind = elem[i].attrib.bc_geol[j] - 1;
                 elem[i].bc_geol.head[j] = forc->bc[ind].value[0];
-# if defined(_RT_)
-                for (k = 0; k < rttbl->num_stc; k++)
-                {
-                    elem[i].bc_geol.conc[j][k] = forc->bc[ind].value[k + 1];
-                }
-# endif
             }
             else if (elem[i].attrib.bc_geol[j] < 0)
             {
                 //  Neumann type boundary conditions
                 ind = -elem[i].attrib.bc_geol[j] - 1;
                 elem[i].bc_geol.flux[j] = forc->bc[ind].value[0];
-# if defined(_RT_)
-                for (k = 0; k < rttbl->num_stc; k++)
-                {
-                    elem[i].bc_geol.conc[j][k] = forc->bc[ind].value[k + 1];
-                }
-# endif
             }
 #endif
         }
@@ -372,55 +320,6 @@ void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
     }
 #endif
 }
-
-#if defined(_RT_)
-void ApplyPrcpConc(int t, const rttbl_struct *rttbl, forc_struct *forc, elem_struct elem[])
-{
-    int             i, j;
-
-    if (forc->prcp_flag == 2)
-    {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (j = 0; j < forc->nprcpc; j++)
-        {
-            IntrplForcing(t, rttbl->num_spc, NO_INTRPL, &forc->prcpc[j]);
-        }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             k;
-            int             ind;
-
-            ind = elem[i].attrib.prcp_conc - 1;
-
-            for (k = 0; k < rttbl->num_spc; k++)
-            {
-                elem[i].prcpchm.tot_conc[k] = forc->prcpc[ind].value[k];
-            }
-        }
-    }
-    else
-    {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             k;
-
-            for (k = 0; k < rttbl->num_spc; k++)
-            {
-                elem[i].prcpchm.tot_conc[k] = (forc->prcp_flag == 1) ? rttbl->prcp_conc[k] : 0.0;
-            }
-        }
-    }
-}
-#endif
 
 void ApplyRiverBc(int t, forc_struct *forc, river_struct river[])
 {

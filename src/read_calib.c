@@ -193,19 +193,6 @@ void ReadCalib(const char fn[], calib_struct *calib)
     ReadKeyword(cmdstr, "SLA", 'd', fn, lno, &calib->sla);
 #endif
 
-#if defined(_RT_)
-    FindLine(fp, "RT_CALIBRATION", &lno, fn);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "rate", 'd', fn, lno, &calib->rate);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ssa", 'd', fn, lno, &calib->ssa);
-
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "Xsorption", 'd', fn, lno, &calib->Xsorption);
-#endif
-
     // Scenarios
     FindLine(fp, "SCENARIO", &lno, fn);
 

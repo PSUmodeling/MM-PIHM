@@ -3,9 +3,6 @@
 #if defined(_CYCLES_)
 void MapOutput(const char outputdir[], const int prtvrbl[], const crop_struct crop[], const elem_struct elem[],
     const river_struct river[], print_struct *print)
-#elif defined(_RT_)
-void MapOutput(const char outputdir[], const int prtvrbl[], const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    const elem_struct elem[], const river_struct river[], print_struct *print)
 #else
 void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct elem[], const river_struct river[],
     print_struct *print)
@@ -844,86 +841,6 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                     }
                     break;
 #endif
-#if defined(_RT_)
-                case CHEM_CTRL:
-                    // Primary species
-                    for (k = 0; k < rttbl->num_stc; k++)
-                    {
-                        char            chemn[MAXSTRING];
-                        Unwrap(chemtbl[k].name, chemn);
-
-                        // Unsaturated zone concentration
-                        sprintf(ext, "conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] = &elem[j].chms.prim_conc[k];
-                        }
-                        n++;
-# if defined(_DGW_)
-                        // Deep zone concentration
-                        sprintf(ext, "deep.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] = &elem[j].chms_geol.prim_conc[k];
-                        }
-                        n++;
-# endif
-
-                        // River concentration
-                        sprintf(ext, "river.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] = &river[j].chms.prim_conc[k];
-                        }
-                        n++;
-
-                        // River fluxes
-                        sprintf(ext, "river.chflx.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] = &river[j].solute[k].flux[DOWNSTREAM];
-                        }
-                        n++;
-                    }
-
-                    // Secondary species
-                    for (k = 0; k < rttbl->num_ssc; k++)
-                    {
-                        char            chemn[MAXSTRING];
-                        Unwrap(chemtbl[k + rttbl->num_stc].name, chemn);
-
-                        sprintf(ext, "conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] = &elem[j].chms.sec_conc[k];
-                        }
-                        n++;
-
-# if defined(_DGW_)
-                        sprintf(ext, "deep.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] = &elem[j].chms_geol.sec_conc[k];
-                        }
-                        n++;
-# endif
-
-                        // River concentration
-                        sprintf(ext, "river.conc.%s", chemn);
-                        InitPrintCtrl(outputdir, ext, prtvrbl[i], RT_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] = &river[j].chms.sec_conc[k];
-                        }
-                        n++;
-                    }
-#endif
                 default:
                     break;
             }
@@ -957,22 +874,3 @@ void InitPrintCtrl(const char outputdir[], const char ext[], int intvl, int upd_
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));
     varctrl->counter = 0;
 }
-
-#if defined(_RT_)
-void Unwrap(const char wrapped_str[], char str[])
-{
-    int             i, j = 0;
-
-    for (i = 0; i < (int)strlen(wrapped_str); i++)
-    {
-        if (wrapped_str[i] != '\'')
-        {
-            str[j] = wrapped_str[i];
-            j++;
-        }
-    }
-
-    str[j] = '\0';
-}
-
-#endif

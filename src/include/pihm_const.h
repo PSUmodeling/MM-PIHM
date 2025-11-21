@@ -232,51 +232,6 @@
 #define DAYSCRECOVER            365.0
 #define BULK_DENITRIF_PROPORTION 0.5
 
-//
-// RT constants
-//
-// Maximum number of species
-#define MAXSPS                  20
-
-// Maximum number of dependece, monod, and inhibition terms
-#define MAXDEP                  4
-
-#define ZERO_CONC               1.0E-20
-
-// Threshold of water storage when deposition occurs
-#define DEPTHR                  1.0E-5
-
-// RT simulation mode
-#define KIN_REACTION            0
-#define TRANSPORT_ONLY          1
-
-// RT primary species types
-#define AQUEOUS                 1
-#define ADSORPTION              2
-#define CATION_ECHG             3
-#define MINERAL                 4
-#define SECONDARY               5
-
-// RT mass action types
-#define IMMOBILE_MA             0
-#define MOBILE_MA               1
-#define MIXED_MA                2
-
-// RT kinetic reaction types
-#define TST                     1
-#define PRCP_ONLY               2
-#define DISS_ONLY               3
-#define MONOD                   4
-
-// RT volumes in each model grid
-#if defined(_DGW_)
-# define NCHMVOL                2
-#else
-# define NCHMVOL                1
-#endif
-#define SOIL_CHMVOL             0
-#define GEOL_CHMVOL             1
-
 // Output variables
 #define YEARLY_OUTPUT           -1
 #define MONTHLY_OUTPUT          -2
@@ -372,8 +327,6 @@ enum output_var{
     GEOLINFIL_CTRL,
     GEOLRECHG_CTRL,
     DGWFLOW_CTRL,
-    // RT
-    CHEM_CTRL
 };
 
 #if defined(_CYCLES_)
@@ -477,8 +430,6 @@ enum output_var{
 # define NSOLUTE                1
 #elif defined(_CYCLES_)
 # define NSOLUTE                2
-#elif defined(_RT_)
-# define NSOLUTE                MAXSPS
 #endif
 
 // External variable
@@ -497,7 +448,7 @@ extern int     first_balance;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 int            nsolute;
 #endif
 

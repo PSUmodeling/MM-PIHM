@@ -47,18 +47,6 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
         elem[i].ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 #endif
-
-#if defined(_RT_)
-        int             k;
-
-        for (k = 0; k < nsolute; k++)
-        {
-            elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
-# if defined(_DGW_)
-            elem[i].chms_geol.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
-# endif
-        }
-#endif
     }
 
 #if defined(_OPENMP)
@@ -76,15 +64,6 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
         river[i].ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
 #endif
-
-#if defined(_RT_)
-        int             k;
-
-        for (k = 0; k < nsolute; k++)
-        {
-            river[i].chms.tot_mol[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
-        }
-#endif
     }
 
     // PIHM Hydrology fluxes
@@ -95,15 +74,11 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     SoluteConc(pihm->elem, pihm->river);
 #elif defined(_CYCLES_)
     SoluteConc(t + (sunrealtype)pihm->ctrl.tout[0] - (sunrealtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
-#elif defined(_RT_)
-    SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
 
 
 #if defined(_BGC_) || defined(_CYCLES_)
     SoluteTranspt(0.0, 0.0, 0.0, pihm->elem, pihm->river);
-#elif defined(_RT_)
-    SoluteTranspt(pihm->rttbl.diff_coef, pihm->rttbl.disp_coef, pihm->rttbl.cementation, pihm->elem, pihm->river);
 #endif
 
     // Build RHS of ODEs
@@ -144,7 +119,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[GW_GEOL(i)] /= elem[i].geol.porosity;
 #endif
 
-#if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
+#if defined(_CYCLES_) || defined(_BGC_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -186,7 +161,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[RIVER(i)] -= river[i].wf.rivflow[j] / river[i].topo.area;
         }
 
-#if defined(_CYCLES_) || defined(_BGC_) || defined(_RT_)
+#if defined(_CYCLES_) || defined(_BGC_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -209,13 +184,13 @@ int NumStateVar(void)
 
     nsv = 3 * nelem + nriver;
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
     nsv += nsolute * (nelem + nriver);
 #endif
 
 #if defined(_DGW_)
     nsv += 2 * nelem;
-# if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+# if defined(_BGC_) || defined(_CYCLES_)
     nsv += nsolute * nelem;
 # endif
 #endif
@@ -230,8 +205,6 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
     N_Vector        abstol;
 #if defined(_BGC_) || defined(_CYCLES_)
     const double    TRANSP_TOL = 1.0E-5;
-#elif defined(_RT_)
-    const double    TRANSP_TOL = 1.0E-8;
 #endif
 
     pihm->ctrl.maxstep = pihm->ctrl.stepsize;
@@ -254,11 +227,11 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
         // Attach the linear solver
         CVodeSetLinearSolver(cvode->memory_block, cvode->sun_ls, NULL);
 
-        // When BGC, Cycles, or RT module is turned on, both water storage and transport variables are in the CVODE
-        // vector. A vector of absolute tolerances is needed to specify different absolute tolerances for water storage
-        // variables and transport variables
+        // When BGC or Cycles module is turned on, both water storage and transport variables are in the CVODE vector. A
+        // vector of absolute tolerances is needed to specify different absolute tolerances for water storage variables
+        // and transport variables
         abstol = N_VNew(NumStateVar(), cvode->sunctx);
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
 #else
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
@@ -291,7 +264,7 @@ void SetCVodeParam(pihm_struct *pihm, cvode_struct *cvode)
     }
 }
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 void SetAbsTolArray(double hydrol_tol, double transp_tol, N_Vector abstol)
 #else
 void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
@@ -315,7 +288,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (sunrealtype)hydrol_tol;
     }
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
     // Set absolute errors for solute state variables
 # if defined(_OPENMP)
 #  pragma omp parallel for

@@ -62,38 +62,6 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
         elem[i].ps.no3_prev = elem[i].ps.no3;
         elem[i].ps.nh4_prev = elem[i].ps.nh4;
 #endif
-
-#if defined(_RT_)
-        int             k;
-        double          storage;
-
-        storage = (elem[i].ws.gw + elem[i].ws.unsat) * elem[i].soil.porosity + elem[i].soil.smcmin * elem[i].soil.depth;
-
-        for (k = 0; k < nsolute; k++)
-        {
-            elem[i].chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
-
-            // Calculate concentrations
-            elem[i].chms.tot_conc[k] = elem[i].chms.tot_mol[k] / storage;
-            elem[i].chms.tot_conc[k] = MAX(elem[i].chms.tot_conc[k], ZERO_CONC);
-        }
-
-# if defined(_DGW_)
-        storage = (elem[i].ws.unsat_geol + elem[i].ws.gw_geol) * elem[i].geol.porosity +
-            elem[i].geol.smcmin * elem[i].geol.depth;
-        storage = MAX(storage, 0.0);
-
-        for (k = 0; k < nsolute; k++)
-        {
-            elem[i].chms_geol.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
-
-            // Calculate concentrations
-            elem[i].chms_geol.tot_conc[k] = (storage > 0.0) ? elem[i].chms_geol.tot_mol[k] / storage : 0.0;
-            elem[i].chms_geol.tot_conc[k] = MAX(elem[i].chms_geol.tot_conc[k], ZERO_CONC);
-        }
-# endif
-#endif
-
     }
 
 #if defined(_OPENMP)
@@ -110,22 +78,6 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
 #if defined(_CYCLES_)
         river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
         river[i].ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
-#endif
-
-#if defined(_RT_)
-        int             k;
-        double          storage;
-
-        storage = MAX(river[i].ws.stage, 0.0);
-
-        for (k = 0; k < nsolute; k++)
-        {
-            river[i].chms.tot_mol[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
-
-            // Calculate concentrations
-            river[i].chms.tot_conc[k] = (storage > DEPTHR) ? river[i].chms.tot_mol[k] / storage : ZERO_CONC;
-            river[i].chms.tot_conc[k] = MAX(river[i].chms.tot_conc[k], ZERO_CONC);
-        }
 #endif
     }
 }

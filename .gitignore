@@ -38,7 +38,6 @@
 /flux-pihm
 /flux-pihm-bgc
 /cycles-l
-/rt-flux-pihm
 
 # Python, PBS and shell scripts
 *.sh

@@ -73,14 +73,6 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
 
         pihm->elem[i].attrib.meteo = pihm->atttbl.meteo[i];
         pihm->elem[i].attrib.lai = pihm->atttbl.lai[i];
-
-#if defined(_RT_)
-        pihm->elem[i].attrib.prcp_conc = pihm->atttbl.prcpc[i];
-        for (j = 0; j < NCHMVOL; j++)
-        {
-            pihm->elem[i].attrib.chem_ic[j] = pihm->atttbl.chem_ic[i][j];
-        }
-#endif
     }
 
     for (i = 0; i < nriver; i++)
@@ -126,11 +118,7 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     InitLc(&pihm->lctbl, &pihm->calib, pihm->elem);
 
     // Initialize element forcing
-#if defined(_RT_)
-    InitForcing(&pihm->rttbl, &pihm->calib, &pihm->forc, pihm->elem);
-#else
     InitForcing(&pihm->calib, &pihm->forc, pihm->elem);
-#endif
 
     // Initialize river segment properties
     InitRiver(&pihm->meshtbl, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl, &pihm->calib, pihm->elem, pihm->river);
@@ -158,12 +146,7 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     InitBgc(&pihm->epctbl, &pihm->calib, pihm->elem);
 #endif
 
-#if defined(_RT_)
-    InitChem(pihm->filename.cdbs, &pihm->calib, &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, &pihm->chmictbl,
-        pihm->elem);
-#endif
-
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
     InitSolute(pihm->elem);
 #endif
 
@@ -172,9 +155,7 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
     {
         // Relaxation mode
         // Noah initialization needs air temperature thus forcing is applied
-#if defined(_RT_)
-        ApplyForcing(pihm->ctrl.starttime, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->rttbl, &pihm->forc, pihm->elem);
-#elif defined(_NOAH_)
+#if defined(_NOAH_)
         ApplyForcing(pihm->ctrl.starttime, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->forc, pihm->elem);
 #endif
 
@@ -214,16 +195,7 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
         FirstDay(&pihm->cninit, pihm->elem, pihm->river);
     }
 
-    InitBgcVar(pihm->elem, pihm->river, CV_Y);
-#endif
-
-#if defined(_RT_)
-    if (pihm->ctrl.read_rt_restart)
-    {
-        ReadRtIc(pihm->filename.rtic, pihm->elem);
-    }
-
-    InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
+    InitBgcVar(pihm->elem, pihm->river, cvode);
 #endif
 
     // Calculate model time steps

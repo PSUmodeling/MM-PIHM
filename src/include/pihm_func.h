@@ -14,7 +14,7 @@
 # define GW_GEOL(i)             (i + 4 * nelem + nriver)
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 # if defined(_DGW_)
 #  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 5 * nelem + nriver)
 #  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
@@ -74,19 +74,9 @@ int             feenableexcept(int);
 void            _InitLc(const lctbl_struct *, const calib_struct *, elem_struct *);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(cvode_struct *, ctrl_struct *);
-#if defined(_RT_)
-void            ApplyBc(int, const rttbl_struct *, forc_struct *, elem_struct [], river_struct []);
-#else
 void            ApplyBc(int, forc_struct *, elem_struct [], river_struct []);
-#endif
-#if defined(_RT_)
-void            ApplyElemBc(int, const rttbl_struct *, forc_struct *, elem_struct []);
-#else
 void            ApplyElemBc(int, forc_struct *, elem_struct []);
-#endif
-#if defined(_RT_)
-void            ApplyForcing(int, int, const siteinfo_struct *, const rttbl_struct *, forc_struct *, elem_struct []);
-#elif defined(_NOAH_)
+#if defined(_NOAH_)
 void            ApplyForcing(int, int, const siteinfo_struct *, forc_struct *, elem_struct []);
 #else
 void            ApplyForcing(int, forc_struct *, elem_struct []);
@@ -145,11 +135,7 @@ double          Infil(double, const topo_struct *, const soil_struct *, const ws
     const wflux_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
-#if defined(_RT_)
-void            InitForcing(const rttbl_struct *, const calib_struct *, forc_struct *, elem_struct []);
-#else
 void            InitForcing(const calib_struct *, forc_struct *, elem_struct []);
-#endif
 void            Initialize(pihm_struct *, cvode_struct *);
 void            InitLc(const lctbl_struct *, const calib_struct *, elem_struct []);
 void            InitMesh(const meshtbl_struct *, elem_struct []);
@@ -177,9 +163,6 @@ void            LateralFlow(const river_struct [], elem_struct []);
 #if defined(_CYCLES_)
 void            MapOutput(const char [], const int [], const crop_struct [], const elem_struct [],
     const river_struct [], print_struct *);
-#elif defined(_RT_)
-void            MapOutput(const char [], const int [], const chemtbl_struct [], const rttbl_struct *,
-    const elem_struct [], const river_struct [], print_struct *);
 #else
 void            MapOutput(const char [], const int [], const elem_struct [], const river_struct [],  print_struct *);
 #endif
@@ -219,12 +202,7 @@ double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 void            ReadAlloc(pihm_struct *);
 void            ReadAtt(const char [], atttbl_struct *);
-#if defined(_RT_)
-void            ReadBc(const char [], const atttbl_struct *, const chemtbl_struct [], const rttbl_struct *,
-    forc_struct *);
-#else
 void            ReadBc(const char [], const atttbl_struct *, forc_struct *);
-#endif
 void            ReadCalib(const char [], calib_struct *);
 void            ReadMeteo(const char [], forc_struct *);
 void            ReadIc(const char [], elem_struct [], river_struct []);
@@ -388,13 +366,13 @@ void            DailyVar(int, int, elem_struct []);
 void            InitDailyStruct(elem_struct []);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 void            SetAbsTolArray(double, double, N_Vector);
 #else
 void            SetAbsTolArray(double, N_Vector);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_)
 double          AdvDiffDisp(double, double, double, double, double, double, double, double, double);
 void            InitSolute(elem_struct []);
 void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
@@ -627,50 +605,6 @@ void            ZeroFluxes(wflux_struct *, cflux_struct *, nflux_struct *);
 void            ZeroHarvest(crop_struct *);
 void            NRT(double, double, double [], const soil_struct *, const wstate_struct *, const wstate_struct *,
     const phystate_struct *, double []);
-#endif
-
-#if defined(_RT_)
-void            InitChem(const char [], const calib_struct *, forc_struct *forc, chemtbl_struct [], kintbl_struct [],
-    rttbl_struct *, chmictbl_struct *, elem_struct []);
-void            Reaction(double, const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, elem_struct []);
-int             SolveReact(double, const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, double, double,
-    chmstate_struct *);
-void            ReactControl(const chemtbl_struct [], const kintbl_struct [], const rttbl_struct *, double, double,
-    double, chmstate_struct *, double []);
-void            Lookup(FILE *, const calib_struct *, chemtbl_struct [], kintbl_struct [], rttbl_struct *);
-void            RiverSpeciation(const chemtbl_struct [], const rttbl_struct *, river_struct []);
-void            Speciation(const chemtbl_struct [], const rttbl_struct *, int, chmstate_struct *);
-int             SpeciesType(FILE *, const char []);
-void            Unwrap(const char [], char []);
-double          EqvUnsatH(double, double, double, double, double);
-double          UnsatSatRatio(double, double, double);
-void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
-int             FindChem(const char [], const chemtbl_struct [], int);
-void            ReadChem(const char[], const char[], chemtbl_struct [], kintbl_struct [], rttbl_struct *, forc_struct *,
-    ctrl_struct *);
-void            ReadPrep(const char[], const chemtbl_struct [], const rttbl_struct *, forc_struct *forc);
-void            ReadCini(const char[], const chemtbl_struct *, int, atttbl_struct *, chmictbl_struct *);
-void            ApplyPrcpConc(int, const  rttbl_struct *, forc_struct *, elem_struct []);
-void            Wrap(char *);
-void            SoluteConc(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct []);
-void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
-void            InitRTVar(const chemtbl_struct [], const rttbl_struct *, elem_struct [], river_struct [], cvode_struct *);
-int             MatchWrappedKey(const char [], const char []);
-void            ReadTempPoints(const char [], double, int *, int *);
-void            ReadDHParam(const char [], int, double *);
-void            ReadPrimary(const char [], int, chemtbl_struct []);
-void            ReadSecondary(const char [], int, int, chemtbl_struct [], rttbl_struct *);
-void            ReadMinerals(const char [], int, int, double [][MAXSPS],
-    double [], chemtbl_struct [], rttbl_struct *);
-void            ReadAdsorption(const char [], int, int, chemtbl_struct [], rttbl_struct *);
-void            ReadCationEchg(const char [], double, chemtbl_struct [], rttbl_struct *);
-void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [], kintbl_struct *);
-double          SoilTempFactor(double, double);
-void            InitChemS(const chemtbl_struct [], const rttbl_struct *, const rtic_struct *, double, double, chmstate_struct *);
-void            ReadChemAtt(const char *, atttbl_struct *);
-void            ReadRtIc(const char *, elem_struct []);
-void            UpdatePrimConc(const rttbl_struct *, elem_struct [], river_struct []);
-void            WriteRtIc(const char *, const chemtbl_struct [], const rttbl_struct *, elem_struct []);
 #endif
 
 #endif

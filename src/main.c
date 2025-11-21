@@ -17,8 +17,6 @@ int             nthreads = 1;               // Default value
 int             nsolute = 1;
 #elif defined(_CYCLES_)
 int             nsolute = 2;
-#elif defined(_RT_)
-int             nsolute;
 #endif
 #if defined(_BGC_)
 int             first_balance;
@@ -78,8 +76,6 @@ int main(int argc, char *argv[])
     // Create output structures
 #if defined(_CYCLES_)
     MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river, &pihm->print);
-#elif defined(_RT_)
-    MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, &pihm->print);
 #else
     MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->elem, pihm->river, &pihm->print);
 #endif
@@ -127,10 +123,6 @@ int main(int argc, char *argv[])
 #if defined(_CYCLES_)
         WriteCyclesIc(outputdir, pihm->elem);
 #endif
-
-#if defined(_RT_)
-        WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem);
-#endif
     }
     else
     {
@@ -175,13 +167,6 @@ int main(int argc, char *argv[])
         if (ctrl->write_cycles_restart)
         {
             WriteCyclesIc(outputdir, pihm->elem);
-        }
-#endif
-
-#if defined(_RT_)
-        if (ctrl->write_rt_restart)
-        {
-            WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem);
         }
 #endif
     }

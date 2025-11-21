@@ -49,13 +49,6 @@ void ReadAlloc(pihm_struct *pihm)
     sprintf(pihm->filename.bgc, "input/%s/%s.bgc", proj, proj);
     sprintf(pihm->filename.bgcic, "input/%s/%s.bgcic", proj, proj);
 #endif
-#if defined(_RT_)
-    sprintf(pihm->filename.chem, "input/%s/%s.chem", proj, proj);
-    sprintf(pihm->filename.cini, "input/%s/%s.cini", proj, proj);
-    sprintf(pihm->filename.cdbs, "input/%s/%s.cdbs", proj, proj);
-    sprintf(pihm->filename.prep, "input/%s/%s.prep", proj, proj);
-    sprintf(pihm->filename.rtic, "input/%s/%s.rtic", proj, proj);
-#endif
 
     // Read river input file
     ReadRiver(pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl, &pihm->forc);
@@ -109,27 +102,10 @@ void ReadAlloc(pihm_struct *pihm)
     }
 #endif
 
-#if defined(_RT_)
-    // Read RT input file
-    ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, &pihm->forc,
-        &pihm->ctrl);
-
-    ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.num_stc, &pihm->atttbl, &pihm->chmictbl);
-
-    if (pihm->forc.prcp_flag == 2)
-    {
-        ReadPrep(pihm->filename.prep, pihm->chemtbl, &pihm->rttbl, &pihm->forc);
-    }
-#endif
-
     // Read boundary condition input file
-    // Boundary conditions might be needed by DGW and RT thus should be read in after reading bedrock and chemistry
+    // Boundary conditions might be needed by DGW thus should be read in after reading bedrock and chemistry
     // input
-#if defined(_RT_)
-    ReadBc(pihm->filename.bc, &pihm->atttbl, pihm->chemtbl, &pihm->rttbl, &pihm->forc);
-#else
     ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->forc);
-#endif
 
 #if defined(_CYCLES_)
     // Read Cycles simulation control file
