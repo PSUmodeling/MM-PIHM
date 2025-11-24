@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
     // Create output structures
 #if defined(_CYCLES_)
     MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river, &pihm->print);
+#elif defined(_TRANSPORT_) && !defined(_BGC_)
+    MapOutput(outputdir, pihm->ctrl.prtvrbl, &pihm->solutetbl, pihm->elem, pihm->river, &pihm->print);
 #else
     MapOutput(outputdir, pihm->ctrl.prtvrbl, pihm->elem, pihm->river, &pihm->print);
 #endif

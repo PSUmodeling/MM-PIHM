@@ -65,7 +65,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     Hydrol(&pihm->ctrl, pihm->elem, pihm->river);
 
     // Calculate solute concentrations
-#if defined(_BGC_)
+#if defined(_TRANSPORT_) && !defined(_CYCLES_)
     SoluteConc(pihm->elem, pihm->river);
 #elif defined(_CYCLES_)
     SoluteConc(t + (sunrealtype)pihm->ctrl.tout[0] - (sunrealtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
@@ -98,7 +98,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[UNSAT(i)] /= elem[i].soil.porosity;
         dy[GW(i)] /= elem[i].soil.porosity;
 
-#if defined(_CYCLES_) || defined(_BGC_)
+#if defined(_TRANSPORT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -131,7 +131,7 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[RIVER(i)] -= river[i].wf.rivflow[j] / river[i].topo.area;
         }
 
-#if defined(_CYCLES_) || defined(_BGC_)
+#if defined(_TRANSPORT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)

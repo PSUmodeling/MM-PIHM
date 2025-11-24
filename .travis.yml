@@ -4,6 +4,7 @@ script:
   - make cvode
   - make clean && make pihm
   - make clean && make flux-pihm
+  - make clean && make flux-pihm+
   - make clean && make flux-pihm-bgc
   - make clean && make OMP=off pihm
   - make clean && make OMP=off flux-pihm

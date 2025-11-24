@@ -175,6 +175,28 @@ ifeq ($(MAKECMDGOALS), flux-pihm)
 endif
 
 #-------------------
+# Flux-PIHM+
+#-------------------
+ifeq ($(MAKECMDGOALS), flux-pihm+)
+	SFLAGS += -D_NOAH_ -D_TRANSPORT_
+	MODULE_SRCS_ = \
+		noah/lsm_init.c\
+		noah/lsm_func.c\
+		noah/lsm_read.c\
+		noah/noah.c\
+		noah/noah_glacial_only.c\
+		noah/topo_radn.c\
+		spa/spa.c\
+		transpt/init_solute.c\
+		transpt/read_tracer.c\
+		transpt/solute_conc.c\
+		transpt/solute_transpt.c
+	MODULE_HEADERS_ = include/spa.h
+	EXECUTABLE = flux-pihm+
+	MSG = "... Compiling Flux-PIHM+ ..."
+endif
+
+#-------------------
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS), flux-pihm-bgc)
@@ -240,7 +262,7 @@ ifeq ($(MAKECMDGOALS), cycles-l)
 		CYCLES_TEST := fail
 	endif
 
-	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\" -D_TRANSPORT_ 
+	SFLAGS += -D_NOAH_ -D_CYCLES_ -DCYCLES_VERSION=\"$(CYCLES_VERS)\" -D_TRANSPORT_
 	MODULE_SRCS_= \
 		noah/lsm_func.c\
 		noah/lsm_init.c\
@@ -349,6 +371,13 @@ flux-pihm: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
+flux-pihm+:	## Compile Flux-PIHM+ (Flux-PIHM with solute transport module)
+flux-pihm+: check_latest_vers $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
 flux-pihm-bgc:	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: check_latest_vers $(OBJS) $(MODULE_OBJS)
 	@echo
@@ -397,4 +426,4 @@ clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc cycles-l
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm+ flux-pihm-bgc cycles-l

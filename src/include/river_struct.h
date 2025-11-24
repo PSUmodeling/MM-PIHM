@@ -98,6 +98,9 @@ typedef struct river_solute_struct
 {
     double          conc;                   // solute concentration
     double          flux[NUM_RIVFLX];       // solute flux (mass or mol s-1)
+# if !defined(_BGC_) && !defined(_CYCLES_)
+    double          amount;                 // total amount of solute in the river segment (mass/amount of subs)
+# endif
 } river_solute_struct;
 #endif
 

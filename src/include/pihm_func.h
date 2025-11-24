@@ -150,8 +150,9 @@ void            IntrplForcing(int, int, int, int, tsdata_struct *);
 double          KrFunc(double, double);
 void            LateralFlow(const river_struct [], elem_struct []);
 #if defined(_CYCLES_)
-void            MapOutput(const char [], const int [], const crop_struct [], const elem_struct [],
-    const river_struct [], print_struct *);
+void            MapOutput(const char [], const int [], const crop_struct [], const elem_struct [], const river_struct [], print_struct *);
+#elif defined(_TRANSPORT_) && !defined(_BGC_)
+void            MapOutput(const char [], const int [], const solutetbl_struct *, const elem_struct [], const river_struct [],  print_struct *);
 #else
 void            MapOutput(const char [], const int [], const elem_struct [], const river_struct [],  print_struct *);
 #endif
@@ -337,6 +338,11 @@ void            DailyVar(int, int, elem_struct []);
 void            InitDailyStruct(elem_struct []);
 #endif
 
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+void            ReadTracer(const char [], ctrl_struct *, solutetbl_struct *);
+void            SoluteConc(elem_struct [], river_struct []);
+#endif
+
 #if defined(_TRANSPORT_)
 void            SetAbsTolArray(double, double, N_Vector);
 #else
@@ -345,7 +351,11 @@ void            SetAbsTolArray(double, N_Vector);
 
 #if defined(_TRANSPORT_)
 double          Advection(double, double, double);
+# if !defined(_BGC_) && !defined(_CYCLES_)
+void            InitSolute(elem_struct [], river_struct[], solutetbl_struct *);
+# else
 void            InitSolute(elem_struct [], river_struct[]);
+# endif
 void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
 void            SoluteTranspt(elem_struct [], river_struct []);
 #endif

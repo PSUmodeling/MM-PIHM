@@ -34,6 +34,9 @@ typedef struct filename_struct
     char            rad[MAXSTRING];         // radiation forcing file
     char            ice[MAXSTRING];         // glacier ice file
 #endif
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+    char            tracer[MAXSTRING];      // solute transport control file
+#endif
 } filename_struct;
 
 // River input structure
@@ -235,6 +238,15 @@ typedef struct noahtbl_struct
     double          czil;                   // Zilitinkevich constant (-)
     double          lvcoef;                 // parameter controls surface snow albedo in the presence of snowcover (-)
 } noahtbl_struct;
+#endif
+
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+// Solute parameters
+typedef struct solutetbl_struct
+{
+    char            name[MAXSOLUTE][MAXSTRING]; // name of solute (-)
+    double        **amount;                 // initial amount of solute in each element (-)
+} solutetbl_struct;
 #endif
 
 #if defined(_BGC_)

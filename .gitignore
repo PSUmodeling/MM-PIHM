@@ -36,6 +36,7 @@
 # PIHM executables
 /pihm
 /flux-pihm
+/flux-pihm+
 /flux-pihm-bgc
 /cycles-l
 

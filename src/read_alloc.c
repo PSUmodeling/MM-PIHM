@@ -35,6 +35,9 @@ void ReadAlloc(pihm_struct *pihm)
     sprintf(pihm->filename.rad, "input/%s/%s.rad", proj, proj);
     sprintf(pihm->filename.ice, "input/%s/%s.ice", proj, proj);
 #endif
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+    sprintf(pihm->filename.tracer, "input/%s/%s.tracer", proj, proj);
+#endif
 #if defined(_CYCLES_)
     sprintf(pihm->filename.cycles, "input/%s/%s.cycles", proj, proj);
     sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
@@ -93,6 +96,11 @@ void ReadAlloc(pihm_struct *pihm)
     // Read boundary condition input file
     // input
     ReadBc(pihm->filename.bc, &pihm->atttbl, &pihm->forc);
+
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+    // Read solute transport control file
+    ReadTracer(pihm->filename.tracer, &pihm->ctrl, &pihm->solutetbl);
+#endif
 
 #if defined(_CYCLES_)
     // Read Cycles simulation control file

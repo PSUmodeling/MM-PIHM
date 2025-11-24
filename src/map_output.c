@@ -2,6 +2,8 @@
 
 #if defined(_CYCLES_)
 void MapOutput(const char outputdir[], const int prtvrbl[], const crop_struct crop[], const elem_struct elem[], const river_struct river[], print_struct *print)
+#elif defined(_TRANSPORT_) && !defined(_BGC_)
+void MapOutput(const char outputdir[], const int prtvrbl[], const solutetbl_struct *solutetbl, const elem_struct elem[], const river_struct river[], print_struct *print)
 #else
 void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct elem[], const river_struct river[], print_struct *print)
 #endif
@@ -351,6 +353,27 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                         print->varctrl[n].var[j] = &elem[j].ps.ch;
                     }
                     n++;
+                    break;
+#endif
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+                case SOLUTE_CTRL:
+                    for (k = 0; k < nsolute; k++)
+                    {
+                        InitPrintCtrl(outputdir, solutetbl->name[k], prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] = &elem[j].solute[k].amount;
+                        }
+                        n++;
+
+                        sprintf(ext, "river.%s", solutetbl->name[k]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] = &river[j].solute[k].amount;
+                        }
+                        n++;
+                    }
                     break;
 #endif
 #if defined(_BGC_)

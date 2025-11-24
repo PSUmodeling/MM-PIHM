@@ -124,7 +124,11 @@ void Initialize(pihm_struct *pihm, cvode_struct *cvode)
 #endif
 
 #if defined(_TRANSPORT_)
+# if !defined(_BGC_) && !defined(_CYCLES_)
+    InitSolute(pihm->elem, pihm->river, &pihm->solutetbl);
+# else
     InitSolute(pihm->elem, pihm->river);
+# endif
 #endif
 
     // Create hydrological and land surface initial conditions
@@ -428,17 +432,25 @@ void InitVar(elem_struct elem[], river_struct river[], cvode_struct *cvode)
         NV_Ith(cvode->CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith(cvode->CV_Y, GW(i))    = elem[i].ic.gw;
 
-#if defined(_NOAH_)
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
         int             j;
 
+        for (j = 0; j < nsolute; j++)
+        {
+            NV_Ith(cvode->CV_Y, SOLUTE_SOIL(i, j)) = elem[i].solute[j].amount;
+        }
+#endif
+
+#if defined(_NOAH_)
         elem[i].es.t1    = elem[i].ic.t1;
         elem[i].ps.snowh = elem[i].ic.snowh;
 
-        for (j = 0; j < MAXLYR; j++)
+        int             k;
+        for (k = 0; k < MAXLYR; k++)
         {
-            elem[i].es.stc[j] = elem[i].ic.stc[j];
-            elem[i].ws.smc[j] = elem[i].ic.smc[j];
-            elem[i].ws.swc[j] = elem[i].ic.swc[j];
+            elem[i].es.stc[k] = elem[i].ic.stc[k];
+            elem[i].ws.smc[k] = elem[i].ic.smc[k];
+            elem[i].ws.swc[k] = elem[i].ic.swc[k];
         }
 #endif
 
@@ -453,6 +465,15 @@ void InitVar(elem_struct elem[], river_struct river[], cvode_struct *cvode)
         river[i].ws.stage = river[i].ic.stage;
 
         NV_Ith(cvode->CV_Y, RIVER(i)) = river[i].ic.stage;
+
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+        int             j;
+
+        for (j = 0; j < nsolute; j++)
+        {
+            NV_Ith(cvode->CV_Y, SOLUTE_RIVER(i, j)) = river[i].solute[j].amount;
+        }
+#endif
     }
 
     // Other variables

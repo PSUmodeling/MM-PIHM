@@ -381,10 +381,13 @@ typedef struct solute_struct
     double          conc;                   // solute concentration in soil (mass/amount of subs m-3)
     double          infil;                  // solute flux from infiltration (mass/amount of subs m-2 s-1)
     double          subflux[NUM_EDGE];      // solute flux from subsurface lateral flux (mass/amount of subs s-1)
-# if defined(_BGC_)
-    double          snksrc;                 // sink/source term (mass/amount of subs m-2 s-1)
-# elif defined(_CYCLES_)
+# if !defined(_BGC_) && !defined(_CYCLES_)
+    double          amount;                 // total amount of solute in the soil column (mass/amount of subs)
+# endif
+# if defined(_CYCLES_)
     double          snksrc[MAXLYR];         // sink/source term (mass/amount of subs m-2 s-1)
+# else
+    double          snksrc;                 // sink/source term (mass/amount of subs m-2 s-1)
 # endif
 } solute_struct;
 #endif

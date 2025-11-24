@@ -202,6 +202,9 @@ typedef struct pihm_struct
 #if defined(_NOAH_)
     noahtbl_struct  noahtbl;
 #endif
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+    solutetbl_struct solutetbl;
+#endif
 #if defined(_CYCLES_)
     agtbl_struct    agtbl;
     crop_struct     croptbl[MAXCROP];

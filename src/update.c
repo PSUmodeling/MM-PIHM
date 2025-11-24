@@ -30,6 +30,15 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
 
         elem[i].ws0 = elem[i].ws;
 
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+        int             j;
+
+        for (j = 0; j < nsolute; j++)
+        {
+            elem[i].solute[j].amount = MAX(y[SOLUTE_SOIL(i, j)], 0.0);
+        }
+#endif
+
 #if defined(_BGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 
@@ -57,6 +66,14 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
     {
         river[i].ws.stage = y[RIVER(i)];
 
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+        int             j;
+
+        for (j = 0; j < nsolute; j++)
+        {
+            river[i].solute[j].amount = MAX(y[SOLUTE_RIVER(i, j)], 0.0);
+        }
+#endif
 #if defined(_BGC_)
         river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
 #endif

@@ -1,6 +1,10 @@
 #include "pihm.h"
 
+#if !defined(_BGC_) && !defined(_CYCLES_)
+void InitSolute(elem_struct elem[], river_struct river[], solutetbl_struct *solutetbl)
+#else
 void InitSolute(elem_struct elem[], river_struct river[])
+#endif
 {
     int             i;
 
@@ -15,6 +19,9 @@ void InitSolute(elem_struct elem[], river_struct river[])
 
         for (k = 0; k < nsolute; k++)
         {
+#if !defined(_BGC_) && !defined(_CYCLES_)
+            elem[i].solute[k].amount = solutetbl->amount[k][i];
+#endif
             elem[i].solute[k].conc_surf = 0.0;
             elem[i].solute[k].conc = 0.0;
 
@@ -45,6 +52,9 @@ void InitSolute(elem_struct elem[], river_struct river[])
 
         for (k = 0; k < nsolute; k++)
         {
+#if !defined(_BGC_) && !defined(_CYCLES_)
+            river[i].solute[k].amount = 0.0;
+#endif
             river[i].solute[k].conc = 0.0;
 
             for (j = 0; j < NUM_RIVFLX; j++)

@@ -245,6 +245,8 @@
 #define FORCING_CO2             5
 #define FORCING_NDEP            6
 
+#define MAXSOLUTE               10          // maximum number of solutes
+
 // Output variable types
 enum output_var{
     SURF_CTRL,
@@ -285,6 +287,8 @@ enum output_var{
     SOILM_CTRL,
     SOLAR_CTRL,
     CH_CTRL,
+    // Transport
+    SOLUTE_CTRL,
     // BGC or Cycles
     LAI_CTRL,
     N_PROFILE_CTRL,
