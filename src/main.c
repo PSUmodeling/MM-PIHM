@@ -185,6 +185,7 @@ int main(int argc, char *argv[])
     // Free integrator memory
     CVodeFree(&cvode->memory_block);
     SUNContext_Free(&cvode->sunctx);
+    free(cvode);
     FreeMem(pihm);
     free(pihm);
 

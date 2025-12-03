@@ -30,6 +30,10 @@ void FreeMem(pihm_struct *pihm)
     FreeAgtbl(&pihm->agtbl);
 #endif
 
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+    FreeSoluteTbl(&pihm->solutetbl);
+#endif
+
     FreeCtrl(&pihm->ctrl);
 
     // Close files
@@ -370,6 +374,19 @@ void FreeMgmttbl(int noper, mgmt_struct mgmttbl[])
 void FreeAgtbl(agtbl_struct *agtbl)
 {
     free(agtbl->oper);
+}
+#endif
+
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+void FreeSoluteTbl(solutetbl_struct *solutetbl)
+{
+    int k;
+
+    for (k = 0; k < nsolute; k++)
+    {
+        free(solutetbl->amount[k]);
+    }
+    free(solutetbl->amount);
 }
 #endif
 

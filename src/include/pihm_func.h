@@ -117,6 +117,9 @@ void            FreeMem(pihm_struct *);
 void            FreeRivtbl(rivtbl_struct *);
 void            FreeShptbl(shptbl_struct *);
 void            FreeSoiltbl(soiltbl_struct *);
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+void            FreeSoluteTbl(solutetbl_struct *);
+#endif
 void            FrictionSlope(const elem_struct [], const river_struct [],
     double [], double []);
 void            Hydrol(const ctrl_struct *, elem_struct [], river_struct []);
