@@ -2,13 +2,14 @@
 
 void SoluteConc(elem_struct elem[], river_struct river[])
 {
-    int             kelem, kriver, ksolute;
+    int             kelem, kriver;
 
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (kelem = 0; kelem < nelem; kelem++)
     {
+        int             ksolute;
         double          storage;
 
         storage = (elem[kelem].ws.unsat + elem[kelem].ws.gw) * elem[kelem].soil.porosity + elem[kelem].soil.depth * elem[kelem].soil.smcmin;
@@ -26,6 +27,7 @@ void SoluteConc(elem_struct elem[], river_struct river[])
 #endif
     for (kriver = 0; kriver < nriver; kriver++)
     {
+        int             ksolute;
         double          storage;
 
         storage = river[kriver].ws.stage;
