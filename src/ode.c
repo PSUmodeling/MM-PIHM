@@ -34,6 +34,15 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem[i].ws.unsat = MAX(y[UNSAT(i)], 0.0);
         elem[i].ws.gw = MAX(y[GW(i)], 0.0);
 
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+        int             k;
+
+        for (k = 0; k < nsolute; k++)
+        {
+            elem[i].solute[k].amount = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
+        }
+#endif
+
 #if defined(_BGC_)
         elem[i].ns.sminn = MAX(y[SOLUTE_SOIL(i, 0)], 0.0);
 #endif
@@ -50,6 +59,15 @@ int Ode(sunrealtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nriver; i++)
     {
         river[i].ws.stage = MAX(y[RIVER(i)], 0.0);
+
+#if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
+        int             k;
+
+        for (k = 0; k < nsolute; k++)
+        {
+            river[i].solute[k].amount = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
+        }
+#endif
 
 #if defined(_BGC_)
         river[i].ns.streamn = MAX(y[SOLUTE_RIVER(i, 0)], 0.0);
