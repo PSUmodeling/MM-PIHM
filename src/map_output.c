@@ -359,14 +359,15 @@ void MapOutput(const char outputdir[], const int prtvrbl[], const elem_struct el
                 case SOLUTE_CTRL:
                     for (k = 0; k < nsolute; k++)
                     {
-                        InitPrintCtrl(outputdir, solutetbl->name[k], prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
+                        sprintf(ext, "tracer.%s", solutetbl->name[k]);
+                        InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] = &elem[j].solute[k].amount;
                         }
                         n++;
 
-                        sprintf(ext, "river.%s", solutetbl->name[k]);
+                        sprintf(ext, "river.tracer.%s", solutetbl->name[k]);
                         InitPrintCtrl(outputdir, ext, prtvrbl[i], HYDROL_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
