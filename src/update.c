@@ -31,11 +31,11 @@ void UpdateVar(double stepsize, elem_struct elem[], river_struct river[], cvode_
         elem[i].ws0 = elem[i].ws;
 
 #if defined(_TRANSPORT_) && !defined(_BGC_) && !defined(_CYCLES_)
-        int             j;
+        int             k;
 
-        for (j = 0; j < nsolute; j++)
+        for (k = 0; k < nsolute; k++)
         {
-            elem[i].solute[j].amount = MAX(y[SOLUTE_SOIL(i, j)], 0.0);
+            elem[i].solute[k].amount = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
         }
 #endif
 
