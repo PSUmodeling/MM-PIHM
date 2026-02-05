@@ -245,7 +245,7 @@
 #define FORCING_CO2             5
 #define FORCING_NDEP            6
 
-#define MAXSOLUTE               10          // maximum number of solutes
+#define MAXSOLUTE               20          // maximum number of solutes
 
 // Output variable types
 enum output_var{
@@ -454,7 +454,7 @@ extern int     first_balance;
 extern int     nthreads;
 #endif
 #if defined(_TRANSPORT_)
-int            nsolute;
+extern int     nsolute;
 #endif
 
 #endif
