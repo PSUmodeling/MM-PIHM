@@ -377,17 +377,17 @@ typedef struct eflux_struct
 #if defined(_TRANSPORT_)
 typedef struct solute_struct
 {
-    double          conc_surf;              // solute concentration at surface (mass/amount of subs m-3)
-    double          conc;                   // solute concentration in soil (mass/amount of subs m-3)
-    double          infil;                  // solute flux from infiltration (mass/amount of subs m-2 s-1)
-    double          subflux[NUM_EDGE];      // solute flux from subsurface lateral flux (mass/amount of subs s-1)
+    double          conc_surf;              // solute concentration at surface (mass or amount of solute m-3)
+    double          conc;                   // solute concentration in soil (mass or amount of solute m-3)
+    double          infil;                  // solute flux from infiltration (mass or amount of solute m-2 s-1)
+    double          subflux[NUM_EDGE];      // solute flux from subsurface lateral flux (mass or amount of solute s-1)
 # if !defined(_BGC_) && !defined(_CYCLES_)
-    double          amount;                 // total amount of solute in the soil column (mass/amount of subs)
+    double          amount;                 // total amount of solute in the soil column (mass or amount of solute m-2)
 # endif
 # if defined(_CYCLES_)
-    double          snksrc[MAXLYR];         // sink/source term (mass/amount of subs m-2 s-1)
+    double          snksrc[MAXLYR];         // sink/source term (mass or amount of solute m-2 s-1)
 # else
-    double          snksrc;                 // sink/source term (mass/amount of subs m-2 s-1)
+    double          snksrc;                 // sink/source term (mass or amount of solute m-2 s-1)
 # endif
 } solute_struct;
 #endif
